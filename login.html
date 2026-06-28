@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entrar — Economia do Dia</title>
+<meta name="description" content="Área do Aluno — Economia do Dia. Entre para acessar suas aulas, simulados e desempenho." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090C; --panel:#101319; --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.06);
+  --head:#FFFFFF; --text:#E7EAEF; --muted:#8A94A2; --faint:#5B6573;
+  --input-bg:#0E1116; --overlay-soft:rgba(255,255,255,.05); --overlay-bd:rgba(255,255,255,.14);
+  --gold:#D4A437; --gold-deep:#E6BE54; --gold-grad:linear-gradient(180deg,#E6BE54,#D4A437);
+  --mono-grad:linear-gradient(140deg,#EBC768,#D4A437 55%,#A8761B);
+}
+[data-theme="light"]{
+  --bg:#F1EFE9; --panel:#FFFFFF; --border:rgba(27,31,38,.10); --border-soft:rgba(27,31,38,.07);
+  --head:#0B0D10; --text:#222831; --muted:#5B6573; --faint:#9AA3AF;
+  --input-bg:#F3F1EA; --overlay-soft:rgba(27,31,38,.04); --overlay-bd:rgba(27,31,38,.14);
+  --gold-deep:#A6781A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
+  display:flex;align-items:center;justify-content:center;padding:24px;transition:background .4s,color .4s;
+  background-image:radial-gradient(120% 90% at 50% 0%,rgba(212,164,55,.06),transparent 55%)}
+a{color:inherit;text-decoration:none}
+.theme-seg{position:fixed;top:22px;right:24px;display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--overlay-soft);border:1px solid var(--border)}
+.theme-seg button{font-family:'Inter';font-weight:600;font-size:12.5px;padding:6px 14px;border-radius:999px;border:none;background:none;color:var(--muted);cursor:pointer}
+.theme-seg button.on{background:var(--gold-grad);color:#0B0D10}
+.back{position:fixed;top:24px;left:24px;font-size:13.5px;color:var(--muted);font-weight:500}
+.back:hover{color:var(--text)}
+.card{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--border);border-radius:20px;
+  padding:36px 32px;box-shadow:0 30px 70px -30px rgba(0,0,0,.5)}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:26px}
+.mono-sq{width:32px;height:32px;border-radius:9px;background:var(--mono-grad);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+.mono-sq span{font-family:'Sora';font-weight:800;font-style:italic;font-size:13px;color:#0B0D10}
+.wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:17px;color:var(--head)}
+.wordmark b{color:var(--gold-deep)}
+h1{font-family:'Sora';font-weight:700;font-size:22px;color:var(--head);text-align:center}
+.sub{text-align:center;font-size:14px;color:var(--muted);margin:8px 0 26px}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 7px}
+.field{margin-bottom:16px}
+input{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;color:var(--text);font-family:'Inter';font-size:14.5px;transition:border-color .15s}
+input:focus{outline:none;border-color:var(--gold)}
+.row-between{display:flex;justify-content:flex-end;margin:-6px 0 18px}
+.row-between a{font-size:12.5px;color:var(--gold-deep);font-weight:500}
+.btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;
+  font-family:'Inter';font-weight:600;font-size:14.5px;border-radius:10px;padding:13px}
+.btn-gold{background:var(--gold-grad);color:#0B0D10;box-shadow:0 14px 30px -10px rgba(212,164,55,.5)}
+.btn-gold:hover{filter:brightness(1.04)}
+.divider{display:flex;align-items:center;gap:14px;margin:20px 0;color:var(--faint);font-size:12.5px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
+.btn-ghost{background:var(--overlay-soft);border:1px solid var(--overlay-bd);color:var(--text)}
+.btn-ghost:hover{border-color:var(--gold)}
+.foot{text-align:center;font-size:13px;color:var(--muted);margin-top:22px}
+.foot a{color:var(--gold-deep);font-weight:600}
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← Voltar ao site</a>
+<div class="theme-seg" id="theme-seg">
+  <button class="on" data-theme="dark">Escuro</button>
+  <button data-theme="light">Claro</button>
+</div>
+
+<form class="card" onsubmit="event.preventDefault();window.location.href='index.html';">
+  <div class="logo"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></div>
+  <h1>Bem-vindo de volta</h1>
+  <p class="sub">Acesse suas aulas, simulados e desempenho.</p>
+
+  <div class="field">
+    <label for="email">E-mail</label>
+    <input id="email" type="email" value="aluno@economiadodia.com.br" autocomplete="email" />
+  </div>
+  <div class="field">
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" value="demo1234" autocomplete="current-password" />
+  </div>
+  <div class="row-between"><a href="#">Esqueci minha senha</a></div>
+
+  <button type="submit" class="btn btn-gold">Entrar</button>
+
+  <div class="divider">ou</div>
+
+  <button type="button" class="btn btn-ghost">
+    <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C17.1 1.9 14.8 1 12 1 6.5 1 2 5.5 2 11s4.5 10 10 10c5.8 0 9.6-4 9.6-9.7 0-.6-.1-1.1-.2-1.6H12z"/></svg>
+    Entrar com Google
+  </button>
+
+  <p class="foot">Ainda não tem conta? <a href="#">Comece grátis</a></p>
+</form>
+
+<script>
+  const seg=document.getElementById('theme-seg');
+  seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    document.documentElement.setAttribute('data-theme',b.dataset.theme);
+    seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    try{localStorage.setItem('ed-theme',b.dataset.theme)}catch(_){}});
+  try{const t=localStorage.getItem('ed-theme');if(t){document.documentElement.setAttribute('data-theme',t);
+    seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.theme===t));}}catch(_){}
+</script>
+</body>
+</html>
