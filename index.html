@@ -249,6 +249,12 @@ a{color:inherit;text-decoration:none}
 .fred-stage.revealed .fred-imgs .point{opacity:1}
 .fred-stage.revealed .fred-hint{opacity:0}
 .fred-stage.revealed .badge{opacity:1;transform:none}
+/* em telas touch o :hover "gruda" — com .touch (via JS) só o toque (.revealed) manda no Fred */
+html.touch .fred-stage:not(.revealed) .fred-imgs .idle{opacity:1}
+html.touch .fred-stage:not(.revealed) .fred-imgs .point{opacity:0}
+html.touch .fred-stage:not(.revealed) .fred-glow{opacity:.75;transform:translate(-50%,-50%)}
+html.touch .fred-stage:not(.revealed) .fred-hint{opacity:1}
+html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px)}
 /* ---- mobile geral ---- */
 @media(max-width:760px){
   .wrap{padding:0 18px}
@@ -567,8 +573,9 @@ a{color:inherit;text-decoration:none}
   // Fred: em telas touch (sem hover), revela/esconde ao tocar
   const stage=document.querySelector('.fred-stage');
   const hint=document.querySelector('.fred-hint');
-  const isTouch=window.matchMedia('(hover:none)').matches||window.matchMedia('(pointer:coarse)').matches;
+  const isTouch=window.matchMedia('(hover:none)').matches||window.matchMedia('(pointer:coarse)').matches||('ontouchstart'in window);
   if(stage && isTouch){
+    document.documentElement.classList.add('touch');
     if(hint) hint.textContent='Toque no Fred';
     stage.addEventListener('click',()=>stage.classList.toggle('revealed'));
   }
