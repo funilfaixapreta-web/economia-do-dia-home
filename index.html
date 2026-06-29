@@ -221,6 +221,14 @@ a{color:inherit;text-decoration:none}
 .foot-bar a{color:var(--faint)}
 @media(max-width:900px){.foot-grid{grid-template-columns:1fr 1fr}}
 
+/* touch: sem hover, já revela o Fred apontando + badges (fallback do protótipo) */
+@media (hover:none){
+  .fred-imgs .idle{opacity:0}
+  .fred-imgs .point{opacity:1}
+  .fred-glow{opacity:1}
+  .badge{opacity:1;transform:none}
+  .fred-hint{display:none}
+}
 /* ---- mobile geral ---- */
 @media(max-width:760px){
   .wrap{padding:0 18px}
