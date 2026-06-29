@@ -221,6 +221,24 @@ a{color:inherit;text-decoration:none}
 .foot-bar a{color:var(--faint)}
 @media(max-width:900px){.foot-grid{grid-template-columns:1fr 1fr}}
 
+/* menu mobile da home */
+.nav-burger{display:none;width:42px;height:42px;flex:none;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--overlay-soft);border-radius:11px;color:var(--head);cursor:pointer}
+.mobile-menu{display:none;flex-direction:column}
+@media(max-width:760px){
+  .nav-actions{display:none}
+  .nav-burger{display:flex}
+  .nav .mobile-menu{position:fixed;top:66px;left:0;right:0;display:flex;background:var(--bg-alt);
+    border-bottom:1px solid var(--border);box-shadow:0 24px 50px -20px rgba(0,0,0,.7);padding:10px 18px 22px;z-index:40;
+    transform:translateY(-16px);opacity:0;pointer-events:none;transition:transform .26s cubic-bezier(.22,1,.36,1),opacity .26s}
+  .nav.open .mobile-menu{transform:none;opacity:1;pointer-events:auto}
+  .mobile-menu .mlink{padding:14px 4px;font-size:16px;font-weight:500;color:var(--text);border-bottom:1px solid var(--border-soft)}
+  .mobile-menu .mlink:active{color:var(--gold-deep)}
+  .mobile-menu .menter{display:flex;align-items:center;justify-content:space-between}
+  .mobile-menu .menter::after{content:"→";color:var(--gold-deep)}
+  .mobile-menu .mcta{margin-top:16px;justify-content:center;font-size:15px;padding:14px}
+  .mobile-menu .seg{margin-top:16px;align-self:stretch;justify-content:center}
+  .mobile-menu .seg button{flex:1}
+}
 /* touch: sem hover, já revela o Fred apontando + badges (fallback do protótipo) */
 @media (hover:none){
   .fred-imgs .idle{opacity:0}
@@ -253,8 +271,6 @@ a{color:inherit;text-decoration:none}
   .foot-bar{flex-direction:column;align-items:flex-start}
 }
 @media(max-width:560px){
-  .nav .seg{display:none}
-  .nav-actions .btn{padding:10px 14px;font-size:13px}
   .hero h1{font-size:34px}
   .foot-grid{grid-template-columns:1fr}
 }
@@ -270,12 +286,27 @@ a{color:inherit;text-decoration:none}
       <a href="#programa">O programa</a><a href="#metodo">Método</a><a href="#cursos">Cursos</a><a href="#professor">Professor</a>
     </div>
     <div class="nav-actions">
-      <div class="seg" id="theme-seg">
+      <div class="seg">
         <button class="on" data-theme="dark">Escuro</button>
         <button data-theme="light">Claro</button>
       </div>
       <a class="nav-enter" href="login.html">Entrar</a>
       <a class="btn btn-gold" href="login.html">Fazer simulado grátis</a>
+    </div>
+    <button class="nav-burger" id="nav-burger" aria-label="Abrir menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div class="mobile-menu">
+    <a class="mlink" href="#programa">O programa</a>
+    <a class="mlink" href="#metodo">Método</a>
+    <a class="mlink" href="#cursos">Cursos</a>
+    <a class="mlink" href="#professor">Professor</a>
+    <a class="mlink menter" href="login.html">Entrar</a>
+    <a class="btn btn-gold mcta" href="login.html">Fazer simulado grátis</a>
+    <div class="seg">
+      <button class="on" data-theme="dark">Escuro</button>
+      <button data-theme="light">Claro</button>
     </div>
   </div>
 </nav>
@@ -517,15 +548,18 @@ a{color:inherit;text-decoration:none}
 </footer>
 
 <script>
-  const seg=document.getElementById('theme-seg');
-  seg.addEventListener('click',e=>{
-    const b=e.target.closest('button'); if(!b)return;
-    document.documentElement.setAttribute('data-theme',b.dataset.theme);
-    seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
-    try{localStorage.setItem('ed-theme',b.dataset.theme)}catch(_){}
-  });
-  try{const t=localStorage.getItem('ed-theme'); if(t){document.documentElement.setAttribute('data-theme',t);
-    seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.theme===t));}}catch(_){}
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme',t);
+    document.querySelectorAll('.seg button[data-theme]').forEach(b=>b.classList.toggle('on',b.dataset.theme===t));
+    try{localStorage.setItem('ed-theme',t)}catch(_){}
+  }
+  document.querySelectorAll('.seg button[data-theme]').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.theme)));
+  try{applyTheme(localStorage.getItem('ed-theme')||'dark')}catch(_){applyTheme('dark')}
+
+  const nav=document.querySelector('.nav');
+  const burger=document.getElementById('nav-burger');
+  burger.addEventListener('click',()=>nav.classList.toggle('open'));
+  document.querySelectorAll('.mobile-menu a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
 </script>
 </body>
 </html>
