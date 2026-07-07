@@ -488,7 +488,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 .hh-stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:11px 16px;text-align:center;min-width:98px}
 .hh-stat .v{display:block;font-family:'IBM Plex Mono';font-size:19px;color:var(--head)}
 .hh-stat .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;display:block}
-@media(max-width:620px){.hh-stats{width:100%}.hh-stat{flex:1;min-width:0;padding:10px 6px}}
+@media(max-width:620px){.home-head{flex-direction:column;align-items:stretch}.hh-stats{width:100%}.hh-stat{flex:1;min-width:0;padding:10px 4px}.hh-stat .l{font-size:9.5px}}
 
 /* nudge: próxima melhor ação */
 .nudge{display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,var(--gold-soft-bg),transparent 72%);border:1px solid var(--gold-soft-bd);border-radius:16px;padding:16px 20px}
@@ -522,6 +522,73 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 .ia-nudge .in-x{position:absolute;top:8px;right:10px;color:var(--faint);font-size:12px}
 @media(max-width:760px){.ia-nudge{right:16px;bottom:76px}}
 
+/* avatar do assistente ED */
+.ed-av{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;border-radius:999px;overflow:hidden;background:var(--gold-grad);color:#0B0D10;width:36px;height:36px}
+.ed-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ed-av .fb{width:62%;height:62%}
+.ed-av.sm{width:28px;height:28px}
+.ed-av.lg{width:56px;height:56px;border-radius:16px}
+.ed-av.fab{width:27px;height:27px;box-shadow:0 0 0 2px rgba(255,255,255,.55)}
+.ia-row{display:flex;gap:8px;align-items:flex-end}
+.ia-row.ai{align-self:flex-start;max-width:90%}
+.ia-row.me{align-self:flex-end;max-width:84%}
+.ia-row .ed-av{margin-bottom:2px}
+
+/* jornada da trilha (Trilha → Curso 1 → Curso 2 → Aulas) */
+.journey{margin-top:6px}
+.jstep{display:flex;gap:16px;position:relative;padding-bottom:16px}
+.jstep:last-child{padding-bottom:0}
+.jline{position:relative;flex:none;display:flex;flex-direction:column;align-items:center;width:34px}
+.jnum{width:34px;height:34px;flex:none;border-radius:999px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-weight:600;font-size:13px;z-index:1}
+.jstep.locked .jnum{background:var(--overlay-soft);border-color:var(--border);color:var(--faint)}
+.jstep.done .jnum{background:rgba(43,182,115,.14);border-color:rgba(43,182,115,.3);color:var(--green)}
+.jstick{width:2px;flex:1;background:var(--border);margin-top:4px}
+.jcard{flex:1;display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:transform .2s,border-color .2s}
+.jcard:hover{transform:translateX(3px);border-color:var(--gold-soft-bd)}
+.jcard .jth{width:66px;height:46px;flex:none;border-radius:9px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:6px}
+.jcard .jth .ctag{font-family:'IBM Plex Mono';font-size:9.5px;font-weight:600;color:#0B0D10;background:var(--gold-grad);border-radius:5px;padding:2px 6px;position:relative;z-index:1}
+.jcard .jstep-lbl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold-deep)}
+.jcard h4{font-size:15px;margin-top:2px}
+.jcard .jmeta{font-size:12px;color:var(--muted);margin-top:3px}
+.jcard .jright{margin-left:auto;text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.jcard .jprog{width:92px;height:5px;border-radius:999px;background:var(--track);overflow:hidden}
+.jcard .jprog>i{display:block;height:100%;background:var(--gold-grad)}
+.jcard .jlk{color:var(--faint);font-size:12px}
+@media(max-width:560px){.jcard .jth{display:none}.jcard .jprog{width:64px}}
+
+/* benefícios do plano */
+.benefits{display:grid;grid-template-columns:1fr 1fr;gap:9px 18px;margin:6px 0 4px}
+.benefits div{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--text)}
+.benefits div .bk{color:var(--green);font-weight:700;flex:none}
+@media(max-width:560px){.benefits{grid-template-columns:1fr}}
+
+/* questões respondidas (detalhe do simulado) */
+.qresp{display:flex;gap:12px;align-items:flex-start;padding:12px 2px;border-bottom:1px solid var(--border-soft)}
+.qresp:last-child{border-bottom:none}
+.qresp .qi{width:26px;height:26px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.qresp .qi.ok{background:rgba(43,182,115,.14);border:1px solid rgba(43,182,115,.3);color:var(--green)}
+.qresp .qi.no{background:rgba(224,83,61,.12);border:1px solid rgba(224,83,61,.34);color:var(--red)}
+.qresp .qtx{font-size:13.5px;color:var(--text);line-height:1.4}
+.qresp .qtag{font-size:11px;color:var(--muted);margin-top:5px;display:inline-block;background:var(--overlay-soft);border:1px solid var(--border);border-radius:6px;padding:2px 8px}
+.evolrow{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);margin-top:2px}
+.evolrow b{font-family:'IBM Plex Mono';color:var(--head)}
+.evolrow .up{color:var(--green)}
+
+/* histórico: jornada */
+.jour-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.jour-stats .card{padding:16px;text-align:center}
+.jour-stats .jv{font-family:'IBM Plex Mono';font-size:24px;color:var(--head)}
+.jour-stats .jl{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:5px}
+.htrilha{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border-soft)}
+.htrilha:last-child{border-bottom:none}
+.htrilha .hti{width:34px;height:34px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+.htrilha .htn{font-weight:600;font-size:14px}
+.htrilha .hts{font-size:12px;color:var(--muted);margin-top:1px}
+.htrilha .htbar{flex:1;max-width:200px;height:6px;border-radius:999px;background:var(--track);overflow:hidden;margin-left:auto}
+.htrilha .htbar>i{display:block;height:100%}
+.htrilha .htp{font-family:'IBM Plex Mono';font-size:13px;color:var(--muted);width:42px;text-align:right}
+@media(max-width:620px){.jour-stats{grid-template-columns:repeat(2,1fr)}.htrilha .htbar{max-width:90px}}
+
 /* ---- mobile: sidebar vira drawer ---- */
 .hamb{display:none}
 .scrim{display:none}
@@ -554,6 +621,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
   .ia-fab{right:16px;bottom:16px}
 }
 @media(max-width:420px){.lcard{width:212px}.kpis{grid-template-columns:1fr 1fr}.dstat{grid-template-columns:1fr 1fr}}
+
+/* barra de navegação inferior (mobile-first) */
+.botnav{display:none}
+@media(max-width:760px){
+  .botnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:58;background:color-mix(in srgb,var(--bg-alt) 94%,transparent);backdrop-filter:blur(14px);border-top:1px solid var(--border);padding:7px 4px calc(7px + env(safe-area-inset-bottom,0px));justify-content:space-around}
+  .botnav a{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 1px;color:var(--muted);font-size:10px;font-weight:600;border-radius:10px;min-height:46px;justify-content:center;white-space:nowrap}
+  .botnav a svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .botnav a.active{color:var(--gold-deep)}
+  .botnav a.active svg{stroke:var(--gold-deep)}
+  .view{padding:18px 16px 100px}
+  .ia-fab{bottom:84px}
+  .ia-nudge{bottom:146px}
+  .toast-wrap{bottom:92px}
+}
 </style>
 </head>
 <body>
@@ -598,15 +679,24 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
   <div class="scrim" id="scrim"></div>
 </div>
 
+<!-- barra inferior (mobile) -->
+<nav class="botnav">
+  <a href="#/inicio" data-route="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</a>
+  <a href="#/trilhas" data-route="trilhas"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Trilhas</a>
+  <a href="#/cursos" data-route="cursos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Cursos</a>
+  <a href="#/desempenho" data-route="desempenho"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5M13 16V8M18 16v-3"/></svg>Notas</a>
+  <a href="#/perfil" data-route="perfil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</a>
+</nav>
+
 <!-- IA: botão flutuante + chat -->
-<button class="ia-fab" id="ia-fab" aria-label="Abrir assistente de IA">
-  <svg viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/><path d="M5 15l.8 1.9L7.7 17.7 5.8 18.5 5 20.4 4.2 18.5 2.3 17.7 4.2 16.9z"/></svg>
-  Pergunte à IA <span class="dotpulse"></span>
+<button class="ia-fab" id="ia-fab" aria-label="Abrir assistente ED">
+  <span class="ed-av fab"><img src="assets/ed-avatar.png" alt="ED" onerror="this.remove()"/><svg class="fb" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg></span>
+  Falar com o ED <span class="dotpulse"></span>
 </button>
 <div class="ia-pop" id="ia-pop">
   <div class="ia-head">
-    <span class="iav"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg></span>
-    <div><div class="inm">Assistente ED</div><div class="ist">on-line · vê seu progresso</div></div>
+    <span class="ed-av"><img src="assets/ed-avatar.png" alt="ED" onerror="this.remove()"/><svg class="fb" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg></span>
+    <div><div class="inm">ED · seu assistente</div><div class="ist">on-line · vê seu progresso</div></div>
     <div class="ihb">
       <button id="ia-expand" title="Abrir em página inteira"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
       <button id="ia-close" title="Fechar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -733,12 +823,17 @@ const HISTORY=[
     ['star','#D4A437','Fluxo de caixa descontado','Favoritado · CG1','','#/curso/cg1']
   ]],
   ['Ontem',[
-    ['check','#2BB673','Simulado CNPI-CB Completo','Simulado · 60 questões','84% de acerto','#/simulado/sim-cb'],
-    ['check','#2BB673','Teoria de Dow','Aula · CNPI-CT1','Concluída','#/aula/ct1/l1']
+    ['check','#2BB673','Simulado CNPI-CB Completo','Simulado · 60 questões','84% de acerto','#/desempenho?sim=sim-cb'],
+    ['check','#2BB673','Teoria de Dow','Aula · CNPI-CT1','Concluída','#/aula/ct1/l1'],
+    ['start','#D4A437','Análise Fundamentalista','Curso iniciado · CNPI-CG1','','#/curso/cg1']
   ]],
   ['12 jun',[
     ['doc','#E8A33D','Panorama de produtos','Conteúdo · Mercado','Lido','#/curso/fund'],
-    ['check','#2BB673','Simulado CFG Completo','Simulado · 60 questões','76% de acerto','#/simulado/sim-cfg']
+    ['check','#2BB673','Simulado CFG Completo','Simulado · 60 questões','76% de acerto','#/desempenho?sim=sim-cfg']
+  ]],
+  ['28 mai',[
+    ['check','#2BB673','Simulado CNPI-CG1 Completo','Simulado · 60 questões','58% de acerto','#/desempenho?sim=sim-cg1'],
+    ['play','#3D8BE0','Teoria de Dow','Aula · CNPI-CT1','Concluída','#/aula/ct1/l1']
   ]]
 ];
 
@@ -762,6 +857,8 @@ function markDone(key){if(!DONE.has(key)){DONE.add(key);_save('ed-done',DONE);to
 // toast
 function toast(msg,type){const w=$('#toast-wrap');if(!w)return;const t=document.createElement('div');t.className='toast '+(type||'');t.innerHTML=`<span class="ti">${type==='ok'?'✓':'★'}</span><span>${msg}</span>`;w.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),320);},2600);}
 function greeting(){const h=new Date().getHours();return h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';}
+// avatar do assistente ED (slot p/ imagem aprovada em assets/ed-avatar.png; fallback de marca)
+function edAvatar(cls){return `<span class="ed-av ${cls||''}"><img src="assets/ed-avatar.png" alt="ED" onerror="this.remove()"/><svg class="fb" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg></span>`;}
 const romans=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function courseById(id){return COURSES.find(c=>c.id===id)}
@@ -890,8 +987,20 @@ VIEWS.trilha=(id)=>{
     <div class="chstats"><span><b>${cs.length}</b> cursos</span><span><b>${cs.reduce((a,c)=>a+flatLessons(c).length,0)}</b> aulas</span><span><b>${t.progress}%</b> concluída</span></div>
     <div class="chbar"><i style="width:${t.progress}%;background:${t.color}"></i></div>
   </div>
-  <div class="rowtitle"><h3>Cursos desta trilha</h3><span class="cnt">${cs.filter(c=>c.owned).length}/${cs.length} liberados</span></div>
-  <div class="cgrid">${cs.map(courseCard).join('')}</div>
+  <div class="rowtitle"><h3>Jornada da trilha</h3><span class="cnt">${cs.filter(c=>c.owned).length}/${cs.length} cursos liberados</span></div>
+  <div class="journey">
+  ${cs.map((c,i)=>{
+    const pr=c.owned?courseProgress(c):0,cc=courseCounts(c),st=!c.owned?'locked':pr>=100?'done':'';
+    const inner=`<div class="jth tile"><span class="ctag">${c.code}</span></div>
+      <div style="flex:1;min-width:0"><div class="jstep-lbl">Curso ${i+1}</div><h4>${esc(c.title)}</h4><div class="jmeta">${cc.total} aulas${c.owned?' · '+cc.done+' concluídas':''}</div></div>
+      <div class="jright">${c.owned?`<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono'">${pr}%</div><div class="jprog"><i style="width:${pr}%"></i></div>`:`<span class="jlk">🔒 R$ ${c.price}</span>`}</div>`;
+    const line=`<div class="jline"><span class="jnum">${st==='done'?'✓':i+1}</span>${i<cs.length-1?'<span class="jstick"></span>':''}</div>`;
+    return c.owned
+      ? `<div class="jstep ${st}">${line}<a class="jcard" href="#/curso/${c.id}">${inner}</a></div>`
+      : `<div class="jstep locked">${line}<div class="jcard" data-upgrade="${c.id}">${inner}</div></div>`;
+  }).join('')}
+  </div>
+  <p style="font-size:12.5px;color:var(--faint);margin-top:16px;line-height:1.5">Estrutura escalável: cada trilha reúne cursos em sequência, e cada curso reúne módulos e aulas. Novas trilhas, cursos e aulas entram sem mudar o layout.</p>
   `;
 };
 
@@ -997,7 +1106,19 @@ VIEWS.desempenho=(simId)=>{
   let detail='';
   if(sel){
     const acertos=Math.round(sel.questions*sel.score/100),erros=sel.questions-acertos;
+    const datas={'sim-cb':'ontem','sim-cg1':'28 de maio','sim-cfg':'12 de junho'};
+    const prev=Math.max(40,sel.score-12),delta=sel.score-prev;
+    const worstMods=sel.modules.slice().filter(m=>m[2]!=null).sort((a,b)=>a[2]-b[2]);
+    // questões respondidas (amostra ilustrativa das ${sel.questions})
+    const stems=['assinale a alternativa correta.','qual conceito se aplica ao caso.','a afirmação verdadeira é.','identifique o item incorreto.'];
+    let qi=0,qhtml='';
+    sel.modules.forEach(m=>{for(let k=0;k<2;k++){const ok=m[2]==null?false:(k===0?m[2]>=50:m[2]>=72);qi++;
+      qhtml+=`<div class="qresp"><span class="qi ${ok?'ok':'no'}">${ok?'✓':'✗'}</span><div style="flex:1"><div class="qtx">Q${qi}. Sobre <b>${esc(m[0])}</b>, ${stems[qi%stems.length]}</div><div><span class="qtag">${esc(m[0])} · ${ok?'você acertou':'você errou'}</span></div></div></div>`;}});
     detail=`
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+      <div><div style="font-family:'Sora';font-weight:600;font-size:17px;color:var(--head)">${esc(sel.title)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${sel.cert} · realizado ${datas[sel.id]||'recentemente'} · ${sel.questions} questões · ${sel.dur}</div></div>
+      <span class="btn btn-ghost btn-sm" data-toast="Refazer com questões novas — boa prova! 🍀">↻ Refazer simulado</span>
+    </div>
     <div class="dstat">
       <div class="card"><div class="dv" style="color:${scoreColor(sel.score)}">${sel.score}%</div><div class="dl">Nota</div></div>
       <div class="card"><div class="dv" style="color:var(--green)">${acertos}</div><div class="dl">Acertos</div></div>
@@ -1005,14 +1126,21 @@ VIEWS.desempenho=(simId)=>{
       <div class="card"><div class="dv">${sel.questions}</div><div class="dl">Questões</div></div>
     </div>
     <div class="perf-bot" style="margin-top:0">
-      <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Desempenho por tema — ${esc(sel.title)}</h3>
+      <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Desempenho por tema</h3>
         ${sel.modules.map(m=>{const v=m[2]==null?0:m[2];return `<div class="tbar"><div class="tl"><span>${esc(m[0])}</span><span class="pct" style="color:${m[2]==null?'var(--faint)':barColor(v)}">${m[2]==null?'—':v+'%'}</span></div><div class="track"><i style="width:${v}%;background:${barColor(v)}"></i><i style="width:${100-v}%;background:var(--red);opacity:.22"></i></div></div>`}).join('')}
+        <div style="font-size:12.5px;color:var(--amber);margin-top:12px">⚠ Precisa de atenção: ${worstMods.slice(0,2).map(m=>esc(m[0])+' ('+m[2]+'%)').join(' · ')}</div>
       </div>
       <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos × erros</h3>
         <div style="display:flex;justify-content:center"><div class="donut" style="--p:${sel.score};--c:${scoreColor(sel.score)}"><span class="num">${sel.score}%</span></div></div>
         <div class="legend" style="justify-content:center"><span><b>${acertos}</b> acertos</span><span><b>${erros}</b> erros</span></div>
-        <div style="font-size:12.5px;color:var(--muted);margin-top:14px;text-align:center">Foco recomendado: ${esc(sel.modules.slice().sort((a,b)=>(a[2]||0)-(b[2]||0))[0][0])}</div>
+        <h3 style="font-size:14px;margin:20px 0 8px">Evolução</h3>
+        <div class="evolrow">1ª tentativa <b>${prev}%</b> → atual <b>${sel.score}%</b> <span class="up">▲ ${delta} pts</span></div>
+        <div class="track" style="height:8px;margin-top:8px"><i style="width:${sel.score}%;height:100%;display:block;background:var(--gold-grad);border-radius:999px"></i></div>
       </div>
+    </div>
+    <div class="rowtitle"><h3>Questões respondidas</h3><span class="cnt">${acertos} certas · ${erros} erradas</span></div>
+    <div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">Amostra das ${sel.questions} questões — reveja os temas em vermelho no gabarito comentado.</div>${qhtml}
+      <div style="margin-top:14px"><span class="btn btn-ghost btn-sm" data-ask="Como melhorar em ${worstMods[0]?esc(worstMods[0][0]):'meus pontos fracos'}?">✦ Pedir plano de revisão ao ED</span></div>
     </div>`;
   }
   return `
@@ -1065,12 +1193,33 @@ VIEWS.desempenho=(simId)=>{
 };
 
 VIEWS.historico=()=>{
-  const ic={play:'▶',check:'✓',star:'★',repeat:'↻',doc:'❐'};
+  const ic={play:'▶',check:'✓',star:'★',repeat:'↻',doc:'❐',start:'✦'};
+  // resumo da jornada
+  const aulasDone=COURSES.filter(c=>c.owned).reduce((a,c)=>a+courseCounts(c).done,0);
+  const simsDone=SIMULADOS.filter(s=>s.score!=null).length;
+  const cursosStarted=COURSES.filter(c=>c.owned&&courseProgress(c)>0).length;
+  // continue de onde parou
+  const resume=[];COURSES.filter(c=>c.owned).forEach(c=>flatLessons(c).forEach(l=>{if(l.p>0&&l.p<100)resume.push({...l,code:c.code});}));
+  const trilhasStarted=TRILHAS.filter(t=>t.progress>0);
   return `
-  <div class="filters" id="hist-filters"><button class="on" data-f="tudo">Tudo</button><button data-f="aula">Aulas</button><button data-f="simulado">Simulados</button><button data-f="conteudo">Conteúdos</button></div>
+  <div class="jour-stats">
+    <div class="card"><div class="jv">${aulasDone}</div><div class="jl">Aulas assistidas</div></div>
+    <div class="card"><div class="jv">${simsDone}</div><div class="jl">Simulados feitos</div></div>
+    <div class="card"><div class="jv">42h</div><div class="jl">Horas de estudo</div></div>
+    <div class="card"><div class="jv">${cursosStarted}</div><div class="jl">Cursos iniciados</div></div>
+  </div>
+
+  ${resume.length?`<div class="rowtitle"><h3>Retome de onde parou</h3><span class="cnt">${resume.length} em andamento</span></div>
+  <div class="rail">${resume.slice(0,6).map(l=>railCard({tag:l.code,roman:romans[l.mod-1],p:l.p,t:l.title,d:`${l.modTitle} · ${Math.round(l.dur*(1-l.p/100))} min restantes`,href:`#/aula/${l.courseId}/${l.id}`})).join('')}</div>`:''}
+
+  <div class="rowtitle"><h3>Suas trilhas em andamento</h3><a class="cnt" href="#/trilhas">Ver trilhas →</a></div>
+  <div class="card">${trilhasStarted.map(t=>`<a class="htrilha" href="#/trilha/${t.id}" style="display:flex"><span class="hti" style="background:color-mix(in srgb,${t.color} 30%,transparent);border:1px solid ${t.color}">${t.ico}</span><div><div class="htn">${t.name}</div><div class="hts">${t.courses.length} cursos · ${t.courses.filter(id=>{const c=courseById(id);return c&&c.owned}).length} liberados</div></div><span class="htbar"><i style="width:${t.progress}%;background:${t.color}"></i></span><span class="htp">${t.progress}%</span></a>`).join('')}</div>
+
+  <div class="rowtitle"><h3>Linha do tempo</h3></div>
+  <div class="filters" id="hist-filters"><button class="on" data-f="tudo">Tudo</button><button data-f="aula">Aulas &amp; cursos</button><button data-f="simulado">Simulados</button><button data-f="conteudo">Conteúdos</button></div>
   <div id="timeline">
   ${HISTORY.map(d=>`<div class="daygrp"><div class="dh">${d[0]}</div>${d[1].map((e,i)=>{
-    const kind=e[3].startsWith('Aula')?'aula':e[3].startsWith('Simulado')?'simulado':'conteudo';
+    const kind=(e[3].startsWith('Aula')||e[3].startsWith('Curso'))?'aula':e[3].startsWith('Simulado')?'simulado':'conteudo';
     return `<div class="tl-item" data-kind="${kind}"><div class="line"><span class="dot" style="background:${e[1]}"></span>${i<d[1].length-1?'<span class="stick"></span>':''}</div><a class="tl-card" href="${e[5]}" style="display:block">${e[4]?`<span class="rs" style="color:${e[1]}">${esc(e[4])}</span>`:''}<div class="tt">${ic[e[0]]} ${esc(e[2])}</div><div class="cx">${esc(e[3])}</div></a></div>`;
   }).join('')}</div>`).join('')}
   </div>
@@ -1116,16 +1265,27 @@ VIEWS.perfil=()=>{
 
     <div class="card">
       <h3>Assinatura</h3>
-      <div class="plan"><span class="av" style="width:44px;height:44px;border-radius:12px;font-size:14px">ED</span><div><div style="font-weight:600;color:var(--head)">${plan.name}</div><div style="font-size:13px;color:var(--muted)">Acesso até 12/2027 · analista pleno</div></div><span class="badge">Ativo</span></div>
+      <div class="plan"><span class="av" style="width:44px;height:44px;border-radius:12px;font-size:14px">ED</span><div><div style="font-weight:600;color:var(--head)">Plano atual · ${plan.name}</div><div style="font-size:13px;color:var(--muted)">Acesso até 12/2027 · analista pleno</div></div><span class="badge">Ativo</span></div>
+      <div style="margin-top:16px"><div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Benefícios do seu plano</div>
+        <div class="benefits">
+          <div><span class="bk">✓</span> 3 cursos CNPI (CB · CG1 · CT1)</div>
+          <div><span class="bk">✓</span> Todas as trilhas de formação</div>
+          <div><span class="bk">✓</span> Simulados ilimitados que se renovam</div>
+          <div><span class="bk">✓</span> Gabarito comentado em áudio</div>
+          <div><span class="bk">✓</span> Assistente de estudos ED (IA)</div>
+          <div><span class="bk">✓</span> Suporte no WhatsApp</div>
+        </div>
+      </div>
       <div style="border-top:1px solid var(--border-soft);margin-top:16px;padding-top:6px">
         <div class="billrow"><span class="bl">Valor</span><span class="bv">R$ ${plan.price} · ${plan.per}</span></div>
         <div class="billrow"><span class="bl">Forma de pagamento</span><span class="bv">Cartão •••• 4821</span></div>
         <div class="billrow"><span class="bl">Próxima renovação</span><span class="bv">12/12/2027</span></div>
-        <div class="billrow"><span class="bl">Notas fiscais</span><span class="bv" style="color:var(--gold-deep);cursor:pointer">Ver histórico →</span></div>
+        <div class="billrow"><span class="bl">Notas fiscais</span><span class="bv" style="color:var(--gold-deep);cursor:pointer" data-toast="Abrindo suas notas fiscais…">Ver histórico →</span></div>
       </div>
       <div class="sub-actions">
+        <span class="btn btn-gold btn-sm" id="btn-upgrade">↑ Fazer upgrade</span>
+        <span class="btn btn-ghost btn-sm" id="btn-contract">Contratar novo plano</span>
         <span class="btn btn-ghost btn-sm" id="btn-manage">Gerenciar assinatura</span>
-        <span class="btn btn-gold btn-sm" id="btn-upgrade">Contratar novo plano</span>
         <span class="btn btn-ghost btn-sm" id="btn-cancel" style="color:var(--red)">Cancelar assinatura</span>
       </div>
     </div>
@@ -1146,8 +1306,8 @@ VIEWS.perfil=()=>{
 
 VIEWS.ia=()=>`
   <div class="ia-page">
-    <div class="iahero"><span class="big"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/><path d="M5 15l.8 1.9L7.7 17.7 5.8 18.5 5 20.4 4.2 18.5 2.3 17.7 4.2 16.9z"/></svg></span>
-      <div><h2>Assistente ED</h2><p>Tira dúvidas sobre aulas, simulados e navegação — e recomenda o que estudar com base no seu desempenho.</p></div></div>
+    <div class="iahero">${edAvatar('lg')}
+      <div><h2>ED · seu assistente de estudos</h2><p>Tira dúvidas sobre aulas, simulados e navegação — e recomenda o que estudar com base no seu desempenho real.</p></div></div>
     <div class="iaconv" id="ia-page-body"></div>
     <div class="ia-input" style="border:1px solid var(--border);border-radius:12px;margin-top:14px;background:var(--panel)">
       <input id="ia-page-text" placeholder="Pergunte sobre aulas, simulados, desempenho…" autocomplete="off" />
@@ -1208,7 +1368,7 @@ function render(){
   $('#bar-ttl').textContent=meta[0];
   $('#bar-sub').textContent=meta[1];
   // active nav
-  $$('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.route===name||(name==='trilha'&&n.dataset.route==='trilhas')||(name==='curso'&&n.dataset.route==='cursos')||(name==='aula'&&n.dataset.route==='cursos')));
+  $$('.nav-item,.botnav a').forEach(n=>n.classList.toggle('active',n.dataset.route===name||(name==='trilha'&&n.dataset.route==='trilhas')||(name==='curso'&&n.dataset.route==='cursos')||(name==='aula'&&n.dataset.route==='cursos')||(name==='simulado'&&n.dataset.route==='simulados')));
   // wire theme seg inside config
   bindThemeSegs();
   enhanceRails();
@@ -1254,6 +1414,7 @@ document.addEventListener('click',e=>{
   if(e.target.closest('#home-search')){openSearch();return;}
   if(e.target.closest('#btn-manage')){openManage();return;}
   if(e.target.closest('#btn-upgrade')){openPlans();return;}
+  if(e.target.closest('#btn-contract')){openPlans();return;}
   if(e.target.closest('#btn-cancel')){openCancel();return;}
 });
 // filtro por simulado (select) + histórico
@@ -1357,45 +1518,75 @@ function openSimStart(id){
    ========================================================= */
 const IA_SUGG=['Como está meu desempenho?','O que estudar antes do próximo simulado?','Onde vejo minhas aulas favoritas?','Estou pronto para o CNPI?'];
 let iaHistory=[];
+// tema fraco -> aulas específicas para revisar
+const THEME_LESSONS={
+  'Contabilidade':{course:'cg1',mod:'Contabilidade',lessons:['Demonstrações financeiras','Análise de balanços']},
+  'Renda variável':{course:'cg1',mod:'Valuation',lessons:['Introdução a valuation','Fluxo de caixa descontado']},
+  'Renda fixa':{course:'cb',mod:'Renda Fixa',lessons:['Renda fixa — conceitos','Marcação a mercado','Títulos públicos']},
+  'Derivativos':{course:'cb',mod:'Derivativos',lessons:['Derivativos — introdução','Hedge e especulação']},
+  'Sistema financeiro':{course:'cb',mod:'Sistema Financeiro',lessons:['Sistema Financeiro Nacional','Política monetária e Copom']},
+  'Ética e regulação':{course:'cb',mod:'Ética e Regulação',lessons:['Ética e suitability','Regulação e órgãos do SFN']}
+};
+// contexto do aluno (simulados, módulos fracos, aulas em andamento, trilhas)
+function studentCtx(){
+  const doneSims=SIMULADOS.filter(s=>s.score!=null);
+  let worstMod=null;
+  doneSims.forEach(s=>s.modules.forEach(m=>{if(m[2]!=null&&(!worstMod||m[2]<worstMod.score))worstMod={sim:s.cert,name:m[0],score:m[2]};}));
+  const weakThemes=THEMES.slice().sort((a,b)=>a[1]-b[1]);
+  const inProgress=[];COURSES.filter(c=>c.owned).forEach(c=>flatLessons(c).forEach(l=>{if(l.p>0&&l.p<100)inProgress.push({...l,code:c.code});}));
+  const started=COURSES.filter(c=>c.owned&&courseProgress(c)>0).length;
+  const notDoneSim=SIMULADOS.find(s=>s.score==null);
+  const trilhaAtual=TRILHAS.find(t=>t.id==='evaluation');
+  return {doneSims,worstMod,weakThemes,inProgress,started,notDoneSim,trilhaAtual};
+}
 function getAIResponse(text){
-  // >>> Ponto único de integração: troque este mock por um fetch à API (Claude) mantendo o mesmo retorno {text, recs?} <<<
+  // >>> Ponto único de integração: troque este mock por um fetch à API (Claude) mantendo o mesmo retorno {text, recs?}.
+  //     O contexto (studentCtx) é o que você enviaria como "system/context" para a IA real. <<<
   const q=text.toLowerCase();
-  const weak=THEMES.slice().sort((a,b)=>a[1]-b[1]);
-  const worst=weak[0];
-  if(/(desempenho|como (estou|vou)|minha nota|prontid)/.test(q)){
-    return {text:`Sua prontidão está em <b>78%</b> — subiu 6% na semana. O que te segura são <b>${worst[0]} (${worst[1]}%)</b> e ${weak[1][0]} (${weak[1][1]}%). Nos simulados você acerta ${'934'} e erra 263 questões.`,
-      recs:[['Ver desempenho detalhado','#/desempenho'],['Revisar '+worst[0],'#/curso/cg1']]};
+  const ctx=studentCtx();
+  const wm=ctx.worstMod;                       // pior módulo em simulado
+  const wt=ctx.weakThemes[0];                   // tema mais fraco no geral
+  const tl=THEME_LESSONS[wt[0]]||THEME_LESSONS[wm.name]||null;
+  const revise=tl?`Recomendo revisar <b>${tl.lessons.join('</b>, <b>')}</b> (módulo de ${tl.mod}) antes de um novo simulado.`:'';
+  const reviseHref=tl?`#/curso/${tl.course}`:'#/desempenho';
+  const reviseLbl=tl?('Revisar '+tl.mod):('Revisar '+wt[0]);
+
+  if(/(desempenho|como (estou|vou|to)|minha nota|prontid|resumo|como est)/.test(q)){
+    return {text:`Sua prontidão está em <b>78%</b> (subiu 6% na semana). Nos simulados você acerta 934 e erra 263 questões. Seu módulo mais fraco é <b>${wm.name} (${wm.score}%)</b>, no ${wm.sim}. ${revise}`,
+      recs:[['Ver desempenho detalhado','#/desempenho'],[reviseLbl,reviseHref]]};
+  }
+  if(/(recomend|o que estud|o que fa|próxim|proxim|melhor aç|onde foc|plano|15 dias|rotina|cronograma|revis)/.test(q)){
+    return {text:`Você apresentou dificuldade no módulo de <b>${wm.name}</b> (${wm.score}% no ${wm.sim}). ${revise} Depois disso, refaça o simulado desse módulo pra medir o ganho — costuma subir uns 15%.`,
+      recs:[[reviseLbl,reviseHref],['Refazer simulado','#/simulados']]};
   }
   if(/(contabil|balanç|ebitda|demonstra)/.test(q)){
-    return {text:`Contabilidade é hoje seu ponto mais fraco (<b>54%</b>). Sugiro, nesta ordem: <b>Demonstrações financeiras</b> → <b>Análise de balanços</b> no CG1, e depois refazer o módulo de Contabilidade do simulado.`,
-      recs:[['Aula: Demonstrações financeiras','#/aula/cg1/l3'],['Refazer simulado CG1','#/simulado/sim-cg1']]};
+    return {text:`Contabilidade é hoje seu ponto crítico (<b>49% no CG1</b>). Comece por <b>Demonstrações financeiras</b> e depois <b>Análise de balanços</b> — são exatamente os temas que mais derrubaram sua nota no último simulado.`,
+      recs:[['Aula: Demonstrações financeiras','#/aula/cg1/l3'],['Refazer simulado CG1','#/desempenho?sim=sim-cg1']]};
   }
-  if(/(simulad|prova|pronto|ct1|técnic)/.test(q)){
-    return {text:`Você já mandou bem no CB (84%), mas <b>ainda não fez o simulado de Análise Técnica (CT1)</b>. Como faltam 18 dias, vale medir isso essa semana. Antes, revise Tendências e Candlestick.`,
-      recs:[['Fazer simulado CT1','#/simulado/sim-ct1'],['Aula: Tendências e suportes','#/aula/ct1/l2']]};
+  if(/(simulad|prova|pronto|ct1|técnic|test)/.test(q)){
+    const nd=ctx.notDoneSim;
+    return {text:`Você foi bem no CB (84%), mas <b>ainda não fez o ${nd?nd.title:'Simulado CNPI-CT1'}</b>. Como faltam 18 dias, vale medir isso essa semana. Antes, revise <b>Tendências e suportes</b> e <b>Candlestick</b> no CT1.`,
+      recs:[['Fazer '+(nd?nd.cert:'CT1'),'#/simulados'],['Aula: Tendências e suportes','#/aula/ct1/l2']]};
   }
-  if(/(plano|15 dias|rotina|cronograma|revis)/.test(q)){
-    return {text:`Plano sugerido pros próximos 15 dias: <b>D1–D4</b> Contabilidade e Renda Variável (seus gaps), <b>D5–D8</b> simulados por módulo do CG1 e CT1, <b>D9–D12</b> revisão dirigida pelo diagnóstico, <b>D13–D15</b> reta final + simulado completo.`,
-      recs:[['Abrir Diagnóstico & Reta Final','#/curso/retafinal'],['Ver Continue assistindo','#/inicio']]};
+  if(/(trilha|começar|onde começ|navega|como uso|menu|caminho|jornada)/.test(q)){
+    return {text:`Você está na <b>${ctx.trilhaAtual.name}</b> (${ctx.trilhaAtual.progress}% concluída) e já iniciou <b>${ctx.started} cursos</b>. Seu próximo passo é o <b>Plano de revisão de 15 dias</b>. Te levo lá?`,
+      recs:[['Continuar minha trilha','#/trilha/evaluation'],['Ver todas as trilhas','#/trilhas']]};
   }
-  if(/(favorit|salv|revisar|kit)/.test(q)){
+  if(/(favorit|salv|kit)/.test(q)){
     return {text:`Seu kit de revisão tem <b>4 aulas favoritas</b> e 3 questões salvas — incluindo Marcação a mercado e Fluxo de caixa descontado. Ótimo material pra reta final.`,
       recs:[['Abrir Favoritos','#/favoritos']]};
-  }
-  if(/(trilha|começar|onde começ|navega|como uso|menu)/.test(q)){
-    return {text:`Você está na <b>Trilha Evaluation</b> (54%). Pela barra lateral você acessa Trilhas, Cursos, Simulados e Desempenho. Quer que eu te leve pro próximo passo da sua trilha?`,
-      recs:[['Continuar minha trilha','#/trilha/evaluation'],['Ver todas as trilhas','#/trilhas']]};
   }
   if(/(renda fixa|marcação|pu|título)/.test(q)){
     return {text:`Em Renda Fixa você está em 74%. A pegadinha costuma ser <b>marcação a mercado</b> — a aula certa é essa. Depois, ouça o gabarito em áudio pra fixar.`,
       recs:[['Aula: Marcação a mercado','#/aula/cb/l6']]};
   }
-  return {text:`Posso te ajudar com suas <b>aulas, simulados, conteúdos, navegação</b> e principalmente com <b>o que estudar a seguir</b> com base no seu desempenho. Por exemplo: “o que revisar antes do próximo simulado?”`,
-    recs:[['Ver meu desempenho','#/desempenho'],['Continuar de onde parei','#/inicio']]};
+  return {text:`Posso te ajudar com <b>aulas, simulados, conteúdos e navegação</b> — e principalmente dizer <b>o que estudar a seguir</b> pelo seu desempenho. Hoje eu focaria em <b>${wm.name} (${wm.score}%)</b>. ${revise}`,
+    recs:[['Ver meu desempenho','#/desempenho'],[reviseLbl,reviseHref]]};
 }
 function iaBubble(role,text,recs){
   const rec=recs&&recs.length?`<div class="rec">${recs.map(r=>`<a href="${r[1]}" data-ia-go>${esc(r[0])}</a>`).join('')}</div>`:'';
-  return `<div class="ia-msg ${role}">${text}${rec}</div>`;
+  if(role==='ai')return `<div class="ia-row ai">${edAvatar('sm')}<div class="ia-msg ai">${text}${rec}</div></div>`;
+  return `<div class="ia-row me"><div class="ia-msg me">${text}${rec}</div></div>`;
 }
 function renderIaInto(bodyEl){
   bodyEl.innerHTML=iaHistory.map(m=>iaBubble(m.role,m.text,m.recs)).join('');
@@ -1407,7 +1598,9 @@ function refreshIa(){
 }
 function seedIa(){
   if(iaHistory.length)return;
-  iaHistory.push({role:'ai',text:`Oi, ${USER.first}! 👋 Sou seu assistente de estudos. Já olhei seu progresso: prontidão em <b>78%</b>, com <b>Contabilidade</b> pedindo atenção. Como posso ajudar?`,recs:[['Ver meu desempenho','#/desempenho'],['O que estudar agora?','#/inicio']]});
+  const ctx=studentCtx();const wm=ctx.worstMod;const tl=THEME_LESSONS[ctx.weakThemes[0][0]];
+  iaHistory.push({role:'ai',text:`Oi, ${USER.first}! 👋 Sou o <b>ED</b>. Olhei seu progresso: prontidão <b>78%</b>, e seu módulo mais fraco é <b>${wm.name} (${wm.score}%)</b> no ${wm.sim}.${tl?` Antes de um novo simulado, recomendo revisar <b>${tl.lessons.join('</b> e <b>')}</b>.`:''}`,
+    recs:[['Revisar '+(tl?tl.mod:ctx.weakThemes[0][0]),tl?`#/curso/${tl.course}`:'#/desempenho'],['Ver meu desempenho','#/desempenho']]});
 }
 function renderSugg(){$('#ia-sugg').innerHTML=IA_SUGG.map(s=>`<button data-ia-sugg>${esc(s)}</button>`).join('');}
 function openIa(){dismissIaNudge();seedIa();refreshIa();renderSugg();$('#ia-pop').classList.add('show');$('#ia-fab').style.display='none';setTimeout(()=>$('#ia-text')?.focus(),40);}
