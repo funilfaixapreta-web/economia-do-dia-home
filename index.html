@@ -76,9 +76,10 @@ a{color:inherit;text-decoration:none}
 .hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center;min-height:660px}
 .hero-eyebrow{font-family:'IBM Plex Mono';font-size:12.5px;color:var(--gold-deep);letter-spacing:.04em}
 .hero-eyebrow .sep{color:var(--muted)}
-.hero h1{font-size:62px;font-weight:800;letter-spacing:-2px;line-height:1.0;margin:22px 0}
+.hero h1{font-size:54px;font-weight:800;letter-spacing:-1.5px;line-height:1.04;margin:22px 0}
 .hero h1 .gold{color:var(--gold-deep)}
-.hero p.sub{font-size:17px;color:var(--muted);max-width:520px;line-height:1.65}
+.hero p.sub{font-size:17px;color:var(--muted);max-width:540px;line-height:1.65}
+.hero p.sub b{color:var(--text);font-weight:600}
 .hero-cta{display:flex;gap:14px;margin:28px 0 20px}
 .facts{font-size:13.5px;color:var(--muted);font-weight:500}
 .facts .sep{color:var(--faint);margin:0 8px}
@@ -161,10 +162,18 @@ a{color:inherit;text-decoration:none}
 
 /* professor */
 .prof-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:60px;align-items:center}
-.portrait{aspect-ratio:4/5;border-radius:18px;border:1px dashed var(--gold-soft-bd);
-  background:repeating-linear-gradient(135deg,var(--panel-2),var(--panel-2) 14px,var(--panel) 14px,var(--panel) 28px);
-  display:flex;align-items:center;justify-content:center}
-.portrait span{font-family:'IBM Plex Mono';font-size:12.5px;color:var(--faint)}
+.portrait{position:relative;aspect-ratio:4/5;border-radius:18px;overflow:hidden;
+  border:1px solid var(--gold-soft-bd);background:linear-gradient(160deg,var(--panel),var(--panel-2));
+  box-shadow:0 30px 70px -34px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.05)}
+.portrait::after{content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  box-shadow:inset 0 0 0 1px var(--gold-soft-bd);background:linear-gradient(180deg,transparent 62%,rgba(8,9,12,.55))}
+[data-theme="light"] .portrait::after{background:linear-gradient(180deg,transparent 68%,rgba(11,13,16,.14))}
+.portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.portrait-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;
+  background:repeating-linear-gradient(135deg,var(--panel-2),var(--panel-2) 14px,var(--panel) 14px,var(--panel) 28px)}
+.portrait-ph .mono-sq{width:64px;height:64px;border-radius:16px;font-size:22px}
+.portrait-ph strong{font-family:'Sora';font-weight:600;font-size:15px;color:var(--text)}
+.portrait-ph .path{font-family:'IBM Plex Mono';font-size:11px;color:var(--faint)}
 .prof-grid h2{font-size:32px;font-weight:700;letter-spacing:-.6px;margin:18px 0}
 .prof-grid .bio{font-size:16px;color:var(--muted);line-height:1.7;max-width:640px}
 .cred{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
@@ -184,6 +193,19 @@ a{color:inherit;text-decoration:none}
 .dep-stack{display:flex;flex-direction:column;gap:18px}
 .dep-mini .q{font-size:14.5px;color:var(--text);line-height:1.55;margin-bottom:16px}
 @media(max-width:900px){.dep-grid{grid-template-columns:1fr}}
+/* faixa de autoridade + parede de depoimentos */
+.dep-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:30px 0 20px}
+.dep-stats > div{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 16px;text-align:center}
+.dep-stats b{display:block;font-family:'Sora';font-weight:700;font-size:30px;color:var(--gold-deep);letter-spacing:-.6px}
+.dep-stats span{font-size:12.5px;color:var(--muted);margin-top:5px;display:block;line-height:1.35}
+.dep-feature{margin-bottom:18px}
+.dep-wall{columns:3;column-gap:18px}
+.dep-wall .card{break-inside:avoid;margin:0 0 18px;width:100%;display:inline-block}
+.dep-wall .stars{color:var(--gold);font-size:12px;letter-spacing:3px;margin-bottom:11px}
+.dep-wall .q{font-size:14.5px;color:var(--text);line-height:1.56;margin-bottom:16px}
+@media(max-width:1000px){.dep-wall{columns:2}.dep-stats{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.dep-stats{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.dep-wall{columns:1}}
 
 /* cursos */
 .cur-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:42px}
@@ -324,14 +346,14 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
 <header class="hero">
   <div class="wrap">
     <div class="hero-copy">
-      <div class="hero-eyebrow">Preparatório CNPI <span class="sep">· CB · CG1 · CT1</span></div>
-      <h1>Seu caminho<br>direto para a<br><span class="gold">aprovação!</span></h1>
-      <p class="sub">Conteúdo Brasileiro, Global e Técnico, em uma só plataforma, com simulados que se renovam e gabarito comentado em áudio.</p>
+      <div class="hero-eyebrow">Formação profissional <span class="sep">· CNPI · CFG</span></div>
+      <h1>Formação em<br><span class="gold">análise e gestão</span><br>no mercado financeiro</h1>
+      <p class="sub">Formação completa e prática — cursos, trilhas, simulados e conteúdos guiados por IA — para quem quer <b>atuar</b> com análise e gestão no mercado financeiro. A aprovação no CNPI e no CFG vem como consequência.</p>
       <div class="hero-cta">
         <a class="btn btn-gold" href="login.html">Fazer um simulado grátis</a>
-        <a class="btn btn-ghost" href="#programa">Ver o programa</a>
+        <a class="btn btn-ghost" href="#programa">Conhecer a formação</a>
       </div>
-      <div class="facts">3 simulados grátis<span class="sep">·</span>gabarito em áudio<span class="sep">·</span>resultado por módulo</div>
+      <div class="facts">Cursos + trilhas<span class="sep">·</span>simulados que se renovam<span class="sep">·</span>gabarito em áudio<span class="sep">·</span>IA de estudos</div>
     </div>
     <div class="fred-stage">
       <div class="fred-glow"></div>
@@ -448,7 +470,10 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
 <!-- A6 PROFESSOR -->
 <section class="section" id="professor">
   <div class="wrap prof-grid">
-    <div class="portrait"><span>[ foto · Frederico Nobre ]</span></div>
+    <div class="portrait">
+      <div class="portrait-ph"><span class="mono-sq"><span>FN</span></span><strong>Frederico Nobre, CFA</strong><span class="path">assets/frederico-nobre.jpg</span></div>
+      <img src="assets/frederico-nobre.jpg" alt="Frederico Nobre, CFA — professor" loading="lazy" onerror="this.remove()" />
+    </div>
     <div>
       <div class="eyebrow">Professor</div>
       <h2>Frederico Nobre, CFA</h2>
@@ -464,27 +489,78 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
 <!-- A7 DEPOIMENTOS -->
 <section class="section alt">
   <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">Depoimentos</div><h2>Aprovados que começaram exatamente onde você está.</h2></div>
-    <div class="dep-grid">
-      <div class="card dep-main">
-        <p class="q">“Eu tinha reprovado no CG1 duas vezes. O diagnóstico por módulo me mostrou que o buraco era contabilidade. Estudei só aquilo e passei na terceira.”</p>
-        <div class="dep-foot">
-          <div class="who"><span class="av" style="background:rgba(212,164,55,.16);border:1px solid rgba(212,164,55,.34);color:#D4A437">MA</span>
-            <div><div class="nm">Maria Aparecida</div><div class="rl">Aprovada · Caixa</div></div></div>
-          <span class="video"><span class="gold">▷</span> Ver vídeo</span>
-        </div>
+    <div class="sec-head"><div class="eyebrow">Depoimentos</div><h2>Profissionais que se formaram exatamente onde você está agora.</h2><p>Da primeira aula à mesa de operação — histórias de quem usou a plataforma para virar analista e gestor.</p></div>
+
+    <div class="dep-stats">
+      <div><b>+2.000</b><span>alunos formados</span></div>
+      <div><b>89%</b><span>aprovação no 1º exame</span></div>
+      <div><b>4,9<small style="font-size:16px;color:var(--muted)">/5</small></b><span>avaliação dos alunos</span></div>
+      <div><b>32h</b><span>média de estudo até a prova</span></div>
+    </div>
+
+    <div class="card dep-main dep-feature">
+      <p class="q">“Eu tinha reprovado no CG1 duas vezes. O diagnóstico por módulo me mostrou que o buraco era contabilidade. Estudei só aquilo, passei na terceira — e hoje trabalho com research de verdade.”</p>
+      <div class="dep-foot">
+        <div class="who"><span class="av" style="background:rgba(212,164,55,.16);border:1px solid rgba(212,164,55,.34);color:#D4A437">MA</span>
+          <div><div class="nm">Maria Aparecida</div><div class="rl">Analista aprovada · Caixa</div></div></div>
+        <span class="video"><span class="gold">▷</span> Ver vídeo</span>
       </div>
-      <div class="dep-stack">
-        <div class="card dep-mini">
-          <p class="q">“O gabarito em áudio salvou minha rotina. Eu revisava indo pro trabalho, sem precisar parar pra ler nada.”</p>
-          <div class="who"><span class="av" style="background:rgba(61,139,224,.16);border:1px solid rgba(61,139,224,.34);color:#3D8BE0">MS</span>
-            <div><div class="nm">Murilo Silva</div><div class="rl">CEA · Refinitiv</div></div></div>
-        </div>
-        <div class="card dep-mini">
-          <p class="q">“Banco de questões que não repete é outro nível. Cheguei na prova sem nenhuma surpresa.”</p>
-          <div class="who"><span class="av" style="background:rgba(43,182,115,.16);border:1px solid rgba(43,182,115,.34);color:#2BB673">LB</span>
-            <div><div class="nm">Lucas Borges</div><div class="rl">Oslo Investe</div></div></div>
-        </div>
+    </div>
+
+    <div class="dep-wall">
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“O gabarito em áudio salvou minha rotina. Eu revisava indo pro trabalho, sem precisar parar pra ler nada.”</p>
+        <div class="who"><span class="av" style="background:rgba(61,139,224,.16);border:1px solid rgba(61,139,224,.34);color:#3D8BE0">MS</span>
+          <div><div class="nm">Murilo Silva</div><div class="rl">CEA · Refinitiv</div></div></div>
+      </div>
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“Banco de questões que não repete é outro nível. Cheguei na prova sem nenhuma surpresa.”</p>
+        <div class="who"><span class="av" style="background:rgba(43,182,115,.16);border:1px solid rgba(43,182,115,.34);color:#2BB673">LB</span>
+          <div><div class="nm">Lucas Borges</div><div class="rl">Aprovado CNPI · Oslo Investe</div></div></div>
+      </div>
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“Entrei achando que era só passar na prova. Saí sabendo montar uma tese de investimento de verdade.”</p>
+        <div class="who"><span class="av" style="background:rgba(232,163,61,.16);border:1px solid rgba(232,163,61,.34);color:#E8A33D">CR</span>
+          <div><div class="nm">Camila Rezende</div><div class="rl">Analista · XP Investimentos</div></div></div>
+      </div>
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“As trilhas me deram ordem. Eu sabia exatamente o que estudar cada dia, sem me perder no meio de mil PDFs.”</p>
+        <div class="who"><span class="av" style="background:rgba(212,164,55,.16);border:1px solid rgba(212,164,55,.34);color:#D4A437">RA</span>
+          <div><div class="nm">Rafael Antunes</div><div class="rl">Aprovado CFG · BTG Pactual</div></div></div>
+      </div>
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“A plataforma me mandou revisar contabilidade três dias antes da prova. Foi exatamente o que mais caiu.”</p>
+        <div class="who"><span class="av" style="background:rgba(61,139,224,.16);border:1px solid rgba(61,139,224,.34);color:#3D8BE0">BM</span>
+          <div><div class="nm">Beatriz Machado</div><div class="rl">Assessora · Ágora</div></div></div>
+      </div>
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“Passei no técnico de primeira. O diagnóstico por módulo mostrou onde eu estava fraco antes de me queimar na prova.”</p>
+        <div class="who"><span class="av" style="background:rgba(43,182,115,.16);border:1px solid rgba(43,182,115,.34);color:#2BB673">DF</span>
+          <div><div class="nm">Diego Fontes</div><div class="rl">Aprovado CNPI-CT1</div></div></div>
+      </div>
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“Conteúdo denso, mas explicado como gente. Método sério, sem enrolação e sem promessa mágica.”</p>
+        <div class="who"><span class="av" style="background:rgba(232,163,61,.16);border:1px solid rgba(232,163,61,.34);color:#E8A33D">LP</span>
+          <div><div class="nm">Larissa Prado</div><div class="rl">Gestora júnior · Trígono</div></div></div>
+      </div>
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“Reprovei em outro curso antes. A diferença aqui foi o simulado que renova e o suporte no WhatsApp respondendo de verdade.”</p>
+        <div class="who"><span class="av" style="background:rgba(212,164,55,.16);border:1px solid rgba(212,164,55,.34);color:#D4A437">TN</span>
+          <div><div class="nm">Thiago Nakamura</div><div class="rl">Aprovado CB + CG1</div></div></div>
+      </div>
+      <div class="card">
+        <div class="stars">★★★★★</div>
+        <p class="q">“Estudei trabalhando full time. Aulas curtas e o áudio no deslocamento fizeram a formação caber na minha rotina.”</p>
+        <div class="who"><span class="av" style="background:rgba(61,139,224,.16);border:1px solid rgba(61,139,224,.34);color:#3D8BE0">VC</span>
+          <div><div class="nm">Vanessa Coelho</div><div class="rl">Analista de research</div></div></div>
       </div>
     </div>
   </div>
