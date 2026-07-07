@@ -18,6 +18,7 @@
   --mono-grad:linear-gradient(140deg,#EBC768,#D4A437 55%,#A8761B);
   --gold-soft-bg:rgba(212,164,55,.10); --gold-soft-bd:rgba(212,164,55,.28);
   --green:#2BB673; --amber:#E8A33D; --red:#E0533D; --blue:#3D8BE0;
+  --scrim:rgba(0,0,0,.55);
 }
 [data-theme="light"]{
   --bg:#F1EFE9; --bg-alt:#F8F6F1; --panel:#FFFFFF; --panel-2:#F3F1EA;
@@ -26,6 +27,7 @@
   --input-bg:#F3F1EA; --overlay-soft:rgba(27,31,38,.04); --overlay-bd:rgba(27,31,38,.14);
   --track:rgba(27,31,38,.10);
   --gold-deep:#A6781A; --gold-soft-bg:rgba(212,164,55,.14); --gold-soft-bd:rgba(212,164,55,.34); --green:#1F9760;
+  --scrim:rgba(20,22,28,.35);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s}
@@ -68,7 +70,8 @@ svg{display:block}
 .topbar .ttl{font-size:19px;font-weight:700}
 .topbar .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .top-actions{display:flex;align-items:center;gap:14px}
-.search{display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--muted);font-size:13px;min-width:200px}
+.search{display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--muted);font-size:13px;min-width:220px;cursor:pointer;font-family:inherit}
+.search:hover{border-color:var(--gold-soft-bd)}
 .search .kbd{margin-left:auto;font-family:'IBM Plex Mono';font-size:11px;background:var(--overlay-soft);border:1px solid var(--border);border-radius:5px;padding:1px 6px}
 .seg{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--overlay-soft);border:1px solid var(--border)}
 .seg button{font-weight:600;font-size:12px;padding:5px 12px;border-radius:999px;border:none;background:none;color:var(--muted);cursor:pointer;font-family:inherit}
@@ -78,31 +81,45 @@ svg{display:block}
 @media(max-width:760px){.search{display:none}}
 
 /* view */
-.view{padding:28px 30px 60px}
-.panel{display:none}
-.panel.active{display:block}
+.view{padding:28px 30px 90px}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px}
-.rowtitle{display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 14px}
+.rowtitle{display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 14px;gap:12px}
 .rowtitle h3{font-size:16px;font-weight:600}
 .rowtitle .cnt{font-size:13px;color:var(--muted)}
-.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;border-radius:10px;padding:11px 18px;cursor:pointer;border:1px solid transparent}
+.rowtitle a.cnt:hover{color:var(--gold-deep)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;border-radius:10px;padding:11px 18px;cursor:pointer;border:1px solid transparent;font-family:inherit}
 .btn-gold{background:var(--gold-grad);color:#0B0D10}
 .btn-ghost{background:var(--overlay-soft);border-color:var(--overlay-bd);color:var(--text)}
 .btn-sm{padding:8px 14px;font-size:13px}
+.btn-lg{padding:14px 22px;font-size:15px}
+
+/* breadcrumb */
+.crumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:18px;flex-wrap:wrap}
+.crumb a:hover{color:var(--gold-deep)}
+.crumb .sep{color:var(--faint)}
+.crumb .cur{color:var(--text)}
 
 /* media tiles stay dark in both themes */
 .tile{background:linear-gradient(135deg,#1a1f29,#0c0f15);color:#E7EAEF}
 
+/* home search hero */
+.home-search{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:15px 18px;cursor:text;box-shadow:0 20px 50px -30px rgba(0,0,0,.6)}
+.home-search:hover{border-color:var(--gold-soft-bd)}
+.home-search svg{flex:none;color:var(--gold-deep)}
+.home-search .ph{color:var(--muted);font-size:15px}
+.home-search .kbd{margin-left:auto;font-family:'IBM Plex Mono';font-size:11.5px;color:var(--faint);background:var(--overlay-soft);border:1px solid var(--border);border-radius:6px;padding:3px 8px}
+
 /* continue banner */
-.banner{display:grid;grid-template-columns:200px 1fr;gap:22px;border-radius:18px;overflow:hidden;border:1px solid var(--border);
+.banner{display:grid;grid-template-columns:220px 1fr;gap:22px;border-radius:18px;overflow:hidden;border:1px solid var(--border);
   background:linear-gradient(120deg,#0e1726,#0b0f17 60%);padding:22px;align-items:center}
-.banner .thumb{height:118px;border-radius:12px;background:linear-gradient(135deg,#23304a,#121826);display:flex;align-items:center;justify-content:center;color:#9fb4d8;font-size:30px}
+.banner .thumb{height:130px;border-radius:12px;background:linear-gradient(135deg,#23304a,#121826);display:flex;align-items:center;justify-content:center;color:#9fb4d8;font-size:30px;position:relative;overflow:hidden}
+.banner .thumb .roman{position:absolute;top:6px;right:14px;font-family:'Sora';font-weight:800;font-size:60px;color:rgba(255,255,255,.06)}
 .banner .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8aa0c6;font-weight:600}
 .banner h2{font-size:22px;margin:8px 0 4px;color:#fff}
 .banner .meta{font-size:13px;color:#9fb1cc}
 .bar{height:6px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden;margin:14px 0}
 .bar > i{display:block;height:100%;background:var(--gold-grad)}
-.banner .btns{display:flex;gap:12px;margin-top:6px}
+.banner .btns{display:flex;gap:12px;margin-top:6px;flex-wrap:wrap}
 
 /* KPIs */
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
@@ -125,6 +142,8 @@ svg{display:block}
 .lcard .pbar > i{display:block;height:100%;background:var(--green)}
 .lcard .t{font-size:14px;font-weight:600;color:var(--head);margin-top:11px;line-height:1.3}
 .lcard .d{font-size:12.5px;color:var(--muted);margin-top:4px}
+.lcard .play{position:absolute;inset:0;margin:auto;width:46px;height:46px;border-radius:999px;background:rgba(8,9,12,.5);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;opacity:0;transition:opacity .2s}
+.lcard:hover .play{opacity:1}
 
 /* group header */
 .grp{margin-top:30px}
@@ -133,14 +152,130 @@ svg{display:block}
 .grp .gh .gs{font-size:13px;color:var(--muted)}
 .grp .gh .gc{margin-left:auto;font-size:12.5px;color:var(--gold-deep);font-family:'IBM Plex Mono'}
 
+/* ===== TRILHAS ===== */
+.tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.tcard{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--border);padding:26px;min-height:210px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .2s;color:#EAF0F7}
+.tcard:hover{transform:translateY(-6px);box-shadow:0 30px 60px -28px rgba(0,0,0,.65);border-color:var(--tc)}
+.tcard::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--tc) 42%,#0b0f17),#0a0d13 62%);z-index:0}
+.tcard::after{content:"";position:absolute;right:-30px;top:-30px;width:180px;height:180px;border-radius:999px;background:radial-gradient(circle,color-mix(in srgb,var(--tc) 55%,transparent),transparent 70%);z-index:0;filter:blur(6px);opacity:.5}
+.tcard > *{position:relative;z-index:1}
+.tcard .thead{display:flex;align-items:center;gap:12px}
+.tcard .tico{width:44px;height:44px;flex:none;border-radius:12px;background:color-mix(in srgb,var(--tc) 30%,transparent);border:1px solid color-mix(in srgb,var(--tc) 60%,transparent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+.tcard .teye{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--tc) 70%,#fff)}
+.tcard h3{font-size:22px;color:#fff;margin-top:3px;letter-spacing:-.4px}
+.tcard .tdesc{font-size:13.5px;color:#c3ccd8;line-height:1.5;margin-top:12px;max-width:420px}
+.tcard .tfoot{display:flex;align-items:center;gap:16px;margin-top:18px}
+.tcard .tprog{flex:1;height:7px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden}
+.tcard .tprog > i{display:block;height:100%;background:var(--tc)}
+.tcard .tstat{font-size:12.5px;color:#c3ccd8;font-family:'IBM Plex Mono';white-space:nowrap}
+.tcard .tpill{position:absolute;top:22px;right:22px;font-size:11px;font-weight:600;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 11px;z-index:2}
+@media(max-width:820px){.tgrid{grid-template-columns:1fr}}
+
+/* ===== CURSOS (catálogo) ===== */
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.ccard{position:relative;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--panel);cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .2s}
+.ccard:hover{transform:translateY(-6px);box-shadow:0 26px 54px -26px rgba(0,0,0,.6)}
+.ccard .cover{position:relative;height:132px;display:flex;align-items:flex-end;padding:14px;color:#E7EAEF}
+.ccard .cover .roman{position:absolute;top:8px;right:16px;font-family:'Sora';font-weight:800;font-size:56px;color:rgba(255,255,255,.07)}
+.ccard .cover .ctag{font-family:'IBM Plex Mono';font-size:11.5px;font-weight:600;color:#0B0D10;background:var(--gold-grad);border-radius:6px;padding:3px 9px}
+.ccard .cbody{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+.ccard h3{font-size:16px;font-weight:600;line-height:1.3}
+.ccard .cdesc{font-size:13px;color:var(--muted);line-height:1.5;margin-top:7px;flex:1}
+.ccard .cmeta{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:12px;color:var(--faint)}
+.ccard .cmeta .prog{color:var(--green);font-family:'IBM Plex Mono'}
+.ccard .cprogbar{height:5px;border-radius:999px;background:var(--track);overflow:hidden;margin-top:12px}
+.ccard .cprogbar > i{display:block;height:100%;background:var(--gold-grad)}
+/* locked state */
+.ccard.locked{cursor:pointer}
+.ccard.locked .cover,.ccard.locked .cbody h3,.ccard.locked .cbody .cdesc,.ccard.locked .cbody .cmeta{filter:blur(2.5px);opacity:.5;transition:filter .25s}
+.ccard.locked:hover .cover{filter:blur(2px)}
+.lock-ov{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;
+  background:linear-gradient(180deg,rgba(8,9,12,.35),rgba(8,9,12,.72));backdrop-filter:blur(1px)}
+[data-theme="light"] .lock-ov{background:linear-gradient(180deg,rgba(20,22,28,.14),rgba(20,22,28,.46))}
+.lock-ov .lk{width:46px;height:46px;border-radius:999px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);display:flex;align-items:center;justify-content:center;color:var(--gold-deep)}
+.lock-ov .lt{font-family:'Sora';font-weight:600;font-size:14.5px;color:#fff}
+[data-theme="light"] .lock-ov .lt{color:var(--head)}
+.lock-ov .lp{font-size:12.5px;color:#c3ccd8}
+[data-theme="light"] .lock-ov .lp{color:var(--muted)}
+.lock-ov .btn{margin-top:4px}
+@media(max-width:980px){.cgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.cgrid{grid-template-columns:1fr}}
+
+/* ===== CURSO detalhe + player ===== */
+.course-hero{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--border);padding:30px;margin-bottom:8px;color:#EAF0F7;
+  background:linear-gradient(120deg,#141a26,#0b0f17 62%)}
+.course-hero .ctag{font-family:'IBM Plex Mono';font-size:12px;color:var(--gold-deep)}
+.course-hero h1{font-size:30px;color:#fff;letter-spacing:-.6px;margin:8px 0 10px}
+.course-hero p{font-size:14.5px;color:#c3ccd8;max-width:640px;line-height:1.6}
+.course-hero .chstats{display:flex;gap:22px;margin-top:20px;flex-wrap:wrap;font-size:13px;color:#c3ccd8}
+.course-hero .chstats b{color:#fff;font-family:'IBM Plex Mono'}
+.course-hero .chbtns{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
+.course-hero .chbar{height:7px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:20px;max-width:520px}
+.course-hero .chbar > i{display:block;height:100%;background:var(--gold-grad)}
+.mod{border:1px solid var(--border);border-radius:14px;background:var(--panel);margin-top:16px;overflow:hidden}
+.mod-h{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer}
+.mod-h .mn{width:30px;height:30px;flex:none;border-radius:8px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-size:13px;font-weight:600}
+.mod-h .mt{font-weight:600;font-size:15px}
+.mod-h .ms{font-size:12.5px;color:var(--muted);margin-top:2px}
+.mod-h .chev{margin-left:auto;color:var(--faint);transition:transform .25s}
+.mod.open .chev{transform:rotate(90deg)}
+.mod-body{display:none;border-top:1px solid var(--border-soft)}
+.mod.open .mod-body{display:block}
+.lrow{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--border-soft);cursor:pointer}
+.lrow:last-child{border-bottom:none}
+.lrow:hover{background:var(--overlay-soft)}
+.lrow .li{width:30px;height:30px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;border:1px solid var(--border)}
+.lrow .li.done{background:rgba(43,182,115,.14);border-color:rgba(43,182,115,.3);color:var(--green)}
+.lrow .li.prog{background:var(--gold-soft-bg);border-color:var(--gold-soft-bd);color:var(--gold-deep)}
+.lrow .li.lock{color:var(--faint)}
+.lrow .lt{font-weight:500;font-size:14px}
+.lrow .ld{font-size:12px;color:var(--muted);margin-top:2px}
+.lrow .ldur{margin-left:auto;font-size:12.5px;color:var(--faint);font-family:'IBM Plex Mono'}
+
+/* player */
+.player{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
+.player-video{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;border:1px solid var(--border);
+  background:radial-gradient(120% 120% at 50% 0%,#1a2536,#0b0f17 70%);display:flex;align-items:center;justify-content:center}
+.player-video .pbtn{width:74px;height:74px;border-radius:999px;background:rgba(212,164,55,.16);border:1px solid var(--gold-soft-bd);display:flex;align-items:center;justify-content:center;color:var(--gold-deep);cursor:pointer;transition:transform .2s}
+.player-video .pbtn:hover{transform:scale(1.06)}
+.player-video .pctrl{position:absolute;left:0;right:0;bottom:0;padding:12px 16px;display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,transparent,rgba(6,8,11,.72))}
+.player-video .ptrack{flex:1;height:5px;border-radius:999px;background:rgba(255,255,255,.2);overflow:hidden}
+.player-video .ptrack > i{display:block;height:100%;background:var(--gold-grad)}
+.player-video .ptime{font-family:'IBM Plex Mono';font-size:12px;color:#cfd8e6}
+.player h1{font-size:23px;letter-spacing:-.4px;margin-top:20px}
+.player .pmeta{font-size:13px;color:var(--muted);margin-top:6px}
+.player .ptools{display:flex;gap:10px;margin:18px 0}
+.player .ptools .btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+.player .pdesc{font-size:14px;color:var(--text);line-height:1.7;margin-top:8px}
+.player .pnav{display:flex;justify-content:space-between;gap:12px;margin-top:26px;border-top:1px solid var(--border-soft);padding-top:20px}
+.player-side .card{margin-bottom:16px}
+.player-side h4{font-size:14px;margin-bottom:12px}
+.mat{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border-soft)}
+.mat:last-child{border-bottom:none}
+.mat .mi{width:34px;height:34px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.mat .mnm{font-size:13.5px;font-weight:500;color:var(--text)}
+.mat .msz{font-size:11.5px;color:var(--faint)}
+.mat .dl{margin-left:auto;color:var(--gold-deep);cursor:pointer}
+.audio-cta{display:flex;align-items:center;gap:12px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:12px;padding:12px 14px}
+.audio-cta .ai{width:36px;height:36px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center}
+.audio-cta .at{font-size:13px;font-weight:600;color:var(--head)}
+.audio-cta .as{font-size:12px;color:var(--muted)}
+.up-next{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;border-bottom:1px solid var(--border-soft)}
+.up-next:last-child{border-bottom:none}
+.up-next:hover .un-t{color:var(--gold-deep)}
+.up-next .un-th{width:56px;height:38px;flex:none;border-radius:8px;background:linear-gradient(135deg,#23304a,#121826);display:flex;align-items:center;justify-content:center;color:#9fb4d8;font-size:13px}
+.up-next .un-t{font-size:13px;font-weight:500;line-height:1.3}
+.up-next .un-d{font-size:11.5px;color:var(--faint);margin-top:2px}
+@media(max-width:900px){.player{grid-template-columns:1fr}}
+
 /* desempenho */
 .perf-top{display:grid;grid-template-columns:1fr 1.4fr;gap:18px}
 .perf-bot{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-top:18px}
-.donut{--p:78;--c:var(--gold);width:150px;height:150px;border-radius:999px;flex:none;
+.donut{--p:78;--c:var(--gold);width:150px;height:150px;border-radius:999px;flex:none;position:relative;
   background:conic-gradient(var(--c) calc(var(--p)*1%),var(--track) 0);display:flex;align-items:center;justify-content:center}
 .donut::before{content:"";position:absolute;width:108px;height:108px;border-radius:999px;background:var(--panel)}
 .donut .num{position:relative;font-family:'IBM Plex Mono';font-size:30px;color:var(--head)}
-.diag{display:flex;gap:22px;align-items:center}
+.diag{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
 .diag .txt h4{font-size:15px;margin-bottom:6px}
 .diag .txt p{font-size:13px;color:var(--muted);line-height:1.55}
 .tbar{margin:14px 0}
@@ -152,35 +287,65 @@ svg{display:block}
 .heat span{aspect-ratio:1;border-radius:4px;background:var(--gold)}
 .legend{display:flex;gap:18px;margin-top:14px;font-size:12.5px;color:var(--muted)}
 .legend b{font-family:'IBM Plex Mono';color:var(--head)}
+/* filtro + histórico de simulados no desempenho */
+.dfilter{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.dfilter label{font-size:13px;color:var(--muted);font-weight:500}
+.sel{position:relative;display:inline-flex}
+.sel select{appearance:none;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--text);background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:9px 34px 9px 14px;cursor:pointer}
+.sel::after{content:"▾";position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none;font-size:12px}
+.simhist{width:100%;border-collapse:collapse}
+.simhist th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:600;padding:0 10px 12px}
+.simhist td{padding:12px 10px;border-top:1px solid var(--border-soft);font-size:13.5px}
+.simhist tr{cursor:pointer}
+.simhist tbody tr:hover{background:var(--overlay-soft)}
+.simhist .sc{font-family:'IBM Plex Mono';font-weight:600}
+.dstat{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.dstat .card{padding:16px 18px;text-align:center}
+.dstat .dv{font-family:'IBM Plex Mono';font-size:26px;color:var(--head)}
+.dstat .dl{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-top:5px}
+@media(max-width:820px){.dstat{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.perf-top,.perf-bot{grid-template-columns:1fr}}
 
 /* simulados */
-.goldstrip{background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:8px}
-.goldstrip .gi{width:38px;height:38px;border-radius:10px;background:var(--gold-grad);display:flex;align-items:center;justify-content:center;color:#0B0D10;font-size:18px}
+.goldstrip{background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.goldstrip .gi{width:38px;height:38px;flex:none;border-radius:10px;background:var(--gold-grad);display:flex;align-items:center;justify-content:center;color:#0B0D10;font-size:18px}
 .goldstrip h4{font-size:15px} .goldstrip p{font-size:13px;color:var(--muted)}
-.simrow{display:flex;align-items:center;gap:14px;padding:14px 6px;border-bottom:1px solid var(--border-soft)}
-.simrow:last-child{border-bottom:none}
-.simrow .ic{width:34px;height:34px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.simrow .nm{font-weight:600;font-size:14.5px}
-.simrow .du{font-size:12.5px;color:var(--muted)}
-.simrow .sc{margin-left:auto;font-family:'IBM Plex Mono';font-size:14px}
+.simfull{border:1px solid var(--border);border-radius:16px;background:var(--panel);overflow:hidden;margin-bottom:16px}
+.simfull-h{display:flex;align-items:center;gap:16px;padding:18px 20px;cursor:pointer}
+.simfull-h .si{width:44px;height:44px;flex:none;border-radius:12px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep);display:flex;align-items:center;justify-content:center;font-size:18px}
+.simfull-h .snm{font-weight:600;font-size:16px}
+.simfull-h .sds{font-size:12.5px;color:var(--muted);margin-top:2px}
+.simfull-h .sright{margin-left:auto;display:flex;align-items:center;gap:16px}
+.simfull-h .sscore{font-family:'IBM Plex Mono';font-size:14px}
+.simfull-h .chev{color:var(--faint);transition:transform .25s}
+.simfull.open .chev{transform:rotate(90deg)}
+.simfull-body{display:none;border-top:1px solid var(--border-soft);padding:6px 20px 14px}
+.simfull.open .simfull-body{display:block}
+.simmod{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--border-soft)}
+.simmod:last-child{border-bottom:none}
+.simmod .mi{width:30px;height:30px;flex:none;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-size:12px;font-weight:600;background:var(--overlay-soft);border:1px solid var(--border);color:var(--muted)}
+.simmod .mi.done{background:rgba(43,182,115,.14);border-color:rgba(43,182,115,.3);color:var(--green)}
+.simmod .mnm{font-weight:500;font-size:14px}
+.simmod .mds{font-size:12px;color:var(--muted);margin-top:2px}
+.simmod .mright{margin-left:auto;display:flex;align-items:center;gap:14px}
+.simmod .msc{font-family:'IBM Plex Mono';font-size:13.5px}
 
 /* favoritos */
 .fav-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.favcard{display:flex;gap:14px}
+.favcard{display:flex;gap:14px;align-items:flex-start}
 .favcard .ft{width:120px;height:78px;flex:none;border-radius:10px;background:linear-gradient(135deg,#1a1f29,#0c0f15);display:flex;align-items:center;justify-content:center;color:#8a94a2;font-size:22px}
 .favcard .note{font-size:12.5px;color:var(--amber);margin-top:6px}
 .qitem{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border-soft)}
 .qitem:last-child{border:none}
 .qitem .star{color:var(--gold);flex:none}
 .qitem .qt{font-size:14px;color:var(--text);line-height:1.4}
-.qitem .qmeta{display:flex;gap:8px;margin-top:7px;align-items:center}
+.qitem .qmeta{display:flex;gap:8px;margin-top:7px;align-items:center;flex-wrap:wrap}
 .tagchip{font-size:11px;color:var(--muted);background:var(--overlay-soft);border:1px solid var(--border);border-radius:6px;padding:3px 8px}
 .why{font-size:11px;color:var(--amber);background:rgba(232,163,61,.10);border:1px solid rgba(232,163,61,.3);border-radius:6px;padding:3px 8px}
 @media(max-width:760px){.fav-grid{grid-template-columns:1fr}}
 
 /* historico */
-.filters{display:flex;gap:8px;margin-bottom:20px}
+.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 .filters button{font-family:inherit;font-size:13px;font-weight:500;color:var(--muted);background:var(--overlay-soft);border:1px solid var(--border);border-radius:999px;padding:7px 15px;cursor:pointer}
 .filters button.on{background:var(--gold-soft-bg);border-color:var(--gold-soft-bd);color:var(--gold-deep)}
 .daygrp{margin-bottom:22px}
@@ -189,13 +354,14 @@ svg{display:block}
 .tl-item .line{position:relative;flex:none;display:flex;flex-direction:column;align-items:center}
 .tl-item .dot{width:12px;height:12px;border-radius:999px;margin-top:4px;z-index:1}
 .tl-item .stick{width:2px;flex:1;background:var(--border)}
-.tl-card{flex:1;background:var(--panel);border:1px solid var(--border-soft);border-radius:12px;padding:13px 16px;margin-bottom:14px}
+.tl-card{flex:1;background:var(--panel);border:1px solid var(--border-soft);border-radius:12px;padding:13px 16px;margin-bottom:14px;cursor:pointer}
+.tl-card:hover{border-color:var(--gold-soft-bd)}
 .tl-card .tt{font-size:14px;font-weight:600;color:var(--head)}
 .tl-card .cx{font-size:12.5px;color:var(--muted);margin-top:3px}
 .tl-card .rs{float:right;font-family:'IBM Plex Mono';font-size:13px}
 
 /* config */
-.cfg{max-width:760px}
+.cfg{max-width:820px}
 .cfg .card{margin-bottom:18px}
 .cfg h3{font-size:16px;margin-bottom:16px}
 .cfg-prof{display:flex;gap:18px;align-items:center;margin-bottom:18px}
@@ -203,17 +369,112 @@ svg{display:block}
 .cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .cfg-grid .f label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px}
 .cfg-grid .f .val{font-size:14.5px;color:var(--text)}
-.plan{display:flex;align-items:center;gap:14px}
+.plan{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .plan .badge{margin-left:auto;font-size:12px;font-weight:600;color:var(--green);background:rgba(43,182,115,.12);border:1px solid rgba(43,182,115,.3);border-radius:999px;padding:5px 12px}
-.pref{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border-soft)}
+.billrow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px;gap:12px}
+.billrow:last-child{border-bottom:none}
+.billrow .bl{color:var(--muted)}
+.billrow .bv{color:var(--text);font-weight:500}
+.sub-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.plan-opt{display:flex;align-items:center;gap:14px;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.plan-opt.cur{border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)}
+.plan-opt .po-nm{font-weight:600;font-size:14.5px;color:var(--head)}
+.plan-opt .po-d{font-size:12.5px;color:var(--muted);margin-top:2px}
+.plan-opt .po-pr{margin-left:auto;text-align:right}
+.plan-opt .po-pr b{font-family:'IBM Plex Mono';font-size:18px;color:var(--head)}
+.plan-opt .po-pr span{display:block;font-size:11px;color:var(--faint)}
+.pref{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border-soft);gap:12px}
 .pref:last-child{border:none}
 .pref .pl{font-size:14px}
-.switch{width:44px;height:26px;border-radius:999px;background:var(--track);border:none;cursor:pointer;position:relative;transition:background .2s}
+.switch{width:44px;height:26px;flex:none;border-radius:999px;background:var(--track);border:none;cursor:pointer;position:relative;transition:background .2s}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:999px;background:#fff;transition:left .2s}
 .switch.on{background:var(--gold)}
 .switch.on::after{left:21px}
 .danger .btn{background:rgba(224,83,61,.12);border:1px solid rgba(224,83,61,.34);color:#E0533D}
-@media(max-width:760px){.cfg-grid{grid-template-columns:1fr}}
+
+/* ===== SEARCH overlay ===== */
+.ov{position:fixed;inset:0;z-index:80;background:var(--scrim);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:12vh 20px 20px}
+.ov.show{display:flex}
+.search-box{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -30px rgba(0,0,0,.7)}
+.search-box .sfield{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border-soft)}
+.search-box .sfield svg{flex:none;color:var(--gold-deep)}
+.search-box input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:inherit;font-size:16px}
+.search-box .esc{font-family:'IBM Plex Mono';font-size:11px;color:var(--faint);border:1px solid var(--border);border-radius:5px;padding:2px 7px}
+.search-res{max-height:52vh;overflow-y:auto;padding:8px}
+.sr-group{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:600;padding:12px 12px 6px}
+.sr-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;cursor:pointer}
+.sr-item:hover,.sr-item.on{background:var(--overlay-soft)}
+.sr-item .si{width:32px;height:32px;flex:none;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--overlay-soft);border:1px solid var(--border)}
+.sr-item .st{font-size:14px;font-weight:500;color:var(--text)}
+.sr-item .sd{font-size:12px;color:var(--muted);margin-top:1px}
+.sr-item .sk{margin-left:auto;font-size:11px;color:var(--faint)}
+.sr-empty{padding:34px;text-align:center;color:var(--muted);font-size:14px}
+
+/* ===== IA (assistente) ===== */
+.ia-fab{position:fixed;right:24px;bottom:24px;z-index:70;display:flex;align-items:center;gap:10px;padding:13px 18px 13px 15px;border-radius:999px;
+  background:var(--gold-grad);color:#0B0D10;border:none;cursor:pointer;font-family:'Sora';font-weight:700;font-size:14px;
+  box-shadow:0 18px 40px -12px rgba(212,164,55,.6)}
+.ia-fab:hover{transform:translateY(-2px)}
+.ia-fab svg{width:20px;height:20px}
+.ia-fab .dotpulse{width:8px;height:8px;border-radius:999px;background:#0B0D10;opacity:.7;animation:iapulse 1.6s ease-in-out infinite}
+@keyframes iapulse{0%,100%{opacity:.35}50%{opacity:.9}}
+.ia-pop{position:fixed;right:24px;bottom:24px;z-index:75;width:390px;max-width:calc(100vw - 32px);height:560px;max-height:calc(100vh - 40px);
+  background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden;display:none;flex-direction:column;
+  box-shadow:0 40px 90px -28px rgba(0,0,0,.7);transform:translateY(12px) scale(.98);opacity:0;transition:transform .22s cubic-bezier(.22,1,.36,1),opacity .22s}
+.ia-pop.show{display:flex;transform:none;opacity:1}
+.ia-head{display:flex;align-items:center;gap:11px;padding:15px 16px;border-bottom:1px solid var(--border-soft);background:var(--bg-alt)}
+.ia-head .iav{width:36px;height:36px;flex:none;border-radius:10px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center}
+.ia-head .inm{font-family:'Sora';font-weight:700;font-size:14.5px;color:var(--head)}
+.ia-head .ist{font-size:11.5px;color:var(--green);display:flex;align-items:center;gap:5px}
+.ia-head .ist::before{content:"";width:6px;height:6px;border-radius:999px;background:var(--green)}
+.ia-head .ihb{margin-left:auto;display:flex;gap:4px}
+.ia-head .ihb button{width:30px;height:30px;border-radius:8px;background:var(--overlay-soft);border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ia-head .ihb button:hover{color:var(--text)}
+.ia-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ia-msg{max-width:84%;font-size:13.5px;line-height:1.55;padding:11px 14px;border-radius:14px}
+.ia-msg.ai{align-self:flex-start;background:var(--overlay-soft);border:1px solid var(--border-soft);color:var(--text);border-bottom-left-radius:5px}
+.ia-msg.me{align-self:flex-end;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--text);border-bottom-right-radius:5px}
+.ia-msg b{color:var(--head)}
+.ia-msg .rec{margin-top:9px;padding-top:9px;border-top:1px solid var(--border-soft);display:flex;flex-direction:column;gap:7px}
+.ia-msg .rec a{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--gold-deep);font-weight:600}
+.ia-msg .rec a::before{content:"▷";font-size:10px}
+.ia-sugg{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 12px}
+.ia-sugg button{font-family:inherit;font-size:12.5px;color:var(--text);background:var(--overlay-soft);border:1px solid var(--border);border-radius:999px;padding:8px 13px;cursor:pointer;text-align:left}
+.ia-sugg button:hover{border-color:var(--gold-soft-bd);color:var(--gold-deep)}
+.ia-input{display:flex;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid var(--border-soft)}
+.ia-input input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-family:inherit;font-size:13.5px;outline:none}
+.ia-input input:focus{border-color:var(--gold-soft-bd)}
+.ia-input .send{width:40px;height:40px;flex:none;border-radius:10px;background:var(--gold-grad);color:#0B0D10;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ia-typing{display:flex;gap:4px;align-self:flex-start;padding:12px 14px;background:var(--overlay-soft);border:1px solid var(--border-soft);border-radius:14px;border-bottom-left-radius:5px}
+.ia-typing i{width:6px;height:6px;border-radius:999px;background:var(--muted);animation:iat 1s infinite}
+.ia-typing i:nth-child(2){animation-delay:.16s}.ia-typing i:nth-child(3){animation-delay:.32s}
+@keyframes iat{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+/* IA página */
+.ia-page{max-width:900px;margin:0 auto}
+.ia-page .iahero{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.ia-page .iahero .big{width:56px;height:56px;flex:none;border-radius:16px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center}
+.ia-page .iahero h2{font-size:22px}
+.ia-page .iahero p{font-size:13.5px;color:var(--muted);margin-top:3px}
+.ia-page .iaconv{border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:18px;display:flex;flex-direction:column;gap:12px;min-height:320px}
+.ia-page .ia-input{border:1px solid var(--border);border-radius:12px;margin-top:14px;background:var(--panel)}
+.reccards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.reccard{border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:transform .2s,border-color .2s}
+.reccard:hover{transform:translateY(-4px);border-color:var(--gold-soft-bd)}
+.reccard .rc-ic{width:38px;height:38px;border-radius:10px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.reccard h4{font-size:14px}
+.reccard p{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:5px}
+@media(max-width:820px){.reccards{grid-template-columns:1fr}}
+
+/* ===== modal ===== */
+.modal{position:fixed;inset:0;z-index:90;background:var(--scrim);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.modal-card{width:100%;max-width:460px;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:0 40px 90px -30px rgba(0,0,0,.7)}
+.modal-card .mic{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:22px}
+.modal-card h3{font-size:19px;margin-bottom:8px}
+.modal-card p{font-size:14px;color:var(--muted);line-height:1.6}
+.modal-card .macts{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.modal-card .macts .btn{flex:1;min-width:130px}
 
 /* ---- mobile: sidebar vira drawer ---- */
 .hamb{display:none}
@@ -235,14 +496,18 @@ svg{display:block}
   .top-actions{gap:8px}
   .seg{display:none}
   .countdown{padding:6px 10px;font-size:11.5px}
-  .view{padding:18px 16px 48px}
+  .view{padding:18px 16px 96px}
   .banner{grid-template-columns:1fr;padding:18px}
   .banner .thumb{height:150px}
   .rowtitle{margin:24px 0 12px}
   .kpis{grid-template-columns:repeat(2,1fr);gap:12px}
   .kpi .k-val{font-size:24px}
+  .player h1{font-size:20px}
+  .course-hero h1{font-size:24px}
+  .ia-pop{right:12px;bottom:12px;height:calc(100vh - 24px)}
+  .ia-fab{right:16px;bottom:16px}
 }
-@media(max-width:420px){.lcard{width:212px}.kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.lcard{width:212px}.kpis{grid-template-columns:1fr 1fr}.dstat{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -251,18 +516,19 @@ svg{display:block}
   <aside class="side">
     <a class="logo" href="index.html"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
     <nav id="nav">
-      <div class="nav-item active" data-tab="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Início</span></div>
-      <div class="nav-item" data-tab="aulas"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Minhas aulas</span></div>
-      <div class="nav-item" data-tab="desempenho"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5M13 16V8M18 16v-3"/></svg><span>Meu desempenho</span></div>
-      <div class="nav-item" data-tab="simulados"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Simulados</span></div>
+      <a class="nav-item" href="#/inicio" data-route="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Início</span></a>
+      <a class="nav-item" href="#/trilhas" data-route="trilhas"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span>Trilhas</span></a>
+      <a class="nav-item" href="#/cursos" data-route="cursos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Cursos</span></a>
+      <a class="nav-item" href="#/simulados" data-route="simulados"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Simulados</span></a>
+      <a class="nav-item" href="#/desempenho" data-route="desempenho"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5M13 16V8M18 16v-3"/></svg><span>Desempenho</span></a>
+      <a class="nav-item" href="#/historico" data-route="historico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico</span></a>
       <div class="nav-div"></div>
-      <div class="nav-item" data-tab="favoritos"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9z"/></svg><span>Favoritos</span></div>
-      <div class="nav-item" data-tab="historico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico</span></div>
+      <a class="nav-item" href="#/favoritos" data-route="favoritos"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9z"/></svg><span>Favoritos</span></a>
     </nav>
     <div class="side-foot">
       <button class="collapse-btn" id="collapse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg><span>Recolher menu</span></button>
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="user" data-tab="config" style="flex:1"><span class="avatar">FN</span><span class="meta"><span class="nm" style="display:block">Felipe Nunes</span><span class="vp">Ver perfil e conta</span></span></div>
+        <a class="user" href="#/perfil" style="flex:1"><span class="avatar">FN</span><span class="meta"><span class="nm" style="display:block">Felipe Nunes</span><span class="vp">Ver perfil e conta</span></span></a>
         <span class="logout" title="Sair" onclick="location.href='login.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
       </div>
     </div>
@@ -276,245 +542,822 @@ svg{display:block}
         <div><div class="ttl" id="bar-ttl">Início</div><div class="sub" id="bar-sub">Continue de onde parou e mantenha o ritmo.</div></div>
       </div>
       <div class="top-actions">
-        <div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg> Buscar aulas, simulados… <span class="kbd">⌘K</span></div>
+        <button class="search" id="open-search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg> Buscar aulas, simulados, trilhas… <span class="kbd">⌘K</span></button>
         <div class="seg" id="theme-seg"><button class="on" data-theme="dark">Escuro</button><button data-theme="light">Claro</button></div>
         <div class="countdown">CNPI · <span class="mono">18 dias</span></div>
       </div>
     </div>
-    <div class="view">
-
-      <!-- INÍCIO -->
-      <section class="panel active" data-panel="inicio">
-        <div class="banner">
-          <div class="thumb">▶</div>
-          <div>
-            <div class="lbl">Continue de onde parou</div>
-            <h2>Renda Fixa · Marcação a mercado</h2>
-            <div class="meta">Módulo III · CNPI-CB · faltam 9 min</div>
-            <div class="bar"><i style="width:64%"></i></div>
-            <div class="btns"><span class="btn btn-gold">▶ Continuar</span><span class="btn btn-ghost">+ Minha lista</span></div>
-          </div>
-        </div>
-        <div class="kpis">
-          <div class="card kpi"><div class="k-lbl">Prontidão</div><div class="k-val">78%</div><div class="k-chg up">▲ 6% na semana</div></div>
-          <div class="card kpi"><div class="k-lbl">Aproveitamento</div><div class="k-val">81%</div><div class="k-chg up">▲ 3% na semana</div></div>
-          <div class="card kpi"><div class="k-lbl">Horas</div><div class="k-val">42h</div><div class="k-chg flat">+5h na semana</div></div>
-          <div class="card kpi"><div class="k-lbl">Sequência</div><div class="k-val">14</div><div class="k-chg up">▲ dias seguidos</div></div>
-        </div>
-        <div class="rowtitle"><h3>Continue assistindo</h3><span class="cnt">CNPI-CB</span></div>
-        <div class="rail" id="rail-continue"></div>
-        <div class="rowtitle"><h3>Sua trilha · CNPI Conteúdo Brasileiro</h3><span class="cnt">2 / 8 concluídas</span></div>
-        <div class="rail" id="rail-trilha"></div>
-      </section>
-
-      <!-- AULAS -->
-      <section class="panel" data-panel="aulas"></section>
-
-      <!-- DESEMPENHO -->
-      <section class="panel" data-panel="desempenho">
-        <div class="perf-top">
-          <div class="card">
-            <h3 style="font-size:15px;margin-bottom:16px">Diagnóstico de prontidão</h3>
-            <div class="diag">
-              <div class="donut" style="--p:78;position:relative;display:flex"><span class="num">78%</span></div>
-              <div class="txt"><h4>Você está quase lá.</h4><p>Foque em <b style="color:var(--gold-deep)">Contabilidade</b> e <b style="color:var(--gold-deep)">Renda Variável</b> — são os módulos que mais derrubam sua média.</p></div>
-            </div>
-          </div>
-          <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px"><h3 style="font-size:15px">Evolução do aproveitamento</h3><span class="mono up" style="font-size:13px">+23%</span></div>
-            <svg viewBox="0 0 520 180" width="100%" height="180" preserveAspectRatio="none">
-              <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D4A437" stop-opacity=".35"/><stop offset="1" stop-color="#D4A437" stop-opacity="0"/></linearGradient></defs>
-              <path d="M0,140 L65,128 L130,132 L195,108 L260,96 L325,84 L390,70 L455,52 L520,40 L520,180 L0,180 Z" fill="url(#g)"/>
-              <path d="M0,140 L65,128 L130,132 L195,108 L260,96 L325,84 L390,70 L455,52 L520,40" fill="none" stroke="#D4A437" stroke-width="2.5"/>
-              <circle cx="520" cy="40" r="5" fill="#D4A437"/>
-            </svg>
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint)" class="mono"><span>S1</span><span>S4</span><span>S8</span></div>
-          </div>
-        </div>
-        <div class="perf-bot">
-          <div class="card">
-            <h3 style="font-size:15px;margin-bottom:16px">Acertos e erros por tema</h3>
-            <div id="themebars"></div>
-          </div>
-          <div class="card">
-            <h3 style="font-size:15px;margin-bottom:16px">Acertos × erros</h3>
-            <div style="display:flex;justify-content:center"><div class="donut" style="--p:78;--c:var(--green);position:relative;display:flex"><span class="num">78%</span></div></div>
-            <div class="legend" style="justify-content:center"><span><b>934</b> acertos</span><span><b>263</b> erros</span></div>
-            <h3 style="font-size:14px;margin:20px 0 10px">Mapa de constância</h3>
-            <div class="heat" id="heat"></div>
-            <div style="font-size:12.5px;color:var(--muted);margin-top:10px">14 dias seguidos de estudo 🔥</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SIMULADOS -->
-      <section class="panel" data-panel="simulados">
-        <div class="goldstrip"><span class="gi">★</span><div><h4>Simulados gratuitos</h4><p>Resultado por módulo + gabarito comentado em áudio em todos os simulados.</p></div></div>
-        <div id="sim-groups"></div>
-      </section>
-
-      <!-- FAVORITOS -->
-      <section class="panel" data-panel="favoritos">
-        <div class="goldstrip"><span class="gi">★</span><div><h4>Seu kit de revisão</h4><p>8 aulas favoritas · 12 questões salvas para revisar antes da prova.</p></div></div>
-        <div class="rowtitle"><h3>Aulas favoritas</h3></div>
-        <div class="fav-grid" id="fav-aulas"></div>
-        <div class="rowtitle"><h3>Questões salvas</h3></div>
-        <div class="card" id="fav-questoes"></div>
-      </section>
-
-      <!-- HISTÓRICO -->
-      <section class="panel" data-panel="historico">
-        <div class="filters" id="hist-filters"><button class="on">Tudo</button><button>Aulas</button><button>Simulados</button><button>Revisões</button></div>
-        <div id="timeline"></div>
-      </section>
-
-      <!-- CONFIG -->
-      <section class="panel cfg" data-panel="config">
-        <div class="card">
-          <h3>Perfil</h3>
-          <div class="cfg-prof"><span class="av">FN</span><div><div style="font-weight:600;font-size:16px;color:var(--head)">Felipe Nunes</div><div style="font-size:13px;color:var(--muted)">aluno@economiadodia.com.br</div></div><span class="btn btn-ghost btn-sm" style="margin-left:auto">Trocar foto</span></div>
-          <div class="cfg-grid">
-            <div class="f"><label>Nome</label><div class="val">Felipe Nunes</div></div>
-            <div class="f"><label>E-mail</label><div class="val">aluno@economiadodia.com.br</div></div>
-            <div class="f"><label>Telefone</label><div class="val">(21) 99999-0000</div></div>
-            <div class="f"><label>Objetivo</label><div class="val">Analista pleno (CB + CG1 + CT1)</div></div>
-          </div>
-          <div style="margin-top:18px"><span class="btn btn-ghost btn-sm">Editar</span></div>
-        </div>
-        <div class="card">
-          <h3>Plano e acesso</h3>
-          <div class="plan"><span class="av" style="width:44px;height:44px;border-radius:12px;font-size:14px" >ED</span><div><div style="font-weight:600;color:var(--head)">CNPI · Curso Completo</div><div style="font-size:13px;color:var(--muted)">Acesso até 12/2027 · analista pleno</div></div><span class="badge">Ativo</span></div>
-        </div>
-        <div class="card">
-          <h3>Preferências</h3>
-          <div class="pref"><span class="pl">Tema</span><div class="seg" id="theme-seg2"><button data-theme="dark">Escuro</button><button data-theme="light">Claro</button></div></div>
-          <div class="pref"><span class="pl">Resumo por e-mail</span><button class="switch on" data-toggle></button></div>
-          <div class="pref"><span class="pl">Lembrete da prova</span><button class="switch on" data-toggle></button></div>
-          <div class="pref"><span class="pl">Avisos no WhatsApp</span><button class="switch" data-toggle></button></div>
-        </div>
-        <div class="card danger"><h3>Sair da conta</h3><p style="font-size:13px;color:var(--muted);margin-bottom:14px">Você precisará entrar novamente para acessar suas aulas.</p><span class="btn btn-sm" onclick="location.href='login.html'">Sair</span></div>
-      </section>
-
-    </div>
+    <div class="view" id="view"></div>
   </div>
   <div class="scrim" id="scrim"></div>
 </div>
 
-<script>
-const TABS={
-  inicio:['Início','Continue de onde parou e mantenha o ritmo.'],
-  aulas:['Minhas aulas','Suas videoaulas por certificação.'],
-  desempenho:['Meu desempenho','Diagnóstico, evolução e pontos a reforçar.'],
-  simulados:['Simulados','Pratique como na prova e veja o resultado por módulo.'],
-  favoritos:['Favoritos','Seu kit de revisão para a reta final.'],
-  historico:['Histórico','Tudo o que você fez, em ordem.'],
-  config:['Perfil e conta','Gerencie seus dados, plano e preferências.']
-};
-function setTab(id){
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.tab===id));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===id));
-  document.getElementById('bar-ttl').textContent=TABS[id][0];
-  document.getElementById('bar-sub').textContent=TABS[id][1];
-  document.getElementById('app').classList.remove('nav-open');
-  window.scrollTo(0,0);
-}
-document.querySelectorAll('[data-tab]').forEach(el=>el.addEventListener('click',()=>setTab(el.dataset.tab)));
-document.getElementById('collapse').addEventListener('click',()=>document.getElementById('app').classList.toggle('collapsed'));
-const _app=document.getElementById('app');
-document.getElementById('hamb').addEventListener('click',()=>_app.classList.toggle('nav-open'));
-document.getElementById('scrim').addEventListener('click',()=>_app.classList.remove('nav-open'));
+<!-- IA: botão flutuante + chat -->
+<button class="ia-fab" id="ia-fab" aria-label="Abrir assistente de IA">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/><path d="M5 15l.8 1.9L7.7 17.7 5.8 18.5 5 20.4 4.2 18.5 2.3 17.7 4.2 16.9z"/></svg>
+  Pergunte à IA <span class="dotpulse"></span>
+</button>
+<div class="ia-pop" id="ia-pop">
+  <div class="ia-head">
+    <span class="iav"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg></span>
+    <div><div class="inm">Assistente ED</div><div class="ist">on-line · vê seu progresso</div></div>
+    <div class="ihb">
+      <button id="ia-expand" title="Abrir em página inteira"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
+      <button id="ia-close" title="Fechar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  </div>
+  <div class="ia-body" id="ia-body"></div>
+  <div class="ia-sugg" id="ia-sugg"></div>
+  <div class="ia-input">
+    <input id="ia-text" placeholder="Pergunte sobre aulas, simulados, desempenho…" autocomplete="off" />
+    <button class="send" id="ia-send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+  </div>
+</div>
 
-// theme
+<!-- BUSCA overlay -->
+<div class="ov" id="search-ov">
+  <div class="search-box">
+    <div class="sfield">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="search-input" placeholder="Buscar aulas, simulados, trilhas, conteúdos…" autocomplete="off" />
+      <span class="esc">ESC</span>
+    </div>
+    <div class="search-res" id="search-res"></div>
+  </div>
+</div>
+
+<!-- MODAL genérico -->
+<div class="modal" id="modal"><div class="modal-card" id="modal-card"></div></div>
+
+<script>
+/* =========================================================
+   MODELO DE DADOS (mock — protótipo)
+   ========================================================= */
+const USER={name:'Felipe Nunes',first:'Felipe',email:'aluno@economiadodia.com.br',phone:'(21) 99999-0000',initials:'FN',goal:'Analista pleno (CB + CG1 + CT1)',planId:'completo'};
+
+const TRILHAS=[
+  {id:'cnpi',eye:'Certificação',name:'Trilha CNPI',color:'#D4A437',ico:'★',desc:'Do zero ao credenciamento de analista: Conteúdo Brasileiro, Global e Técnico, na ordem exata da prova.',courses:['cb','cg1','ct1'],progress:38},
+  {id:'evaluation',eye:'Reta final',name:'Trilha Evaluation',color:'#3D8BE0',ico:'◎',desc:'Preparação intensiva por simulados e diagnóstico. Meça sua prontidão e ataque só o que ainda derruba você.',courses:['simrev','retafinal'],progress:54},
+  {id:'mercado',eye:'Fundamentos → avançado',name:'Trilha Mercado Financeiro',color:'#2BB673',ico:'◈',desc:'A base sólida de quem quer atuar: sistema financeiro, renda fixa, renda variável e valuation na prática.',courses:['fund','rendafixa','valuation','cfg'],progress:20},
+  {id:'comercial',eye:'Carreira',name:'Trilha Comercial',color:'#E8A33D',ico:'◆',desc:'Para assessores e o time comercial: relacionamento, suitability e a rotina de quem vive de investimentos.',courses:['assessoria','comercial'],progress:0}
+];
+
+// lessons: [id,título,duração(min),progresso%]
+const COURSES=[
+  {id:'cb',code:'CNPI-CB',title:'Base do Mercado Financeiro',trilha:'cnpi',owned:true,color:'#D4A437',
+   desc:'Fase comum a todos os analistas: sistema financeiro, renda fixa, derivativos, ética e regulação.',
+   modules:[
+     {title:'Ética e Regulação',lessons:[['l1','Ética e suitability',32,100],['l2','Regulação e órgãos do SFN',28,100]]},
+     {title:'Sistema Financeiro',lessons:[['l3','Sistema Financeiro Nacional',41,100],['l4','Política monetária e Copom',26,30]]},
+     {title:'Renda Fixa',lessons:[['l5','Renda fixa — conceitos',35,64],['l6','Marcação a mercado',22,64],['l7','Títulos públicos',30,0]]},
+     {title:'Derivativos',lessons:[['l8','Derivativos — introdução',38,0],['l9','Hedge e especulação',33,0]]}
+   ]},
+  {id:'cg1',code:'CNPI-CG1',title:'Análise Fundamentalista',trilha:'cnpi',owned:true,color:'#D4A437',
+   desc:'Valuation, contabilidade e finanças corporativas, com base na análise de demonstrações.',
+   modules:[
+     {title:'Valuation',lessons:[['l1','Introdução a valuation',22,12],['l2','Fluxo de caixa descontado',51,0]]},
+     {title:'Contabilidade',lessons:[['l3','Demonstrações financeiras',40,0],['l4','Análise de balanços',44,0]]},
+     {title:'Múltiplos',lessons:[['l5','Múltiplos de mercado',29,0]]}
+   ]},
+  {id:'ct1',code:'CNPI-CT1',title:'Análise Técnica (Gráfica)',trilha:'cnpi',owned:true,color:'#D4A437',
+   desc:'Análise gráfica e tomada de decisão com base em preço e volume.',
+   modules:[
+     {title:'Fundamentos',lessons:[['l1','Teoria de Dow',24,100],['l2','Tendências e suportes',30,35]]},
+     {title:'Padrões',lessons:[['l3','Candlestick',33,0],['l4','Figuras gráficas',28,0]]},
+     {title:'Indicadores',lessons:[['l5','Ondas de Elliott',44,0],['l6','Indicadores e osciladores',31,0]]}
+   ]},
+  {id:'simrev',code:'EVALUATION',title:'Simulados & Revisão CNPI',trilha:'evaluation',owned:true,color:'#3D8BE0',
+   desc:'Banco de simulados que se renova + revisão dirigida pelo seu diagnóstico. O jeito mais rápido de chegar pronto.',
+   modules:[
+     {title:'Revisão dirigida',lessons:[['l1','Como ler seu diagnóstico',14,100],['l2','Plano de revisão de 15 dias',18,40]]},
+     {title:'Simulados guiados',lessons:[['l3','Simulado comentado — CB',60,0],['l4','Simulado comentado — CG1',55,0]]}
+   ]},
+  {id:'retafinal',code:'EVALUATION',title:'Diagnóstico & Reta Final',trilha:'evaluation',owned:true,color:'#3D8BE0',
+   desc:'Os 7 dias antes da prova: o que revisar, o que ignorar e como não se queimar por ansiedade.',
+   modules:[
+     {title:'Reta final',lessons:[['l1','Checklist da véspera',12,0],['l2','Gestão de tempo na prova',16,0]]}
+   ]},
+  {id:'fund',code:'MERCADO',title:'Fundamentos do Mercado Financeiro',trilha:'mercado',owned:true,color:'#2BB673',
+   desc:'A porta de entrada: como o dinheiro circula, quem são os players e por que os juros mandam em tudo.',
+   modules:[
+     {title:'Como o mercado funciona',lessons:[['l1','Players e instituições',26,100],['l2','Juros, inflação e câmbio',30,20]]},
+     {title:'Produtos',lessons:[['l3','Panorama de produtos',28,0]]}
+   ]},
+  {id:'rendafixa',code:'MERCADO',title:'Renda Fixa na Prática',trilha:'mercado',owned:false,color:'#2BB673',price:'697',
+   desc:'Do CDB ao Tesouro IPCA+: monte uma carteira de renda fixa e entenda a marcação a mercado de verdade.',
+   modules:[{title:'Renda Fixa',lessons:[['l1','Tipos de título',30,0],['l2','Montando a carteira',36,0]]}]},
+  {id:'valuation',code:'MERCADO',title:'Valuation na Prática',trilha:'mercado',owned:false,color:'#2BB673',price:'997',
+   desc:'Avaliação de ações e FIIs, com planilhas e relatórios reais de análise. Saia sabendo montar uma tese.',
+   modules:[{title:'Valuation aplicado',lessons:[['l1','Modelo de FCD na planilha',48,0],['l2','Avaliando um FII',40,0]]}]},
+  {id:'cfg',code:'CFG',title:'CFG · Gestão de Recursos',trilha:'mercado',owned:false,color:'#2BB673',price:'1.497',
+   desc:'Certificação de Gestão: fundos, asset allocation e a régua de quem administra o dinheiro dos outros.',
+   modules:[{title:'Gestão',lessons:[['l1','Gestão de recursos e fundos',44,0],['l2','Asset allocation',38,0]]}]},
+  {id:'assessoria',code:'COMERCIAL',title:'Assessoria de Investimentos',trilha:'comercial',owned:false,color:'#E8A33D',price:'797',
+   desc:'A rotina do assessor: prospecção, suitability e como recomendar sem passar dos limites da regulação.',
+   modules:[{title:'Assessoria',lessons:[['l1','O papel do assessor',24,0],['l2','Suitability na prática',30,0]]}]},
+  {id:'comercial',code:'COMERCIAL',title:'Comercial & Relacionamento',trilha:'comercial',owned:false,color:'#E8A33D',price:'597',
+   desc:'Converta e retenha clientes de investimento com um discurso técnico que gera confiança.',
+   modules:[{title:'Comercial',lessons:[['l1','Discurso técnico que vende',26,0],['l2','Relacionamento de longo prazo',22,0]]}]}
+];
+
+const SIMULADOS=[
+  {id:'sim-cb',cert:'CNPI-CB',title:'Simulado CNPI-CB Completo',questions:60,dur:'2h00',score:84,
+   modules:[['Ética e Regulação',15,88],['Sistema Financeiro',15,82],['Renda Fixa',15,74],['Derivativos',15,69]]},
+  {id:'sim-cg1',cert:'CNPI-CG1',title:'Simulado CNPI-CG1 Completo',questions:60,dur:'1h50',score:58,
+   modules:[['Análise de Ações',15,66],['Finanças Corporativas',15,60],['Contabilidade',15,49],['Demonstrações',15,54]]},
+  {id:'sim-ct1',cert:'CNPI-CT1',title:'Simulado CNPI-CT1 Completo',questions:60,dur:'1h50',score:null,
+   modules:[['Teoria de Dow',15,null],['Tendências',15,null],['Candlestick',15,null],['Indicadores',15,null]]},
+  {id:'sim-cfg',cert:'CFG',title:'Simulado CFG Completo',questions:60,dur:'2h00',score:76,
+   modules:[['Economia e Finanças',15,80],['Instrumentos',15,78],['Fundos',15,72],['Ética e Regulação',15,74]]},
+  {id:'sim-merc',cert:'MERCADO',title:'Simulado Mercado Financeiro',questions:40,dur:'1h20',score:null,
+   modules:[['Fundamentos',10,null],['Renda Fixa',10,null],['Renda Variável',10,null],['Derivativos',10,null]]}
+];
+
+const THEMES=[['Ética e regulação',88],['Sistema financeiro',82],['Renda fixa',74],['Derivativos',69],['Contabilidade',54],['Renda variável',61]];
+
+const HISTORY=[
+  ['Hoje',[
+    ['play','#3D8BE0','Renda fixa · Marcação a mercado','Aula · CNPI-CB','Parou em 24:18','#/aula/cb/l6'],
+    ['star','#D4A437','Fluxo de caixa descontado','Favoritado · CG1','','#/curso/cg1']
+  ]],
+  ['Ontem',[
+    ['check','#2BB673','Simulado CNPI-CB Completo','Simulado · 60 questões','84% de acerto','#/simulado/sim-cb'],
+    ['check','#2BB673','Teoria de Dow','Aula · CNPI-CT1','Concluída','#/aula/ct1/l1']
+  ]],
+  ['12 jun',[
+    ['doc','#E8A33D','Panorama de produtos','Conteúdo · Mercado','Lido','#/curso/fund'],
+    ['check','#2BB673','Simulado CFG Completo','Simulado · 60 questões','76% de acerto','#/simulado/sim-cfg']
+  ]]
+];
+
+const PLANS=[
+  {id:'tecnico',name:'CNPI · Técnico',d:'CB + CT1 · análise gráfica',price:'2.197',per:'à vista'},
+  {id:'fundamentalista',name:'CNPI · Fundamentalista',d:'CB + CG1 · research e valuation',price:'2.197',per:'à vista'},
+  {id:'completo',name:'CNPI · Curso Completo',d:'CB + CG1 + CT1 · analista pleno + trilhas',price:'2.997',per:'à vista'}
+];
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $=(s,el=document)=>el.querySelector(s);
+const $$=(s,el=document)=>Array.from(el.querySelectorAll(s));
+const romans=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function courseById(id){return COURSES.find(c=>c.id===id)}
+function trilhaById(id){return TRILHAS.find(t=>t.id===id)}
+function simById(id){return SIMULADOS.find(s=>s.id===id)}
+function flatLessons(c){const out=[];c.modules.forEach((m,mi)=>m.lessons.forEach(l=>out.push({courseId:c.id,mod:mi+1,modTitle:m.title,id:l[0],title:l[1],dur:l[2],p:l[3]})));return out}
+function courseProgress(c){const ls=flatLessons(c);if(!ls.length)return 0;return Math.round(ls.reduce((a,l)=>a+l.p,0)/ls.length)}
+function courseCounts(c){const ls=flatLessons(c);return{done:ls.filter(l=>l.p>=100).length,total:ls.length}}
+function scoreColor(v){return v==null?'var(--muted)':v>=70?'var(--green)':v>=50?'var(--amber)':'var(--red)'}
+function barColor(v){return v>=80?'var(--green)':v>=65?'var(--amber)':'var(--red)'}
+
+// cards
+function railCard(o){
+  const href=o.href||'#';
+  return `<a class="lcard r16" href="${href}"><div class="cap tile">${o.mod?`<span class="modtag">Mód. ${o.mod}</span>`:''}<span class="roman">${o.roman||''}</span>${o.tag?`<span class="tag">${o.tag}</span>`:''}<span class="play"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="pbar"><i style="width:${o.p||0}%"></i></div></div><div class="t">${esc(o.t)}</div><div class="d">${esc(o.d)}</div></a>`;
+}
+function trilhaCard(t){
+  const owned=t.courses.filter(id=>{const c=courseById(id);return c&&c.owned}).length;
+  return `<a class="tcard" href="#/trilha/${t.id}" style="--tc:${t.color}">
+    ${t.progress>0?`<span class="tpill">${t.progress}% concluída</span>`:''}
+    <div><div class="thead"><span class="tico">${t.ico}</span><div><div class="teye">${t.eye}</div><h3>${t.name}</h3></div></div>
+    <p class="tdesc">${esc(t.desc)}</p></div>
+    <div class="tfoot"><span class="tprog"><i style="width:${t.progress}%"></i></span><span class="tstat">${t.courses.length} cursos · ${owned}/${t.courses.length} liberados</span></div>
+  </a>`;
+}
+function courseCard(c){
+  const pr=courseProgress(c),cc=courseCounts(c);
+  if(!c.owned){
+    return `<div class="ccard locked" data-upgrade="${c.id}">
+      <div class="cover tile"><span class="roman">${c.code}</span><span class="ctag">${c.code}</span></div>
+      <div class="cbody"><h3>${esc(c.title)}</h3><p class="cdesc">${esc(c.desc)}</p><div class="cmeta">${cc.total} aulas</div></div>
+      <div class="lock-ov"><span class="lk"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+        <div class="lt">Curso bloqueado</div><div class="lp">Faça upgrade para liberar · R$ ${c.price}</div>
+        <span class="btn btn-gold btn-sm">Desbloquear</span></div>
+    </div>`;
+  }
+  return `<a class="ccard" href="#/curso/${c.id}">
+    <div class="cover tile"><span class="roman">${c.code}</span><span class="ctag">${c.code}</span></div>
+    <div class="cbody"><h3>${esc(c.title)}</h3><p class="cdesc">${esc(c.desc)}</p>
+      <div class="cmeta"><span>${cc.total} aulas</span><span>·</span><span class="prog">${cc.done}/${cc.total} concluídas</span></div>
+      <div class="cprogbar"><i style="width:${pr}%"></i></div></div>
+  </a>`;
+}
+
+/* =========================================================
+   VIEWS
+   ========================================================= */
+const VIEWS={};
+
+VIEWS.inicio=()=>{
+  // continue assistindo: aulas em progresso (owned)
+  const cont=[];
+  COURSES.filter(c=>c.owned).forEach(c=>flatLessons(c).forEach(l=>{if(l.p>0&&l.p<100)cont.push({...l,code:c.code})}));
+  const contRail=cont.slice(0,6).map(l=>railCard({tag:l.code,roman:romans[l.mod-1],p:l.p,t:l.title,d:`${l.modTitle} · ${Math.round(l.dur*(1-l.p/100))} min restantes`,href:`#/aula/${l.courseId}/${l.id}`})).join('');
+  const trilhaAtual=TRILHAS.find(t=>t.id==='evaluation');
+  const nextLesson=cont[0];
+  const trilhasRail=TRILHAS.map(trilhaCard).join('');
+  const cursosRail=COURSES.slice(0,8).map(courseCard).join('');
+  const histPreview=HISTORY[0][1].concat(HISTORY[1][1]).slice(0,4);
+  return `
+  <div class="home-search" id="home-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="ph">O que você quer estudar hoje? Aulas, simulados, trilhas, conteúdos…</span><span class="kbd">⌘K</span></div>
+
+  <div class="banner" style="margin-top:20px">
+    <div class="thumb"><span class="roman">${romans[(nextLesson?.mod||1)-1]}</span>▶</div>
+    <div>
+      <div class="lbl">Continue de onde parou</div>
+      <h2>${esc(nextLesson?nextLesson.title:'Comece sua formação')}</h2>
+      <div class="meta">${nextLesson?`${esc(nextLesson.modTitle)} · ${nextLesson.code} · faltam ${Math.round(nextLesson.dur*(1-nextLesson.p/100))} min`:'Escolha uma trilha para começar'}</div>
+      <div class="bar"><i style="width:${nextLesson?nextLesson.p:0}%"></i></div>
+      <div class="btns"><a class="btn btn-gold" href="${nextLesson?`#/aula/${nextLesson.courseId}/${nextLesson.id}`:'#/trilhas'}">▶ Continuar</a><a class="btn btn-ghost" href="#/cursos">Ver todos os cursos</a></div>
+    </div>
+  </div>
+
+  <div class="rowtitle"><h3>Continue assistindo</h3><a class="cnt" href="#/historico">Ver histórico →</a></div>
+  <div class="rail">${contRail||'<span style="color:var(--muted);font-size:14px">Nenhuma aula em andamento ainda.</span>'}</div>
+
+  <div class="rowtitle"><h3>Sua trilha atual · ${trilhaAtual.name}</h3><a class="cnt" href="#/trilha/${trilhaAtual.id}">Abrir trilha →</a></div>
+  <a class="tcard" href="#/trilha/${trilhaAtual.id}" style="--tc:${trilhaAtual.color};display:flex">
+    <span class="tpill">${trilhaAtual.progress}% concluída</span>
+    <div><div class="thead"><span class="tico">${trilhaAtual.ico}</span><div><div class="teye">Você está aqui</div><h3>${trilhaAtual.name}</h3></div></div>
+    <p class="tdesc">${esc(trilhaAtual.desc)}</p></div>
+    <div class="tfoot"><span class="tprog"><i style="width:${trilhaAtual.progress}%"></i></span><span class="tstat">próximo: Plano de revisão de 15 dias</span></div>
+  </a>
+
+  <div class="rowtitle"><h3>Trilhas disponíveis</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
+  <div class="tgrid">${trilhasRail}</div>
+
+  <div class="rowtitle"><h3>Cursos disponíveis</h3><a class="cnt" href="#/cursos">Ver catálogo →</a></div>
+  <div class="cgrid">${cursosRail}</div>
+
+  <div class="rowtitle"><h3>Seu histórico recente</h3><a class="cnt" href="#/historico">Ver tudo →</a></div>
+  <div class="card">${histPreview.map(e=>`<a class="up-next" href="${e[5]}"><span class="un-th">${({play:'▶',check:'✓',star:'★',doc:'❐'})[e[0]]}</span><div style="flex:1"><div class="un-t">${esc(e[2])}</div><div class="un-d">${esc(e[3])}${e[4]?' · '+esc(e[4]):''}</div></div></a>`).join('')}</div>
+  `;
+};
+
+VIEWS.trilhas=()=>`
+  <div class="goldstrip"><span class="gi">◎</span><div><h4>Trilhas de formação</h4><p>Cada trilha reúne cursos e aulas na ordem certa para você sair pronto — não só aprovado.</p></div></div>
+  <div class="tgrid">${TRILHAS.map(trilhaCard).join('')}</div>
+`;
+
+VIEWS.trilha=(id)=>{
+  const t=trilhaById(id);if(!t)return VIEWS.trilhas();
+  const cs=t.courses.map(courseById).filter(Boolean);
+  return `
+  <div class="crumb"><a href="#/trilhas">Trilhas</a><span class="sep">/</span><span class="cur">${t.name}</span></div>
+  <div class="course-hero" style="background:linear-gradient(120deg,color-mix(in srgb,${t.color} 26%,#0b0f17),#0b0f17 66%)">
+    <div class="ctag" style="color:${t.color}">${t.eye}</div>
+    <h1>${t.name}</h1>
+    <p>${esc(t.desc)}</p>
+    <div class="chstats"><span><b>${cs.length}</b> cursos</span><span><b>${cs.reduce((a,c)=>a+flatLessons(c).length,0)}</b> aulas</span><span><b>${t.progress}%</b> concluída</span></div>
+    <div class="chbar"><i style="width:${t.progress}%;background:${t.color}"></i></div>
+  </div>
+  <div class="rowtitle"><h3>Cursos desta trilha</h3><span class="cnt">${cs.filter(c=>c.owned).length}/${cs.length} liberados</span></div>
+  <div class="cgrid">${cs.map(courseCard).join('')}</div>
+  `;
+};
+
+VIEWS.cursos=()=>{
+  const owned=COURSES.filter(c=>c.owned),locked=COURSES.filter(c=>!c.owned);
+  return `
+  <div class="goldstrip"><span class="gi">▶</span><div><h4>Catálogo de cursos</h4><p>Seus cursos e os próximos passos da sua formação. Cursos bloqueados liberam com upgrade de plano.</p></div></div>
+  <div class="rowtitle"><h3>Meus cursos</h3><span class="cnt">${owned.length} liberados</span></div>
+  <div class="cgrid">${owned.map(courseCard).join('')}</div>
+  <div class="rowtitle"><h3>Amplie sua formação</h3><span class="cnt">${locked.length} bloqueados</span></div>
+  <div class="cgrid">${locked.map(courseCard).join('')}</div>
+  `;
+};
+
+VIEWS.curso=(id)=>{
+  const c=courseById(id);if(!c)return VIEWS.cursos();
+  if(!c.owned){setTimeout(()=>openUpgrade(c.id),0);return VIEWS.cursos();}
+  const pr=courseProgress(c),cc=courseCounts(c),t=trilhaById(c.trilha);
+  const next=flatLessons(c).find(l=>l.p<100)||flatLessons(c)[0];
+  const mods=c.modules.map((m,mi)=>{
+    const rows=m.lessons.map(l=>{
+      const st=l[3]>=100?'done':l[3]>0?'prog':'todo';
+      const ic=st==='done'?'✓':st==='prog'?'▶':romans[0];
+      return `<a class="lrow" href="#/aula/${c.id}/${l[0]}"><span class="li ${st}">${st==='done'?'✓':'▶'}</span><div style="flex:1"><div class="lt">${esc(l[1])}</div><div class="ld">${st==='done'?'Concluída':st==='prog'?'Em andamento · '+l[3]+'%':'A iniciar'}</div></div><span class="ldur">${l[2]} min</span></a>`;
+    }).join('');
+    const mdone=m.lessons.filter(l=>l[3]>=100).length;
+    return `<div class="mod ${mi===0?'open':''}"><div class="mod-h"><span class="mn">${mi+1}</span><div style="flex:1"><div class="mt">${esc(m.title)}</div><div class="ms">${mdone}/${m.lessons.length} aulas concluídas</div></div><span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div><div class="mod-body">${rows}</div></div>`;
+  }).join('');
+  return `
+  <div class="crumb"><a href="#/cursos">Cursos</a><span class="sep">/</span><a href="#/trilha/${t.id}">${t.name}</a><span class="sep">/</span><span class="cur">${esc(c.title)}</span></div>
+  <div class="course-hero">
+    <div class="ctag">${c.code}</div>
+    <h1>${esc(c.title)}</h1>
+    <p>${esc(c.desc)}</p>
+    <div class="chstats"><span><b>${cc.total}</b> aulas</span><span><b>${cc.done}</b> concluídas</span><span><b>${pr}%</b> do curso</span></div>
+    <div class="chbar"><i style="width:${pr}%"></i></div>
+    <div class="chbtns"><a class="btn btn-gold" href="#/aula/${c.id}/${next.id}">▶ ${pr>0?'Continuar curso':'Começar curso'}</a><span class="btn btn-ghost" data-fav>+ Favoritar</span></div>
+  </div>
+  <div class="rowtitle"><h3>Conteúdo do curso</h3><span class="cnt">${c.modules.length} módulos</span></div>
+  ${mods}
+  `;
+};
+
+VIEWS.aula=(courseId,lessonId)=>{
+  const c=courseById(courseId);if(!c||!c.owned)return VIEWS.cursos();
+  const ls=flatLessons(c);let idx=ls.findIndex(l=>l.id===lessonId);if(idx<0)idx=0;
+  const l=ls[idx],prev=ls[idx-1],next=ls[idx+1],t=trilhaById(c.trilha);
+  return `
+  <div class="crumb"><a href="#/cursos">Cursos</a><span class="sep">/</span><a href="#/curso/${c.id}">${esc(c.title)}</a><span class="sep">/</span><span class="cur">${esc(l.title)}</span></div>
+  <div class="player">
+    <div>
+      <div class="player-video">
+        <span class="pbtn"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <div class="pctrl"><span style="color:#fff">▶</span><div class="ptrack"><i style="width:${l.p}%"></i></div><span class="ptime">${Math.round(l.dur*l.p/100)}:00 / ${l.dur}:00</span></div>
+      </div>
+      <h1>${esc(l.title)}</h1>
+      <div class="pmeta">${c.code} · Módulo ${l.mod} — ${esc(l.modTitle)} · Aula ${idx+1} de ${ls.length}</div>
+      <div class="ptools">
+        <span class="btn btn-gold btn-sm">✓ Marcar como concluída</span>
+        <span class="btn btn-ghost btn-sm" data-fav><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9z"/></svg> Favoritar</span>
+        <span class="btn btn-ghost btn-sm" data-ask="${esc(l.title)}"><svg viewBox="0 0 24 24"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg> Perguntar à IA</span>
+      </div>
+      <p class="pdesc">Nesta aula, o professor Frederico destrincha <b>${esc(l.title.toLowerCase())}</b> com exemplos reais de prova. Você vai entender o conceito, ver como a APIMEC costuma cobrar e sair pronto para resolver as questões do simulado deste módulo.</p>
+      <div class="pnav">
+        ${prev?`<a class="btn btn-ghost btn-sm" href="#/aula/${c.id}/${prev.id}">← ${esc(prev.title)}</a>`:'<span></span>'}
+        ${next?`<a class="btn btn-gold btn-sm" href="#/aula/${c.id}/${next.id}">${esc(next.title)} →</a>`:`<a class="btn btn-gold btn-sm" href="#/simulados">Fazer o simulado →</a>`}
+      </div>
+    </div>
+    <div class="player-side">
+      <div class="card"><div class="audio-cta"><span class="ai">♪</span><div><div class="at">Gabarito comentado em áudio</div><div class="as">Revise esta aula sem tela, no trânsito.</div></div></div></div>
+      <div class="card"><h4>Materiais da aula</h4>
+        <div class="mat"><span class="mi" style="background:rgba(224,83,61,.12);color:#E0533D">PDF</span><div style="flex:1"><div class="mnm">Resumo — ${esc(l.title)}</div><div class="msz">PDF · 1,2 MB</div></div><span class="dl">↓</span></div>
+        <div class="mat"><span class="mi" style="background:rgba(61,139,224,.12);color:#3D8BE0">XLS</span><div style="flex:1"><div class="mnm">Exercícios resolvidos</div><div class="msz">Planilha · 320 KB</div></div><span class="dl">↓</span></div>
+        <div class="mat"><span class="mi" style="background:rgba(212,164,55,.12);color:var(--gold-deep)">♪</span><div style="flex:1"><div class="mnm">Áudio comentado</div><div class="msz">MP3 · ${l.dur} min</div></div><span class="dl">↓</span></div>
+      </div>
+      <div class="card"><h4>Próximas aulas</h4>
+        ${ls.slice(idx+1,idx+4).map(n=>`<a class="up-next" href="#/aula/${c.id}/${n.id}"><span class="un-th">▶</span><div style="flex:1"><div class="un-t">${esc(n.title)}</div><div class="un-d">${esc(n.modTitle)} · ${n.dur} min</div></div></a>`).join('')||'<div style="font-size:13px;color:var(--muted)">Você chegou ao fim do curso 🎉</div>'}
+      </div>
+    </div>
+  </div>
+  `;
+};
+
+VIEWS.simulados=()=>`
+  <div class="goldstrip"><span class="gi">★</span><div><h4>Simulados por módulo</h4><p>Cada simulado completo se abre em 4 módulos. Faça por partes, veja o resultado por módulo e ouça o gabarito comentado em áudio.</p></div></div>
+  ${SIMULADOS.map(s=>{
+    const done=s.modules.filter(m=>m[2]!=null).length;
+    return `<div class="simfull"><div class="simfull-h" data-sim-toggle><span class="si">${s.score!=null?'✓':'▶'}</span>
+      <div style="flex:1"><div class="snm">${esc(s.title)}</div><div class="sds">${s.cert} · ${s.questions} questões · ${s.dur} · ${done}/4 módulos feitos</div></div>
+      <div class="sright"><span class="sscore" style="color:${scoreColor(s.score)}">${s.score!=null?s.score+'% de acerto':'—'}</span><span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div></div>
+      <div class="simfull-body">
+        ${s.modules.map((m,i)=>`<div class="simmod"><span class="mi ${m[2]!=null?'done':''}">${i+1}</span><div style="flex:1"><div class="mnm">Módulo ${i+1} · ${esc(m[0])}</div><div class="mds">${m[1]} questões</div></div><div class="mright"><span class="msc" style="color:${scoreColor(m[2])}">${m[2]!=null?m[2]+'%':'não feito'}</span><span class="btn btn-ghost btn-sm" data-open-sim="${s.id}">${m[2]!=null?'Refazer':'Iniciar'}</span></div></div>`).join('')}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px"><span style="font-size:12.5px;color:var(--muted)">Simulado completo: ${s.questions} questões · ${s.dur}</span><span class="btn btn-gold btn-sm" data-open-sim="${s.id}">▶ Fazer simulado completo</span></div>
+      </div></div>`;
+  }).join('')}
+`;
+
+VIEWS.desempenho=(simId)=>{
+  const done=SIMULADOS.filter(s=>s.score!=null);
+  const sel=simId&&simById(simId)?simById(simId):null;
+  const options=done.map(s=>`<option value="${s.id}" ${sel&&sel.id===s.id?'selected':''}>${esc(s.title)}</option>`).join('');
+  let detail='';
+  if(sel){
+    const acertos=Math.round(sel.questions*sel.score/100),erros=sel.questions-acertos;
+    detail=`
+    <div class="dstat">
+      <div class="card"><div class="dv" style="color:${scoreColor(sel.score)}">${sel.score}%</div><div class="dl">Nota</div></div>
+      <div class="card"><div class="dv" style="color:var(--green)">${acertos}</div><div class="dl">Acertos</div></div>
+      <div class="card"><div class="dv" style="color:var(--red)">${erros}</div><div class="dl">Erros</div></div>
+      <div class="card"><div class="dv">${sel.questions}</div><div class="dl">Questões</div></div>
+    </div>
+    <div class="perf-bot" style="margin-top:0">
+      <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Desempenho por tema — ${esc(sel.title)}</h3>
+        ${sel.modules.map(m=>{const v=m[2]==null?0:m[2];return `<div class="tbar"><div class="tl"><span>${esc(m[0])}</span><span class="pct" style="color:${m[2]==null?'var(--faint)':barColor(v)}">${m[2]==null?'—':v+'%'}</span></div><div class="track"><i style="width:${v}%;background:${barColor(v)}"></i><i style="width:${100-v}%;background:var(--red);opacity:.22"></i></div></div>`}).join('')}
+      </div>
+      <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos × erros</h3>
+        <div style="display:flex;justify-content:center"><div class="donut" style="--p:${sel.score};--c:${scoreColor(sel.score)}"><span class="num">${sel.score}%</span></div></div>
+        <div class="legend" style="justify-content:center"><span><b>${acertos}</b> acertos</span><span><b>${erros}</b> erros</span></div>
+        <div style="font-size:12.5px;color:var(--muted);margin-top:14px;text-align:center">Foco recomendado: ${esc(sel.modules.slice().sort((a,b)=>(a[2]||0)-(b[2]||0))[0][0])}</div>
+      </div>
+    </div>`;
+  }
+  return `
+  <!-- gráficos aprovados (mantidos) -->
+  <div class="perf-top">
+    <div class="card">
+      <h3 style="font-size:15px;margin-bottom:16px">Diagnóstico de prontidão</h3>
+      <div class="diag"><div class="donut" style="--p:78"><span class="num">78%</span></div>
+        <div class="txt"><h4>Você está quase lá.</h4><p>Foque em <b style="color:var(--gold-deep)">Contabilidade</b> e <b style="color:var(--gold-deep)">Renda Variável</b> — são os módulos que mais derrubam sua média.</p></div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px"><h3 style="font-size:15px">Evolução do aproveitamento</h3><span class="mono up" style="font-size:13px">+23%</span></div>
+      <svg viewBox="0 0 520 180" width="100%" height="180" preserveAspectRatio="none">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D4A437" stop-opacity=".35"/><stop offset="1" stop-color="#D4A437" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0,140 L65,128 L130,132 L195,108 L260,96 L325,84 L390,70 L455,52 L520,40 L520,180 L0,180 Z" fill="url(#g)"/>
+        <path d="M0,140 L65,128 L130,132 L195,108 L260,96 L325,84 L390,70 L455,52 L520,40" fill="none" stroke="#D4A437" stroke-width="2.5"/>
+        <circle cx="520" cy="40" r="5" fill="#D4A437"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint)" class="mono"><span>S1</span><span>S4</span><span>S8</span></div>
+    </div>
+  </div>
+  <div class="perf-bot">
+    <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos e erros por tema</h3>
+      ${THEMES.map(t=>`<div class="tbar"><div class="tl"><span>${t[0]}</span><span class="pct" style="color:${barColor(t[1])}">${t[1]}%</span></div><div class="track"><i style="width:${t[1]}%;background:${barColor(t[1])}"></i><i style="width:${100-t[1]}%;background:var(--red);opacity:.25"></i></div></div>`).join('')}
+    </div>
+    <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos × erros</h3>
+      <div style="display:flex;justify-content:center"><div class="donut" style="--p:78;--c:var(--green)"><span class="num">78%</span></div></div>
+      <div class="legend" style="justify-content:center"><span><b>934</b> acertos</span><span><b>263</b> erros</span></div>
+      <h3 style="font-size:14px;margin:20px 0 10px">Mapa de constância</h3>
+      <div class="heat" id="heat"></div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:10px">14 dias seguidos de estudo 🔥</div>
+    </div>
+  </div>
+
+  <!-- filtro + histórico de simulados -->
+  <div class="rowtitle"><h3>Desempenho detalhado por simulado</h3></div>
+  <div class="card">
+    <div class="dfilter"><label>Filtrar por simulado:</label>
+      <span class="sel"><select id="sim-filter"><option value="">Selecione um simulado…</option>${options}</select></span>
+      ${sel?`<a class="btn btn-ghost btn-sm" href="#/desempenho">Limpar filtro</a>`:''}
+    </div>
+    ${sel?detail:`
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Selecione um simulado acima para ver nota, acertos, erros, questões e desempenho por tema — ou clique numa linha do histórico.</div>
+      <table class="simhist"><thead><tr><th>Simulado</th><th>Data</th><th>Questões</th><th>Nota</th></tr></thead>
+      <tbody>
+        ${done.map((s,i)=>`<tr data-sim-row="${s.id}"><td style="font-weight:500">${esc(s.title)}</td><td style="color:var(--muted)">${['ontem','12 jun','28 mai'][i]||'—'}</td><td>${s.questions}</td><td class="sc" style="color:${scoreColor(s.score)}">${s.score}%</td></tr>`).join('')}
+      </tbody></table>`}
+  </div>
+  `;
+};
+
+VIEWS.historico=()=>{
+  const ic={play:'▶',check:'✓',star:'★',repeat:'↻',doc:'❐'};
+  return `
+  <div class="filters" id="hist-filters"><button class="on" data-f="tudo">Tudo</button><button data-f="aula">Aulas</button><button data-f="simulado">Simulados</button><button data-f="conteudo">Conteúdos</button></div>
+  <div id="timeline">
+  ${HISTORY.map(d=>`<div class="daygrp"><div class="dh">${d[0]}</div>${d[1].map((e,i)=>{
+    const kind=e[3].startsWith('Aula')?'aula':e[3].startsWith('Simulado')?'simulado':'conteudo';
+    return `<div class="tl-item" data-kind="${kind}"><div class="line"><span class="dot" style="background:${e[1]}"></span>${i<d[1].length-1?'<span class="stick"></span>':''}</div><a class="tl-card" href="${e[5]}" style="display:block">${e[4]?`<span class="rs" style="color:${e[1]}">${esc(e[4])}</span>`:''}<div class="tt">${ic[e[0]]} ${esc(e[2])}</div><div class="cx">${esc(e[3])}</div></a></div>`;
+  }).join('')}</div>`).join('')}
+  </div>
+  `;
+};
+
+VIEWS.favoritos=()=>{
+  const favA=[
+    {t:'Marcação a mercado',d:'Renda Fixa · CB',note:'✎ Revisar a fórmula de PU',href:'#/aula/cb/l6'},
+    {t:'Fluxo de caixa descontado',d:'Valuation · CG1',note:'✎ Caiu na prova passada',href:'#/aula/cg1/l2'},
+    {t:'Candlestick — padrões',d:'Técnica · CT1',note:'✎ Decorar os 5 principais',href:'#/aula/ct1/l3'},
+    {t:'Ética e suitability',d:'Regulação · CB',note:'✎ Pegadinha de conflito de interesse',href:'#/aula/cb/l1'}
+  ];
+  const favQ=[
+    ['Sobre marcação a mercado de títulos públicos, assinale a alternativa correta quanto ao impacto da taxa…','Renda Fixa','Errei 2x'],
+    ['Na análise de demonstrações, o EBITDA ajustado difere do lucro operacional porque…','Contabilidade','Pegadinha'],
+    ['Segundo a Teoria de Dow, uma tendência primária é confirmada quando…','Análise Técnica','Errei 2x']
+  ];
+  return `
+  <div class="goldstrip"><span class="gi">★</span><div><h4>Seu kit de revisão</h4><p>4 aulas favoritas · 3 questões salvas para revisar antes da prova.</p></div></div>
+  <div class="rowtitle"><h3>Aulas favoritas</h3></div>
+  <div class="fav-grid">${favA.map(f=>`<a class="card favcard" href="${f.href}"><div class="ft">▶</div><div style="flex:1"><div style="font-weight:600;color:var(--head)">${esc(f.t)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:3px">${f.d}</div><div class="note">${f.note}</div></div><span style="color:var(--gold)">★</span></a>`).join('')}</div>
+  <div class="rowtitle"><h3>Questões salvas</h3></div>
+  <div class="card">${favQ.map(q=>`<div class="qitem"><span class="star">★</span><div style="flex:1"><div class="qt">${esc(q[0])}</div><div class="qmeta"><span class="tagchip">${q[1]}</span><span class="why">${q[2]}</span></div></div><span class="btn btn-ghost btn-sm">Rever</span></div>`).join('')}</div>
+  `;
+};
+
+VIEWS.perfil=()=>{
+  const plan=PLANS.find(p=>p.id===USER.planId);
+  return `
+  <div class="cfg">
+    <div class="card">
+      <h3>Perfil</h3>
+      <div class="cfg-prof"><span class="av">${USER.initials}</span><div><div style="font-weight:600;font-size:16px;color:var(--head)">${USER.name}</div><div style="font-size:13px;color:var(--muted)">${USER.email}</div></div><span class="btn btn-ghost btn-sm" style="margin-left:auto">Trocar foto</span></div>
+      <div class="cfg-grid">
+        <div class="f"><label>Nome</label><div class="val">${USER.name}</div></div>
+        <div class="f"><label>E-mail</label><div class="val">${USER.email}</div></div>
+        <div class="f"><label>Telefone</label><div class="val">${USER.phone}</div></div>
+        <div class="f"><label>Objetivo</label><div class="val">${USER.goal}</div></div>
+      </div>
+      <div style="margin-top:18px"><span class="btn btn-ghost btn-sm">Editar dados</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Assinatura</h3>
+      <div class="plan"><span class="av" style="width:44px;height:44px;border-radius:12px;font-size:14px">ED</span><div><div style="font-weight:600;color:var(--head)">${plan.name}</div><div style="font-size:13px;color:var(--muted)">Acesso até 12/2027 · analista pleno</div></div><span class="badge">Ativo</span></div>
+      <div style="border-top:1px solid var(--border-soft);margin-top:16px;padding-top:6px">
+        <div class="billrow"><span class="bl">Valor</span><span class="bv">R$ ${plan.price} · ${plan.per}</span></div>
+        <div class="billrow"><span class="bl">Forma de pagamento</span><span class="bv">Cartão •••• 4821</span></div>
+        <div class="billrow"><span class="bl">Próxima renovação</span><span class="bv">12/12/2027</span></div>
+        <div class="billrow"><span class="bl">Notas fiscais</span><span class="bv" style="color:var(--gold-deep);cursor:pointer">Ver histórico →</span></div>
+      </div>
+      <div class="sub-actions">
+        <span class="btn btn-ghost btn-sm" id="btn-manage">Gerenciar assinatura</span>
+        <span class="btn btn-gold btn-sm" id="btn-upgrade">Contratar novo plano</span>
+        <span class="btn btn-ghost btn-sm" id="btn-cancel" style="color:var(--red)">Cancelar assinatura</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Preferências</h3>
+      <div class="pref"><span class="pl">Tema</span><div class="seg" id="theme-seg2"><button data-theme="dark">Escuro</button><button data-theme="light">Claro</button></div></div>
+      <div class="pref"><span class="pl">Resumo por e-mail</span><button class="switch on" data-toggle></button></div>
+      <div class="pref"><span class="pl">Lembrete da prova</span><button class="switch on" data-toggle></button></div>
+      <div class="pref"><span class="pl">Avisos no WhatsApp</span><button class="switch" data-toggle></button></div>
+      <div class="pref"><span class="pl">Recomendações da IA</span><button class="switch on" data-toggle></button></div>
+    </div>
+
+    <div class="card danger"><h3>Sair da conta</h3><p style="font-size:13px;color:var(--muted);margin-bottom:14px">Você precisará entrar novamente para acessar suas aulas.</p><span class="btn btn-sm" onclick="location.href='login.html'">Sair</span></div>
+  </div>
+  `;
+};
+
+VIEWS.ia=()=>`
+  <div class="ia-page">
+    <div class="iahero"><span class="big"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/><path d="M5 15l.8 1.9L7.7 17.7 5.8 18.5 5 20.4 4.2 18.5 2.3 17.7 4.2 16.9z"/></svg></span>
+      <div><h2>Assistente ED</h2><p>Tira dúvidas sobre aulas, simulados e navegação — e recomenda o que estudar com base no seu desempenho.</p></div></div>
+    <div class="iaconv" id="ia-page-body"></div>
+    <div class="ia-input" style="border:1px solid var(--border);border-radius:12px;margin-top:14px;background:var(--panel)">
+      <input id="ia-page-text" placeholder="Pergunte sobre aulas, simulados, desempenho…" autocomplete="off" />
+      <button class="send" id="ia-page-send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+    </div>
+    <div class="rowtitle"><h3>Recomendações inteligentes pra você</h3></div>
+    <div class="reccards">
+      <div class="reccard" data-ask="Como melhorar em Contabilidade?"><div class="rc-ic">↑</div><h4>Reforce Contabilidade</h4><p>Seu ponto mais fraco (54%). Comece por “Análise de balanços” no CG1.</p></div>
+      <div class="reccard" data-ask="Estou pronto para o simulado CT1?"><div class="rc-ic">◎</div><h4>Teste o CT1</h4><p>Você ainda não fez o simulado de Análise Técnica. Meça sua prontidão.</p></div>
+      <div class="reccard" data-ask="Qual meu plano de estudo para os próximos 15 dias?"><div class="rc-ic">✎</div><h4>Plano de 15 dias</h4><p>Monto uma rotina de revisão priorizando o que mais cai e o que você erra.</p></div>
+    </div>
+  </div>
+`;
+
+/* =========================================================
+   ROUTER
+   ========================================================= */
+const TITLES={
+  inicio:['Início','Continue de onde parou e mantenha o ritmo.'],
+  trilhas:['Trilhas','Formações completas, na ordem certa de estudo.'],
+  trilha:['Trilha','Cursos e aulas desta formação.'],
+  cursos:['Cursos','Seu catálogo — e os próximos passos da formação.'],
+  curso:['Curso','Módulos, aulas e progresso.'],
+  aula:['Aula','Assista, baixe os materiais e ouça o gabarito.'],
+  simulados:['Simulados','Complete por módulo e veja o resultado detalhado.'],
+  desempenho:['Desempenho','Diagnóstico, evolução e detalhe por simulado.'],
+  historico:['Histórico','Tudo o que você fez, em ordem.'],
+  favoritos:['Favoritos','Seu kit de revisão para a reta final.'],
+  perfil:['Perfil e conta','Gerencie dados, assinatura e preferências.'],
+  ia:['Assistente ED','Sua IA de estudos, disponível em qualquer página.']
+};
+function parseHash(){
+  const h=(location.hash||'#/inicio').replace(/^#\//,'');
+  const [path,qs]=h.split('?');
+  const parts=path.split('/').filter(Boolean);
+  return {name:parts[0]||'inicio',params:parts.slice(1),qs:new URLSearchParams(qs||'')};
+}
+function render(){
+  const {name,params,qs}=parseHash();
+  let html='';
+  if(name==='inicio')html=VIEWS.inicio();
+  else if(name==='trilhas')html=VIEWS.trilhas();
+  else if(name==='trilha')html=VIEWS.trilha(params[0]);
+  else if(name==='cursos')html=VIEWS.cursos();
+  else if(name==='curso')html=VIEWS.curso(params[0]);
+  else if(name==='aula')html=VIEWS.aula(params[0],params[1]);
+  else if(name==='simulados')html=VIEWS.simulados();
+  else if(name==='desempenho')html=VIEWS.desempenho(qs.get('sim'));
+  else if(name==='historico')html=VIEWS.historico();
+  else if(name==='favoritos')html=VIEWS.favoritos();
+  else if(name==='perfil')html=VIEWS.perfil();
+  else if(name==='ia')html=VIEWS.ia();
+  else html=VIEWS.inicio();
+  const view=$('#view');view.innerHTML=html;
+
+  // topbar
+  const meta=TITLES[name]||TITLES.inicio;
+  $('#bar-ttl').textContent=meta[0];
+  $('#bar-sub').textContent=meta[1];
+  // active nav
+  $$('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.route===name||(name==='trilha'&&n.dataset.route==='trilhas')||(name==='curso'&&n.dataset.route==='cursos')||(name==='aula'&&n.dataset.route==='cursos')));
+  // wire theme seg inside config
+  bindThemeSegs();
+  // heat map (desempenho)
+  if(name==='desempenho'){const heat=$('#heat');if(heat){let cells='';for(let i=0;i<44;i++){const a=[0,.12,.25,.45,.7,1][Math.floor((Math.sin(i*1.7)+1)/2*5)];cells+=`<span style="opacity:${(0.12+a*0.88).toFixed(2)}"></span>`;}heat.innerHTML=cells;}}
+  if(name==='ia')renderIaPage();
+  // close mobile drawer + scroll top
+  $('#app').classList.remove('nav-open');
+  $('#view').scrollIntoView({block:'start'});window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',render);
+
+/* =========================================================
+   INTERAÇÕES GLOBAIS
+   ========================================================= */
+// tema
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);
-  document.querySelectorAll('#theme-seg button,#theme-seg2 button').forEach(b=>b.classList.toggle('on',b.dataset.theme===t));
+  $$('#theme-seg button,#theme-seg2 button').forEach(b=>b.classList.toggle('on',b.dataset.theme===t));
   try{localStorage.setItem('ed-theme',t)}catch(_){}}
-document.querySelectorAll('#theme-seg button,#theme-seg2 button').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.theme)));
+function bindThemeSegs(){$$('#theme-seg button,#theme-seg2 button').forEach(b=>{b.onclick=()=>applyTheme(b.dataset.theme);});
+  const cur=document.documentElement.getAttribute('data-theme');$$('#theme-seg button,#theme-seg2 button').forEach(b=>b.classList.toggle('on',b.dataset.theme===cur));}
 try{applyTheme(localStorage.getItem('ed-theme')||'dark')}catch(_){applyTheme('dark')}
 
-document.querySelectorAll('[data-toggle]').forEach(s=>s.addEventListener('click',()=>s.classList.toggle('on')));
-document.getElementById('hist-filters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  document.querySelectorAll('#hist-filters button').forEach(x=>x.classList.toggle('on',x===b));});
+// sidebar
+$('#collapse').addEventListener('click',()=>$('#app').classList.toggle('collapsed'));
+const _app=$('#app');
+$('#hamb').addEventListener('click',()=>_app.classList.toggle('nav-open'));
+$('#scrim').addEventListener('click',()=>_app.classList.remove('nav-open'));
 
-// ---- data-driven content ----
-const romans=['I','II','III','IV','V','VI','VII','VIII'];
-function lcard(o){
-  return `<div class="lcard ${o.r16?'r16':''}"><div class="cap tile">${o.mod?`<span class="modtag">Mód. ${o.mod}</span>`:''}<span class="roman">${o.roman||''}</span>${o.tag?`<span class="tag">${o.tag}</span>`:''}<div class="pbar"><i style="width:${o.p||0}%"></i></div></div><div class="t">${o.t}</div><div class="d">${o.d}</div></div>`;
+// delegação de cliques (acordeões, upgrade, toggles, filtros, IA-ask)
+document.addEventListener('click',e=>{
+  const modH=e.target.closest('.mod-h');if(modH){modH.parentElement.classList.toggle('open');return;}
+  const simH=e.target.closest('[data-sim-toggle]');if(simH){simH.parentElement.classList.toggle('open');return;}
+  const up=e.target.closest('[data-upgrade]');if(up){openUpgrade(up.dataset.upgrade);return;}
+  const openSim=e.target.closest('[data-open-sim]');if(openSim){openSimStart(openSim.dataset.openSim);return;}
+  const tog=e.target.closest('[data-toggle]');if(tog){tog.classList.toggle('on');return;}
+  const ask=e.target.closest('[data-ask]');if(ask){openIa();sendIa(ask.dataset.ask);return;}
+  const fav=e.target.closest('[data-fav]');if(fav){fav.innerHTML='★ Favoritado';fav.style.color='var(--gold-deep)';return;}
+  const simRow=e.target.closest('[data-sim-row]');if(simRow){location.hash='#/desempenho?sim='+simRow.dataset.simRow;return;}
+  if(e.target.closest('#home-search')){openSearch();return;}
+  if(e.target.closest('#btn-manage')){openManage();return;}
+  if(e.target.closest('#btn-upgrade')){openPlans();return;}
+  if(e.target.closest('#btn-cancel')){openCancel();return;}
+});
+// filtro por simulado (select) + histórico
+document.addEventListener('change',e=>{
+  if(e.target.id==='sim-filter'){location.hash='#/desempenho'+(e.target.value?'?sim='+e.target.value:'');}
+});
+// filtros do histórico
+document.addEventListener('click',e=>{
+  const fb=e.target.closest('#hist-filters button');if(!fb)return;
+  $$('#hist-filters button').forEach(x=>x.classList.toggle('on',x===fb));
+  const f=fb.dataset.f;
+  $$('#timeline .tl-item').forEach(it=>{it.style.display=(f==='tudo'||it.dataset.kind===f)?'':'none';});
+  $$('#timeline .daygrp').forEach(g=>{const any=$$('.tl-item',g).some(i=>i.style.display!=='none');g.style.display=any?'':'none';});
+});
+
+/* ============ BUSCA ============ */
+function searchIndex(){
+  const idx=[];
+  COURSES.forEach(c=>{idx.push({type:'Curso',icon:'▶',title:c.title,sub:`${c.code}${c.owned?'':' · bloqueado'}`,href:c.owned?`#/curso/${c.id}`:'#/cursos',kw:c.title+' '+c.code+' '+c.desc});
+    if(c.owned)flatLessons(c).forEach(l=>idx.push({type:'Aula',icon:'▷',title:l.title,sub:`${c.code} · ${l.modTitle}`,href:`#/aula/${c.id}/${l.id}`,kw:l.title+' '+l.modTitle+' '+c.code}));});
+  TRILHAS.forEach(t=>idx.push({type:'Trilha',icon:'◎',title:t.name,sub:t.eye,href:`#/trilha/${t.id}`,kw:t.name+' '+t.desc}));
+  SIMULADOS.forEach(s=>idx.push({type:'Simulado',icon:'★',title:s.title,sub:`${s.cert} · ${s.questions} questões`,href:'#/simulados',kw:s.title+' '+s.cert}));
+  [['Diagnóstico de prontidão','Conteúdo · Desempenho','#/desempenho'],['Gabarito comentado em áudio','Conteúdo · recurso','#/aula/cb/l6'],['Plano de revisão de 15 dias','Conteúdo · Evaluation','#/curso/simrev']].forEach(x=>idx.push({type:'Conteúdo',icon:'❐',title:x[0],sub:x[1],href:x[2],kw:x[0]}));
+  return idx;
 }
-const cont=[
-  {tag:'CNPI-CB',roman:'III',p:64,t:'Marcação a mercado',d:'Renda Fixa · 9 min restantes'},
-  {tag:'CNPI-CB',roman:'II',p:30,t:'Sistema Financeiro Nacional',d:'Regulação · 18 min'},
-  {tag:'CNPI-CG1',roman:'I',p:12,t:'Introdução a valuation',d:'Fundamentalista · 22 min'},
-  {tag:'CNPI-CT1',roman:'IV',p:48,t:'Teoria de Dow',d:'Análise técnica · 14 min'}
-];
-document.getElementById('rail-continue').innerHTML=cont.map(c=>lcard({...c,r16:true})).join('');
-const trilha=[
-  {mod:1,roman:'I',p:100,t:'Ética e regulação',d:'Concluída · 32 min'},
-  {mod:2,roman:'II',p:100,t:'Sistema financeiro',d:'Concluída · 41 min'},
-  {mod:3,roman:'III',p:64,t:'Renda fixa',d:'Em andamento · 9 min'},
-  {mod:4,roman:'IV',p:0,t:'Derivativos',d:'A iniciar · 38 min'},
-  {mod:5,roman:'V',p:0,t:'Renda variável',d:'A iniciar · 45 min'}
-];
-document.getElementById('rail-trilha').innerHTML=trilha.map(lcard).join('');
+const SIDX=searchIndex();
+function openSearch(){$('#search-ov').classList.add('show');const i=$('#search-input');i.value='';runSearch('');setTimeout(()=>i.focus(),30);}
+function closeSearch(){$('#search-ov').classList.remove('show');}
+function runSearch(q){
+  q=q.trim().toLowerCase();
+  let res=SIDX;
+  if(q)res=SIDX.filter(x=>x.kw.toLowerCase().includes(q));
+  res=res.slice(0,24);
+  const box=$('#search-res');
+  if(!res.length){box.innerHTML='<div class="sr-empty">Nada encontrado. Tente “renda fixa”, “simulado”, “valuation”…</div>';return;}
+  const groups={};res.forEach(r=>{(groups[r.type]=groups[r.type]||[]).push(r);});
+  box.innerHTML=Object.keys(groups).map(g=>`<div class="sr-group">${g}s</div>`+groups[g].map(r=>`<a class="sr-item" href="${r.href}" data-close-search><span class="si">${r.icon}</span><div style="flex:1"><div class="st">${esc(r.title)}</div><div class="sd">${esc(r.sub)}</div></div><span class="sk">↵</span></a>`).join('')).join('');
+}
+$('#open-search').addEventListener('click',openSearch);
+$('#search-input').addEventListener('input',e=>runSearch(e.target.value));
+$('#search-ov').addEventListener('click',e=>{if(e.target.id==='search-ov')closeSearch();if(e.target.closest('[data-close-search]'))closeSearch();});
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSearch();}
+  if(e.key==='Escape'){closeSearch();closeModal();}
+});
 
-// AULAS
-const aulasGroups=[
-  {code:'CNPI-CB',sub:'Base do Mercado Financeiro',done:'2 / 8 concluídas',items:trilha.concat([{mod:6,roman:'VI',p:0,t:'Fundos de investimento',d:'A iniciar · 36 min'}])},
-  {code:'CNPI-CG1',sub:'Análise Fundamentalista',done:'0 / 6 concluídas',items:[{mod:1,roman:'I',p:12,t:'Introdução a valuation',d:'Em andamento · 22 min'},{mod:2,roman:'II',p:0,t:'Demonstrações financeiras',d:'A iniciar · 40 min'},{mod:3,roman:'III',p:0,t:'Fluxo de caixa descontado',d:'A iniciar · 51 min'},{mod:4,roman:'IV',p:0,t:'Múltiplos de mercado',d:'A iniciar · 29 min'}]},
-  {code:'CNPI-CT1',sub:'Análise Técnica (Gráfica)',done:'1 / 7 concluídas',items:[{mod:1,roman:'I',p:100,t:'Teoria de Dow',d:'Concluída · 24 min'},{mod:2,roman:'II',p:35,t:'Tendências e suportes',d:'Em andamento · 30 min'},{mod:3,roman:'III',p:0,t:'Candlestick',d:'A iniciar · 33 min'},{mod:4,roman:'IV',p:0,t:'Ondas de Elliott',d:'A iniciar · 44 min'}]}
-];
-document.querySelector('[data-panel="aulas"]').innerHTML=aulasGroups.map(g=>
-  `<div class="grp"><div class="gh"><h3>${g.code}</h3><span class="gs">${g.sub}</span><span class="gc">${g.done}</span></div><div class="rail">${g.items.map(lcard).join('')}</div></div>`).join('');
+/* ============ MODAIS ============ */
+function showModal(html){$('#modal-card').innerHTML=html;$('#modal').classList.add('show');}
+function closeModal(){$('#modal').classList.remove('show');}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal'||e.target.closest('[data-close-modal]'))closeModal();});
+function openUpgrade(courseId){
+  const c=courseById(courseId);if(!c)return;
+  showModal(`<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+  <h3>Desbloquear “${esc(c.title)}”</h3>
+  <p>Este curso não está no seu plano atual. Faça upgrade e libere <b>${esc(c.title)}</b> e todos os outros cursos da Trilha ${esc(trilhaById(c.trilha).name.replace('Trilha ',''))}.</p>
+  <div class="plan-opt" style="margin-top:18px"><div><div class="po-nm">${esc(c.title)}</div><div class="po-d">Acesso imediato · 1 ano</div></div><div class="po-pr"><b>R$ ${c.price}</b><span>avulso</span></div></div>
+  <div class="plan-opt cur"><div><div class="po-nm">Upgrade completo</div><div class="po-d">Todos os cursos + trilhas + simulados</div></div><div class="po-pr"><b>R$ 2.997</b><span>melhor valor</span></div></div>
+  <div class="macts"><span class="btn btn-ghost" data-close-modal>Agora não</span><span class="btn btn-gold" data-close-modal>Fazer upgrade</span></div>`);
+}
+function openPlans(){
+  showModal(`<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">★</div>
+  <h3>Contratar novo plano</h3><p>Amplie sua formação. Você mantém tudo que já tem — só adiciona.</p>
+  <div style="margin-top:18px">${PLANS.map(p=>`<div class="plan-opt ${p.id===USER.planId?'cur':''}"><div><div class="po-nm">${p.name}${p.id===USER.planId?' · atual':''}</div><div class="po-d">${p.d}</div></div><div class="po-pr"><b>R$ ${p.price}</b><span>${p.per}</span></div></div>`).join('')}</div>
+  <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal>Falar com o time</span></div>`);
+}
+function openManage(){
+  showModal(`<div class="mic" style="background:var(--overlay-soft);border:1px solid var(--border);color:var(--text)">⚙</div>
+  <h3>Gerenciar assinatura</h3><p>Plano <b>CNPI · Curso Completo</b>, ativo até 12/12/2027.</p>
+  <div style="margin-top:16px">
+    <div class="billrow"><span class="bl">Forma de pagamento</span><span class="bv" style="color:var(--gold-deep);cursor:pointer">Alterar cartão →</span></div>
+    <div class="billrow"><span class="bl">Renovação automática</span><button class="switch on" data-toggle></button></div>
+    <div class="billrow"><span class="bl">Notas fiscais</span><span class="bv" style="color:var(--gold-deep);cursor:pointer">Baixar →</span></div>
+    <div class="billrow"><span class="bl">Trocar de plano</span><span class="bv" style="color:var(--gold-deep);cursor:pointer" id="mng-plans">Ver planos →</span></div>
+  </div>
+  <div class="macts"><span class="btn btn-gold" data-close-modal>Concluído</span></div>`);
+  $('#mng-plans')?.addEventListener('click',()=>{closeModal();openPlans();});
+}
+function openCancel(){
+  showModal(`<div class="mic" style="background:rgba(224,83,61,.12);border:1px solid rgba(224,83,61,.34);color:#E0533D"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.6L2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/></svg></div>
+  <h3>Cancelar assinatura?</h3>
+  <p>Você perde o acesso às aulas, simulados e ao seu <b>diagnóstico de prontidão</b> em 12/12/2027. Faltam <b>18 dias</b> para a sua prova do CNPI — tem certeza?</p>
+  <div class="plan-opt" style="margin-top:18px;border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)"><div><div class="po-nm">Que tal pausar?</div><div class="po-d">Congele por 30 dias sem perder progresso</div></div></div>
+  <div class="macts"><span class="btn btn-gold" data-close-modal>Manter assinatura</span><span class="btn btn-ghost" data-close-modal style="color:var(--red)">Cancelar mesmo assim</span></div>`);
+}
+function openSimStart(id){
+  const s=simById(id);if(!s)return;
+  showModal(`<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">★</div>
+  <h3>${esc(s.title)}</h3><p>${s.questions} questões · ${s.dur}. Ao terminar, você recebe o <b>resultado por módulo</b> e o gabarito comentado em áudio.</p>
+  <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal>▶ Iniciar agora</span></div>`);
+}
 
-// DESEMPENHO theme bars
-const themes=[['Ética e regulação',88],['Sistema financeiro',82],['Renda fixa',74],['Derivativos',69],['Contabilidade',54],['Renda variável',61]];
-function barColor(v){return v>=80?'var(--green)':v>=65?'var(--amber)':'var(--red)';}
-document.getElementById('themebars').innerHTML=themes.map(t=>
-  `<div class="tbar"><div class="tl"><span>${t[0]}</span><span class="pct" style="color:${barColor(t[1])}">${t[1]}%</span></div><div class="track"><i style="width:${t[1]}%;background:${barColor(t[1])}"></i><i style="width:${100-t[1]}%;background:var(--red);opacity:.25"></i></div></div>`).join('');
-// heatmap
-let cells='';for(let i=0;i<44;i++){const a=[0,.12,.25,.45,.7,1][Math.floor((Math.sin(i*1.7)+1)/2*5)];cells+=`<span style="opacity:${(0.12+a*0.88).toFixed(2)}"></span>`;}
-document.getElementById('heat').innerHTML=cells;
+/* =========================================================
+   IA — mock com getAIResponse() (fronteira p/ API real depois)
+   ========================================================= */
+const IA_SUGG=['Como está meu desempenho?','O que estudar antes do próximo simulado?','Onde vejo minhas aulas favoritas?','Estou pronto para o CNPI?'];
+let iaHistory=[];
+function getAIResponse(text){
+  // >>> Ponto único de integração: troque este mock por um fetch à API (Claude) mantendo o mesmo retorno {text, recs?} <<<
+  const q=text.toLowerCase();
+  const weak=THEMES.slice().sort((a,b)=>a[1]-b[1]);
+  const worst=weak[0];
+  if(/(desempenho|como (estou|vou)|minha nota|prontid)/.test(q)){
+    return {text:`Sua prontidão está em <b>78%</b> — subiu 6% na semana. O que te segura são <b>${worst[0]} (${worst[1]}%)</b> e ${weak[1][0]} (${weak[1][1]}%). Nos simulados você acerta ${'934'} e erra 263 questões.`,
+      recs:[['Ver desempenho detalhado','#/desempenho'],['Revisar '+worst[0],'#/curso/cg1']]};
+  }
+  if(/(contabil|balanç|ebitda|demonstra)/.test(q)){
+    return {text:`Contabilidade é hoje seu ponto mais fraco (<b>54%</b>). Sugiro, nesta ordem: <b>Demonstrações financeiras</b> → <b>Análise de balanços</b> no CG1, e depois refazer o módulo de Contabilidade do simulado.`,
+      recs:[['Aula: Demonstrações financeiras','#/aula/cg1/l3'],['Refazer simulado CG1','#/simulado/sim-cg1']]};
+  }
+  if(/(simulad|prova|pronto|ct1|técnic)/.test(q)){
+    return {text:`Você já mandou bem no CB (84%), mas <b>ainda não fez o simulado de Análise Técnica (CT1)</b>. Como faltam 18 dias, vale medir isso essa semana. Antes, revise Tendências e Candlestick.`,
+      recs:[['Fazer simulado CT1','#/simulado/sim-ct1'],['Aula: Tendências e suportes','#/aula/ct1/l2']]};
+  }
+  if(/(plano|15 dias|rotina|cronograma|revis)/.test(q)){
+    return {text:`Plano sugerido pros próximos 15 dias: <b>D1–D4</b> Contabilidade e Renda Variável (seus gaps), <b>D5–D8</b> simulados por módulo do CG1 e CT1, <b>D9–D12</b> revisão dirigida pelo diagnóstico, <b>D13–D15</b> reta final + simulado completo.`,
+      recs:[['Abrir Diagnóstico & Reta Final','#/curso/retafinal'],['Ver Continue assistindo','#/inicio']]};
+  }
+  if(/(favorit|salv|revisar|kit)/.test(q)){
+    return {text:`Seu kit de revisão tem <b>4 aulas favoritas</b> e 3 questões salvas — incluindo Marcação a mercado e Fluxo de caixa descontado. Ótimo material pra reta final.`,
+      recs:[['Abrir Favoritos','#/favoritos']]};
+  }
+  if(/(trilha|começar|onde começ|navega|como uso|menu)/.test(q)){
+    return {text:`Você está na <b>Trilha Evaluation</b> (54%). Pela barra lateral você acessa Trilhas, Cursos, Simulados e Desempenho. Quer que eu te leve pro próximo passo da sua trilha?`,
+      recs:[['Continuar minha trilha','#/trilha/evaluation'],['Ver todas as trilhas','#/trilhas']]};
+  }
+  if(/(renda fixa|marcação|pu|título)/.test(q)){
+    return {text:`Em Renda Fixa você está em 74%. A pegadinha costuma ser <b>marcação a mercado</b> — a aula certa é essa. Depois, ouça o gabarito em áudio pra fixar.`,
+      recs:[['Aula: Marcação a mercado','#/aula/cb/l6']]};
+  }
+  return {text:`Posso te ajudar com suas <b>aulas, simulados, conteúdos, navegação</b> e principalmente com <b>o que estudar a seguir</b> com base no seu desempenho. Por exemplo: “o que revisar antes do próximo simulado?”`,
+    recs:[['Ver meu desempenho','#/desempenho'],['Continuar de onde parei','#/inicio']]};
+}
+function iaBubble(role,text,recs){
+  const rec=recs&&recs.length?`<div class="rec">${recs.map(r=>`<a href="${r[1]}" data-ia-go>${esc(r[0])}</a>`).join('')}</div>`:'';
+  return `<div class="ia-msg ${role}">${text}${rec}</div>`;
+}
+function renderIaInto(bodyEl){
+  bodyEl.innerHTML=iaHistory.map(m=>iaBubble(m.role,m.text,m.recs)).join('');
+  bodyEl.scrollTop=bodyEl.scrollHeight;
+}
+function refreshIa(){
+  const b=$('#ia-body');if(b)renderIaInto(b);
+  const pb=$('#ia-page-body');if(pb)renderIaInto(pb);
+}
+function seedIa(){
+  if(iaHistory.length)return;
+  iaHistory.push({role:'ai',text:`Oi, ${USER.first}! 👋 Sou seu assistente de estudos. Já olhei seu progresso: prontidão em <b>78%</b>, com <b>Contabilidade</b> pedindo atenção. Como posso ajudar?`,recs:[['Ver meu desempenho','#/desempenho'],['O que estudar agora?','#/inicio']]});
+}
+function renderSugg(){$('#ia-sugg').innerHTML=IA_SUGG.map(s=>`<button data-ia-sugg>${esc(s)}</button>`).join('');}
+function openIa(){seedIa();refreshIa();renderSugg();$('#ia-pop').classList.add('show');$('#ia-fab').style.display='none';setTimeout(()=>$('#ia-text')?.focus(),40);}
+function closeIa(){$('#ia-pop').classList.remove('show');$('#ia-fab').style.display='';}
+function sendIa(text){
+  text=(text||'').trim();if(!text)return;
+  seedIa();
+  iaHistory.push({role:'me',text:esc(text)});refreshIa();
+  // indicador de digitação
+  const b=$('#ia-body'),pb=$('#ia-page-body');
+  const typing='<div class="ia-typing"><i></i><i></i><i></i></div>';
+  if(b){b.insertAdjacentHTML('beforeend',typing);b.scrollTop=b.scrollHeight;}
+  if(pb){pb.insertAdjacentHTML('beforeend',typing);pb.scrollTop=pb.scrollHeight;}
+  setTimeout(()=>{
+    const r=getAIResponse(text);
+    iaHistory.push({role:'ai',text:r.text,recs:r.recs});
+    refreshIa();
+  },560);
+}
+$('#ia-fab').addEventListener('click',openIa);
+$('#ia-close').addEventListener('click',closeIa);
+$('#ia-expand').addEventListener('click',()=>{closeIa();location.hash='#/ia';});
+$('#ia-send').addEventListener('click',()=>{const i=$('#ia-text');sendIa(i.value);i.value='';});
+$('#ia-text').addEventListener('keydown',e=>{if(e.key==='Enter'){sendIa(e.target.value);e.target.value='';}});
+document.addEventListener('click',e=>{
+  const sg=e.target.closest('[data-ia-sugg]');if(sg){sendIa(sg.textContent);return;}
+  const go=e.target.closest('[data-ia-go]');if(go){closeIa();return;}
+});
+function renderIaPage(){
+  seedIa();renderIaInto($('#ia-page-body'));
+  $('#ia-page-send').addEventListener('click',()=>{const i=$('#ia-page-text');sendIa(i.value);i.value='';});
+  $('#ia-page-text').addEventListener('keydown',e=>{if(e.key==='Enter'){sendIa(e.target.value);e.target.value='';}});
+}
 
-// SIMULADOS
-const sims=[
-  {cert:'CFG',items:[['Simulado CFG · Bloco I','60 questões · 2h',92,'feito'],['Simulado CFG · Bloco II','60 questões · 2h',null,'fazer']]},
-  {cert:'CNPI-CB',items:[['Simulado CB · Completo','60 questões · 2h',84,'feito'],['Simulado CB · Ética','20 questões · 40 min',76,'feito'],['Simulado CB · Renda Fixa','20 questões · 40 min',null,'fazer']]},
-  {cert:'CNPI-CG1',items:[['Simulado CG1 · Bloco Ações','30 questões · 55 min',58,'feito'],['Simulado CG1 · Contabilidade','30 questões · 55 min',null,'fazer']]},
-  {cert:'CNPI-CT1',items:[['Simulado CT1 · Completo','60 questões · 1h50',null,'fazer']]}
-];
-function simColor(v){return v==null?'var(--muted)':v>=70?'var(--green)':v>=50?'var(--amber)':'var(--red)';}
-document.getElementById('sim-groups').innerHTML=sims.map(g=>
-  `<div class="grp"><div class="gh"><h3>${g.cert}</h3></div><div class="card">${g.items.map(it=>{
-    const done=it[3]==='feito';
-    return `<div class="simrow"><span class="ic" style="background:${done?'rgba(43,182,115,.14)':'var(--gold-soft-bg)'};color:${done?'var(--green)':'var(--gold-deep)'};border:1px solid ${done?'rgba(43,182,115,.3)':'var(--gold-soft-bd)'}">${done?'✓':'▶'}</span><div><div class="nm">${it[0]}</div><div class="du">${it[1]}</div></div><span class="sc" style="color:${simColor(it[2])}">${it[2]!=null?it[2]+'% de acerto':'—'}</span><span class="btn btn-ghost btn-sm">${done?'Refazer':'Iniciar'}</span></div>`;
-  }).join('')}</div></div>`).join('');
-
-// FAVORITOS
-const favA=[
-  {t:'Marcação a mercado',d:'Renda Fixa · CB',note:'✎ Revisar a fórmula de PU'},
-  {t:'Fluxo de caixa descontado',d:'Valuation · CG1',note:'✎ Caiu na prova passada'},
-  {t:'Candlestick — padrões',d:'Técnica · CT1',note:'✎ Decorar os 5 principais'},
-  {t:'Ética e suitability',d:'Regulação · CB',note:'✎ Pegadinha de conflito de interesse'}
-];
-document.getElementById('fav-aulas').innerHTML=favA.map(f=>
-  `<div class="card favcard"><div class="ft">▶</div><div><div style="font-weight:600;color:var(--head)">${f.t}</div><div style="font-size:12.5px;color:var(--muted);margin-top:3px">${f.d}</div><div class="note">${f.note}</div></div><span class="qitem-star" style="color:var(--gold);margin-left:auto">★</span></div>`).join('');
-const favQ=[
-  ['Sobre marcação a mercado de títulos públicos, assinale a alternativa correta quanto ao impacto da taxa…','Renda Fixa','Errei 2x'],
-  ['Na análise de demonstrações, o EBITDA ajustado difere do lucro operacional porque…','Contabilidade','Pegadinha'],
-  ['Segundo a Teoria de Dow, uma tendência primária é confirmada quando…','Análise Técnica','Errei 2x']
-];
-document.getElementById('fav-questoes').innerHTML=favQ.map(q=>
-  `<div class="qitem"><span class="star">★</span><div style="flex:1"><div class="qt">${q[0]}</div><div class="qmeta"><span class="tagchip">${q[1]}</span><span class="why">${q[2]}</span></div></div><span class="btn btn-ghost btn-sm">Rever</span></div>`).join('');
-
-// HISTÓRICO
-const hist=[
-  ['Hoje',[['play','#3D8BE0','Renda fixa · Marcação a mercado','Aula · CNPI-CB','Parou em 24:18'],['star','#D4A437','Fluxo de caixa descontado','Favoritado · CG1','']]],
-  ['Ontem',[['check','#2BB673','Simulado CB · Ética','Simulado · 20 questões','76% de acerto'],['check','#2BB673','Teoria de Dow','Aula · CNPI-CT1','Concluída']]],
-  ['12 jun',[['repeat','#3D8BE0','Revisão de questões salvas','Revisão · 8 questões',''],['check','#2BB673','Simulado CB · Completo','Simulado · 60 questões','84% de acerto']]]
-];
-const ic={play:'▶',check:'✓',star:'★',repeat:'↻'};
-document.getElementById('timeline').innerHTML=hist.map(d=>
-  `<div class="daygrp"><div class="dh">${d[0]}</div>${d[1].map((e,i)=>
-    `<div class="tl-item"><div class="line"><span class="dot" style="background:${e[1]}"></span>${i<d[1].length-1?'<span class="stick"></span>':''}</div><div class="tl-card">${e[4]?`<span class="rs" style="color:${e[1]}">${e[4]}</span>`:''}<div class="tt">${ic[e[0]]} ${e[2]}</div><div class="cx">${e[3]}</div></div></div>`).join('')}</div>`).join('');
+/* =========================================================
+   START
+   ========================================================= */
+if(!location.hash)location.hash='#/inicio';
+render();
 </script>
 </body>
 </html>
