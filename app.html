@@ -476,6 +476,52 @@ svg{display:block}
 .modal-card .macts{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
 .modal-card .macts .btn{flex:1;min-width:130px}
 
+/* foco acessível (teclado) */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.lcard:focus-visible,.tcard:focus-visible,.ccard:focus-visible,.nav-item:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+
+/* home: saudação + stats */
+.home-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:18px}
+.home-head .hh-greet h2{font-size:24px;letter-spacing:-.5px}
+.home-head .hh-greet p{font-size:14px;color:var(--muted);margin-top:5px}
+.home-head .hh-greet p b{color:var(--gold-deep)}
+.hh-stats{display:flex;gap:10px}
+.hh-stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:11px 16px;text-align:center;min-width:98px}
+.hh-stat .v{display:block;font-family:'IBM Plex Mono';font-size:19px;color:var(--head)}
+.hh-stat .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;display:block}
+@media(max-width:620px){.hh-stats{width:100%}.hh-stat{flex:1;min-width:0;padding:10px 6px}}
+
+/* nudge: próxima melhor ação */
+.nudge{display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,var(--gold-soft-bg),transparent 72%);border:1px solid var(--gold-soft-bd);border-radius:16px;padding:16px 20px}
+.nudge .nudge-ic{width:42px;height:42px;flex:none;border-radius:12px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center;font-size:19px}
+.nudge .nudge-t{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep)}
+.nudge .nudge-d{font-size:14px;color:var(--text);margin-top:3px;line-height:1.45}
+.nudge .nudge-d b{color:var(--head)}
+.nudge .btn{margin-left:auto;flex:none}
+@media(max-width:620px){.nudge{flex-wrap:wrap}.nudge .btn{margin-left:0;width:100%}}
+
+/* toasts */
+.toast-wrap{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:96;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-size:13.5px;color:var(--text);box-shadow:0 20px 50px -20px rgba(0,0,0,.6);transform:translateY(14px);opacity:0;transition:transform .28s cubic-bezier(.22,1,.36,1),opacity .28s;max-width:92vw}
+.toast.show{transform:none;opacity:1}
+.toast .ti{width:22px;height:22px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--gold-soft-bg);color:var(--gold-deep);border:1px solid var(--gold-soft-bd)}
+.toast.ok .ti{background:rgba(43,182,115,.14);color:var(--green);border-color:rgba(43,182,115,.3)}
+
+/* rails com setas (desktop) */
+.railx{position:relative}
+.rail-arrow{position:absolute;top:52px;width:40px;height:40px;border-radius:999px;z-index:4;background:color-mix(in srgb,var(--panel) 90%,transparent);border:1px solid var(--border);color:var(--text);cursor:pointer;display:none;align-items:center;justify-content:center;font-size:20px;line-height:0;box-shadow:0 10px 24px -10px rgba(0,0,0,.5);backdrop-filter:blur(6px)}
+.railx:hover .rail-arrow{display:flex}
+.rail-arrow.l{left:-8px}.rail-arrow.r{right:-8px}
+.rail-arrow:hover{border-color:var(--gold-soft-bd);color:var(--gold-deep)}
+@media(hover:none){.rail-arrow{display:none!important}}
+
+/* IA nudge proativo */
+.ia-nudge{position:fixed;right:24px;bottom:80px;z-index:69;max-width:256px;background:var(--panel);border:1px solid var(--gold-soft-bd);border-radius:14px;border-bottom-right-radius:4px;padding:14px 16px;box-shadow:0 22px 50px -18px rgba(0,0,0,.6);cursor:pointer;transform:translateY(10px) scale(.96);opacity:0;transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .3s;display:none}
+.ia-nudge.show{display:block;transform:none;opacity:1}
+.ia-nudge .in-t{font-size:13px;color:var(--text);line-height:1.5;padding-right:12px}
+.ia-nudge .in-t b{color:var(--gold-deep)}
+.ia-nudge .in-x{position:absolute;top:8px;right:10px;color:var(--faint);font-size:12px}
+@media(max-width:760px){.ia-nudge{right:16px;bottom:76px}}
+
 /* ---- mobile: sidebar vira drawer ---- */
 .hamb{display:none}
 .scrim{display:none}
@@ -585,6 +631,12 @@ svg{display:block}
     <div class="search-res" id="search-res"></div>
   </div>
 </div>
+
+<!-- IA nudge proativo -->
+<div class="ia-nudge" id="ia-nudge"><span class="in-x" id="ia-nudge-x">✕</span><div class="in-t">👋 Oi, Felipe! Quer que eu monte seu <b>plano de estudo</b> pros 18 dias?</div></div>
+
+<!-- toasts -->
+<div class="toast-wrap" id="toast-wrap"></div>
 
 <!-- MODAL genérico -->
 <div class="modal" id="modal"><div class="modal-card" id="modal-card"></div></div>
@@ -701,12 +753,21 @@ const PLANS=[
    ========================================================= */
 const $=(s,el=document)=>el.querySelector(s);
 const $$=(s,el=document)=>Array.from(el.querySelectorAll(s));
+// persistência de sessão (progresso e favoritos)
+const _store=(k)=>{try{return new Set(JSON.parse(localStorage.getItem(k))||[])}catch(_){return new Set()}};
+const _save=(k,set)=>{try{localStorage.setItem(k,JSON.stringify([...set]))}catch(_){}}
+const DONE=_store('ed-done');
+const FAVS=_store('ed-favs');
+function markDone(key){if(!DONE.has(key)){DONE.add(key);_save('ed-done',DONE);toast('Aula concluída! Progresso atualizado.','ok');}render();}
+// toast
+function toast(msg,type){const w=$('#toast-wrap');if(!w)return;const t=document.createElement('div');t.className='toast '+(type||'');t.innerHTML=`<span class="ti">${type==='ok'?'✓':'★'}</span><span>${msg}</span>`;w.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),320);},2600);}
+function greeting(){const h=new Date().getHours();return h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';}
 const romans=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function courseById(id){return COURSES.find(c=>c.id===id)}
 function trilhaById(id){return TRILHAS.find(t=>t.id===id)}
 function simById(id){return SIMULADOS.find(s=>s.id===id)}
-function flatLessons(c){const out=[];c.modules.forEach((m,mi)=>m.lessons.forEach(l=>out.push({courseId:c.id,mod:mi+1,modTitle:m.title,id:l[0],title:l[1],dur:l[2],p:l[3]})));return out}
+function flatLessons(c){const out=[];c.modules.forEach((m,mi)=>m.lessons.forEach(l=>{const p=DONE.has(c.id+'/'+l[0])?100:l[3];out.push({courseId:c.id,mod:mi+1,modTitle:m.title,id:l[0],title:l[1],dur:l[2],p});}));return out}
 function courseProgress(c){const ls=flatLessons(c);if(!ls.length)return 0;return Math.round(ls.reduce((a,l)=>a+l.p,0)/ls.length)}
 function courseCounts(c){const ls=flatLessons(c);return{done:ls.filter(l=>l.p>=100).length,total:ls.length}}
 function scoreColor(v){return v==null?'var(--muted)':v>=70?'var(--green)':v>=50?'var(--amber)':'var(--red)'}
@@ -757,11 +818,27 @@ VIEWS.inicio=()=>{
   const contRail=cont.slice(0,6).map(l=>railCard({tag:l.code,roman:romans[l.mod-1],p:l.p,t:l.title,d:`${l.modTitle} · ${Math.round(l.dur*(1-l.p/100))} min restantes`,href:`#/aula/${l.courseId}/${l.id}`})).join('');
   const trilhaAtual=TRILHAS.find(t=>t.id==='evaluation');
   const nextLesson=cont[0];
-  const trilhasRail=TRILHAS.map(trilhaCard).join('');
+  const trilhasRail=TRILHAS.filter(t=>t.id!==trilhaAtual.id).map(trilhaCard).join('');
   const cursosRail=COURSES.slice(0,8).map(courseCard).join('');
   const histPreview=HISTORY[0][1].concat(HISTORY[1][1]).slice(0,4);
+  const NUDGE_MAP={'Contabilidade':['Análise de balanços','#/aula/cg1/l4'],'Renda variável':['Introdução a valuation','#/aula/cg1/l1'],'Renda fixa':['Marcação a mercado','#/aula/cb/l6'],'Derivativos':['Derivativos — introdução','#/aula/cb/l8'],'Sistema financeiro':['Sistema Financeiro Nacional','#/aula/cb/l3'],'Ética e regulação':['Ética e suitability','#/aula/cb/l1']};
+  const worst=THEMES.slice().sort((a,b)=>a[1]-b[1])[0];
+  const nm=NUDGE_MAP[worst[0]]||['o tema com mais erro','#/desempenho'];
   return `
-  <div class="home-search" id="home-search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="ph">O que você quer estudar hoje? Aulas, simulados, trilhas, conteúdos…</span><span class="kbd">⌘K</span></div>
+  <div class="home-head">
+    <div class="hh-greet"><h2>${greeting()}, ${USER.first} 👋</h2><p>Faltam <b>18 dias</b> para o CNPI — você está <b>78% pronto</b>. Bora manter o ritmo?</p></div>
+    <div class="hh-stats">
+      <div class="hh-stat"><span class="v">78%</span><span class="l">Prontidão</span></div>
+      <div class="hh-stat"><span class="v">14 🔥</span><span class="l">Sequência</span></div>
+      <div class="hh-stat"><span class="v">42h</span><span class="l">Estudadas</span></div>
+    </div>
+  </div>
+  <div class="nudge">
+    <span class="nudge-ic">◎</span>
+    <div><div class="nudge-t">Sua próxima melhor ação</div><div class="nudge-d">Seu ponto mais fraco é <b>${worst[0]} (${worst[1]}%)</b>. Revise <b>${nm[0]}</b> antes do próximo simulado.</div></div>
+    <a class="btn btn-gold btn-sm" href="${nm[1]}">Revisar agora</a>
+  </div>
+  <div class="home-search" id="home-search" style="margin-top:18px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="ph">O que você quer estudar hoje? Aulas, simulados, trilhas, conteúdos…</span><span class="kbd">⌘K</span></div>
 
   <div class="banner" style="margin-top:20px">
     <div class="thumb"><span class="roman">${romans[(nextLesson?.mod||1)-1]}</span>▶</div>
@@ -785,7 +862,7 @@ VIEWS.inicio=()=>{
     <div class="tfoot"><span class="tprog"><i style="width:${trilhaAtual.progress}%"></i></span><span class="tstat">próximo: Plano de revisão de 15 dias</span></div>
   </a>
 
-  <div class="rowtitle"><h3>Trilhas disponíveis</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
+  <div class="rowtitle"><h3>Explore outras trilhas</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
   <div class="tgrid">${trilhasRail}</div>
 
   <div class="rowtitle"><h3>Cursos disponíveis</h3><a class="cnt" href="#/cursos">Ver catálogo →</a></div>
@@ -851,7 +928,7 @@ VIEWS.curso=(id)=>{
     <p>${esc(c.desc)}</p>
     <div class="chstats"><span><b>${cc.total}</b> aulas</span><span><b>${cc.done}</b> concluídas</span><span><b>${pr}%</b> do curso</span></div>
     <div class="chbar"><i style="width:${pr}%"></i></div>
-    <div class="chbtns"><a class="btn btn-gold" href="#/aula/${c.id}/${next.id}">▶ ${pr>0?'Continuar curso':'Começar curso'}</a><span class="btn btn-ghost" data-fav>+ Favoritar</span></div>
+    <div class="chbtns"><a class="btn btn-gold" href="#/aula/${c.id}/${next.id}">▶ ${pr>0?'Continuar curso':'Começar curso'}</a><span class="btn btn-ghost" data-fav="course:${c.id}">+ Favoritar</span></div>
   </div>
   <div class="rowtitle"><h3>Conteúdo do curso</h3><span class="cnt">${c.modules.length} módulos</span></div>
   ${mods}
@@ -862,6 +939,7 @@ VIEWS.aula=(courseId,lessonId)=>{
   const c=courseById(courseId);if(!c||!c.owned)return VIEWS.cursos();
   const ls=flatLessons(c);let idx=ls.findIndex(l=>l.id===lessonId);if(idx<0)idx=0;
   const l=ls[idx],prev=ls[idx-1],next=ls[idx+1],t=trilhaById(c.trilha);
+  const isDone=l.p>=100;
   return `
   <div class="crumb"><a href="#/cursos">Cursos</a><span class="sep">/</span><a href="#/curso/${c.id}">${esc(c.title)}</a><span class="sep">/</span><span class="cur">${esc(l.title)}</span></div>
   <div class="player">
@@ -873,8 +951,8 @@ VIEWS.aula=(courseId,lessonId)=>{
       <h1>${esc(l.title)}</h1>
       <div class="pmeta">${c.code} · Módulo ${l.mod} — ${esc(l.modTitle)} · Aula ${idx+1} de ${ls.length}</div>
       <div class="ptools">
-        <span class="btn btn-gold btn-sm">✓ Marcar como concluída</span>
-        <span class="btn btn-ghost btn-sm" data-fav><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9z"/></svg> Favoritar</span>
+        ${isDone?'<span class="btn btn-ghost btn-sm" style="color:var(--green);border-color:rgba(43,182,115,.34)">✓ Aula concluída</span>':`<span class="btn btn-gold btn-sm" data-done="${c.id}/${l.id}">✓ Marcar como concluída</span>`}
+        <span class="btn btn-ghost btn-sm" data-fav="${c.id}/${l.id}"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9z"/></svg> Favoritar</span>
         <span class="btn btn-ghost btn-sm" data-ask="${esc(l.title)}"><svg viewBox="0 0 24 24"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg> Perguntar à IA</span>
       </div>
       <p class="pdesc">Nesta aula, o professor Frederico destrincha <b>${esc(l.title.toLowerCase())}</b> com exemplos reais de prova. Você vai entender o conceito, ver como a APIMEC costuma cobrar e sair pronto para resolver as questões do simulado deste módulo.</p>
@@ -1026,14 +1104,14 @@ VIEWS.perfil=()=>{
   <div class="cfg">
     <div class="card">
       <h3>Perfil</h3>
-      <div class="cfg-prof"><span class="av">${USER.initials}</span><div><div style="font-weight:600;font-size:16px;color:var(--head)">${USER.name}</div><div style="font-size:13px;color:var(--muted)">${USER.email}</div></div><span class="btn btn-ghost btn-sm" style="margin-left:auto">Trocar foto</span></div>
+      <div class="cfg-prof"><span class="av">${USER.initials}</span><div><div style="font-weight:600;font-size:16px;color:var(--head)">${USER.name}</div><div style="font-size:13px;color:var(--muted)">${USER.email}</div></div><span class="btn btn-ghost btn-sm" style="margin-left:auto" data-toast="Troca de foto em breve nesta versão.">Trocar foto</span></div>
       <div class="cfg-grid">
         <div class="f"><label>Nome</label><div class="val">${USER.name}</div></div>
         <div class="f"><label>E-mail</label><div class="val">${USER.email}</div></div>
         <div class="f"><label>Telefone</label><div class="val">${USER.phone}</div></div>
         <div class="f"><label>Objetivo</label><div class="val">${USER.goal}</div></div>
       </div>
-      <div style="margin-top:18px"><span class="btn btn-ghost btn-sm">Editar dados</span></div>
+      <div style="margin-top:18px"><span class="btn btn-ghost btn-sm" data-toast="Edição de dados em breve nesta versão.">Editar dados</span></div>
     </div>
 
     <div class="card">
@@ -1133,6 +1211,7 @@ function render(){
   $$('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.route===name||(name==='trilha'&&n.dataset.route==='trilhas')||(name==='curso'&&n.dataset.route==='cursos')||(name==='aula'&&n.dataset.route==='cursos')));
   // wire theme seg inside config
   bindThemeSegs();
+  enhanceRails();
   // heat map (desempenho)
   if(name==='desempenho'){const heat=$('#heat');if(heat){let cells='';for(let i=0;i<44;i++){const a=[0,.12,.25,.45,.7,1][Math.floor((Math.sin(i*1.7)+1)/2*5)];cells+=`<span style="opacity:${(0.12+a*0.88).toFixed(2)}"></span>`;}heat.innerHTML=cells;}}
   if(name==='ia')renderIaPage();
@@ -1161,13 +1240,16 @@ $('#scrim').addEventListener('click',()=>_app.classList.remove('nav-open'));
 
 // delegação de cliques (acordeões, upgrade, toggles, filtros, IA-ask)
 document.addEventListener('click',e=>{
+  const dt=e.target.closest('[data-toast]');if(dt)toast(dt.dataset.toast,dt.dataset.toastType||'');
+  const done=e.target.closest('[data-done]');if(done){markDone(done.dataset.done);return;}
   const modH=e.target.closest('.mod-h');if(modH){modH.parentElement.classList.toggle('open');return;}
   const simH=e.target.closest('[data-sim-toggle]');if(simH){simH.parentElement.classList.toggle('open');return;}
   const up=e.target.closest('[data-upgrade]');if(up){openUpgrade(up.dataset.upgrade);return;}
   const openSim=e.target.closest('[data-open-sim]');if(openSim){openSimStart(openSim.dataset.openSim);return;}
-  const tog=e.target.closest('[data-toggle]');if(tog){tog.classList.toggle('on');return;}
+  const tog=e.target.closest('[data-toggle]');if(tog){tog.classList.toggle('on');toast(tog.classList.contains('on')?'Preferência ativada':'Preferência desativada','ok');return;}
   const ask=e.target.closest('[data-ask]');if(ask){openIa();sendIa(ask.dataset.ask);return;}
-  const fav=e.target.closest('[data-fav]');if(fav){fav.innerHTML='★ Favoritado';fav.style.color='var(--gold-deep)';return;}
+  const fav=e.target.closest('[data-fav]');if(fav){const key=fav.dataset.fav||'fav';let on;if(FAVS.has(key)){FAVS.delete(key);on=false;}else{FAVS.add(key);on=true;}_save('ed-favs',FAVS);fav.innerHTML=on?'★ Favoritado':'☆ Favoritar';fav.style.color=on?'var(--gold-deep)':'';toast(on?'Adicionado aos favoritos ★':'Removido dos favoritos','ok');return;}
+  const dl=e.target.closest('.dl');if(dl){toast('Download iniciado.','ok');return;}
   const simRow=e.target.closest('[data-sim-row]');if(simRow){location.hash='#/desempenho?sim='+simRow.dataset.simRow;return;}
   if(e.target.closest('#home-search')){openSearch();return;}
   if(e.target.closest('#btn-manage')){openManage();return;}
@@ -1198,6 +1280,7 @@ function searchIndex(){
   return idx;
 }
 const SIDX=searchIndex();
+let srIdx=0;
 function openSearch(){$('#search-ov').classList.add('show');const i=$('#search-input');i.value='';runSearch('');setTimeout(()=>i.focus(),30);}
 function closeSearch(){$('#search-ov').classList.remove('show');}
 function runSearch(q){
@@ -1209,9 +1292,15 @@ function runSearch(q){
   if(!res.length){box.innerHTML='<div class="sr-empty">Nada encontrado. Tente “renda fixa”, “simulado”, “valuation”…</div>';return;}
   const groups={};res.forEach(r=>{(groups[r.type]=groups[r.type]||[]).push(r);});
   box.innerHTML=Object.keys(groups).map(g=>`<div class="sr-group">${g}s</div>`+groups[g].map(r=>`<a class="sr-item" href="${r.href}" data-close-search><span class="si">${r.icon}</span><div style="flex:1"><div class="st">${esc(r.title)}</div><div class="sd">${esc(r.sub)}</div></div><span class="sk">↵</span></a>`).join('')).join('');
+  srIdx=0;const its=$$('#search-res .sr-item');if(its[0])its[0].classList.add('on');
 }
 $('#open-search').addEventListener('click',openSearch);
 $('#search-input').addEventListener('input',e=>runSearch(e.target.value));
+$('#search-input').addEventListener('keydown',e=>{
+  const its=$$('#search-res .sr-item');if(!its.length)return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();its[srIdx]&&its[srIdx].classList.remove('on');srIdx=e.key==='ArrowDown'?Math.min(srIdx+1,its.length-1):Math.max(srIdx-1,0);its[srIdx].classList.add('on');its[srIdx].scrollIntoView({block:'nearest'});}
+  else if(e.key==='Enter'){e.preventDefault();(its[srIdx]||its[0]).click();}
+});
 $('#search-ov').addEventListener('click',e=>{if(e.target.id==='search-ov')closeSearch();if(e.target.closest('[data-close-search]'))closeSearch();});
 document.addEventListener('keydown',e=>{
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSearch();}
@@ -1229,13 +1318,13 @@ function openUpgrade(courseId){
   <p>Este curso não está no seu plano atual. Faça upgrade e libere <b>${esc(c.title)}</b> e todos os outros cursos da Trilha ${esc(trilhaById(c.trilha).name.replace('Trilha ',''))}.</p>
   <div class="plan-opt" style="margin-top:18px"><div><div class="po-nm">${esc(c.title)}</div><div class="po-d">Acesso imediato · 1 ano</div></div><div class="po-pr"><b>R$ ${c.price}</b><span>avulso</span></div></div>
   <div class="plan-opt cur"><div><div class="po-nm">Upgrade completo</div><div class="po-d">Todos os cursos + trilhas + simulados</div></div><div class="po-pr"><b>R$ 2.997</b><span>melhor valor</span></div></div>
-  <div class="macts"><span class="btn btn-ghost" data-close-modal>Agora não</span><span class="btn btn-gold" data-close-modal>Fazer upgrade</span></div>`);
+  <div class="macts"><span class="btn btn-ghost" data-close-modal>Agora não</span><span class="btn btn-gold" data-close-modal data-toast="Redirecionando para o checkout…">Fazer upgrade</span></div>`);
 }
 function openPlans(){
   showModal(`<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">★</div>
   <h3>Contratar novo plano</h3><p>Amplie sua formação. Você mantém tudo que já tem — só adiciona.</p>
   <div style="margin-top:18px">${PLANS.map(p=>`<div class="plan-opt ${p.id===USER.planId?'cur':''}"><div><div class="po-nm">${p.name}${p.id===USER.planId?' · atual':''}</div><div class="po-d">${p.d}</div></div><div class="po-pr"><b>R$ ${p.price}</b><span>${p.per}</span></div></div>`).join('')}</div>
-  <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal>Falar com o time</span></div>`);
+  <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal data-toast="Nossa equipe vai te chamar no WhatsApp 💬">Falar com o time</span></div>`);
 }
 function openManage(){
   showModal(`<div class="mic" style="background:var(--overlay-soft);border:1px solid var(--border);color:var(--text)">⚙</div>
@@ -1254,13 +1343,13 @@ function openCancel(){
   <h3>Cancelar assinatura?</h3>
   <p>Você perde o acesso às aulas, simulados e ao seu <b>diagnóstico de prontidão</b> em 12/12/2027. Faltam <b>18 dias</b> para a sua prova do CNPI — tem certeza?</p>
   <div class="plan-opt" style="margin-top:18px;border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)"><div><div class="po-nm">Que tal pausar?</div><div class="po-d">Congele por 30 dias sem perder progresso</div></div></div>
-  <div class="macts"><span class="btn btn-gold" data-close-modal>Manter assinatura</span><span class="btn btn-ghost" data-close-modal style="color:var(--red)">Cancelar mesmo assim</span></div>`);
+  <div class="macts"><span class="btn btn-gold" data-close-modal data-toast="Que bom que você ficou! 💛">Manter assinatura</span><span class="btn btn-ghost" data-close-modal style="color:var(--red)" data-toast="Assinatura cancelada. Acesso mantido até 12/12/2027.">Cancelar mesmo assim</span></div>`);
 }
 function openSimStart(id){
   const s=simById(id);if(!s)return;
   showModal(`<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">★</div>
   <h3>${esc(s.title)}</h3><p>${s.questions} questões · ${s.dur}. Ao terminar, você recebe o <b>resultado por módulo</b> e o gabarito comentado em áudio.</p>
-  <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal>▶ Iniciar agora</span></div>`);
+  <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal data-toast="Simulado iniciado — boa prova! 🍀">▶ Iniciar agora</span></div>`);
 }
 
 /* =========================================================
@@ -1321,7 +1410,7 @@ function seedIa(){
   iaHistory.push({role:'ai',text:`Oi, ${USER.first}! 👋 Sou seu assistente de estudos. Já olhei seu progresso: prontidão em <b>78%</b>, com <b>Contabilidade</b> pedindo atenção. Como posso ajudar?`,recs:[['Ver meu desempenho','#/desempenho'],['O que estudar agora?','#/inicio']]});
 }
 function renderSugg(){$('#ia-sugg').innerHTML=IA_SUGG.map(s=>`<button data-ia-sugg>${esc(s)}</button>`).join('');}
-function openIa(){seedIa();refreshIa();renderSugg();$('#ia-pop').classList.add('show');$('#ia-fab').style.display='none';setTimeout(()=>$('#ia-text')?.focus(),40);}
+function openIa(){dismissIaNudge();seedIa();refreshIa();renderSugg();$('#ia-pop').classList.add('show');$('#ia-fab').style.display='none';setTimeout(()=>$('#ia-text')?.focus(),40);}
 function closeIa(){$('#ia-pop').classList.remove('show');$('#ia-fab').style.display='';}
 function sendIa(text){
   text=(text||'').trim();if(!text)return;
@@ -1354,10 +1443,29 @@ function renderIaPage(){
 }
 
 /* =========================================================
+   ENHANCEMENTS — setas nos trilhos + IA proativa
+   ========================================================= */
+function enhanceRails(){
+  $$('#view .rail').forEach(r=>{
+    if(!r.parentElement||r.parentElement.classList.contains('railx'))return;
+    if(r.scrollWidth<=r.clientWidth+8)return;
+    const wrap=document.createElement('div');wrap.className='railx';
+    r.parentNode.insertBefore(wrap,r);wrap.appendChild(r);
+    ['l','r'].forEach(dir=>{const b=document.createElement('button');b.className='rail-arrow '+dir;b.setAttribute('aria-label',dir==='l'?'Anterior':'Próximo');b.textContent=dir==='l'?'‹':'›';
+      b.addEventListener('click',()=>r.scrollBy({left:(dir==='l'?-1:1)*Math.min(560,r.clientWidth*0.82),behavior:'smooth'}));wrap.appendChild(b);});
+  });
+}
+function dismissIaNudge(){const n=$('#ia-nudge');if(n)n.classList.remove('show');try{localStorage.setItem('ed-ia-nudge','1')}catch(_){}}
+function maybeIaNudge(){try{if(localStorage.getItem('ed-ia-nudge'))return;}catch(_){}
+  setTimeout(()=>{if($('#ia-pop').classList.contains('show'))return;const n=$('#ia-nudge');if(n)n.classList.add('show');},3800);}
+$('#ia-nudge').addEventListener('click',e=>{if(e.target.id==='ia-nudge-x'){dismissIaNudge();return;}dismissIaNudge();openIa();sendIa('Qual meu plano de estudo para os próximos 15 dias?');});
+
+/* =========================================================
    START
    ========================================================= */
 if(!location.hash)location.hash='#/inicio';
 render();
+maybeIaNudge();
 </script>
 </body>
 </html>
