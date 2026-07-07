@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Área do Aluno — Economia do Dia</title>
+<title>Área do Aluno · Economia do Dia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -733,7 +733,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 
 <script>
 /* =========================================================
-   MODELO DE DADOS (mock — protótipo)
+   MODELO DE DADOS (mock · protótipo)
    ========================================================= */
 const USER={name:'Felipe Nunes',first:'Felipe',email:'aluno@economiadodia.com.br',phone:'(21) 99999-0000',initials:'FN',goal:'Analista pleno (CB + CG1 + CT1)',planId:'completo'};
 
@@ -751,8 +751,8 @@ const COURSES=[
    modules:[
      {title:'Ética e Regulação',lessons:[['l1','Ética e suitability',32,100],['l2','Regulação e órgãos do SFN',28,100]]},
      {title:'Sistema Financeiro',lessons:[['l3','Sistema Financeiro Nacional',41,100],['l4','Política monetária e Copom',26,30]]},
-     {title:'Renda Fixa',lessons:[['l5','Renda fixa — conceitos',35,64],['l6','Marcação a mercado',22,64],['l7','Títulos públicos',30,0]]},
-     {title:'Derivativos',lessons:[['l8','Derivativos — introdução',38,0],['l9','Hedge e especulação',33,0]]}
+     {title:'Renda Fixa',lessons:[['l5','Renda fixa · conceitos',35,64],['l6','Marcação a mercado',22,64],['l7','Títulos públicos',30,0]]},
+     {title:'Derivativos',lessons:[['l8','Derivativos · introdução',38,0],['l9','Hedge e especulação',33,0]]}
    ]},
   {id:'cg1',code:'CNPI-CG1',title:'Análise Fundamentalista',trilha:'cnpi',owned:true,color:'#D4A437',
    desc:'Valuation, contabilidade e finanças corporativas, com base na análise de demonstrações.',
@@ -772,7 +772,7 @@ const COURSES=[
    desc:'Banco de simulados que se renova + revisão dirigida pelo seu diagnóstico. O jeito mais rápido de chegar pronto.',
    modules:[
      {title:'Revisão dirigida',lessons:[['l1','Como ler seu diagnóstico',14,100],['l2','Plano de revisão de 15 dias',18,40]]},
-     {title:'Simulados guiados',lessons:[['l3','Simulado comentado — CB',60,0],['l4','Simulado comentado — CG1',55,0]]}
+     {title:'Simulados guiados',lessons:[['l3','Simulado comentado · CB',60,0],['l4','Simulado comentado · CG1',55,0]]}
    ]},
   {id:'retafinal',code:'EVALUATION',title:'Diagnóstico & Reta Final',trilha:'evaluation',owned:true,color:'#3D8BE0',
    desc:'Os 7 dias antes da prova: o que revisar, o que ignorar e como não se queimar por ansiedade.',
@@ -918,12 +918,12 @@ VIEWS.inicio=()=>{
   const trilhasRail=TRILHAS.filter(t=>t.id!==trilhaAtual.id).map(trilhaCard).join('');
   const cursosRail=COURSES.slice(0,8).map(courseCard).join('');
   const histPreview=HISTORY[0][1].concat(HISTORY[1][1]).slice(0,4);
-  const NUDGE_MAP={'Contabilidade':['Análise de balanços','#/aula/cg1/l4'],'Renda variável':['Introdução a valuation','#/aula/cg1/l1'],'Renda fixa':['Marcação a mercado','#/aula/cb/l6'],'Derivativos':['Derivativos — introdução','#/aula/cb/l8'],'Sistema financeiro':['Sistema Financeiro Nacional','#/aula/cb/l3'],'Ética e regulação':['Ética e suitability','#/aula/cb/l1']};
+  const NUDGE_MAP={'Contabilidade':['Análise de balanços','#/aula/cg1/l4'],'Renda variável':['Introdução a valuation','#/aula/cg1/l1'],'Renda fixa':['Marcação a mercado','#/aula/cb/l6'],'Derivativos':['Derivativos · introdução','#/aula/cb/l8'],'Sistema financeiro':['Sistema Financeiro Nacional','#/aula/cb/l3'],'Ética e regulação':['Ética e suitability','#/aula/cb/l1']};
   const worst=THEMES.slice().sort((a,b)=>a[1]-b[1])[0];
   const nm=NUDGE_MAP[worst[0]]||['o tema com mais erro','#/desempenho'];
   return `
   <div class="home-head">
-    <div class="hh-greet"><h2>${greeting()}, ${USER.first} 👋</h2><p>Faltam <b>18 dias</b> para o CNPI — você está <b>78% pronto</b>. Bora manter o ritmo?</p></div>
+    <div class="hh-greet"><h2>${greeting()}, ${USER.first} 👋</h2><p>Faltam <b>18 dias</b> para o CNPI e você está <b>78% pronto</b>. Bora manter o ritmo?</p></div>
     <div class="hh-stats">
       <div class="hh-stat"><span class="v">78%</span><span class="l">Prontidão</span></div>
       <div class="hh-stat"><span class="v">14 🔥</span><span class="l">Sequência</span></div>
@@ -971,7 +971,7 @@ VIEWS.inicio=()=>{
 };
 
 VIEWS.trilhas=()=>`
-  <div class="goldstrip"><span class="gi">◎</span><div><h4>Trilhas de formação</h4><p>Cada trilha reúne cursos e aulas na ordem certa para você sair pronto — não só aprovado.</p></div></div>
+  <div class="goldstrip"><span class="gi">◎</span><div><h4>Trilhas de formação</h4><p>Cada trilha reúne cursos e aulas na ordem certa para você sair pronto, não só aprovado.</p></div></div>
   <div class="tgrid">${TRILHAS.map(trilhaCard).join('')}</div>
 `;
 
@@ -1058,7 +1058,7 @@ VIEWS.aula=(courseId,lessonId)=>{
         <div class="pctrl"><span style="color:#fff">▶</span><div class="ptrack"><i style="width:${l.p}%"></i></div><span class="ptime">${Math.round(l.dur*l.p/100)}:00 / ${l.dur}:00</span></div>
       </div>
       <h1>${esc(l.title)}</h1>
-      <div class="pmeta">${c.code} · Módulo ${l.mod} — ${esc(l.modTitle)} · Aula ${idx+1} de ${ls.length}</div>
+      <div class="pmeta">${c.code} · Módulo ${l.mod} · ${esc(l.modTitle)} · Aula ${idx+1} de ${ls.length}</div>
       <div class="ptools">
         ${isDone?'<span class="btn btn-ghost btn-sm" style="color:var(--green);border-color:rgba(43,182,115,.34)">✓ Aula concluída</span>':`<span class="btn btn-gold btn-sm" data-done="${c.id}/${l.id}">✓ Marcar como concluída</span>`}
         <span class="btn btn-ghost btn-sm" data-fav="${c.id}/${l.id}"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9z"/></svg> Favoritar</span>
@@ -1073,7 +1073,7 @@ VIEWS.aula=(courseId,lessonId)=>{
     <div class="player-side">
       <div class="card"><div class="audio-cta"><span class="ai">♪</span><div><div class="at">Gabarito comentado em áudio</div><div class="as">Revise esta aula sem tela, no trânsito.</div></div></div></div>
       <div class="card"><h4>Materiais da aula</h4>
-        <div class="mat"><span class="mi" style="background:rgba(224,83,61,.12);color:#E0533D">PDF</span><div style="flex:1"><div class="mnm">Resumo — ${esc(l.title)}</div><div class="msz">PDF · 1,2 MB</div></div><span class="dl">↓</span></div>
+        <div class="mat"><span class="mi" style="background:rgba(224,83,61,.12);color:#E0533D">PDF</span><div style="flex:1"><div class="mnm">Resumo · ${esc(l.title)}</div><div class="msz">PDF · 1,2 MB</div></div><span class="dl">↓</span></div>
         <div class="mat"><span class="mi" style="background:rgba(61,139,224,.12);color:#3D8BE0">XLS</span><div style="flex:1"><div class="mnm">Exercícios resolvidos</div><div class="msz">Planilha · 320 KB</div></div><span class="dl">↓</span></div>
         <div class="mat"><span class="mi" style="background:rgba(212,164,55,.12);color:var(--gold-deep)">♪</span><div style="flex:1"><div class="mnm">Áudio comentado</div><div class="msz">MP3 · ${l.dur} min</div></div><span class="dl">↓</span></div>
       </div>
@@ -1091,7 +1091,7 @@ VIEWS.simulados=()=>`
     const done=s.modules.filter(m=>m[2]!=null).length;
     return `<div class="simfull"><div class="simfull-h" data-sim-toggle><span class="si">${s.score!=null?'✓':'▶'}</span>
       <div style="flex:1"><div class="snm">${esc(s.title)}</div><div class="sds">${s.cert} · ${s.questions} questões · ${s.dur} · ${done}/4 módulos feitos</div></div>
-      <div class="sright"><span class="sscore" style="color:${scoreColor(s.score)}">${s.score!=null?s.score+'% de acerto':'—'}</span><span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div></div>
+      <div class="sright"><span class="sscore" style="color:${scoreColor(s.score)}">${s.score!=null?s.score+'% de acerto':'a fazer'}</span><span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div></div>
       <div class="simfull-body">
         ${s.modules.map((m,i)=>`<div class="simmod"><span class="mi ${m[2]!=null?'done':''}">${i+1}</span><div style="flex:1"><div class="mnm">Módulo ${i+1} · ${esc(m[0])}</div><div class="mds">${m[1]} questões</div></div><div class="mright"><span class="msc" style="color:${scoreColor(m[2])}">${m[2]!=null?m[2]+'%':'não feito'}</span><span class="btn btn-ghost btn-sm" data-open-sim="${s.id}">${m[2]!=null?'Refazer':'Iniciar'}</span></div></div>`).join('')}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px"><span style="font-size:12.5px;color:var(--muted)">Simulado completo: ${s.questions} questões · ${s.dur}</span><span class="btn btn-gold btn-sm" data-open-sim="${s.id}">▶ Fazer simulado completo</span></div>
@@ -1117,7 +1117,7 @@ VIEWS.desempenho=(simId)=>{
     detail=`
     <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:14px">
       <div><div style="font-family:'Sora';font-weight:600;font-size:17px;color:var(--head)">${esc(sel.title)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${sel.cert} · realizado ${datas[sel.id]||'recentemente'} · ${sel.questions} questões · ${sel.dur}</div></div>
-      <span class="btn btn-ghost btn-sm" data-toast="Refazer com questões novas — boa prova! 🍀">↻ Refazer simulado</span>
+      <span class="btn btn-ghost btn-sm" data-toast="Refazer com questões novas. Boa prova! 🍀">↻ Refazer simulado</span>
     </div>
     <div class="dstat">
       <div class="card"><div class="dv" style="color:${scoreColor(sel.score)}">${sel.score}%</div><div class="dl">Nota</div></div>
@@ -1127,7 +1127,7 @@ VIEWS.desempenho=(simId)=>{
     </div>
     <div class="perf-bot" style="margin-top:0">
       <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Desempenho por tema</h3>
-        ${sel.modules.map(m=>{const v=m[2]==null?0:m[2];return `<div class="tbar"><div class="tl"><span>${esc(m[0])}</span><span class="pct" style="color:${m[2]==null?'var(--faint)':barColor(v)}">${m[2]==null?'—':v+'%'}</span></div><div class="track"><i style="width:${v}%;background:${barColor(v)}"></i><i style="width:${100-v}%;background:var(--red);opacity:.22"></i></div></div>`}).join('')}
+        ${sel.modules.map(m=>{const v=m[2]==null?0:m[2];return `<div class="tbar"><div class="tl"><span>${esc(m[0])}</span><span class="pct" style="color:${m[2]==null?'var(--faint)':barColor(v)}">${m[2]==null?'·':v+'%'}</span></div><div class="track"><i style="width:${v}%;background:${barColor(v)}"></i><i style="width:${100-v}%;background:var(--red);opacity:.22"></i></div></div>`}).join('')}
         <div style="font-size:12.5px;color:var(--amber);margin-top:12px">⚠ Precisa de atenção: ${worstMods.slice(0,2).map(m=>esc(m[0])+' ('+m[2]+'%)').join(' · ')}</div>
       </div>
       <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos × erros</h3>
@@ -1139,7 +1139,7 @@ VIEWS.desempenho=(simId)=>{
       </div>
     </div>
     <div class="rowtitle"><h3>Questões respondidas</h3><span class="cnt">${acertos} certas · ${erros} erradas</span></div>
-    <div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">Amostra das ${sel.questions} questões — reveja os temas em vermelho no gabarito comentado.</div>${qhtml}
+    <div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">Amostra das ${sel.questions} questões. Reveja os temas em vermelho no gabarito comentado.</div>${qhtml}
       <div style="margin-top:14px"><span class="btn btn-ghost btn-sm" data-ask="Como melhorar em ${worstMods[0]?esc(worstMods[0][0]):'meus pontos fracos'}?">✦ Pedir plano de revisão ao ED</span></div>
     </div>`;
   }
@@ -1149,7 +1149,7 @@ VIEWS.desempenho=(simId)=>{
     <div class="card">
       <h3 style="font-size:15px;margin-bottom:16px">Diagnóstico de prontidão</h3>
       <div class="diag"><div class="donut" style="--p:78"><span class="num">78%</span></div>
-        <div class="txt"><h4>Você está quase lá.</h4><p>Foque em <b style="color:var(--gold-deep)">Contabilidade</b> e <b style="color:var(--gold-deep)">Renda Variável</b> — são os módulos que mais derrubam sua média.</p></div></div>
+        <div class="txt"><h4>Você está quase lá.</h4><p>Foque em <b style="color:var(--gold-deep)">Contabilidade</b> e <b style="color:var(--gold-deep)">Renda Variável</b>: são os módulos que mais derrubam sua média.</p></div></div>
     </div>
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px"><h3 style="font-size:15px">Evolução do aproveitamento</h3><span class="mono up" style="font-size:13px">+23%</span></div>
@@ -1183,10 +1183,10 @@ VIEWS.desempenho=(simId)=>{
       ${sel?`<a class="btn btn-ghost btn-sm" href="#/desempenho">Limpar filtro</a>`:''}
     </div>
     ${sel?detail:`
-      <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Selecione um simulado acima para ver nota, acertos, erros, questões e desempenho por tema — ou clique numa linha do histórico.</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Selecione um simulado acima para ver nota, acertos, erros, questões e desempenho por tema, ou clique numa linha do histórico.</div>
       <table class="simhist"><thead><tr><th>Simulado</th><th>Data</th><th>Questões</th><th>Nota</th></tr></thead>
       <tbody>
-        ${done.map((s,i)=>`<tr data-sim-row="${s.id}"><td style="font-weight:500">${esc(s.title)}</td><td style="color:var(--muted)">${['ontem','12 jun','28 mai'][i]||'—'}</td><td>${s.questions}</td><td class="sc" style="color:${scoreColor(s.score)}">${s.score}%</td></tr>`).join('')}
+        ${done.map((s,i)=>`<tr data-sim-row="${s.id}"><td style="font-weight:500">${esc(s.title)}</td><td style="color:var(--muted)">${['ontem','12 jun','28 mai'][i]||'·'}</td><td>${s.questions}</td><td class="sc" style="color:${scoreColor(s.score)}">${s.score}%</td></tr>`).join('')}
       </tbody></table>`}
   </div>
   `;
@@ -1230,7 +1230,7 @@ VIEWS.favoritos=()=>{
   const favA=[
     {t:'Marcação a mercado',d:'Renda Fixa · CB',note:'✎ Revisar a fórmula de PU',href:'#/aula/cb/l6'},
     {t:'Fluxo de caixa descontado',d:'Valuation · CG1',note:'✎ Caiu na prova passada',href:'#/aula/cg1/l2'},
-    {t:'Candlestick — padrões',d:'Técnica · CT1',note:'✎ Decorar os 5 principais',href:'#/aula/ct1/l3'},
+    {t:'Candlestick · padrões',d:'Técnica · CT1',note:'✎ Decorar os 5 principais',href:'#/aula/ct1/l3'},
     {t:'Ética e suitability',d:'Regulação · CB',note:'✎ Pegadinha de conflito de interesse',href:'#/aula/cb/l1'}
   ];
   const favQ=[
@@ -1307,7 +1307,7 @@ VIEWS.perfil=()=>{
 VIEWS.ia=()=>`
   <div class="ia-page">
     <div class="iahero">${edAvatar('lg')}
-      <div><h2>ED · seu assistente de estudos</h2><p>Tira dúvidas sobre aulas, simulados e navegação — e recomenda o que estudar com base no seu desempenho real.</p></div></div>
+      <div><h2>ED · seu assistente de estudos</h2><p>Tira dúvidas sobre aulas, simulados e navegação, e recomenda o que estudar com base no seu desempenho real.</p></div></div>
     <div class="iaconv" id="ia-page-body"></div>
     <div class="ia-input" style="border:1px solid var(--border);border-radius:12px;margin-top:14px;background:var(--panel)">
       <input id="ia-page-text" placeholder="Pergunte sobre aulas, simulados, desempenho…" autocomplete="off" />
@@ -1329,7 +1329,7 @@ const TITLES={
   inicio:['Início','Continue de onde parou e mantenha o ritmo.'],
   trilhas:['Trilhas','Formações completas, na ordem certa de estudo.'],
   trilha:['Trilha','Cursos e aulas desta formação.'],
-  cursos:['Cursos','Seu catálogo — e os próximos passos da formação.'],
+  cursos:['Cursos','Seu catálogo e os próximos passos da formação.'],
   curso:['Curso','Módulos, aulas e progresso.'],
   aula:['Aula','Assista, baixe os materiais e ouça o gabarito.'],
   simulados:['Simulados','Complete por módulo e veja o resultado detalhado.'],
@@ -1483,7 +1483,7 @@ function openUpgrade(courseId){
 }
 function openPlans(){
   showModal(`<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">★</div>
-  <h3>Contratar novo plano</h3><p>Amplie sua formação. Você mantém tudo que já tem — só adiciona.</p>
+  <h3>Contratar novo plano</h3><p>Amplie sua formação. Você mantém tudo que já tem, só adiciona.</p>
   <div style="margin-top:18px">${PLANS.map(p=>`<div class="plan-opt ${p.id===USER.planId?'cur':''}"><div><div class="po-nm">${p.name}${p.id===USER.planId?' · atual':''}</div><div class="po-d">${p.d}</div></div><div class="po-pr"><b>R$ ${p.price}</b><span>${p.per}</span></div></div>`).join('')}</div>
   <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal data-toast="Nossa equipe vai te chamar no WhatsApp 💬">Falar com o time</span></div>`);
 }
@@ -1502,7 +1502,7 @@ function openManage(){
 function openCancel(){
   showModal(`<div class="mic" style="background:rgba(224,83,61,.12);border:1px solid rgba(224,83,61,.34);color:#E0533D"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.6L2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/></svg></div>
   <h3>Cancelar assinatura?</h3>
-  <p>Você perde o acesso às aulas, simulados e ao seu <b>diagnóstico de prontidão</b> em 12/12/2027. Faltam <b>18 dias</b> para a sua prova do CNPI — tem certeza?</p>
+  <p>Você perde o acesso às aulas, simulados e ao seu <b>diagnóstico de prontidão</b> em 12/12/2027. Faltam <b>18 dias</b> para a sua prova do CNPI. Tem certeza?</p>
   <div class="plan-opt" style="margin-top:18px;border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)"><div><div class="po-nm">Que tal pausar?</div><div class="po-d">Congele por 30 dias sem perder progresso</div></div></div>
   <div class="macts"><span class="btn btn-gold" data-close-modal data-toast="Que bom que você ficou! 💛">Manter assinatura</span><span class="btn btn-ghost" data-close-modal style="color:var(--red)" data-toast="Assinatura cancelada. Acesso mantido até 12/12/2027.">Cancelar mesmo assim</span></div>`);
 }
@@ -1510,11 +1510,11 @@ function openSimStart(id){
   const s=simById(id);if(!s)return;
   showModal(`<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">★</div>
   <h3>${esc(s.title)}</h3><p>${s.questions} questões · ${s.dur}. Ao terminar, você recebe o <b>resultado por módulo</b> e o gabarito comentado em áudio.</p>
-  <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal data-toast="Simulado iniciado — boa prova! 🍀">▶ Iniciar agora</span></div>`);
+  <div class="macts"><span class="btn btn-ghost" data-close-modal>Fechar</span><span class="btn btn-gold" data-close-modal data-toast="Simulado iniciado. Boa prova! 🍀">▶ Iniciar agora</span></div>`);
 }
 
 /* =========================================================
-   IA — mock com getAIResponse() (fronteira p/ API real depois)
+   IA · mock com getAIResponse() (fronteira p/ API real depois)
    ========================================================= */
 const IA_SUGG=['Como está meu desempenho?','O que estudar antes do próximo simulado?','Onde vejo minhas aulas favoritas?','Estou pronto para o CNPI?'];
 let iaHistory=[];
@@ -1522,8 +1522,8 @@ let iaHistory=[];
 const THEME_LESSONS={
   'Contabilidade':{course:'cg1',mod:'Contabilidade',lessons:['Demonstrações financeiras','Análise de balanços']},
   'Renda variável':{course:'cg1',mod:'Valuation',lessons:['Introdução a valuation','Fluxo de caixa descontado']},
-  'Renda fixa':{course:'cb',mod:'Renda Fixa',lessons:['Renda fixa — conceitos','Marcação a mercado','Títulos públicos']},
-  'Derivativos':{course:'cb',mod:'Derivativos',lessons:['Derivativos — introdução','Hedge e especulação']},
+  'Renda fixa':{course:'cb',mod:'Renda Fixa',lessons:['Renda fixa · conceitos','Marcação a mercado','Títulos públicos']},
+  'Derivativos':{course:'cb',mod:'Derivativos',lessons:['Derivativos · introdução','Hedge e especulação']},
   'Sistema financeiro':{course:'cb',mod:'Sistema Financeiro',lessons:['Sistema Financeiro Nacional','Política monetária e Copom']},
   'Ética e regulação':{course:'cb',mod:'Ética e Regulação',lessons:['Ética e suitability','Regulação e órgãos do SFN']}
 };
@@ -1556,11 +1556,11 @@ function getAIResponse(text){
       recs:[['Ver desempenho detalhado','#/desempenho'],[reviseLbl,reviseHref]]};
   }
   if(/(recomend|o que estud|o que fa|próxim|proxim|melhor aç|onde foc|plano|15 dias|rotina|cronograma|revis)/.test(q)){
-    return {text:`Você apresentou dificuldade no módulo de <b>${wm.name}</b> (${wm.score}% no ${wm.sim}). ${revise} Depois disso, refaça o simulado desse módulo pra medir o ganho — costuma subir uns 15%.`,
+    return {text:`Você apresentou dificuldade no módulo de <b>${wm.name}</b> (${wm.score}% no ${wm.sim}). ${revise} Depois disso, refaça o simulado desse módulo pra medir o ganho (costuma subir uns 15%).`,
       recs:[[reviseLbl,reviseHref],['Refazer simulado','#/simulados']]};
   }
   if(/(contabil|balanç|ebitda|demonstra)/.test(q)){
-    return {text:`Contabilidade é hoje seu ponto crítico (<b>49% no CG1</b>). Comece por <b>Demonstrações financeiras</b> e depois <b>Análise de balanços</b> — são exatamente os temas que mais derrubaram sua nota no último simulado.`,
+    return {text:`Contabilidade é hoje seu ponto crítico (<b>49% no CG1</b>). Comece por <b>Demonstrações financeiras</b> e depois <b>Análise de balanços</b>. São exatamente os temas que mais derrubaram sua nota no último simulado.`,
       recs:[['Aula: Demonstrações financeiras','#/aula/cg1/l3'],['Refazer simulado CG1','#/desempenho?sim=sim-cg1']]};
   }
   if(/(simulad|prova|pronto|ct1|técnic|test)/.test(q)){
@@ -1573,14 +1573,14 @@ function getAIResponse(text){
       recs:[['Continuar minha trilha','#/trilha/evaluation'],['Ver todas as trilhas','#/trilhas']]};
   }
   if(/(favorit|salv|kit)/.test(q)){
-    return {text:`Seu kit de revisão tem <b>4 aulas favoritas</b> e 3 questões salvas — incluindo Marcação a mercado e Fluxo de caixa descontado. Ótimo material pra reta final.`,
+    return {text:`Seu kit de revisão tem <b>4 aulas favoritas</b> e 3 questões salvas, incluindo Marcação a mercado e Fluxo de caixa descontado. Ótimo material pra reta final.`,
       recs:[['Abrir Favoritos','#/favoritos']]};
   }
   if(/(renda fixa|marcação|pu|título)/.test(q)){
-    return {text:`Em Renda Fixa você está em 74%. A pegadinha costuma ser <b>marcação a mercado</b> — a aula certa é essa. Depois, ouça o gabarito em áudio pra fixar.`,
+    return {text:`Em Renda Fixa você está em 74%. A pegadinha costuma ser <b>marcação a mercado</b>: a aula certa é essa. Depois, ouça o gabarito em áudio pra fixar.`,
       recs:[['Aula: Marcação a mercado','#/aula/cb/l6']]};
   }
-  return {text:`Posso te ajudar com <b>aulas, simulados, conteúdos e navegação</b> — e principalmente dizer <b>o que estudar a seguir</b> pelo seu desempenho. Hoje eu focaria em <b>${wm.name} (${wm.score}%)</b>. ${revise}`,
+  return {text:`Posso te ajudar com <b>aulas, simulados, conteúdos e navegação</b>, e principalmente dizer <b>o que estudar a seguir</b> pelo seu desempenho. Hoje eu focaria em <b>${wm.name} (${wm.score}%)</b>. ${revise}`,
     recs:[['Ver meu desempenho','#/desempenho'],[reviseLbl,reviseHref]]};
 }
 function iaBubble(role,text,recs){
@@ -1636,7 +1636,7 @@ function renderIaPage(){
 }
 
 /* =========================================================
-   ENHANCEMENTS — setas nos trilhos + IA proativa
+   ENHANCEMENTS · setas nos trilhos + IA proativa
    ========================================================= */
 function enhanceRails(){
   $$('#view .rail').forEach(r=>{
