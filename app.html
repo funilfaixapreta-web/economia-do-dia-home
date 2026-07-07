@@ -574,6 +574,42 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 .evolrow b{font-family:'IBM Plex Mono';color:var(--head)}
 .evolrow .up{color:var(--green)}
 
+/* revisão de questões (onde você errou) */
+.qsum{background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:13.5px;color:var(--text);line-height:1.5}
+.qsum b{color:var(--head)}
+.qsum .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.qsum .etag{font-size:12px;color:var(--red);background:rgba(224,83,61,.1);border:1px solid rgba(224,83,61,.3);border-radius:999px;padding:4px 11px}
+.chip-sm{font-size:11px;color:var(--muted);background:var(--overlay-soft);border:1px solid var(--border);border-radius:6px;padding:3px 9px}
+.qrev{border:1px solid var(--border);border-radius:14px;background:var(--panel);margin-bottom:12px;overflow:hidden}
+.qrev.err{border-color:rgba(224,83,61,.32)}
+.qrev-h{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer}
+.qrev-h .qs{width:28px;height:28px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:2px}
+.qrev-h .qs.ok{background:rgba(43,182,115,.14);border:1px solid rgba(43,182,115,.3);color:var(--green)}
+.qrev-h .qs.no{background:rgba(224,83,61,.12);border:1px solid rgba(224,83,61,.34);color:var(--red)}
+.qrev-h .qnum{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--faint)}
+.qrev-h .qtt{font-size:14px;font-weight:500;color:var(--text);line-height:1.4;margin-top:2px}
+.qrev-h .qchips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.qrev-h .chevq{margin-left:auto;color:var(--faint);flex:none;transition:transform .25s;margin-top:3px}
+.qrev.open .chevq{transform:rotate(90deg)}
+.qrev-b{display:none;border-top:1px solid var(--border-soft);padding:14px 16px}
+.qrev.open .qrev-b{display:block}
+.qalt{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;font-size:13.5px;color:var(--text)}
+.qalt .ql{width:22px;height:22px;flex:none;border-radius:6px;background:var(--overlay-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-size:12px;font-weight:600}
+.qalt.correct{border-color:rgba(43,182,115,.4);background:rgba(43,182,115,.08)}
+.qalt.correct .ql{background:rgba(43,182,115,.16);border-color:rgba(43,182,115,.4);color:var(--green)}
+.qalt.wrong{border-color:rgba(224,83,61,.4);background:rgba(224,83,61,.08)}
+.qalt.wrong .ql{background:rgba(224,83,61,.16);border-color:rgba(224,83,61,.4);color:var(--red)}
+.qalt .qmark{margin-left:auto;font-size:11px;font-weight:600;flex:none;white-space:nowrap}
+.qalt.correct .qmark{color:var(--green)}
+.qalt.wrong .qmark{color:var(--red)}
+.qans{font-size:12.5px;color:var(--muted);margin:8px 0 12px}
+.qans b{font-family:'IBM Plex Mono';color:var(--head)}
+.qcomment{display:flex;gap:11px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:10px;padding:12px 14px}
+.qcomment .qci{flex:none;color:var(--gold-deep);margin-top:1px}
+.qcomment .qct{font-size:13px;color:var(--text);line-height:1.55}
+.qcomment .qct b{color:var(--head)}
+.qrev-foot{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+
 /* histórico: jornada */
 .jour-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
 .jour-stats .card{padding:16px;text-align:center}
@@ -814,6 +850,31 @@ const SIMULADOS=[
   {id:'sim-merc',cert:'MERCADO',title:'Simulado Mercado Financeiro',questions:40,dur:'1h20',score:null,
    modules:[['Fundamentos',10,null],['Renda Fixa',10,null],['Renda Variável',10,null],['Derivativos',10,null]]}
 ];
+
+// banco de questões (mock) por tema — usado na revisão de erros do simulado
+// alts: 4 alternativas; correct: índice do gabarito; wrong: alternativa que o aluno costuma marcar
+const QBANK={
+  'Ética e Regulação':{sub:'Conflito de interesse',aula:'#/aula/cb/l1',q:'Um analista publica recomendação de compra de uma ação da qual detém posição relevante. Segundo o Código de Conduta, ele deve:',alts:['Omitir a posição, pois já constava em relatório anterior','Divulgar de forma clara e destacada o conflito de interesse','Vender a posição somente após a publicação','Repassar a recomendação para outro analista assinar'],correct:1,wrong:2,comment:'O conflito deve ser divulgado de forma clara e ostensiva no próprio relatório. Vender só depois de publicar configuraria uso indevido de informação.'},
+  'Sistema Financeiro':{sub:'Órgãos reguladores',aula:'#/aula/cb/l3',q:'A supervisão das bolsas e das companhias abertas no Brasil é competência principal de qual órgão?',alts:['Banco Central (Bacen)','CVM','Susep','CMN'],correct:1,wrong:0,comment:'A CVM regula o mercado de valores mobiliários (bolsas, companhias abertas, fundos). O Bacen cuida do sistema bancário e da política monetária.'},
+  'Renda Fixa':{sub:'Marcação a mercado',aula:'#/aula/cb/l6',q:'Quando a taxa de juros de mercado sobe, o preço de um título prefixado marcado a mercado tende a:',alts:['Subir, pois o cupom acompanha os juros','Cair, pela relação inversa entre preço e taxa','Permanecer igual até o vencimento','Cair apenas se o título for pós-fixado'],correct:1,wrong:0,comment:'Preço e taxa têm relação inversa: taxa exigida maior reduz o valor presente dos fluxos, derrubando o PU na marcação a mercado.'},
+  'Derivativos':{sub:'Hedge',aula:'#/aula/cb/l9',q:'Um produtor de soja que teme queda no preço da commodity faz hedge:',alts:['Comprando contratos futuros de soja','Vendendo contratos futuros de soja','Comprando opções de compra (call)','Ficando sem posição no mercado futuro'],correct:1,wrong:0,comment:'Quem já tem o ativo (posição física comprada) e teme queda protege-se VENDENDO futuros. Comprar futuros só aumentaria a exposição.'},
+  'Análise de Ações':{sub:'Valuation por FCD',aula:'#/aula/cg1/l1',q:'No fluxo de caixa descontado, um aumento do WACC, tudo mais constante, faz o valor da empresa:',alts:['Aumentar','Diminuir','Não se alterar','Aumentar apenas se o crescimento (g) subir'],correct:1,wrong:0,comment:'A taxa de desconto está no denominador: WACC maior reduz o valor presente dos fluxos e, portanto, o valuation.'},
+  'Finanças Corporativas':{sub:'Custo de capital',aula:'#/aula/cg1/l1',q:'O WACC representa:',alts:['O custo apenas do capital de terceiros','O custo médio ponderado de capital próprio e de terceiros','O retorno exigido só pelos acionistas','A taxa livre de risco somada à inflação'],correct:1,wrong:2,comment:'O WACC pondera o custo do capital próprio e da dívida pelas suas participações, já considerando o benefício fiscal da dívida.'},
+  'Contabilidade':{sub:'Análise de balanços',aula:'#/aula/cg1/l4',q:'O EBITDA difere do lucro operacional principalmente porque:',alts:['Inclui as receitas financeiras','Exclui a depreciação e a amortização','Já considera o imposto de renda','É apurado depois do resultado financeiro'],correct:1,wrong:3,comment:'EBITDA = lucro operacional + depreciação + amortização. Aproxima a geração de caixa operacional, ignorando itens não-caixa e a estrutura de capital.'},
+  'Demonstrações':{sub:'Fluxo de caixa (DFC)',aula:'#/aula/cg1/l3',q:'Na Demonstração dos Fluxos de Caixa, a compra de um imobilizado é classificada em atividades de:',alts:['Operação','Investimento','Financiamento','Não é registrada na DFC'],correct:1,wrong:0,comment:'A aquisição de ativos de longo prazo (imobilizado) é atividade de INVESTIMENTO. Operação são os fluxos do negócio; financiamento envolve capital e dívida.'},
+  'Economia e Finanças':{sub:'Política monetária',aula:'#/aula/cb/l4',q:'Para conter a inflação, o Copom geralmente:',alts:['Reduz a taxa Selic','Eleva a taxa Selic','Diminui o depósito compulsório','Compra títulos no open market'],correct:1,wrong:0,comment:'Elevar a Selic encarece o crédito e esfria a demanda, pressionando a inflação para baixo. Reduzir a Selic teria o efeito oposto.'},
+  'Instrumentos':{sub:'Produtos de renda fixa',aula:'#/aula/fund/l3',q:'Um CDB é um instrumento de:',alts:['Renda variável','Renda fixa emitido por bancos','Derivativo de balcão','Participação societária'],correct:1,wrong:0,comment:'O CDB é renda fixa, emitido por bancos para captar recursos, com cobertura do FGC até o limite vigente.'},
+  'Fundos':{sub:'Taxas',aula:'#/aula/cfg/l1',q:'A taxa de performance de um fundo é cobrada:',alts:['Sempre, independentemente do resultado','Sobre o que exceder o benchmark, respeitando a linha d’água','Apenas em fundos de renda fixa','No lugar da taxa de administração'],correct:1,wrong:0,comment:'A performance incide só sobre o retorno acima do benchmark, com marca d’água (high-water mark) para não cobrar duas vezes sobre o mesmo ganho.'}
+};
+// monta a revisão de questões de um simulado (1 por módulo; erra quando o módulo foi fraco)
+function reviewQuestions(sim){
+  const scores=sim.modules.filter(m=>m[2]!=null).map(m=>m[2]);const worst=scores.length?Math.min.apply(null,scores):0;
+  return sim.modules.filter(m=>m[2]!=null).map(m=>{
+    const b=QBANK[m[0]], errou=(m[2]<60)||(m[2]===worst);
+    if(!b)return {tema:m[0],sub:'',q:`Questão sobre ${m[0]}: assinale a alternativa correta.`,alts:['Alternativa A','Alternativa B','Alternativa C','Alternativa D'],correct:0,chosen:errou?1:0,comment:'Reveja o material deste tema no gabarito comentado em áudio.',aula:'#/desempenho',errou};
+    return {tema:m[0],sub:b.sub,q:b.q,alts:b.alts,correct:b.correct,chosen:errou?b.wrong:b.correct,comment:b.comment,aula:b.aula,errou};
+  });
+}
 
 const THEMES=[['Ética e regulação',88],['Sistema financeiro',82],['Renda fixa',74],['Derivativos',69],['Contabilidade',54],['Renda variável',61]];
 
@@ -1109,11 +1170,31 @@ VIEWS.desempenho=(simId)=>{
     const datas={'sim-cb':'ontem','sim-cg1':'28 de maio','sim-cfg':'12 de junho'};
     const prev=Math.max(40,sel.score-12),delta=sel.score-prev;
     const worstMods=sel.modules.slice().filter(m=>m[2]!=null).sort((a,b)=>a[2]-b[2]);
-    // questões respondidas (amostra ilustrativa das ${sel.questions})
-    const stems=['assinale a alternativa correta.','qual conceito se aplica ao caso.','a afirmação verdadeira é.','identifique o item incorreto.'];
-    let qi=0,qhtml='';
-    sel.modules.forEach(m=>{for(let k=0;k<2;k++){const ok=m[2]==null?false:(k===0?m[2]>=50:m[2]>=72);qi++;
-      qhtml+=`<div class="qresp"><span class="qi ${ok?'ok':'no'}">${ok?'✓':'✗'}</span><div style="flex:1"><div class="qtx">Q${qi}. Sobre <b>${esc(m[0])}</b>, ${stems[qi%stems.length]}</div><div><span class="qtag">${esc(m[0])} · ${ok?'você acertou':'você errou'}</span></div></div></div>`;}});
+    // revisão das questões (onde você errou)
+    const reviewed=reviewQuestions(sel);
+    const errs=reviewed.filter(r=>r.errou);
+    const L='ABCDE';
+    const qhtml=reviewed.map((r,i)=>{
+      const opts=r.alts.map((a,ai)=>{
+        const isC=ai===r.correct, isW=(ai===r.chosen&&r.chosen!==r.correct);
+        const cls=isC?'correct':(isW?'wrong':'');
+        const mk=isC?'✓ Gabarito':(isW?'✗ Você marcou':'');
+        return `<div class="qalt ${cls}"><span class="ql">${L[ai]}</span><span style="flex:1">${esc(a)}</span>${mk?`<span class="qmark">${mk}</span>`:''}</div>`;
+      }).join('');
+      const ans=r.errou?`Você marcou <b>${L[r.chosen]}</b> · Gabarito: <b>${L[r.correct]}</b>`:`Você marcou <b>${L[r.correct]}</b> e acertou`;
+      return `<div class="qrev ${r.errou?'err open':''}" data-status="${r.errou?'erro':'acerto'}">
+        <div class="qrev-h"><span class="qs ${r.errou?'no':'ok'}">${r.errou?'✗':'✓'}</span>
+          <div style="flex:1;min-width:0"><span class="qnum">Questão ${i+1}</span><div class="qtt">${esc(r.q)}</div>
+            <div class="qchips"><span class="chip-sm">${esc(r.tema)}</span>${r.sub?`<span class="chip-sm">${esc(r.sub)}</span>`:''}<span class="chip-sm" style="color:${r.errou?'var(--red)':'var(--green)'}">${r.errou?'você errou':'você acertou'}</span></div>
+          </div>
+          <span class="chevq"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span>
+        </div>
+        <div class="qrev-b">${opts}<div class="qans">${ans}</div>
+          <div class="qcomment"><span class="qci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5z"/></svg></span><div class="qct"><b>Por que ${L[r.correct]}:</b> ${esc(r.comment)}</div></div>
+          <div class="qrev-foot"><a class="btn btn-ghost btn-sm" href="${r.aula}">▶ Revisar a aula</a><span class="btn btn-ghost btn-sm" data-toast="Reproduzindo o gabarito em áudio…">♪ Ouvir gabarito</span></div>
+        </div>
+      </div>`;
+    }).join('');
     detail=`
     <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:14px">
       <div><div style="font-family:'Sora';font-weight:600;font-size:17px;color:var(--head)">${esc(sel.title)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${sel.cert} · realizado ${datas[sel.id]||'recentemente'} · ${sel.questions} questões · ${sel.dur}</div></div>
@@ -1138,10 +1219,11 @@ VIEWS.desempenho=(simId)=>{
         <div class="track" style="height:8px;margin-top:8px"><i style="width:${sel.score}%;height:100%;display:block;background:var(--gold-grad);border-radius:999px"></i></div>
       </div>
     </div>
-    <div class="rowtitle"><h3>Questões respondidas</h3><span class="cnt">${acertos} certas · ${erros} erradas</span></div>
-    <div class="card"><div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">Amostra das ${sel.questions} questões. Reveja os temas em vermelho no gabarito comentado.</div>${qhtml}
-      <div style="margin-top:14px"><span class="btn btn-ghost btn-sm" data-ask="Como melhorar em ${worstMods[0]?esc(worstMods[0][0]):'meus pontos fracos'}?">✦ Pedir plano de revisão ao ED</span></div>
-    </div>`;
+    <div class="rowtitle"><h3>Revisão das questões</h3><span class="cnt">${acertos} certas · ${erros} erradas no total</span></div>
+    <div class="qsum">📍 ${errs.length?`Você marcou a alternativa errada em <b>${errs.length}</b> ${errs.length>1?'questões desta revisão':'questão desta revisão'}. Seus erros se concentram em:`:'Você acertou todas as questões desta revisão. 👏'}${errs.length?`<div class="tags">${errs.map(e=>`<span class="etag">${esc(e.tema)}${e.sub?' · '+esc(e.sub):''}</span>`).join('')}</div>`:''}</div>
+    <div class="filters" id="qfilter"><button class="on" data-qf="erros">Só o que errei (${errs.length})</button><button data-qf="todas">Todas (${reviewed.length})</button></div>
+    ${qhtml}
+    <div style="margin-top:6px"><span class="btn btn-gold btn-sm" data-ask="Monte um plano de revisão focado nos meus erros de ${errs[0]?esc(errs[0].tema):(worstMods[0]?esc(worstMods[0][0]):'pontos fracos')}.">✦ Plano de revisão dos meus erros com o ED</span></div>`;
   }
   return `
   <!-- gráficos aprovados (mantidos) -->
@@ -1373,7 +1455,8 @@ function render(){
   bindThemeSegs();
   enhanceRails();
   // heat map (desempenho)
-  if(name==='desempenho'){const heat=$('#heat');if(heat){let cells='';for(let i=0;i<44;i++){const a=[0,.12,.25,.45,.7,1][Math.floor((Math.sin(i*1.7)+1)/2*5)];cells+=`<span style="opacity:${(0.12+a*0.88).toFixed(2)}"></span>`;}heat.innerHTML=cells;}}
+  if(name==='desempenho'){const heat=$('#heat');if(heat){let cells='';for(let i=0;i<44;i++){const a=[0,.12,.25,.45,.7,1][Math.floor((Math.sin(i*1.7)+1)/2*5)];cells+=`<span style="opacity:${(0.12+a*0.88).toFixed(2)}"></span>`;}heat.innerHTML=cells;}
+    if($('#qfilter')){$$('.qrev').forEach(c=>{c.style.display=c.dataset.status==='erro'?'':'none';});}}
   if(name==='ia')renderIaPage();
   // close mobile drawer + scroll top
   $('#app').classList.remove('nav-open');
@@ -1403,6 +1486,8 @@ document.addEventListener('click',e=>{
   const dt=e.target.closest('[data-toast]');if(dt)toast(dt.dataset.toast,dt.dataset.toastType||'');
   const done=e.target.closest('[data-done]');if(done){markDone(done.dataset.done);return;}
   const modH=e.target.closest('.mod-h');if(modH){modH.parentElement.classList.toggle('open');return;}
+  const qrevH=e.target.closest('.qrev-h');if(qrevH){qrevH.parentElement.classList.toggle('open');return;}
+  const qfBtn=e.target.closest('#qfilter button');if(qfBtn){$$('#qfilter button').forEach(x=>x.classList.toggle('on',x===qfBtn));const f=qfBtn.dataset.qf;$$('.qrev').forEach(c=>{c.style.display=(f==='todas'||c.dataset.status==='erro')?'':'none';});return;}
   const simH=e.target.closest('[data-sim-toggle]');if(simH){simH.parentElement.classList.toggle('open');return;}
   const up=e.target.closest('[data-upgrade]');if(up){openUpgrade(up.dataset.upgrade);return;}
   const openSim=e.target.closest('[data-open-sim]');if(openSim){openSimStart(openSim.dataset.openSim);return;}
