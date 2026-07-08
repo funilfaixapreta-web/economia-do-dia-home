@@ -298,6 +298,8 @@ svg{display:block}
 .simhist td{padding:12px 10px;border-top:1px solid var(--border-soft);font-size:13.5px}
 .simhist tr{cursor:pointer}
 .simhist tbody tr:hover{background:var(--overlay-soft)}
+.simhist tr.cur td{background:var(--gold-soft-bg)}
+.simhist tr.cur td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
 .simhist .sc{font-family:'IBM Plex Mono';font-weight:600}
 .dstat{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
 .dstat .card{padding:16px 18px;text-align:center}
@@ -1162,8 +1164,7 @@ VIEWS.simulados=()=>`
 
 VIEWS.desempenho=(simId)=>{
   const done=SIMULADOS.filter(s=>s.score!=null);
-  const sel=simId&&simById(simId)?simById(simId):null;
-  const options=done.map(s=>`<option value="${s.id}" ${sel&&sel.id===s.id?'selected':''}>${esc(s.title)}</option>`).join('');
+  const sel=(simId&&simById(simId))?simById(simId):(done[0]||null);
   let detail='';
   if(sel){
     const acertos=Math.round(sel.questions*sel.score/100),erros=sel.questions-acertos;
@@ -1182,7 +1183,7 @@ VIEWS.desempenho=(simId)=>{
         return `<div class="qalt ${cls}"><span class="ql">${L[ai]}</span><span style="flex:1">${esc(a)}</span>${mk?`<span class="qmark">${mk}</span>`:''}</div>`;
       }).join('');
       const ans=r.errou?`Você marcou <b>${L[r.chosen]}</b> · Gabarito: <b>${L[r.correct]}</b>`:`Você marcou <b>${L[r.correct]}</b> e acertou`;
-      return `<div class="qrev ${r.errou?'err open':''}" data-status="${r.errou?'erro':'acerto'}">
+      return `<div class="qrev ${r.errou?'err ':''}open" data-status="${r.errou?'erro':'acerto'}">
         <div class="qrev-h"><span class="qs ${r.errou?'no':'ok'}">${r.errou?'✗':'✓'}</span>
           <div style="flex:1;min-width:0"><span class="qnum">Questão ${i+1}</span><div class="qtt">${esc(r.q)}</div>
             <div class="qchips"><span class="chip-sm">${esc(r.tema)}</span>${r.sub?`<span class="chip-sm">${esc(r.sub)}</span>`:''}<span class="chip-sm" style="color:${r.errou?'var(--red)':'var(--green)'}">${r.errou?'você errou':'você acertou'}</span></div>
@@ -1221,7 +1222,6 @@ VIEWS.desempenho=(simId)=>{
     </div>
     <div class="rowtitle"><h3>Revisão das questões</h3><span class="cnt">${acertos} certas · ${erros} erradas no total</span></div>
     <div class="qsum">📍 ${errs.length?`Você marcou a alternativa errada em <b>${errs.length}</b> ${errs.length>1?'questões desta revisão':'questão desta revisão'}. Seus erros se concentram em:`:'Você acertou todas as questões desta revisão. 👏'}${errs.length?`<div class="tags">${errs.map(e=>`<span class="etag">${esc(e.tema)}${e.sub?' · '+esc(e.sub):''}</span>`).join('')}</div>`:''}</div>
-    <div class="filters" id="qfilter"><button class="on" data-qf="erros">Só o que errei (${errs.length})</button><button data-qf="todas">Todas (${reviewed.length})</button></div>
     ${qhtml}
     <div style="margin-top:6px"><span class="btn btn-gold btn-sm" data-ask="Monte um plano de revisão focado nos meus erros de ${errs[0]?esc(errs[0].tema):(worstMods[0]?esc(worstMods[0][0]):'pontos fracos')}.">✦ Plano de revisão dos meus erros com o ED</span></div>`;
   }
@@ -1257,20 +1257,15 @@ VIEWS.desempenho=(simId)=>{
     </div>
   </div>
 
-  <!-- filtro + histórico de simulados -->
-  <div class="rowtitle"><h3>Desempenho detalhado por simulado</h3></div>
+  <!-- histórico de simulados (sempre visível) + detalhe do selecionado -->
+  <div class="rowtitle"><h3>Seus simulados</h3><span class="cnt">${done.length} realizados · toque para ver o detalhe</span></div>
   <div class="card">
-    <div class="dfilter"><label>Filtrar por simulado:</label>
-      <span class="sel"><select id="sim-filter"><option value="">Selecione um simulado…</option>${options}</select></span>
-      ${sel?`<a class="btn btn-ghost btn-sm" href="#/desempenho">Limpar filtro</a>`:''}
-    </div>
-    ${sel?detail:`
-      <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Selecione um simulado acima para ver nota, acertos, erros, questões e desempenho por tema, ou clique numa linha do histórico.</div>
-      <table class="simhist"><thead><tr><th>Simulado</th><th>Data</th><th>Questões</th><th>Nota</th></tr></thead>
-      <tbody>
-        ${done.map((s,i)=>`<tr data-sim-row="${s.id}"><td style="font-weight:500">${esc(s.title)}</td><td style="color:var(--muted)">${['ontem','12 jun','28 mai'][i]||'·'}</td><td>${s.questions}</td><td class="sc" style="color:${scoreColor(s.score)}">${s.score}%</td></tr>`).join('')}
-      </tbody></table>`}
+    <table class="simhist"><thead><tr><th>Simulado</th><th>Data</th><th>Questões</th><th>Nota</th></tr></thead>
+    <tbody>
+      ${done.map((s,i)=>`<tr data-sim-row="${s.id}" class="${sel&&sel.id===s.id?'cur':''}"><td style="font-weight:500">${esc(s.title)}</td><td style="color:var(--muted)">${['ontem','12 jun','28 mai'][i]||'·'}</td><td>${s.questions}</td><td class="sc" style="color:${scoreColor(s.score)}">${s.score}%</td></tr>`).join('')}
+    </tbody></table>
   </div>
+  ${sel?`<div class="rowtitle"><h3>Desempenho detalhado do simulado</h3></div>${detail}`:''}
   `;
 };
 
@@ -1456,7 +1451,7 @@ function render(){
   enhanceRails();
   // heat map (desempenho)
   if(name==='desempenho'){const heat=$('#heat');if(heat){let cells='';for(let i=0;i<44;i++){const a=[0,.12,.25,.45,.7,1][Math.floor((Math.sin(i*1.7)+1)/2*5)];cells+=`<span style="opacity:${(0.12+a*0.88).toFixed(2)}"></span>`;}heat.innerHTML=cells;}
-    if($('#qfilter')){$$('.qrev').forEach(c=>{c.style.display=c.dataset.status==='erro'?'':'none';});}}
+  }
   if(name==='ia')renderIaPage();
   // close mobile drawer + scroll top
   $('#app').classList.remove('nav-open');
@@ -1487,7 +1482,6 @@ document.addEventListener('click',e=>{
   const done=e.target.closest('[data-done]');if(done){markDone(done.dataset.done);return;}
   const modH=e.target.closest('.mod-h');if(modH){modH.parentElement.classList.toggle('open');return;}
   const qrevH=e.target.closest('.qrev-h');if(qrevH){qrevH.parentElement.classList.toggle('open');return;}
-  const qfBtn=e.target.closest('#qfilter button');if(qfBtn){$$('#qfilter button').forEach(x=>x.classList.toggle('on',x===qfBtn));const f=qfBtn.dataset.qf;$$('.qrev').forEach(c=>{c.style.display=(f==='todas'||c.dataset.status==='erro')?'':'none';});return;}
   const simH=e.target.closest('[data-sim-toggle]');if(simH){simH.parentElement.classList.toggle('open');return;}
   const up=e.target.closest('[data-upgrade]');if(up){openUpgrade(up.dataset.upgrade);return;}
   const openSim=e.target.closest('[data-open-sim]');if(openSim){openSimStart(openSim.dataset.openSim);return;}
@@ -1503,9 +1497,7 @@ document.addEventListener('click',e=>{
   if(e.target.closest('#btn-cancel')){openCancel();return;}
 });
 // filtro por simulado (select) + histórico
-document.addEventListener('change',e=>{
-  if(e.target.id==='sim-filter'){location.hash='#/desempenho'+(e.target.value?'?sim='+e.target.value:'');}
-});
+// seletor de simulado removido: o detalhe do mais recente já aparece; troca-se clicando na lista "Seus simulados"
 // filtros do histórico
 document.addEventListener('click',e=>{
   const fb=e.target.closest('#hist-filters button');if(!fb)return;
