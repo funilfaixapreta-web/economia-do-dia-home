@@ -1,0 +1,1596 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Economia do Dia · Área do administrador</title>
+<meta name="robots" content="noindex,nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090C; --bg-alt:#0A0C10; --panel:#101319; --panel-2:#0D0F14;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.06);
+  --head:#FFFFFF; --text:#E7EAEF; --muted:#8A94A2; --faint:#5B6573;
+  --input-bg:#0E1116; --overlay-soft:rgba(255,255,255,.05); --overlay-bd:rgba(255,255,255,.14);
+  --track:rgba(255,255,255,.08);
+  --gold:#D4A437; --gold-deep:#E6BE54; --gold-grad:linear-gradient(180deg,#E6BE54,#D4A437);
+  --mono-grad:linear-gradient(140deg,#EBC768,#D4A437 55%,#A8761B);
+  --gold-soft-bg:rgba(212,164,55,.10); --gold-soft-bd:rgba(212,164,55,.28);
+  --green:#2BB673; --amber:#E8A33D; --red:#E0533D; --blue:#3D8BE0;
+  --scrim:rgba(0,0,0,.55);
+}
+[data-theme="light"]{
+  --bg:#F1EFE9; --bg-alt:#F8F6F1; --panel:#FFFFFF; --panel-2:#F3F1EA;
+  --border:rgba(27,31,38,.10); --border-soft:rgba(27,31,38,.07);
+  --head:#0B0D10; --text:#222831; --muted:#5B6573; --faint:#9AA3AF;
+  --input-bg:#F3F1EA; --overlay-soft:rgba(27,31,38,.04); --overlay-bd:rgba(27,31,38,.14);
+  --track:rgba(27,31,38,.10);
+  --gold-deep:#A6781A; --gold-soft-bg:rgba(212,164,55,.14); --gold-soft-bd:rgba(212,164,55,.34); --green:#1F9760;
+  --scrim:rgba(20,22,28,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s}
+h1,h2,h3,h4{font-family:'Sora',sans-serif;color:var(--head)}
+.mono{font-family:'IBM Plex Mono',monospace}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+button:disabled{opacity:.4;cursor:not-allowed}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--overlay-soft);border-radius:8px}
+
+.mono-sq{width:32px;height:32px;flex:none;border-radius:9px;background:var(--mono-grad);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+.mono-sq span{font-family:'Sora';font-weight:800;font-style:italic;font-size:13px;color:#0B0D10}
+.wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:16px;color:var(--head);white-space:nowrap}
+.wordmark b{color:var(--gold-deep)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;border-radius:10px;padding:11px 18px;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:transform .12s,filter .2s,background .2s;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:16px;height:16px;flex:none}
+.btn-gold{background:var(--gold-grad);color:#0B0D10}
+.btn-gold:hover{filter:brightness(1.05)}
+.btn-ghost{background:var(--overlay-soft);border-color:var(--overlay-bd);color:var(--text)}
+.btn-ghost:hover{border-color:var(--gold-soft-bd)}
+.btn-sm{padding:7px 13px;font-size:13px;border-radius:9px}
+.btn-sm svg{width:14px;height:14px}
+.btn-danger{background:rgba(224,83,61,.12);border:1px solid rgba(224,83,61,.34);color:#E0533D}
+.btn-danger:hover{background:rgba(224,83,61,.18)}
+.btn-icon{width:34px;height:34px;padding:0;border-radius:9px;background:var(--overlay-soft);border:1px solid var(--border);color:var(--muted)}
+.btn-icon:hover{color:var(--text);border-color:var(--gold-soft-bd)}
+
+.seg{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--overlay-soft);border:1px solid var(--border)}
+.seg button{border:none;background:none;color:var(--muted);font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;cursor:pointer}
+.seg button.on{background:var(--gold-grad);color:#0B0D10}
+
+/* ===== LOGIN ===== */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(1100px 560px at 50% -10%,rgba(212,164,55,.10),transparent 60%),var(--bg)}
+.login-card{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:34px 30px;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.login-brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.login-badge{font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.16em;color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:6px;padding:3px 8px;margin-left:auto}
+.login-card h1{font-size:23px;letter-spacing:-.3px;margin-bottom:6px}
+.login-card .sub{color:var(--muted);font-size:14px;margin-bottom:22px}
+.fldwrap{margin-bottom:14px}
+.fldwrap label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.fld{width:100%;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-family:inherit;font-size:14px;transition:border-color .2s}
+.fld:focus{outline:none;border-color:var(--gold-soft-bd)}
+textarea.fld{resize:vertical;min-height:78px;line-height:1.5}
+.login-note{font-size:12px;color:var(--faint);text-align:center;margin-top:16px;line-height:1.5}
+.login-back{display:block;text-align:center;color:var(--muted);font-size:13px;margin-top:18px}
+.login-back:hover{color:var(--gold-deep)}
+
+/* ===== SHELL ===== */
+.shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.side{border-right:1px solid var(--border-soft);background:var(--bg-alt);display:flex;flex-direction:column;padding:18px 14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.side-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px}
+.side-badge{font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:.14em;color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:5px;padding:2px 6px;margin-left:auto}
+.nav{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:var(--muted);cursor:pointer;font-size:14px;font-weight:500;border-left:2px solid transparent}
+.nav-item svg{width:18px;height:18px;flex:none;stroke-width:1.8}
+.nav-item:hover{background:var(--overlay-soft);color:var(--text)}
+.nav-item.active{background:var(--gold-soft-bg);color:var(--gold-deep);border-left-color:var(--gold)}
+.nav-parent{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:var(--muted);cursor:pointer;font-size:14px;font-weight:500;border-left:2px solid transparent;width:100%;background:none;border-top:none;border-right:none;border-bottom:none;font-family:inherit;text-align:left}
+.nav-parent svg{width:18px;height:18px;flex:none;stroke-width:1.8}
+.nav-parent:hover{background:var(--overlay-soft);color:var(--text)}
+.nav-parent .caret{margin-left:auto;font-size:9px;transition:transform .2s;opacity:.7}
+.nav-group.open > .nav-parent{color:var(--text)}
+.nav-group.open > .nav-parent .caret{transform:rotate(90deg)}
+.nav-sub{display:none;flex-direction:column;gap:2px;margin:3px 0 5px 27px;padding-left:8px;border-left:1px solid var(--border-soft)}
+.nav-group.open .nav-sub{display:flex}
+.nav-item.sub{font-size:13px;padding:8px 12px;border-left:none}
+.nav-item.sub.active{background:var(--gold-soft-bg);color:var(--gold-deep)}
+.nav-lbl{font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.12em;color:var(--faint);padding:16px 12px 8px;text-transform:uppercase}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:12px}
+.user{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;border:1px solid var(--border-soft)}
+.avatar{width:36px;height:36px;flex:none;border-radius:999px;background:var(--mono-grad);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:700;font-size:13px;color:#0B0D10}
+.user .un{font-size:13px;font-weight:600;color:var(--head);line-height:1.2}
+.user .ue{font-size:11.5px;color:var(--faint)}
+.logout{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;color:var(--faint);cursor:pointer;font-size:13px;background:none;border:none;width:100%;text-align:left}
+.logout:hover{background:var(--overlay-soft);color:var(--red)}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-soft);
+  display:flex;align-items:center;gap:14px;padding:13px 32px}
+.topbar h2{font-size:18px;font-weight:600;letter-spacing:-.2px}
+.topbar .spacer{flex:1}
+.topbar .tlink{font-size:13px;color:var(--muted);padding:8px 12px;border-radius:9px;border:1px solid var(--border);background:var(--overlay-soft)}
+.topbar .tlink:hover{color:var(--gold-deep);border-color:var(--gold-soft-bd)}
+.burger{display:none}
+
+.view{padding:28px 32px;max-width:1180px;width:100%;margin:0 auto}
+.page-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.page-head .ph-l{flex:1;min-width:220px}
+.page-head .ph-actions{display:flex;gap:10px;flex-wrap:wrap}
+.eyebrow{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.page-head h1{font-size:26px;letter-spacing:-.5px}
+.page-head p{color:var(--muted);font-size:14px;margin-top:6px;max-width:680px;line-height:1.55}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.crumb a:hover{color:var(--gold-deep)}
+.crumb .sep{color:var(--faint)}
+
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
+.stat .k{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.stat .v{font-family:'Sora';font-weight:700;font-size:30px;color:var(--head);margin-top:8px;letter-spacing:-1px}
+.stat .d{font-size:12.5px;color:var(--muted);margin-top:3px}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+.sec-title{font-size:15px;font-weight:600;color:var(--head);margin:0 0 14px;display:flex;align-items:center;gap:8px}
+.quick{display:flex;flex-wrap:wrap;gap:10px}
+
+.cardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.ecard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;transition:transform .15s,border-color .2s;position:relative;display:flex;flex-direction:column}
+.ecard.clk{cursor:pointer}
+.ecard.clk:hover{transform:translateY(-2px);border-color:var(--gold-soft-bd)}
+.ecard .ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px;color:#0B0D10}
+.ecard h3{font-size:16px;letter-spacing:-.2px}
+.ecard .meta{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.06em;color:var(--faint);text-transform:uppercase;margin-bottom:8px}
+.ecard p{font-size:13px;color:var(--muted);margin-top:7px;line-height:1.5;flex:1}
+.ecard .foot{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.ecard .acts{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+.progbar{height:6px;border-radius:999px;background:var(--track);overflow:hidden;margin-top:12px}
+.progbar > i{display:block;height:100%;background:var(--gold-grad)}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;font-family:'IBM Plex Mono';letter-spacing:.03em}
+.b-pub{background:rgba(43,182,115,.13);color:var(--green);border:1px solid rgba(43,182,115,.3)}
+.b-draft{background:var(--overlay-soft);color:var(--muted);border:1px solid var(--border)}
+.b-on{background:rgba(43,182,115,.13);color:var(--green);border:1px solid rgba(43,182,115,.3)}
+.b-off{background:rgba(224,83,61,.12);color:var(--red);border:1px solid rgba(224,83,61,.3)}
+.chip{font-size:11.5px;color:var(--muted);background:var(--overlay-soft);border:1px solid var(--border);border-radius:7px;padding:3px 9px}
+
+.tbl{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.tbl th{text-align:left;font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:13px 16px;border-bottom:1px solid var(--border-soft);background:var(--panel-2)}
+.tbl td{padding:14px 16px;border-bottom:1px solid var(--border-soft);font-size:14px;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr.clk{cursor:pointer;transition:background .12s}
+.tbl tbody tr.clk:hover{background:var(--overlay-soft)}
+.tbl .t-title{font-weight:600;color:var(--head)}
+.tbl .t-sub{font-size:12.5px;color:var(--muted)}
+.rowend{text-align:right;white-space:nowrap}
+.rowact{display:inline-flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.searchbox{display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;flex:1;min-width:220px;max-width:380px}
+.searchbox input{background:none;border:none;color:var(--text);font-family:inherit;font-size:13.5px;width:100%}
+.searchbox input:focus{outline:none}
+.searchbox svg{width:15px;height:15px;color:var(--faint);flex:none}
+.tblwrap{overflow-x:auto;border-radius:14px}
+
+/* modules / lessons */
+.mod{background:var(--panel);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.mod-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border-soft);background:var(--panel-2);flex-wrap:wrap}
+.mod-head .mi{width:28px;height:28px;flex:none;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-size:12px;font-weight:600;background:var(--overlay-soft);border:1px solid var(--border);color:var(--muted)}
+.mod-head .mt{font-weight:600;color:var(--head);font-size:14.5px;flex:1;min-width:120px}
+.lrow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border-soft)}
+.lrow:last-child{border-bottom:none}
+.lrow:hover{background:var(--overlay-soft)}
+.lrow .lnum{font-family:'IBM Plex Mono';font-size:12px;color:var(--faint);width:22px}
+.lrow .lt{flex:1;min-width:0;cursor:pointer}
+.lrow .lt .ltt{font-weight:500;color:var(--head);font-size:14px}
+.lrow .lt .lts{font-size:12px;color:var(--muted);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filei{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono';font-size:10.5px;padding:2px 7px;border-radius:6px;border:1px solid var(--border);color:var(--muted)}
+.filei.has{color:var(--gold-deep);border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)}
+
+/* detail view */
+.detail{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+@media(max-width:820px){.detail{grid-template-columns:1fr}}
+.dfields .drow{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--border-soft)}
+.dfields .drow:last-child{border-bottom:none}
+.dfields .dk{font-size:13px;color:var(--muted)}
+.dfields .dv{font-size:14px;color:var(--head);font-weight:500;text-align:right;max-width:60%}
+.filecard{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:10px}
+.filecard .fi{width:38px;height:38px;flex:none;border-radius:9px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);display:flex;align-items:center;justify-content:center;color:var(--gold-deep)}
+.filecard .fn{flex:1;min-width:0}
+.filecard .fn b{display:block;font-size:13px;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.filecard .fn span{font-size:11.5px;color:var(--muted)}
+.filecard.empty{color:var(--faint)}.filecard.empty .fi{background:var(--overlay-soft);border-color:var(--border);color:var(--faint)}
+
+.empty{text-align:center;padding:52px 20px;color:var(--muted)}
+.empty .ei{font-size:34px;margin-bottom:12px;opacity:.7}
+.empty h3{font-size:16px;color:var(--head);margin-bottom:6px}
+.empty p{font-size:13.5px;max-width:380px;margin:0 auto 16px;line-height:1.5}
+
+/* ===== DRAWER ===== */
+.scrim{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(2px);z-index:60;opacity:0;transition:opacity .25s}
+.scrim.show{opacity:1}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(480px,94vw);background:var(--bg-alt);border-left:1px solid var(--border);z-index:70;display:flex;flex-direction:column;transform:translateX(102%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-30px 0 80px rgba(0,0,0,.4)}
+.drawer.show{transform:none}
+.drawer-head{display:flex;align-items:center;gap:12px;padding:20px 22px;border-bottom:1px solid var(--border-soft)}
+.drawer-head h3{font-size:17px;flex:1}
+.drawer-body{flex:1;overflow-y:auto;padding:22px}
+.drawer-foot{display:flex;gap:10px;padding:16px 22px;border-top:1px solid var(--border-soft)}
+.drawer-foot .btn{flex:1}
+.grp{margin-bottom:18px}
+.grp > label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:7px}
+.hint{font-size:11.5px;color:var(--faint);margin-top:6px;line-height:1.5}
+select.fld{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A94A2' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+input[type=color].fld{height:42px;padding:4px;cursor:pointer}
+
+.upz{border:1.5px dashed var(--border);border-radius:12px;background:var(--input-bg);padding:18px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.upz:hover,.upz.drag{border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)}
+.upz .upi{font-size:22px;margin-bottom:6px;opacity:.75}
+.upz .upt{font-size:13px;color:var(--muted)}
+.upz .ups{font-size:11.5px;color:var(--faint);margin-top:3px}
+.upfile{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.upfile .fi{width:38px;height:38px;flex:none;border-radius:9px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);display:flex;align-items:center;justify-content:center;color:var(--gold-deep)}
+.upfile .fn{flex:1;min-width:0}
+.upfile .fn b{display:block;font-size:13px;color:var(--head);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upfile .fn span{font-size:11.5px;color:var(--muted)}
+.upfile .fx{cursor:pointer;color:var(--faint);background:none;border:none;font-size:18px;padding:2px 6px}
+.upfile .fx:hover{color:var(--red)}
+.upprev{margin-top:10px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.upprev video,.upprev img{width:100%;display:block;max-height:200px;object-fit:cover;background:#000}
+.upprev audio{width:100%;display:block}
+.warnbox{font-size:11.5px;color:var(--amber);background:rgba(232,163,61,.1);border:1px solid rgba(232,163,61,.28);border-radius:8px;padding:8px 11px;margin-top:8px;line-height:1.5}
+.infobox{font-size:12px;color:var(--muted);background:var(--overlay-soft);border:1px solid var(--border);border-radius:10px;padding:11px 13px;line-height:1.55}
+
+.opt{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.opt .ok{width:26px;height:26px;flex:none;border-radius:999px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);background:var(--input-bg)}
+.opt .ok.on{background:var(--gold-grad);color:#0B0D10;border-color:transparent}
+.opt input{flex:1}
+.opt .ox{background:none;border:none;color:var(--faint);cursor:pointer;font-size:16px;padding:2px 6px}
+.opt .ox:hover{color:var(--red)}
+.msel{display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--input-bg)}
+.msel label{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--text);cursor:pointer}
+.msel input{width:16px;height:16px;accent-color:var(--gold)}
+
+/* ===== PREVIEW MODAL ===== */
+.pv-scrim{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(3px);z-index:75;opacity:0;transition:opacity .25s;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.pv-scrim.show{opacity:1}
+.pv-modal{width:100%;max-width:720px;background:var(--bg-alt);border:1px solid var(--border);border-radius:18px;box-shadow:0 40px 90px rgba(0,0,0,.5);transform:translateY(14px) scale(.99);transition:transform .25s;overflow:hidden}
+.pv-scrim.show .pv-modal{transform:none}
+.pv-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border-soft);background:var(--panel-2)}
+.pv-head .pvtag{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.14em;color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:5px;padding:3px 8px}
+.pv-head h3{font-size:15px;flex:1}
+.pv-body{padding:22px;max-height:72vh;overflow-y:auto}
+.pv-note{font-size:11.5px;color:var(--faint);text-align:center;padding:10px;border-top:1px solid var(--border-soft)}
+
+/* mock player (student preview) */
+.player{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:linear-gradient(135deg,#111722,#0a0d13);display:flex;align-items:center;justify-content:center}
+.player video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.player .pbtn{width:70px;height:70px;border-radius:999px;background:rgba(212,164,55,.16);border:1px solid var(--gold-soft-bd);display:flex;align-items:center;justify-content:center;color:var(--gold-deep)}
+.player .pph{position:absolute;bottom:12px;left:14px;font-family:'IBM Plex Mono';font-size:11px;color:#cfd8e6}
+.audio-cta{display:flex;align-items:center;gap:12px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:12px;padding:12px 14px;margin-top:14px}
+.audio-cta .ai{width:36px;height:36px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center}
+.audio-cta .at{font-size:13px;font-weight:600;color:var(--head)}
+.audio-cta .as{font-size:12px;color:var(--muted)}
+.pvq{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
+.pvq .qn{font-family:'IBM Plex Mono';font-size:11px;color:var(--faint);margin-bottom:6px}
+.pvq .qs{font-size:15px;color:var(--head);font-weight:500;margin-bottom:14px;line-height:1.5}
+.qo{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;font-size:14px;transition:border-color .15s,background .15s}
+.qo:hover{border-color:var(--gold-soft-bd)}
+.qo .ql{width:26px;height:26px;flex:none;border-radius:999px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-size:12px;color:var(--muted)}
+.qo.ok{border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)}
+.qo.ok .ql{background:var(--gold-grad);color:#0B0D10;border-color:transparent}
+.pvq .qcom{font-size:12.5px;color:var(--muted);margin-top:10px;padding:10px 12px;background:var(--overlay-soft);border-radius:9px;line-height:1.5}
+
+/* site editor */
+.siteblock{margin-bottom:16px}
+
+.toast-wrap{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--gold-soft-bd);border-radius:12px;padding:11px 16px;font-size:13.5px;color:var(--head);box-shadow:0 20px 50px rgba(0,0,0,.4);opacity:0;transform:translateY(12px);transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:none}
+.toast .ti{width:22px;height:22px;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center;font-size:12px;flex:none}
+.toast.err{border-color:rgba(224,83,61,.4)}.toast.err .ti{background:var(--red);color:#fff}
+
+@media(max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;left:0;top:0;bottom:0;width:250px;z-index:80;transform:translateX(-102%);transition:transform .3s}
+  .side.open{transform:none}
+  .burger{display:flex}
+  .grid2{grid-template-columns:1fr}
+  .topbar{padding:12px 18px}
+  .view{padding:20px 18px}
+  .topbar .tlink.hide-m{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div class="login" id="login">
+  <form class="login-card" id="login-form" autocomplete="off">
+    <div class="login-brand">
+      <span class="mono-sq"><span>ED</span></span>
+      <span class="wordmark">Economia <b>Do Dia</b></span>
+      <span class="login-badge">ADMIN</span>
+    </div>
+    <h1>Área do administrador</h1>
+    <p class="sub">Entre para gerenciar cursos, aulas, simulados e alunos.</p>
+    <div class="fldwrap"><label>E-mail</label><input class="fld" id="lg-email" type="email" value="admin@economiadodia.com.br" /></div>
+    <div class="fldwrap"><label>Senha</label><input class="fld" id="lg-pass" type="password" value="demo1234" /></div>
+    <button class="btn btn-gold" type="submit" style="width:100%;margin-top:6px">Entrar no painel</button>
+    <p class="login-note">Protótipo — sem senha real. Clique em <b>Entrar</b> para acessar.</p>
+    <a class="login-back" href="index.html">← Voltar ao site</a>
+  </form>
+</div>
+
+<!-- ================= SHELL ================= -->
+<div class="shell" id="shell" hidden>
+  <aside class="side" id="side">
+    <div class="side-brand">
+      <span class="mono-sq"><span>ED</span></span>
+      <span class="wordmark">Economia <b>Do Dia</b></span>
+      <span class="side-badge">ADMIN</span>
+    </div>
+    <nav class="nav" id="nav">
+      <a class="nav-item" href="#/" data-r=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Painel de Controle</span></a>
+
+      <div class="nav-group" id="g-usuarios">
+        <button class="nav-parent" onclick="toggleGroup('usuarios')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg><span>Usuários</span><span class="caret">▶</span></button>
+        <div class="nav-sub">
+          <a class="nav-item sub" href="#/usuarios" data-r="usuarios">Listagem</a>
+          <a class="nav-item sub" href="#/usuarios" onclick="setTimeout(function(){editStudent()},60)">Adicionar usuário</a>
+        </div>
+      </div>
+
+      <div class="nav-group" id="g-conteudo">
+        <button class="nav-parent" onclick="toggleGroup('conteudo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Conteúdo</span><span class="caret">▶</span></button>
+        <div class="nav-sub">
+          <a class="nav-item sub" href="#/cursos" data-r="cursos">Cursos & aulas</a>
+          <a class="nav-item sub" href="#/simulados" data-r="simulados">Simulados</a>
+          <a class="nav-item sub" href="#/banco" data-r="banco">Banco de questões</a>
+          <a class="nav-item sub" href="#/trilhas" data-r="trilhas">Trilhas</a>
+          <a class="nav-item sub" href="#/site" data-r="site">Site (landing)</a>
+          <a class="nav-item sub" href="#/app" data-r="app">Área do aluno</a>
+        </div>
+      </div>
+
+      <div class="nav-group" id="g-venda">
+        <button class="nav-parent" onclick="toggleGroup('venda')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg><span>Venda</span><span class="caret">▶</span></button>
+        <div class="nav-sub">
+          <a class="nav-item sub" href="#/venda" data-r="venda">Assinaturas</a>
+          <a class="nav-item sub" href="#/planos" data-r="planos">Planos</a>
+        </div>
+      </div>
+
+      <a class="nav-item" href="#/relatorio" data-r="relatorio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 3 4-6"/></svg><span>Relatório</span></a>
+      <a class="nav-item" href="#/sistema" data-r="sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg><span>Sistema</span></a>
+      <div class="nav-lbl">Atalhos</div>
+      <a class="nav-item" href="https://mail.hostinger.com/?clearSession=true" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg><span>Webmail</span><span style="margin-left:auto;color:var(--faint)">↗</span></a>
+      <a class="nav-item" href="index.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg><span>Site</span><span style="margin-left:auto;color:var(--faint)">↗</span></a>
+    </nav>
+    <div class="side-foot">
+      <div class="user"><span class="avatar">AD</span><div><div class="un">Administrador</div><div class="ue">admin@economiadodia.com.br</div></div></div>
+      <button class="logout" onclick="logout()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg> Sair</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="btn-icon burger" onclick="document.getElementById('side').classList.toggle('open')" aria-label="Menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <h2 id="tb-title">Visão geral</h2>
+      <div class="spacer"></div>
+      <a class="tlink hide-m" href="index.html" target="_blank">Ver site ↗</a>
+      <a class="tlink hide-m" href="app.html" target="_blank">Ver como aluno ↗</a>
+      <div class="seg" id="theme-seg"><button data-theme="dark">Escuro</button><button data-theme="light">Claro</button></div>
+    </header>
+    <main class="view" id="view"></main>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div class="scrim" id="scrim" hidden onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer" hidden>
+  <div class="drawer-head"><h3 id="dr-title">Editar</h3><button class="btn-icon" onclick="closeDrawer()" aria-label="Fechar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  <div class="drawer-body" id="dr-body"></div>
+  <div class="drawer-foot"><button class="btn btn-ghost" onclick="closeDrawer()">Cancelar</button><button class="btn btn-gold" id="dr-save">Salvar</button></div>
+</aside>
+
+<!-- PREVIEW MODAL -->
+<div class="pv-scrim" id="pv-scrim" hidden onclick="if(event.target===this)closePreview()">
+  <div class="pv-modal" id="pv-modal">
+    <div class="pv-head"><span class="pvtag">VER COMO ALUNO</span><h3 id="pv-title">Preview</h3><button class="btn-icon" onclick="closePreview()" aria-label="Fechar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="pv-body" id="pv-body"></div>
+    <div class="pv-note">Pré-visualização de como o conteúdo aparece para o aluno.</div>
+  </div>
+</div>
+
+<input type="file" id="csv-input" accept=".csv,text/csv" hidden />
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* ============ helpers ============ */
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function uid(p){return (p||'id')+Math.random().toString(36).slice(2,7);}
+function toast(msg,type){const w=$('#toast-wrap');const t=document.createElement('div');t.className='toast '+(type==='err'?'err':'');t.innerHTML='<span class="ti">'+(type==='err'?'!':'✓')+'</span><span>'+esc(msg)+'</span>';w.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),320);},2600);}
+function fmtSize(b){if(!b&&b!==0)return '';if(typeof b==='string')return b;if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(0)+' KB';return (b/1048576).toFixed(1)+' MB';}
+const EDIT_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+const EYE_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+const DEL_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
+
+/* ============ theme ============ */
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('ed-theme',t)}catch(_){}
+  $$('#theme-seg button').forEach(b=>b.classList.toggle('on',b.dataset.theme===t));}
+try{applyTheme(localStorage.getItem('ed-theme')||'dark')}catch(_){applyTheme('dark')}
+$$('#theme-seg button').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.theme)));
+
+/* ============ data ============ */
+const DB_KEY='eda-db';
+function seed(){return {
+  site:{
+    hero:{eyebrow:'Formação prática · cursos e simulados · CNPI e CGA/CGE',title:'Formação em análise e gestão no mercado financeiro',promise:'Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer atuar com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.',cta:'Fazer um simulado grátis'},
+    formacao:{eyebrow:'A formação',title:'Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.',text:'Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.'},
+    metodo:{eyebrow:'Por que funciona',title:'Um banco de questões que não se repete até você esgotar a base.',lead:'A maioria dos preparatórios faz você decorar respostas. Aqui, uma questão só reaparece quando todas as outras já foram vistas. Isso força entendimento.'},
+    professor:{name:'Frederico Nobre, CFA',bio:'Carioca, economista pela UFRJ, no mercado desde 2013. CFA Charterholder, CNPI e CGA/CGE. Gestor de recursos na Warren Investimentos, sócio responsável por asset allocation e renda variável.',creds:['CFA Charterholder','Gestor de recursos','Warren Investimentos','CNPI','CGA/CGE']},
+    depoimentos:[
+      {nome:'Rafael Antunes',cargo:'Aprovado CGA/CGE · BTG Pactual',texto:'Conteúdo denso, mas explicado como gente. Método sério, sem enrolação e sem promessa mágica.'},
+      {nome:'Mariana Alves',cargo:'Analista · XP Investimentos',texto:'Os simulados que se renovam fizeram toda a diferença na minha reta final.'}
+    ],
+    footer:{text:'Formação prática em análise e gestão do mercado financeiro, com cursos e simulados para o CNPI e o CGA/CGE.',whatsapp:'(21) 90000-0000',email:'contato@economiadodia.com.br'}
+  },
+  app:{
+    greeting:'Bem-vindo de volta',subtitle:'Continue de onde parou.',
+    assistantName:'ED',assistantDesc:'Seu assistente de estudos com IA',
+    subCta:'Assine para desbloquear todos os cursos e simulados',
+    labels:{home:'Início',cursos:'Cursos',trilhas:'Trilhas',simulados:'Simulados',desempenho:'Desempenho'}
+  },
+  courses:[
+    {id:'cb',code:'CNPI-CB',title:'Base do Mercado Financeiro',cert:'CNPI',color:'#D4A437',status:'publicado',desc:'Fase comum a todos os analistas: sistema financeiro, renda fixa, derivativos, ética e regulação.',modules:[
+      {title:'Ética e Regulação',lessons:[
+        {id:uid('l'),title:'Ética e suitability',duration:32,desc:'Princípios de conduta e adequação ao perfil do investidor.',status:'publicado',video:{name:'etica-suitability.mp4',size:'218 MB',type:'video/mp4'},audio:{name:'gabarito-etica.mp3',size:'12 MB',type:'audio/mpeg'}},
+        {id:uid('l'),title:'Regulação e órgãos do SFN',duration:28,desc:'CVM, Bacen, Anbima e o papel de cada órgão.',status:'publicado',video:{name:'orgaos-sfn.mp4',size:'196 MB',type:'video/mp4'},audio:null}
+      ]},
+      {title:'Renda Fixa',lessons:[
+        {id:uid('l'),title:'Renda fixa · conceitos',duration:35,desc:'Títulos, indexadores e marcação a mercado.',status:'publicado',video:null,audio:null},
+        {id:uid('l'),title:'Títulos públicos',duration:30,desc:'Tesouro Direto e precificação.',status:'rascunho',video:null,audio:null}
+      ]}
+    ]},
+    {id:'cg1',code:'CNPI-CG1',title:'Análise Fundamentalista',cert:'CNPI',color:'#3D8BE0',status:'publicado',desc:'Valuation, contabilidade e finanças corporativas.',modules:[
+      {title:'Valuation',lessons:[
+        {id:uid('l'),title:'Introdução a valuation',duration:22,desc:'Como avaliar uma empresa.',status:'publicado',video:null,audio:null},
+        {id:uid('l'),title:'Fluxo de caixa descontado',duration:51,desc:'Método do DCF passo a passo.',status:'rascunho',video:null,audio:null}
+      ]}
+    ]},
+    {id:'ct1',code:'CNPI-CT1',title:'Análise Técnica (Gráfica)',cert:'CNPI',color:'#2BB673',status:'rascunho',desc:'Análise gráfica e tomada de decisão com base em preço e volume.',modules:[
+      {title:'Fundamentos',lessons:[
+        {id:uid('l'),title:'Teoria de Dow',duration:24,desc:'Os princípios da análise técnica.',status:'rascunho',video:null,audio:null}
+      ]}
+    ]}
+  ],
+  simulados:[
+    {id:'sim-cb',cert:'CNPI',title:'Simulado CB Completo',status:'publicado',desc:'60 questões cobrindo todo o Conteúdo Brasileiro.',questions:[
+      {id:uid('q'),stmt:'A suitability tem como objetivo principal:',options:['Maximizar a receita da corretora','Adequar produtos ao perfil do investidor','Garantir rentabilidade mínima','Eliminar riscos de mercado'],correct:1,comment:'Suitability = adequação do produto ao perfil e objetivos do cliente.',theme:'Ética e regulação',difficulty:'fácil',audio:{name:'gabarito-suitability.mp3',size:'8 MB',type:'audio/mpeg'}},
+      {id:uid('q'),stmt:'Marcação a mercado de um título de renda fixa significa:',options:['Registrar pelo valor de compra','Atualizar pelo valor de face','Precificar pelo valor atual de negociação','Ignorar variações de juros'],correct:2,comment:'Marcar a mercado é refletir o preço pelo qual o título seria negociado hoje.',theme:'Renda fixa',difficulty:'média'}
+    ]},
+    {id:'sim-cg1',cert:'CNPI',title:'Simulado CG1 · Fundamentalista',status:'publicado',desc:'Foco em valuation e contabilidade.',questions:[
+      {id:uid('q'),stmt:'No fluxo de caixa descontado, a taxa de desconto representa:',options:['A inflação do período','O custo de oportunidade / risco','O lucro líquido','A receita bruta'],correct:1,comment:'A taxa de desconto reflete o custo de capital e o risco do fluxo.',theme:'Valuation',difficulty:'média'}
+    ]},
+    {id:'sim-cfg',cert:'CGA/CGE',title:'Simulado CGA/CGE',status:'rascunho',desc:'Gestão de recursos e fundos.',questions:[]}
+  ],
+  questionBank:[
+    {id:uid('q'),stmt:'O que é o CDI?',options:['Um imposto federal','Taxa de empréstimos entre bancos','Um tipo de ação','Índice da bolsa'],correct:1,comment:'CDI = Certificado de Depósito Interbancário, referência de juros entre bancos.',theme:'Renda fixa',difficulty:'fácil',audio:null},
+    {id:uid('q'),stmt:'Selic é definida por qual órgão?',options:['CVM','Copom (Bacen)','Anbima','Tesouro'],correct:1,comment:'A meta Selic é definida pelo Copom, do Banco Central.',theme:'Sistema financeiro',difficulty:'fácil',audio:null},
+    {id:uid('q'),stmt:'Beta de uma ação mede:',options:['Dividendos','Sensibilidade ao mercado','Liquidez','Lucro'],correct:1,comment:'Beta mede a sensibilidade do ativo em relação ao mercado.',theme:'Renda variável',difficulty:'média',audio:null},
+    {id:uid('q'),stmt:'No DCF, o valor terminal representa:',options:['Dívida total','Valor após o período projetado','Caixa inicial','Receita bruta'],correct:1,comment:'O valor terminal captura o valor da empresa após o horizonte de projeção.',theme:'Valuation',difficulty:'difícil',audio:null},
+    {id:uid('q'),stmt:'Suporte, na análise técnica, é:',options:['Nível onde a alta perde força','Nível onde a queda tende a parar','Média móvel','Volume alto'],correct:1,comment:'Suporte é a região de preço onde a queda tende a ser interrompida.',theme:'Análise técnica',difficulty:'média',audio:null},
+    {id:uid('q'),stmt:'Come-cotas incide sobre:',options:['Ações','Fundos de renda fixa/multimercado','Poupança','CDB'],correct:1,comment:'O come-cotas é a antecipação semestral de IR em fundos abertos (exceto ações).',theme:'Fundos',difficulty:'média',audio:null},
+    {id:uid('q'),stmt:'Ética profissional exige, em conflito de interesse:',options:['Priorizar a corretora','Priorizar o cliente','Omitir informação','Maximizar corretagem'],correct:1,comment:'O interesse do cliente prevalece sobre o da instituição.',theme:'Ética e regulação',difficulty:'fácil',audio:null},
+    {id:uid('q'),stmt:'Marcação a mercado protege principalmente contra:',options:['Inflação','Preço defasado/irreal da cota','Câmbio','Risco de crédito'],correct:1,comment:'Marcar a mercado evita que a cota reflita um preço defasado.',theme:'Renda fixa',difficulty:'difícil',audio:null}
+  ],
+  trilhas:[
+    {id:'cnpi',eye:'Certificação',name:'Trilha CNPI',color:'#D4A437',ico:'★',desc:'Do zero ao credenciamento de analista, na ordem exata da prova.',courses:['cb','cg1','ct1']},
+    {id:'valuation',eye:'Reta final',name:'Trilha Valuation',color:'#3D8BE0',ico:'◎',desc:'Preparação intensiva por simulados e diagnóstico.',courses:['cg1']},
+    {id:'mercado',eye:'Fundamentos → avançado',name:'Trilha Mercado Financeiro',color:'#2BB673',ico:'◈',desc:'A base sólida de quem quer atuar no mercado.',courses:['cb']}
+  ],
+  students:[
+    {id:uid('s'),name:'Frederico Nobre',email:'admin@economiadodia.com.br',role:'admin',plan:'completo',progress:100,status:'ativo',sims:0,joined:'01/01/2026',last:'agora (você)',phone:'(21) 99999-0000',cpf:'000.000.000-00',origem:'Equipe'},
+    {id:uid('s'),name:'Felipe Nunes',email:'felipe@economiadodia.com.br',role:'aluno',plan:'completo',progress:62,status:'ativo',sims:18,joined:'12/06/2026',last:'hoje, 10:20',phone:'(21) 99876-5432',cpf:'123.456.789-00',origem:'Instagram Ads'},
+    {id:uid('s'),name:'Mariana Alves',email:'mariana@gmail.com',role:'aluno',plan:'essencial',progress:34,status:'ativo',sims:7,joined:'28/06/2026',last:'hoje, 14:32',phone:'(11) 98765-4321',cpf:'234.567.890-11',origem:'Google'},
+    {id:uid('s'),name:'Rafael Antunes',email:'rafael@btg.com',role:'admin',plan:'anual',progress:88,status:'ativo',sims:41,joined:'03/05/2026',last:'ontem, 19:05',phone:'(21) 99911-2233',cpf:'345.678.901-22',origem:'Indicação'},
+    {id:uid('s'),name:'Bruna Costa',email:'bruna@outlook.com',role:'aluno',plan:'completo',progress:12,status:'inativo',sims:2,joined:'15/07/2026',last:'15/07/2026',phone:'(31) 98800-1122',cpf:'456.789.012-33',origem:'YouTube'},
+    {id:uid('s'),name:'João Prado',email:'joao.prado@gmail.com',role:'editor',plan:'essencial',progress:45,status:'ativo',sims:11,joined:'01/07/2026',last:'hoje, 09:12',phone:'(21) 99700-3344',cpf:'567.890.123-44',origem:'Instagram Ads'},
+    {id:uid('s'),name:'Patrícia Lima',email:'patricia.lima@gmail.com',role:'aluno',plan:'completo',progress:73,status:'ativo',sims:24,joined:'20/06/2026',last:'ontem, 21:40',phone:'(85) 98600-5566',cpf:'678.901.234-55',origem:'Google'}
+  ],
+  plans:[
+    {id:'essencial',name:'Essencial',price:'R$ 97/mês',benefits:['Acesso aos cursos CNPI','Simulados básicos','Gabarito em texto']},
+    {id:'completo',name:'Completo',price:'R$ 197/mês',benefits:['Todos os cursos','Simulados premium ilimitados','Gabarito comentado em áudio','Suporte no WhatsApp','IA de estudos']},
+    {id:'anual',name:'Anual',price:'R$ 1.970/ano',benefits:['Tudo do Completo','2 meses grátis','Mentoria em grupo']}
+  ]
+};}
+let db;
+function load(){try{const r=JSON.parse(localStorage.getItem(DB_KEY));if(r&&r.courses){const sd=seed();if(!r.site)r.site=sd.site;else['hero','formacao','metodo','professor','depoimentos','footer'].forEach(k=>{if(r.site[k]==null)r.site[k]=sd.site[k];});if(!r.app)r.app=sd.app;if(!r.questionBank)r.questionBank=sd.questionBank;return r;}}catch(_){}return seed();}
+function save(){try{localStorage.setItem(DB_KEY,JSON.stringify(db));}catch(_){toast('Não foi possível salvar (armazenamento cheio).','err');}}
+function resetData(){if(!confirm('Restaurar os dados de exemplo? Suas alterações neste navegador serão perdidas.'))return;db=seed();save();toast('Dados de exemplo restaurados.');router();}
+db=load();
+
+function planName(id){const p=db.plans.find(p=>p.id===id);return p?p.name:id;}
+function countLessons(c){return (c.modules||[]).reduce((n,m)=>n+(m.lessons||[]).length,0);}
+function totalLessons(){return db.courses.reduce((n,c)=>n+countLessons(c),0);}
+function courseMinutes(c){return (c.modules||[]).reduce((n,m)=>n+(m.lessons||[]).reduce((a,l)=>a+(+l.duration||0),0),0);}
+function totalQuestions(){return db.simulados.reduce((n,s)=>n+(s.questions||[]).length,0);}
+function stBadge(s){return s==='publicado'?'<span class="badge b-pub">Publicado</span>':'<span class="badge b-draft">Rascunho</span>';}
+function diffText(l){return {'fácil':'Fácil','média':'Média','difícil':'Difícil'}[l]||l||'—';}
+function notaColor(n){return n>=70?'var(--green)':(n>=50?'var(--amber)':'var(--red)');}
+function roleName(r){return {admin:'Administrador',editor:'Editor',aluno:'Aluno'}[r||'aluno'];}
+function roleBadge(r){r=r||'aluno';if(r==='admin')return '<span class="badge" style="color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd)">Admin</span>';if(r==='editor')return '<span class="badge" style="color:var(--blue);background:rgba(61,139,224,.13);border:1px solid rgba(61,139,224,.3)">Editor</span>';return '<span class="chip">Aluno</span>';}
+/* ---- analytics mock (protótipo, determinístico) ---- */
+function hashStr(s){let h=5381;s=String(s||'');for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return h;}
+function courseStats(c){const h=hashStr(c.id);return {alunos:60+h%420,conclusao:35+h%55,avaliacao:(4+(h%10)/10).toFixed(1)};}
+function simStats(s){const h=hashStr(s.id),qs=s.questions||[];return {feitos:80+h%620,media:52+h%42,pior:qs.length?qs[h%qs.length]:null};}
+function lessonStats(l){const h=hashStr(l.id||l.title);return {views:120+h%900,conclusao:40+h%55};}
+const SIM_NAMES=['Simulado CB Completo','Simulado CG1 · Fundamentalista','Simulado CGA/CGE','Simulado CT1 · Técnico'];
+function studentSims(s){const h=hashStr(s.id||s.name),base=s.progress||50,n=Math.max(1,Math.min(s.sims||3,6)),out=[];for(let i=0;i<n;i++){const nota=Math.max(42,Math.min(98,base+((h+i*17)%46)-20));out.push({sim:SIM_NAMES[(h+i)%SIM_NAMES.length],nota:Math.round(nota),acertos:Math.round(nota*0.6),data:String(((h+i*3)%27)+1).padStart(2,'0')+'/07/2026'});}return out;}
+function studentCoursesProg(s){const h=hashStr(s.id||s.name);return db.courses.slice(0,3).map((c,i)=>({title:c.title,prog:Math.max(0,Math.min(100,(s.progress||50)+((h+i*23)%50)-25))}));}
+function studentPayments(s){const pl=db.plans.find(p=>p.id===s.plan)||{name:'Completo',price:'R$ 197'};const val=String(pl.price).replace(/\/(mês|ano)/,'');const out=[];for(let i=0;i<3;i++)out.push({data:'05/0'+(7-i)+'/2026',plano:pl.name,valor:val,status:'Pago'});return out;}
+function barChart(data,fmt){const max=Math.max.apply(null,data.map(x=>x[1]).concat([1]));return `<div style="display:flex;flex-direction:column;gap:11px">${data.map(x=>`<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;font-size:13px"><span style="color:var(--text)">${esc(x[0])}</span><span class="mono" style="color:var(--muted)">${fmt?fmt(x[1]):x[1]}</span></div><div class="progbar" style="height:8px"><i style="width:${Math.round(x[1]/max*100)}%"></i></div></div>`).join('')}</div>`;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function mmss(s){s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function simCfg(s){return {duracao:+s.duracao||60,notaCorte:+s.notaCorte||70,numQuestoes:+s.numQuestoes||0,tentativas:+s.tentativas||0,mostrarGabarito:s.mostrarGabarito||'depois',embaralhar:(s.embaralhar||'sim')==='sim',embaralharAlt:(s.embaralharAlt||'nao')==='sim'};}
+function simAttempts(s){const base=simStats(s);return db.students.slice(0,5).map((st,i)=>{const h=hashStr(s.id+st.id);const nota=Math.max(38,Math.min(98,base.media+((h+i*13)%40)-18));return {nome:st.name,id:st.id,nota:Math.round(nota),acertos:Math.round(nota*(s.questions||[]).length/100),data:String(((h+i)%27)+1).padStart(2,'0')+'/07/2026',tempo:mmss(1200+((h+i*97)%1600))};});}
+function allTemas(){const set={};(db.questionBank||[]).forEach(q=>{if(q.theme)set[q.theme]=(set[q.theme]||0)+1;});db.simulados.forEach(s=>(s.questions||[]).forEach(q=>{if(q.theme)set[q.theme]=(set[q.theme]||0)+1;}));return set;}
+
+/* ============ auth ============ */
+function authed(){try{return sessionStorage.getItem('eda-auth')==='1'}catch(_){return false}}
+$('#login-form').addEventListener('submit',e=>{e.preventDefault();try{sessionStorage.setItem('eda-auth','1')}catch(_){}
+  if(!location.hash)location.hash='#/';showApp();toast('Bem-vindo ao painel.');});
+function logout(){try{sessionStorage.removeItem('eda-auth')}catch(_){}$('#shell').hidden=true;$('#login').style.display='flex';}
+function showApp(){$('#login').style.display='none';$('#shell').hidden=false;router();}
+
+/* ============ router ============ */
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site (landing)',app:'Área do aluno',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
+const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',venda:'venda',planos:'venda'};
+const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios'};
+function toggleGroup(g){const el=document.getElementById('g-'+g);if(el)el.classList.toggle('open');}
+function router(){
+  if(!authed()){$('#shell').hidden=true;$('#login').style.display='flex';return;}
+  $('#login').style.display='none';$('#shell').hidden=false;
+  const parts=location.hash.replace(/^#\/?/,'').split('/');const r=parts[0]||'';
+  $('#tb-title').textContent=TITLES[r]||'Visão geral';
+  if(r!=='prova')examStop();
+  const activeR=HILITE[r]||r;
+  $$('#nav .nav-item').forEach(a=>a.classList.toggle('active',a.dataset.r===activeR));
+  const grp=GROUP_OF[r];if(grp){const g=document.getElementById('g-'+grp);if(g)g.classList.add('open');}
+  let html='';
+  try{
+    if(r===''){html=viewDashboard();}
+    else if(r==='usuarios'){html=viewAlunos();}
+    else if(r==='conteudo'){html=viewConteudo();}
+    else if(r==='venda'){html=viewVenda();}
+    else if(r==='relatorio'){html=viewRelatorio();}
+    else if(r==='sistema'){html=viewSistema();}
+    else if(r==='site'){html=viewSite();}
+    else if(r==='app'){html=viewApp();}
+    else if(r==='cursos'){html=viewCursos();}
+    else if(r==='curso'){html=viewCurso(parts[1]);}
+    else if(r==='aula'){html=viewAula(parts[1],+parts[2],+parts[3]);}
+    else if(r==='simulados'){html=viewSimulados();}
+    else if(r==='simulado'){html=viewSimulado(parts[1]);}
+    else if(r==='banco'){html=viewBanco();}
+    else if(r==='prova'){html=renderProva();}
+    else if(r==='trilhas'){html=viewTrilhas();}
+    else if(r==='trilha'){html=viewTrilha(parts[1]);}
+    else if(r==='alunos'){html=viewAlunos();}
+    else if(r==='aluno'){html=viewAluno(parts[1]);}
+    else if(r==='planos'){html=viewPlanos();}
+    else {html=viewDashboard();}
+  }catch(err){html=notFound('Erro ao abrir');console.error(err);}
+  $('#view').innerHTML=html;window.scrollTo(0,0);
+  $('#side').classList.remove('open');
+}
+window.addEventListener('hashchange',router);
+
+/* ============ DASHBOARD ============ */
+function notaColor(n){return n>=70?'var(--green)':(n>=50?'var(--amber)':'var(--red)');}
+function fmtToday(){try{return new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});}catch(_){return 'hoje';}}
+function dailyStats(){return {
+  sims:14,users:6,revenue:'R$ 1.182',approval:79,
+  simFeed:[
+    {aluno:'Rafael Antunes',sim:'Simulado CG1 · Fundamentalista',nota:91,hora:'15:20'},
+    {aluno:'Mariana Alves',sim:'Simulado CB Completo',nota:82,hora:'14:32'},
+    {aluno:'Felipe Nunes',sim:'Simulado CB Completo',nota:74,hora:'11:47'},
+    {aluno:'João Prado',sim:'Simulado CGA/CGE',nota:66,hora:'10:20'},
+    {aluno:'Bruna Costa',sim:'Simulado CB Completo',nota:58,hora:'09:12'}
+  ],
+  userFeed:[
+    {nome:'Lucas Prado',email:'lucas.prado@gmail.com',plano:'Completo',hora:'15:40'},
+    {nome:'Ana Beatriz',email:'ana.b@outlook.com',plano:'Essencial',hora:'12:18'},
+    {nome:'Carlos Menezes',email:'carlos@uol.com.br',plano:'Anual',hora:'10:05'},
+    {nome:'Patrícia Lima',email:'patricia.lima@gmail.com',plano:'Completo',hora:'08:33'}
+  ]
+};}
+function viewDashboard(){
+  const d=dailyStats();
+  const semana=[['Seg',9],['Ter',12],['Qua',7],['Qui',14],['Sex',18],['Sáb',22],['Dom',14]];
+  const topCursos=db.courses.map(c=>[c.title,courseStats(c).alunos]).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const topSims=db.simulados.map(s=>[s.title,simStats(s).feitos]).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const draftC=db.courses.filter(c=>c.status!=='publicado'),draftS=db.simulados.filter(s=>s.status!=='publicado'),draftL=[];
+  db.courses.forEach(c=>(c.modules||[]).forEach((m,mi)=>(m.lessons||[]).forEach((l,li)=>{if(l.status!=='publicado')draftL.push({c,mi,li,l});})));
+  const nDraft=draftC.length+draftS.length+draftL.length;
+  const dl=v=>`<span style="color:${v>=0?'var(--green)':'var(--red)'}">${v>=0?'▲':'▼'} ${Math.abs(v)}%</span> vs. semana`;
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Hoje · ${esc(fmtToday())}</div><h1>Painel de Controle</h1><p>Resumo do dia: simulados realizados, novos usuários, receita e pendências.</p></div>
+    <div class="ph-actions"><button class="btn btn-ghost btn-sm" onclick="location.hash='#/relatorio'">Ver relatórios →</button></div></div>
+  <div class="stat-grid">
+    <div class="stat"><div class="k">Simulados hoje</div><div class="v">${d.sims}</div><div class="d">${dl(12)}</div></div>
+    <div class="stat"><div class="k">Usuários hoje</div><div class="v">${d.users}</div><div class="d">${dl(8)}</div></div>
+    <div class="stat"><div class="k">Aprovação média</div><div class="v">${d.approval}%</div><div class="d">${dl(3)}</div></div>
+    <div class="stat"><div class="k">Receita hoje</div><div class="v" style="font-size:23px">${esc(d.revenue)}</div><div class="d">${dl(-5)}</div></div>
+    <div class="stat"><div class="k">Base total</div><div class="v">${db.students.length}</div><div class="d">usuários cadastrados</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="sec-title">Simulados na semana</div>${barChart(semana)}</div>
+    <div class="card"><div class="sec-title">Funil de conversão (mês)</div>${barChart([['Visitantes',5200],['Cadastros',480],['Assinantes',132]],v=>v.toLocaleString('pt-BR'))}<p class="hint">Conversão visitante → assinante: 2,5%</p></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div><div class="sec-title">Simulados do dia <span class="chip" style="margin-left:auto">${d.simFeed.length} recentes</span></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Simulado</th><th>Nota</th><th>Hora</th></tr></thead><tbody>
+      ${d.simFeed.map(x=>`<tr><td><div class="t-title">${esc(x.aluno)}</div></td><td class="t-sub">${esc(x.sim)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(x.nota)}">${x.nota}%</span></td><td class="t-sub mono">${esc(x.hora)}</td></tr>`).join('')}
+      </tbody></table></div>
+    </div>
+    <div><div class="sec-title">Usuários do dia <span class="chip" style="margin-left:auto">${d.userFeed.length} novos</span></div>
+      <div class="card" style="padding:8px">
+      ${d.userFeed.map(u=>`<div class="lrow" style="border-radius:10px"><span class="avatar" style="width:34px;height:34px;font-size:12px">${esc((u.nome||'?').split(' ').map(p=>p[0]).slice(0,2).join(''))}</span><div class="lt" style="cursor:default"><div class="ltt">${esc(u.nome)}</div><div class="lts"><span>${esc(u.email)}</span></div></div><div style="text-align:right"><span class="chip">${esc(u.plano)}</span><div class="t-sub mono" style="margin-top:4px">${esc(u.hora)}</div></div></div>`).join('')}
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px;width:100%" onclick="location.hash='#/usuarios'">Ver todos os usuários →</button>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card"><div class="sec-title">Top cursos (por alunos)</div>${barChart(topCursos,v=>v+' alunos')}</div>
+    <div class="card"><div class="sec-title">Top simulados (por realizações)</div>${barChart(topSims,v=>v+'×')}</div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <div class="sec-title">Pendentes de publicação <span class="chip" style="margin-left:auto">${nDraft}</span></div>
+    ${nDraft?`${draftC.map(c=>`<div class="lrow" style="border-radius:10px;cursor:pointer" onclick="location.hash='#/curso/${c.id}'"><span class="badge b-draft">Curso</span><div class="lt" style="cursor:pointer"><div class="ltt">${esc(c.title)}</div></div><span class="btn btn-ghost btn-sm">Abrir →</span></div>`).join('')}${draftS.map(s=>`<div class="lrow" style="border-radius:10px;cursor:pointer" onclick="location.hash='#/simulado/${s.id}'"><span class="badge b-draft">Simulado</span><div class="lt" style="cursor:pointer"><div class="ltt">${esc(s.title)}</div></div><span class="btn btn-ghost btn-sm">Abrir →</span></div>`).join('')}${draftL.slice(0,6).map(x=>`<div class="lrow" style="border-radius:10px;cursor:pointer" onclick="location.hash='#/aula/${x.c.id}/${x.mi}/${x.li}'"><span class="badge b-draft">Aula</span><div class="lt" style="cursor:pointer"><div class="ltt">${esc(x.l.title)}</div><div class="lts">${esc(x.c.title)}</div></div><span class="btn btn-ghost btn-sm">Abrir →</span></div>`).join('')}`:'<p class="hint" style="margin-top:0">Tudo publicado. Nada pendente.</p>'}
+  </div>`;
+}
+
+/* ============ SITE (landing) ============ */
+function drow(k,v){return `<div class="drow"><span class="dk">${esc(k)}</span><span class="dv">${esc(v)}</span></div>`;}
+function siteBlock(title,editAttr,rows){return `<div class="card siteblock"><div class="sec-title">${title} <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="${editAttr}">${EDIT_IC} Editar</button></div><div class="dfields">${rows}</div></div>`;}
+function viewSite(){
+  const s=db.site,h=s.hero,f=s.formacao,m=s.metodo,p=s.professor,ft=s.footer;
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Site (landing)</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Site</div><h1>Site (landing)</h1><p>Edite todos os blocos da página inicial. Use Visualizar para ver como fica.</p></div>
+    <div class="ph-actions"><button class="btn btn-ghost" onclick="previewSite()">${EYE_IC} Visualizar</button></div></div>
+  <div class="infobox" style="margin-bottom:18px">As edições ficam salvas no protótipo (neste navegador) para você aprovar. Publicar de fato na landing é o passo de colocar no ar.</div>
+  ${siteBlock('Hero (topo)','editHero()',drow('Etiqueta',h.eyebrow)+drow('Título',h.title)+drow('Texto / promessa',h.promise)+drow('Botão (CTA)',h.cta))}
+  ${siteBlock('A formação','editFormacao()',drow('Etiqueta',f.eyebrow)+drow('Título',f.title)+drow('Texto',f.text))}
+  ${siteBlock('Por que funciona (método)','editMetodo()',drow('Etiqueta',m.eyebrow)+drow('Título',m.title)+drow('Texto',m.lead))}
+  ${siteBlock('Professor','editProf()',drow('Nome',p.name)+drow('Bio',p.bio)+drow('Credenciais',(p.creds||[]).join(' · ')))}
+  <div class="card siteblock">
+    <div class="sec-title">Depoimentos <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="editDepoimento()">+ Adicionar</button></div>
+    ${(s.depoimentos||[]).map((d,i)=>`<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt">${esc(d.nome)} <span class="t-sub">· ${esc(d.cargo)}</span></div><div class="lts"><span>"${esc(d.texto)}"</span></div></div><div class="rowact"><button class="btn btn-ghost btn-sm" onclick="editDepoimento(${i})">${EDIT_IC}</button><button class="btn btn-danger btn-sm" onclick="delDepoimento(${i})">${DEL_IC}</button></div></div>`).join('')||'<p class="hint">Nenhum depoimento ainda.</p>'}
+  </div>
+  ${siteBlock('Rodapé','editFooter()',drow('Texto',ft.text)+drow('WhatsApp',ft.whatsapp||'—')+drow('E-mail',ft.email||'—'))}
+  <div class="card siteblock"><div class="sec-title">Planos <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="location.hash='#/planos'">Gerenciar →</button></div><p class="hint" style="margin-top:0">Os planos exibidos no site são os mesmos da seção <b>Planos</b>.</p></div>`;
+}
+function editHero(){openDrawer('Editar hero',[{key:'eyebrow',label:'Etiqueta (eyebrow)',type:'text'},{key:'title',label:'Título principal',type:'textarea'},{key:'promise',label:'Texto / promessa',type:'textarea'},{key:'cta',label:'Texto do botão',type:'text'}],db.site.hero,d=>{Object.assign(db.site.hero,d);save();closeDrawer();toast('Hero atualizado.');router();});}
+function editFormacao(){openDrawer('Editar “A formação”',[{key:'eyebrow',label:'Etiqueta',type:'text'},{key:'title',label:'Título',type:'textarea'},{key:'text',label:'Texto',type:'textarea'}],db.site.formacao,d=>{Object.assign(db.site.formacao,d);save();closeDrawer();toast('Seção atualizada.');router();});}
+function editMetodo(){openDrawer('Editar “Por que funciona”',[{key:'eyebrow',label:'Etiqueta',type:'text'},{key:'title',label:'Título',type:'textarea'},{key:'lead',label:'Texto',type:'textarea'}],db.site.metodo,d=>{Object.assign(db.site.metodo,d);save();closeDrawer();toast('Seção atualizada.');router();});}
+function editProf(){openDrawer('Editar professor',[{key:'name',label:'Nome',type:'text',req:true},{key:'bio',label:'Bio',type:'textarea'},{key:'creds',label:'Credenciais',type:'lines'}],db.site.professor,d=>{Object.assign(db.site.professor,d);save();closeDrawer();toast('Professor atualizado.');router();});}
+function editFooter(){openDrawer('Editar rodapé',[{key:'text',label:'Texto do rodapé',type:'textarea'},{key:'whatsapp',label:'WhatsApp',type:'text'},{key:'email',label:'E-mail de contato',type:'text'}],db.site.footer,d=>{Object.assign(db.site.footer,d);save();closeDrawer();toast('Rodapé atualizado.');router();});}
+function editDepoimento(i){const d=(i!=null&&!isNaN(i))?db.site.depoimentos[i]:null;openDrawer(d?'Editar depoimento':'Novo depoimento',[{key:'nome',label:'Nome',type:'text',req:true},{key:'cargo',label:'Cargo / empresa',type:'text'},{key:'texto',label:'Depoimento',type:'textarea',req:true}],d||{},v=>{db.site.depoimentos=db.site.depoimentos||[];if(d){Object.assign(d,v);}else{db.site.depoimentos.push(v);}save();closeDrawer();toast('Depoimento salvo.');router();});}
+function delDepoimento(i){if(!confirm('Excluir este depoimento?'))return;db.site.depoimentos.splice(i,1);save();toast('Depoimento excluído.');router();}
+function previewSite(){const s=db.site,h=s.hero,f=s.formacao,m=s.metodo,p=s.professor;const sec=(e,t,x)=>`<div style="font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin:0 0 8px">${esc(e)}</div><h2 style="font-size:20px;line-height:1.2;margin-bottom:8px">${esc(t)}</h2><p style="color:var(--muted);font-size:14px;line-height:1.6">${esc(x)}</p>`;openPreview('Página inicial',`
+  <div style="font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:10px">${esc(h.eyebrow)}</div>
+  <h1 style="font-size:28px;line-height:1.1;letter-spacing:-1px;margin-bottom:14px">${esc(h.title)}</h1>
+  <p style="color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:16px">${esc(h.promise)}</p>
+  <span class="btn btn-gold">${esc(h.cta)}</span>
+  <div style="height:1px;background:var(--border);margin:24px 0"></div>${sec(f.eyebrow,f.title,f.text)}
+  <div style="height:1px;background:var(--border);margin:24px 0"></div>${sec(m.eyebrow,m.title,m.lead)}
+  <div style="height:1px;background:var(--border);margin:24px 0"></div>
+  <div style="font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:8px">Professor</div>
+  <h2 style="font-size:20px;margin-bottom:8px">${esc(p.name)}</h2>
+  <p style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:12px">${esc(p.bio)}</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">${(p.creds||[]).map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>
+  <div style="height:1px;background:var(--border);margin:0 0 18px"></div>
+  <div style="font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:12px">Depoimentos</div>
+  ${(s.depoimentos||[]).map(d=>`<div class="card" style="margin-bottom:10px;padding:14px"><p style="font-size:14px;line-height:1.6;margin-bottom:8px">"${esc(d.texto)}"</p><div class="t-sub"><b style="color:var(--head)">${esc(d.nome)}</b> · ${esc(d.cargo)}</div></div>`).join('')}`);}
+
+/* ============ ÁREA DO ALUNO ============ */
+function viewApp(){
+  const a=db.app;
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Área do aluno</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Área do aluno</div><h1>Área do aluno</h1><p>Textos e rótulos da área logada. O conteúdo (cursos, simulados, trilhas) fica nas seções próprias.</p></div>
+    <div class="ph-actions"><a class="btn btn-ghost" href="app.html" target="_blank">Abrir área do aluno ↗</a></div></div>
+  <div class="infobox" style="margin-bottom:18px">Edite a saudação, o assistente de IA, o texto de assinatura e os nomes do menu do aluno.</div>
+  ${siteBlock('Saudação (home do aluno)','editAppGreeting()',drow('Título',a.greeting)+drow('Subtítulo',a.subtitle))}
+  ${siteBlock('Assistente de IA','editAppAssistant()',drow('Nome',a.assistantName)+drow('Descrição',a.assistantDesc))}
+  ${siteBlock('Assinatura','editAppSub()',drow('Chamada para assinar',a.subCta))}
+  ${siteBlock('Rótulos do menu do aluno','editAppLabels()',Object.keys(a.labels).map(k=>drow(k,a.labels[k])).join(''))}`;
+}
+function editAppGreeting(){openDrawer('Saudação',[{key:'greeting',label:'Título',type:'text'},{key:'subtitle',label:'Subtítulo',type:'text'}],db.app,d=>{Object.assign(db.app,d);save();closeDrawer();toast('Saudação atualizada.');router();});}
+function editAppAssistant(){openDrawer('Assistente de IA',[{key:'assistantName',label:'Nome do assistente',type:'text'},{key:'assistantDesc',label:'Descrição',type:'text'}],db.app,d=>{Object.assign(db.app,d);save();closeDrawer();toast('Assistente atualizado.');router();});}
+function editAppSub(){openDrawer('Assinatura',[{key:'subCta',label:'Chamada para assinar',type:'textarea'}],db.app,d=>{Object.assign(db.app,d);save();closeDrawer();toast('Texto atualizado.');router();});}
+function editAppLabels(){openDrawer('Rótulos do menu do aluno',[{key:'home',label:'Início',type:'text'},{key:'cursos',label:'Cursos',type:'text'},{key:'trilhas',label:'Trilhas',type:'text'},{key:'simulados',label:'Simulados',type:'text'},{key:'desempenho',label:'Desempenho',type:'text'}],db.app.labels,d=>{db.app.labels=d;save();closeDrawer();toast('Rótulos atualizados.');router();});}
+
+/* ============ CURSOS ============ */
+function viewCursos(){
+  const cards=db.courses.map((c,ci)=>`
+    <div class="ecard">
+      <div class="ic" style="background:${c.color}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="2"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H11v16H4.5A2.5 2.5 0 0 1 2 17.5z"/><path d="M22 6.5A2.5 2.5 0 0 0 19.5 4H13v16h6.5a2.5 2.5 0 0 0 2.5-2.5z"/></svg></div>
+      <div class="meta">${esc(c.code||'')} · ${esc(c.cert||'')}</div>
+      <h3>${esc(c.title)}</h3>
+      <p>${esc(c.desc||'')}</p>
+      <div class="foot"><span>${(c.modules||[]).length} módulos</span><span>·</span><span>${countLessons(c)} aulas</span><span>·</span><span>${courseMinutes(c)} min</span><span style="margin-left:auto">${stBadge(c.status)}</span></div>
+      <div class="acts">
+        <button class="btn btn-gold btn-sm" onclick="location.hash='#/curso/${c.id}'">Abrir & editar</button>
+        <button class="btn btn-ghost btn-sm" onclick="togglePubCourse('${c.id}')">${c.status==='publicado'?'Despublicar':'Publicar'}</button>
+        <button class="btn-icon" title="Subir" ${ci===0?'disabled':''} onclick="moveCourse(${ci},-1)">↑</button>
+        <button class="btn-icon" title="Descer" ${ci===(db.courses.length-1)?'disabled':''} onclick="moveCourse(${ci},1)">↓</button>
+      </div>
+    </div>`).join('');
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Cursos & aulas</h1><p>Crie cursos, organize em módulos e suba os vídeos e áudios de cada aula.</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editCourse()">+ Novo curso</button></div></div>
+  <div class="cardgrid">${cards||''}</div>
+  ${db.courses.length?'':emptyState('◱','Nenhum curso ainda','Crie seu primeiro curso para começar a montar as aulas.','+ Novo curso','editCourse()')}`;
+}
+function viewCurso(id){
+  const c=db.courses.find(c=>c.id===id);if(!c)return notFound('Curso não encontrado');
+  const st=courseStats(c);
+  const mods=(c.modules||[]).map((m,mi)=>`
+    <div class="mod">
+      <div class="mod-head"><span class="mi">${mi+1}</span><span class="mt">${esc(m.title)}</span>
+        <span class="chip">${(m.lessons||[]).length} aulas</span>
+        <button class="btn-icon" title="Subir módulo" ${mi===0?'disabled':''} onclick="moveModule('${c.id}',${mi},-1)">↑</button>
+        <button class="btn-icon" title="Descer módulo" ${mi===(c.modules.length-1)?'disabled':''} onclick="moveModule('${c.id}',${mi},1)">↓</button>
+        <button class="btn btn-gold btn-sm" onclick="editLesson('${c.id}',${mi})">+ Aula</button>
+        <button class="btn btn-ghost btn-sm" onclick="editModule('${c.id}',${mi})">${EDIT_IC} Módulo</button>
+        <button class="btn btn-danger btn-sm" onclick="delModule('${c.id}',${mi})">${DEL_IC}</button>
+      </div>
+      ${(m.lessons||[]).map((l,li)=>`
+        <div class="lrow">
+          <span class="lnum">${li+1}</span>
+          <div class="lt" onclick="location.hash='#/aula/${c.id}/${mi}/${li}'"><div class="ltt">${esc(l.title)}</div>
+            <div class="lts"><span>${l.duration||0} min</span><span class="filei ${l.video?'has':''}">▶ ${l.video?'vídeo':'sem vídeo'}</span><span class="filei ${l.audio?'has':''}">♪ ${l.audio?'áudio':'sem áudio'}</span>${stBadge(l.status)}</div>
+          </div>
+          <div class="rowact">
+            <button class="btn-icon" title="Subir" ${li===0?'disabled':''} onclick="moveLesson('${c.id}',${mi},${li},-1)">↑</button>
+            <button class="btn-icon" title="Descer" ${li===(m.lessons.length-1)?'disabled':''} onclick="moveLesson('${c.id}',${mi},${li},1)">↓</button>
+            <button class="btn btn-ghost btn-sm" onclick="togglePubLesson('${c.id}',${mi},${li})">${l.status==='publicado'?'Despublicar':'Publicar'}</button>
+            <button class="btn btn-ghost btn-sm" onclick="previewAula('${c.id}',${mi},${li})">${EYE_IC}</button>
+            <button class="btn btn-ghost btn-sm" onclick="editLesson('${c.id}',${mi},${li})">${EDIT_IC}</button>
+            <button class="btn btn-danger btn-sm" onclick="delLesson('${c.id}',${mi},${li})">${DEL_IC}</button>
+          </div>
+        </div>`).join('')||'<div class="lrow"><span class="lnum"></span><div class="lt" style="cursor:default"><div class="lts">Nenhuma aula neste módulo.</div></div></div>'}
+    </div>`).join('');
+  return `
+  <div class="crumb"><a href="#/cursos">Cursos</a> <span class="sep">›</span> <span>${esc(c.title)}</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">${esc(c.code||'')} · ${esc(c.cert||'')} ${stBadge(c.status)}</div><h1>${esc(c.title)}</h1><p>${esc(c.desc||'')}</p>
+    <div class="lts" style="margin-top:10px"><span class="chip">${(c.modules||[]).length} módulos</span><span class="chip">${countLessons(c)} aulas</span><span class="chip">${courseMinutes(c)} min</span></div></div>
+    <div class="ph-actions">
+      <button class="btn ${c.status==='publicado'?'btn-ghost':'btn-gold'}" onclick="togglePubCourse('${c.id}')">${c.status==='publicado'?'Despublicar':'Publicar'}</button>
+      <button class="btn btn-ghost" onclick="previewCurso('${c.id}')">${EYE_IC} Visualizar</button>
+      <button class="btn btn-ghost" onclick="editCourse('${c.id}')">${EDIT_IC} Editar</button>
+      <button class="btn btn-ghost" onclick="addModule('${c.id}')">+ Módulo</button>
+    </div></div>
+  <div class="stat-grid" style="margin-bottom:20px">
+    <div class="stat"><div class="k">Alunos matriculados</div><div class="v">${st.alunos}</div><div class="d">no curso</div></div>
+    <div class="stat"><div class="k">Conclusão média</div><div class="v">${st.conclusao}%</div><div class="d">dos alunos</div></div>
+    <div class="stat"><div class="k">Avaliação</div><div class="v">${st.avaliacao}<span style="font-size:15px;color:var(--muted)"> /5</span></div><div class="d">média dos alunos</div></div>
+    <div class="stat"><div class="k">Aulas</div><div class="v">${countLessons(c)}</div><div class="d">${courseMinutes(c)} min no total</div></div>
+  </div>
+  ${mods||emptyState('▤','Sem módulos','Adicione um módulo para começar a inserir aulas.','+ Módulo',`addModule('${c.id}')`)}`;
+}
+function viewAula(cid,mi,li){
+  const c=db.courses.find(c=>c.id===cid);if(!c)return notFound('Curso não encontrado');
+  const m=c.modules[mi];if(!m)return notFound('Módulo não encontrado');const l=m.lessons[li];if(!l)return notFound('Aula não encontrada');
+  const fileCard=(f,icon,label)=>f?`<div class="filecard"><span class="fi">${icon}</span><div class="fn"><b>${esc(f.name)}</b><span>${fmtSize(f.size)} · ${esc(f.type||'')}</span></div></div>`:`<div class="filecard empty"><span class="fi">${icon}</span><div class="fn"><b>Sem ${label}</b><span>nenhum arquivo enviado</span></div></div>`;
+  return `
+  <div class="crumb"><a href="#/cursos">Cursos</a> <span class="sep">›</span> <a href="#/curso/${cid}">${esc(c.title)}</a> <span class="sep">›</span> <span>${esc(l.title)}</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">${esc(m.title)} ${stBadge(l.status)}</div><h1>${esc(l.title)}</h1><p>${esc(l.desc||'Sem descrição.')}</p></div>
+    <div class="ph-actions">
+      <button class="btn btn-ghost" onclick="previewAula('${cid}',${mi},${li})">${EYE_IC} Visualizar</button>
+      <button class="btn btn-gold" onclick="editLesson('${cid}',${mi},${li})">${EDIT_IC} Editar aula</button>
+    </div></div>
+  <div class="detail">
+    <div class="card">
+      <div class="sec-title">Arquivos</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">Vídeo da aula</div>
+      ${fileCard(l.video,'▶','vídeo')}
+      <div style="font-size:12.5px;color:var(--muted);margin:14px 0 6px">Áudio do gabarito comentado</div>
+      ${fileCard(l.audio,'♪','áudio')}
+    </div>
+    <div class="card">
+      <div class="sec-title">Detalhes</div>
+      <div class="dfields">
+        <div class="drow"><span class="dk">Duração</span><span class="dv">${l.duration||0} min</span></div>
+        <div class="drow"><span class="dk">Status</span><span class="dv">${l.status==='publicado'?'Publicado':'Rascunho'}</span></div>
+        <div class="drow"><span class="dk">Vídeo</span><span class="dv">${l.video?'Enviado':'—'}</span></div>
+        <div class="drow"><span class="dk">Áudio</span><span class="dv">${l.audio?'Enviado':'—'}</span></div>
+      </div>
+      <button class="btn btn-danger btn-sm" style="margin-top:16px;width:100%" onclick="delLesson('${cid}',${mi},${li},true)">${DEL_IC} Excluir aula</button>
+    </div>
+  </div>`;
+}
+
+/* ============ SIMULADOS ============ */
+function viewSimulados(){
+  const rows=db.simulados.map(s=>`
+    <tr class="clk" onclick="location.hash='#/simulado/${s.id}'">
+      <td><div class="t-title">${esc(s.title)}</div><div class="t-sub">${esc(s.desc||'')}</div></td>
+      <td><span class="chip">${esc(s.cert)}</span></td>
+      <td>${(s.questions||[]).length} questões</td>
+      <td>${stBadge(s.status)}</td>
+      <td class="rowend"><div class="rowact">
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();togglePubSim('${s.id}')">${s.status==='publicado'?'Despublicar':'Publicar'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();previewSimulado('${s.id}')">${EYE_IC}</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editSimulado('${s.id}')">${EDIT_IC}</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delSimulado('${s.id}')">${DEL_IC}</button>
+      </div></td>
+    </tr>`).join('');
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Simulados</h1><p>Monte simulados e o banco de questões. Um CSV vira um simulado inteiro — várias questões de uma vez.</p></div>
+    <div class="ph-actions"><button class="btn btn-ghost" onclick="importCSVNew()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg> Novo por CSV</button><button class="btn btn-gold" onclick="editSimulado()">+ Novo simulado</button></div></div>
+  <div class="infobox" style="margin-bottom:16px"><b>CSV vira simulado:</b> envie um arquivo .csv e ele cria um simulado com todas as questões de uma vez. Colunas: <b>enunciado, alternativa_a…d, correta (A–D), comentario, tema, dificuldade</b>. <a href="#" onclick="csvTemplate();return false" style="color:var(--gold-deep);font-weight:600">Baixar modelo .csv</a></div>
+  ${db.simulados.length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Simulado</th><th>Cert.</th><th>Questões</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    :emptyState('✓','Nenhum simulado','Crie um simulado do zero ou importe um CSV.','+ Novo simulado','editSimulado()')}`;
+}
+function viewSimulado(id){
+  const s=db.simulados.find(s=>s.id===id);if(!s)return notFound('Simulado não encontrado');
+  const st=simStats(s),cfg=simCfg(s);
+  const qs=(s.questions||[]).map((q,qi)=>`
+    <div class="mod">
+      <div class="mod-head"><span class="mi">${qi+1}</span><span class="mt">${esc((q.stmt||'').slice(0,90))}${(q.stmt||'').length>90?'…':''}</span>
+        <span class="chip">${esc(q.theme||'—')}</span><span class="chip">${diffText(q.difficulty)}</span><span class="filei ${q.audio?'has':''}">♪ ${q.audio?'áudio':'sem áudio'}</span>
+        <button class="btn-icon" title="Subir" ${qi===0?'disabled':''} onclick="moveQuestion('${s.id}',${qi},-1)">↑</button>
+        <button class="btn-icon" title="Descer" ${qi===(s.questions.length-1)?'disabled':''} onclick="moveQuestion('${s.id}',${qi},1)">↓</button>
+        <button class="btn btn-ghost btn-sm" onclick="editQuestion('${s.id}',${qi})">${EDIT_IC} Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="delQuestion('${s.id}',${qi})">${DEL_IC}</button>
+      </div>
+      <div style="padding:12px 16px">
+        ${(q.options||[]).map((o,oi)=>`<div class="lts" style="padding:5px 0;color:${oi===q.correct?'var(--green)':'var(--muted)'}">${String.fromCharCode(65+oi)}) ${esc(o)}${oi===q.correct?' ✓':''}</div>`).join('')}
+        ${q.comment?`<div class="hint" style="margin-top:8px"><b>Gabarito:</b> ${esc(q.comment)}</div>`:''}
+        ${q.audio?`<div class="audio-cta" style="margin-top:10px"><span class="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div class="at">Áudio de explicação</div><div class="as">${q.audio.url?'Toque para ouvir':esc(q.audio.name)+' · '+fmtSize(q.audio.size)}</div></div></div>${q.audio.url?`<div class="upprev" style="margin-top:8px"><audio controls src="${q.audio.url}"></audio></div>`:''}`:''}
+      </div>
+    </div>`).join('');
+  return `
+  <div class="crumb"><a href="#/simulados">Simulados</a> <span class="sep">›</span> <span>${esc(s.title)}</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">${esc(s.cert)} ${stBadge(s.status)}</div><h1>${esc(s.title)}</h1><p>${esc(s.desc||'')}</p>
+    <div class="lts" style="margin-top:10px"><span class="chip">${(s.questions||[]).length} questões</span></div></div>
+    <div class="ph-actions">
+      <button class="btn btn-gold" onclick="startExam('${s.id}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Fazer prova</button>
+      <button class="btn btn-ghost" onclick="previewSimulado('${s.id}')">${EYE_IC} Visualizar</button>
+      <button class="btn btn-ghost" onclick="editQuestion('${s.id}')">+ Questão</button>
+      <button class="btn btn-ghost" onclick="addFromBank('${s.id}')">+ Do banco</button>
+      <button class="btn btn-ghost" onclick="importCSV('${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg> CSV</button>
+      <button class="btn btn-ghost" onclick="editSimulado('${s.id}')">${EDIT_IC} Config</button>
+    </div></div>
+  <div class="stat-grid" style="margin-bottom:16px">
+    <div class="stat"><div class="k">Vezes realizado</div><div class="v">${st.feitos}</div><div class="d">pelos alunos</div></div>
+    <div class="stat"><div class="k">Média de acertos</div><div class="v" style="color:${notaColor(st.media)}">${st.media}%</div><div class="d">desempenho médio</div></div>
+    <div class="stat"><div class="k">Questões</div><div class="v">${(s.questions||[]).length}</div><div class="d">no simulado</div></div>
+    <div class="stat"><div class="k">Questão mais errada</div><div class="v" style="font-size:14px;line-height:1.3;font-weight:600">${st.pior?esc(st.pior.stmt.slice(0,44))+'…':'—'}</div><div class="d">${st.pior?esc(st.pior.theme||''):''}</div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px"><div class="sec-title">Configurações da prova <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="editSimulado('${s.id}')">${EDIT_IC} Editar</button></div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap">
+      <span class="chip">⏱ ${cfg.duracao} min</span><span class="chip">Nota de corte ${cfg.notaCorte}%</span><span class="chip">${cfg.numQuestoes>0?cfg.numQuestoes+' questões sorteadas':'Todas as questões'}</span><span class="chip">${cfg.tentativas>0?cfg.tentativas+' tentativas':'Tentativas ilimitadas'}</span><span class="chip">Embaralhar questões: ${cfg.embaralhar?'sim':'não'}</span><span class="chip">Embaralhar alternativas: ${cfg.embaralharAlt?'sim':'não'}</span><span class="chip">Gabarito: ${cfg.mostrarGabarito==='depois'?'ao finalizar':(cfg.mostrarGabarito==='imediato'?'após cada questão':'nunca')}</span>
+    </div>
+  </div>
+  <div class="infobox" style="margin-bottom:18px">Importar CSV: colunas <b>enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, correta (A–D), comentario, tema, dificuldade</b>. <a href="#" onclick="csvTemplate();return false" style="color:var(--gold-deep);font-weight:600">Baixar modelo .csv</a></div>
+  ${qs||emptyState('?','Sem questões','Adicione uma questão ou importe várias por CSV.','+ Questão',`editQuestion('${s.id}')`)}
+  ${(s.questions||[]).length?`<div class="sec-title" style="margin:24px 0 12px">Resultados dos alunos <span class="chip" style="margin-left:auto">${st.feitos} realizações</span></div>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Nota</th><th>Acertos</th><th>Tempo</th><th>Data</th></tr></thead><tbody>
+    ${simAttempts(s).map(a=>`<tr class="clk" onclick="location.hash='#/aluno/${a.id}'"><td class="t-title">${esc(a.nome)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(a.nota)}">${a.nota}%</span></td><td class="mono">${a.acertos}/${(s.questions||[]).length}</td><td class="t-sub mono">${esc(a.tempo)}</td><td class="t-sub mono">${esc(a.data)}</td></tr>`).join('')}
+  </tbody></table></div>`:''}`;
+}
+
+/* ============ TRILHAS ============ */
+function viewTrilhas(){
+  const cards=db.trilhas.map(t=>`
+    <div class="ecard">
+      <div class="ic" style="background:${t.color}">${esc(t.ico||'◆')}</div>
+      <div class="meta">${esc(t.eye||'')}</div><h3>${esc(t.name)}</h3><p>${esc(t.desc||'')}</p>
+      <div class="foot"><span>${(t.courses||[]).length} cursos</span></div>
+      <div class="acts">
+        <button class="btn btn-gold btn-sm" onclick="location.hash='#/trilha/${t.id}'">Abrir</button>
+        <button class="btn btn-ghost btn-sm" onclick="editTrilha('${t.id}')">${EDIT_IC} Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="delTrilha('${t.id}')">${DEL_IC}</button>
+      </div>
+    </div>`).join('');
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Jornadas</div><h1>Trilhas</h1><p>Agrupe cursos em jornadas de estudo na ordem certa.</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editTrilha()">+ Nova trilha</button></div></div>
+  <div class="cardgrid">${cards}</div>
+  ${db.trilhas.length?'':emptyState('◈','Nenhuma trilha','Crie uma trilha e associe cursos a ela.','+ Nova trilha','editTrilha()')}`;
+}
+function viewTrilha(id){
+  const t=db.trilhas.find(t=>t.id===id);if(!t)return notFound('Trilha não encontrada');
+  const cursos=(t.courses||[]).map(cid=>{const c=db.courses.find(c=>c.id===cid);if(!c)return '';return `
+    <div class="lrow"><span class="mi" style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${c.color};color:#0B0D10;font-size:11px;font-family:'IBM Plex Mono'">${esc((c.code||'C').slice(-2))}</span>
+    <div class="lt" onclick="location.hash='#/curso/${c.id}'"><div class="ltt">${esc(c.title)}</div><div class="lts"><span>${countLessons(c)} aulas</span>${stBadge(c.status)}</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="location.hash='#/curso/${c.id}'">Abrir →</button></div>`;}).join('');
+  return `
+  <div class="crumb"><a href="#/trilhas">Trilhas</a> <span class="sep">›</span> <span>${esc(t.name)}</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">${esc(t.eye||'Trilha')}</div><h1>${esc(t.ico||'')} ${esc(t.name)}</h1><p>${esc(t.desc||'')}</p></div>
+    <div class="ph-actions"><button class="btn btn-ghost" onclick="editTrilha('${t.id}')">${EDIT_IC} Editar</button><button class="btn btn-danger" onclick="delTrilha('${t.id}',true)">${DEL_IC} Excluir</button></div></div>
+  <div class="card" style="padding:8px">${cursos||'<div class="lrow"><div class="lt" style="cursor:default"><div class="lts">Nenhum curso nesta trilha. Use Editar para incluir.</div></div></div>'}</div>`;
+}
+
+/* ============ ALUNOS ============ */
+function viewAlunos(){
+  const total=db.students.length,ativos=db.students.filter(s=>s.status==='ativo').length,admins=db.students.filter(s=>s.role==='admin').length;
+  const sc=col=>usersSort.col===col?(usersSort.dir>0?' ▲':' ▼'):'';
+  const val=(s,col)=>col==='role'?(s.role||'aluno'):col==='plan'?planName(s.plan):col==='progress'?(s.progress||0):col==='status'?s.status:s.name;
+  const sorted=db.students.slice().sort((a,b)=>{const av=val(a,usersSort.col),bv=val(b,usersSort.col);return (typeof av==='string'?String(av).localeCompare(String(bv)):av-bv)*usersSort.dir;});
+  const rows=sorted.map(s=>`
+    <tr class="clk urow" data-s="${esc((s.name+' '+s.email+' '+planName(s.plan)).toLowerCase())}" data-role="${esc(s.role||'aluno')}" onclick="location.hash='#/aluno/${s.id}'">
+      <td onclick="event.stopPropagation()"><input type="checkbox" data-bulk="${s.id}" ${bulkSel.has(s.id)?'checked':''} onclick="event.stopPropagation();toggleBulk('${s.id}',this)" style="width:15px;height:15px;accent-color:var(--gold)"></td>
+      <td><div style="display:flex;align-items:center;gap:10px"><span class="avatar" style="width:34px;height:34px;font-size:12px">${esc((s.name||'?').split(' ').map(p=>p[0]).slice(0,2).join(''))}</span><div><div class="t-title">${esc(s.name)}</div><div class="t-sub">${esc(s.email)}</div></div></div></td>
+      <td>${roleBadge(s.role)}</td>
+      <td><span class="chip">${esc(planName(s.plan))}</span></td>
+      <td><div class="progbar" style="width:78px"><i style="width:${s.progress||0}%"></i></div><div class="t-sub" style="margin-top:4px">${s.progress||0}%</div></td>
+      <td class="t-sub mono">${esc(s.last||'—')}</td>
+      <td>${s.status==='ativo'?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</td>
+      <td class="rowend"><div class="rowact">
+        <button class="btn ${s.role==='admin'?'btn-ghost':'btn-gold'} btn-sm" onclick="event.stopPropagation();toggleAdmin('${s.id}')">${s.role==='admin'?'Remover admin':'Tornar admin'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editStudent('${s.id}')">${EDIT_IC}</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delStudent('${s.id}')">${DEL_IC}</button>
+      </div></td>
+    </tr>`).join('');
+  return `
+  <div class="crumb"><span>Usuários</span> <span class="sep">›</span> <span style="color:var(--text)">Listagem</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Usuários · Listagem</div><h1>Usuários</h1><p>Ordene clicando nas colunas, selecione vários para ações em massa e defina papéis.</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editStudent()">+ Novo usuário</button></div></div>
+  <div class="stat-grid" style="margin-bottom:18px">
+    <div class="stat"><div class="k">Total</div><div class="v">${total}</div><div class="d">usuários</div></div>
+    <div class="stat"><div class="k">Administradores</div><div class="v" style="color:var(--gold-deep)">${admins}</div><div class="d">com acesso total</div></div>
+    <div class="stat"><div class="k">Ativos</div><div class="v">${ativos}</div><div class="d">assinaturas</div></div>
+    <div class="stat"><div class="k">Novos hoje</div><div class="v">6</div><div class="d">cadastros</div></div>
+  </div>
+  <div class="toolbar">
+    <div class="searchbox" id="user-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar por nome, e-mail ou plano…" oninput="filterUsers()"></div>
+    <select class="fld" id="user-role" style="max-width:190px" onchange="filterUsers()"><option value="">Todos os papéis</option><option value="admin">Administradores</option><option value="editor">Editores</option><option value="aluno">Alunos</option></select>
+    <span class="chip" id="user-count">${total} usuários</span>
+  </div>
+  <div class="card" id="bulk-bar" ${bulkSel.size===0?'hidden':''} style="margin-bottom:12px;display:flex;align-items:center;gap:12px;padding:12px 16px">
+    <span id="bulk-count" style="font-weight:600">${bulkSel.size} selecionado${bulkSel.size===1?'':'s'}</span>
+    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="bulkAction('ativo')">Ativar</button>
+      <button class="btn btn-ghost btn-sm" onclick="bulkAction('inativo')">Desativar</button>
+      <button class="btn btn-danger btn-sm" onclick="bulkAction('delete')">Excluir</button>
+      <button class="btn btn-ghost btn-sm" onclick="bulkClear()">Limpar</button>
+    </div>
+  </div>
+  <div class="tblwrap"><table class="tbl"><thead><tr>
+    <th style="width:36px"><input type="checkbox" onclick="bulkAll(this)" style="width:15px;height:15px;accent-color:var(--gold)"></th>
+    <th onclick="sortUsers('name')" style="cursor:pointer">Usuário${sc('name')}</th>
+    <th onclick="sortUsers('role')" style="cursor:pointer">Acesso${sc('role')}</th>
+    <th onclick="sortUsers('plan')" style="cursor:pointer">Plano${sc('plan')}</th>
+    <th onclick="sortUsers('progress')" style="cursor:pointer">Progresso${sc('progress')}</th>
+    <th>Último acesso</th>
+    <th onclick="sortUsers('status')" style="cursor:pointer">Status${sc('status')}</th>
+    <th></th></tr></thead><tbody id="user-rows">${rows}</tbody></table></div>`;
+}
+function filterUsers(){const q=($('#user-search input')?$('#user-search input').value:'').toLowerCase().trim(),role=$('#user-role')?$('#user-role').value:'';let n=0;$$('#user-rows .urow').forEach(tr=>{const show=(!q||tr.getAttribute('data-s').includes(q))&&(!role||tr.getAttribute('data-role')===role);tr.style.display=show?'':'none';if(show)n++;});const c=$('#user-count');if(c)c.textContent=n+(n===1?' usuário':' usuários');}
+function viewAluno(id){
+  const s=db.students.find(s=>s.id===id);if(!s)return notFound('Usuário não encontrado');
+  const pl=db.plans.find(p=>p.id===s.plan);
+  const hist=studentSims(s),courses=studentCoursesProg(s),pays=studentPayments(s);
+  const media=hist.length?Math.round(hist.reduce((a,x)=>a+x.nota,0)/hist.length):0;
+  return `
+  <div class="crumb"><a href="#/usuarios">Usuários</a> <span class="sep">›</span> <span style="color:var(--text)">${esc(s.name)}</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Usuário ${roleBadge(s.role)} ${s.status==='ativo'?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</div><h1>${esc(s.name)}</h1><p>${esc(s.email)} · ${esc(s.phone||'—')}</p></div>
+    <div class="ph-actions"><button class="btn ${s.role==='admin'?'btn-ghost':'btn-gold'}" onclick="toggleAdmin('${s.id}')">${s.role==='admin'?'Remover admin':'Tornar admin'}</button><button class="btn btn-ghost" onclick="editStudent('${s.id}')">${EDIT_IC} Editar</button><button class="btn btn-danger" onclick="delStudent('${s.id}',true)">${DEL_IC} Excluir</button></div></div>
+  <div class="stat-grid" style="margin-bottom:18px">
+    <div class="stat"><div class="k">Progresso</div><div class="v">${s.progress||0}%</div><div class="d">do conteúdo</div></div>
+    <div class="stat"><div class="k">Simulados feitos</div><div class="v">${s.sims||0}</div><div class="d">total</div></div>
+    <div class="stat"><div class="k">Média nos simulados</div><div class="v" style="color:${notaColor(media)}">${media}%</div><div class="d">acerto médio</div></div>
+    <div class="stat"><div class="k">Plano</div><div class="v" style="font-size:19px">${esc(planName(s.plan))}</div><div class="d">${pl?esc(pl.price):''}</div></div>
+  </div>
+  <div class="detail">
+    <div class="card">
+      <div class="sec-title">Cadastro</div>
+      <div class="dfields">
+        <div class="drow"><span class="dk">Nome</span><span class="dv">${esc(s.name)}</span></div>
+        <div class="drow"><span class="dk">E-mail</span><span class="dv">${esc(s.email)}</span></div>
+        <div class="drow"><span class="dk">Telefone</span><span class="dv">${esc(s.phone||'—')}</span></div>
+        <div class="drow"><span class="dk">CPF</span><span class="dv">${esc(s.cpf||'—')}</span></div>
+        <div class="drow"><span class="dk">Origem</span><span class="dv">${esc(s.origem||'—')}</span></div>
+        <div class="drow"><span class="dk">Cadastro</span><span class="dv">${esc(s.joined||'—')}</span></div>
+        <div class="drow"><span class="dk">Último acesso</span><span class="dv">${esc(s.last||'—')}</span></div>
+        <div class="drow"><span class="dk">Status</span><span class="dv">${s.status==='ativo'?'Ativo':'Inativo'}</span></div>
+        <div class="drow"><span class="dk">Papel / acesso</span><span class="dv">${roleName(s.role)}</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-title">Progresso nos cursos</div>
+      ${courses.map(c=>`<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="color:var(--text)">${esc(c.title)}</span><span class="mono" style="color:var(--muted)">${c.prog}%</span></div><div class="progbar" style="height:7px"><i style="width:${c.prog}%"></i></div></div>`).join('')}
+    </div>
+  </div>
+  <div class="sec-title" style="margin:22px 0 14px">Histórico de simulados</div>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Simulado</th><th>Nota</th><th>Acertos</th><th>Data</th></tr></thead><tbody>
+    ${hist.map(x=>`<tr><td class="t-title">${esc(x.sim)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(x.nota)}">${x.nota}%</span></td><td class="mono">${x.acertos}/60</td><td class="t-sub mono">${esc(x.data)}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="sec-title" style="margin:22px 0 14px">Pagamentos</div>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Data</th><th>Plano</th><th>Valor</th><th>Status</th></tr></thead><tbody>
+    ${pays.map(p=>`<tr><td class="t-sub mono">${esc(p.data)}</td><td>${esc(p.plano)}</td><td style="color:var(--green);font-weight:600">${esc(p.valor)}</td><td><span class="badge b-on">${esc(p.status)}</span></td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ============ PLANOS ============ */
+function viewPlanos(){
+  const cards=db.plans.map((p,pi)=>`
+    <div class="ecard"><div class="meta">Plano</div><h3>${esc(p.name)}</h3>
+      <div style="font-family:'Sora';font-weight:700;font-size:22px;color:var(--gold-deep);margin:8px 0">${esc(p.price)}</div>
+      ${(p.benefits||[]).map(b=>`<div class="lts" style="padding:3px 0">✓ ${esc(b)}</div>`).join('')}
+      <div class="acts" style="margin-top:16px"><button class="btn btn-ghost btn-sm" onclick="editPlan('${p.id}')">${EDIT_IC} Editar</button><button class="btn-icon" title="Subir" ${pi===0?'disabled':''} onclick="movePlan(${pi},-1)">↑</button><button class="btn-icon" title="Descer" ${pi===(db.plans.length-1)?'disabled':''} onclick="movePlan(${pi},1)">↓</button><button class="btn btn-danger btn-sm" onclick="delPlan('${p.id}')">${DEL_IC}</button></div>
+    </div>`).join('');
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Gestão</div><h1>Planos</h1><p>Defina os planos de assinatura, preços e benefícios (também exibidos no site).</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editPlan()">+ Novo plano</button></div></div>
+  <div class="cardgrid">${cards}</div>`;
+}
+
+function emptyState(ic,t,p,btn,act){return `<div class="empty"><div class="ei">${ic}</div><h3>${t}</h3><p>${p}</p>${btn?`<button class="btn btn-gold" onclick="${act}">${btn}</button>`:''}</div>`;}
+function notFound(m){return `<div class="empty"><div class="ei">∅</div><h3>${m}</h3><p>O item pode ter sido removido.</p><button class="btn btn-ghost" onclick="history.back()">Voltar</button></div>`;}
+
+/* ============ PREVIEW MODAL ============ */
+function openPreview(title,html){$('#pv-title').textContent=title;$('#pv-body').innerHTML=html;$('#pv-scrim').hidden=false;requestAnimationFrame(()=>$('#pv-scrim').classList.add('show'));}
+function closePreview(){$('#pv-scrim').classList.remove('show');setTimeout(()=>{$('#pv-scrim').hidden=true;$('#pv-body').innerHTML='';},260);}
+function previewAula(cid,mi,li){
+  const c=db.courses.find(c=>c.id===cid);const l=c.modules[mi].lessons[li];
+  const vid=l.video&&l.video.url?`<video controls src="${l.video.url}"></video>`:`<div class="pbtn"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><div class="pph">${l.video?esc(l.video.name):'Vídeo não enviado'}</div>`;
+  const aud=l.audio?`<div class="audio-cta"><span class="ai"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div class="at">Gabarito comentado em áudio</div><div class="as">${l.audio.url?'Toque para ouvir':esc(l.audio.name)}</div></div></div>`+(l.audio.url?`<div class="upprev" style="margin-top:8px"><audio controls src="${l.audio.url}"></audio></div>`:''):'';
+  openPreview(l.title,`
+    <div class="player">${vid}</div>
+    <h2 style="font-size:20px;margin:16px 0 6px">${esc(l.title)}</h2>
+    <div class="lts" style="margin-bottom:12px"><span class="chip">${l.duration||0} min</span><span class="chip">${l.status==='publicado'?'Publicado':'Rascunho'}</span></div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.6">${esc(l.desc||'Sem descrição.')}</p>
+    ${aud}`);
+}
+function previewSimulado(sid){
+  const s=db.simulados.find(s=>s.id===sid);
+  const qs=(s.questions||[]).map((q,qi)=>`
+    <div class="pvq" id="pvq-${qi}">
+      <div class="qn">Questão ${qi+1} · ${esc(q.theme||'')}</div>
+      <div class="qs">${esc(q.stmt)}</div>
+      ${(q.options||[]).map((o,oi)=>`<div class="qo" data-gab-${qi}="${oi}"><span class="ql">${String.fromCharCode(65+oi)}</span><span>${esc(o)}</span></div>`).join('')}
+      <div class="qcom" id="gab-${qi}" hidden><b>Resposta:</b> ${String.fromCharCode(65+(q.correct||0))}. ${esc(q.comment||'')}${q.audio?`<div style="margin-top:9px"><span class="chip">♪ Áudio de explicação${q.audio.url?'':' · '+esc(q.audio.name)}</span>${q.audio.url?`<div class="upprev" style="margin-top:8px"><audio controls src="${q.audio.url}"></audio></div>`:''}</div>`:''}</div>
+    </div>`).join('')||'<p style="color:var(--muted)">Sem questões ainda.</p>';
+  openPreview(s.title,`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap"><div class="lts"><span class="chip">${esc(s.cert)}</span><span class="chip">${(s.questions||[]).length} questões</span></div><button class="btn btn-ghost btn-sm" onclick="toggleGabarito()">Mostrar/ocultar gabarito</button></div>${qs}`);
+}
+function toggleGabarito(){$$('#pv-body .qcom').forEach(el=>el.hidden=!el.hidden);
+  $$('#pv-body .pvq').forEach((qz,qi)=>{const g=$('#gab-'+qi);if(!g)return;$$('.qo',qz).forEach(o=>{const val=+o.getAttribute('data-gab-'+qi);o.classList.remove('ok');});});
+  // highlight correct when showing
+  const showing=$('#pv-body .qcom')&&!$('#pv-body .qcom').hidden;
+  const s=_pvSim; if(!s)return;
+  $$('#pv-body .pvq').forEach((qz,qi)=>{const q=s.questions[qi];if(!q)return;const opts=$$('.qo',qz);opts.forEach((o,oi)=>o.classList.toggle('ok',showing&&oi===q.correct));});
+}
+let _pvSim=null;
+function previewCurso(cid){
+  const c=db.courses.find(c=>c.id===cid);
+  const mods=(c.modules||[]).map((m,mi)=>`<div style="margin-bottom:14px"><div style="font-weight:600;color:var(--head);margin-bottom:8px">${mi+1}. ${esc(m.title)}</div>${(m.lessons||[]).map(l=>`<div class="lts" style="padding:7px 0;border-bottom:1px solid var(--border-soft)"><span>▶</span><span style="color:var(--text)">${esc(l.title)}</span><span style="margin-left:auto">${l.duration||0} min</span></div>`).join('')}</div>`).join('');
+  openPreview(c.title,`
+    <div style="font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:8px">${esc(c.code||'')} · ${esc(c.cert||'')}</div>
+    <h2 style="font-size:22px;margin-bottom:8px">${esc(c.title)}</h2>
+    <p style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:18px">${esc(c.desc||'')}</p>
+    <div class="lts" style="margin-bottom:18px"><span class="chip">${(c.modules||[]).length} módulos</span><span class="chip">${countLessons(c)} aulas</span><span class="chip">${courseMinutes(c)} min</span></div>
+    ${mods}`);
+}
+/* patch previewSimulado to set _pvSim */
+const _origPreviewSim=previewSimulado;
+previewSimulado=function(sid){_pvSim=db.simulados.find(s=>s.id===sid);_origPreviewSim(sid);};
+
+/* ============ CSV ============ */
+function csvTemplate(){
+  const rows=[['enunciado','alternativa_a','alternativa_b','alternativa_c','alternativa_d','correta','comentario','tema','dificuldade'],
+    ['A suitability serve para:','Vender mais','Adequar produto ao perfil','Garantir lucro','Eliminar risco','B','Adequação ao perfil do cliente.','Ética','fácil']];
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='modelo-questoes.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+let _csvSid=null,_csvName='';
+function importCSV(sid){_csvSid=sid;const inp=$('#csv-input');inp.value='';inp.click();}
+function importCSVNew(){_csvSid='__new__';const inp=$('#csv-input');inp.value='';inp.click();}
+$('#csv-input').addEventListener('change',e=>{const f=e.target.files[0];if(!f||!_csvSid)return;_csvName=f.name;const rd=new FileReader();rd.onload=()=>{const text=String(rd.result);if(_csvSid==='__new__')doImportCSVNew(_csvName,text);else doImportCSV(_csvSid,text);};rd.readAsText(f);});
+function parseCSV(text){
+  const rows=[];let row=[],cur='',q=false;text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+    else{if(c==='"')q=true;else if(c===','){row.push(cur);cur='';}else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}else cur+=c;}
+  }
+  if(cur!==''||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(r=>r.some(x=>(x||'').trim()!==''));
+}
+function csvToQuestions(text){
+  const rows=parseCSV(text);if(!rows.length)return [];
+  const first=rows[0].map(h=>h.trim().toLowerCase());
+  const hasHeader=first.includes('enunciado')||first.includes('alternativa_a');
+  const col=(name,def)=>{const i=first.indexOf(name);return i>=0?i:def;};
+  const map=hasHeader?{stmt:col('enunciado',0),a:col('alternativa_a',1),b:col('alternativa_b',2),c:col('alternativa_c',3),d:col('alternativa_d',4),correct:col('correta',5),comment:col('comentario',6),theme:col('tema',7),diff:col('dificuldade',8)}
+    :{stmt:0,a:1,b:2,c:3,d:4,correct:5,comment:6,theme:7,diff:8};
+  const out=[];
+  for(let r=hasHeader?1:0;r<rows.length;r++){const row=rows[r];const stmt=(row[map.stmt]||'').trim();if(!stmt)continue;
+    const opts=[row[map.a],row[map.b],row[map.c],row[map.d]].map(x=>(x||'').trim()).filter(Boolean);
+    if(opts.length<2)continue;
+    let corr=(row[map.correct]||'A').trim().toUpperCase();let ci=/^[0-9]+$/.test(corr)?(parseInt(corr,10)-1):'ABCDE'.indexOf(corr);
+    if(ci<0||ci>=opts.length)ci=0;
+    out.push({id:uid('q'),stmt,options:opts,correct:ci,comment:(row[map.comment]||'').trim(),theme:(row[map.theme]||'').trim(),difficulty:(row[map.diff]||'média').trim().toLowerCase()});
+  }
+  return out;
+}
+function doImportCSV(sid,text){const qs=csvToQuestions(text);if(!qs.length){toast('Nenhuma questão válida no CSV.','err');return;}const s=db.simulados.find(s=>s.id===sid);if(!s)return;s.questions=(s.questions||[]).concat(qs);save();toast(qs.length+(qs.length===1?' questão importada.':' questões importadas.'));router();}
+function doImportCSVNew(fname,text){const qs=csvToQuestions(text);if(!qs.length){toast('Nenhuma questão válida no CSV.','err');return;}const nm='Simulado '+String(fname||'CSV').replace(/\.csv$/i,'').replace(/[-_]+/g,' ').trim();const ns={id:uid('sim'),cert:'CNPI',title:nm,status:'rascunho',desc:qs.length+' questões importadas por CSV.',questions:qs};db.simulados.push(ns);save();toast('Simulado criado com '+qs.length+' questões.');location.hash='#/simulado/'+ns.id;router();}
+
+/* ============ DRAWER + FORM ENGINE ============ */
+let drawerFiles={};let drawerOptions=[];let drawerCorrect=0;let onSaveFn=null;const _fspecs={};
+function openDrawer(title,fields,values,onSave){
+  drawerFiles={};drawerOptions=[];drawerCorrect=0;onSaveFn=onSave;values=values||{};
+  $('#dr-title').textContent=title;
+  $('#dr-body').innerHTML=fields.map(f=>buildField(f,values[f.key])).join('');
+  fields.filter(f=>f.type==='file').forEach(f=>{ _fspecs[f.key]=f; drawerFiles[f.key]=values[f.key]!==undefined?values[f.key]:null; renderUpload(f); });
+  fields.filter(f=>f.type==='options').forEach(()=>{drawerOptions=(values.options||['','','','']).slice();drawerCorrect=values.correct||0;renderOptions();});
+  $('#dr-save').onclick=()=>{const data=collect(fields);if(data===false)return;onSaveFn(data);};
+  $('#scrim').hidden=false;$('#drawer').hidden=false;requestAnimationFrame(()=>{$('#scrim').classList.add('show');$('#drawer').classList.add('show');});
+  setTimeout(()=>{const fi=$('#dr-body .fld');if(fi)fi.focus();},260);
+}
+function closeDrawer(){$('#scrim').classList.remove('show');$('#drawer').classList.remove('show');setTimeout(()=>{$('#scrim').hidden=true;$('#drawer').hidden=true;$('#dr-body').innerHTML='';},280);}
+function buildField(f,val){
+  if(f.type==='file')return `<div class="grp"><label>${f.label}</label><div id="wrap-${f.key}"></div>${f.hint?`<div class="hint">${f.hint}</div>`:''}</div>`;
+  if(f.type==='options')return `<div class="grp"><label>${f.label}</label><div id="opts"></div><button type="button" class="btn btn-ghost btn-sm" onclick="addOption()" style="margin-top:4px">+ Alternativa</button><div class="hint">Clique no círculo à esquerda para marcar a correta.</div></div>`;
+  if(f.type==='multiselect'){const sel=val||[];return `<div class="grp"><label>${f.label}</label><div class="msel">${(f.options||[]).map(o=>`<label><input type="checkbox" data-msel="${f.key}" value="${o[0]}" ${sel.includes(o[0])?'checked':''}> ${esc(o[1])}</label>`).join('')||'<span class="hint">Nenhuma opção disponível.</span>'}</div></div>`;}
+  if(f.type==='select')return `<div class="grp"><label>${f.label}</label><select class="fld" data-k="${f.key}">${(f.options||[]).map(o=>`<option value="${o[0]}" ${String(val)===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')}</select></div>`;
+  if(f.type==='textarea')return `<div class="grp"><label>${f.label}</label><textarea class="fld" data-k="${f.key}">${esc(val)}</textarea></div>`;
+  if(f.type==='lines'){const v=Array.isArray(val)?val.join('\n'):(val||'');return `<div class="grp"><label>${f.label}</label><textarea class="fld" data-k="${f.key}" data-lines="1">${esc(v)}</textarea><div class="hint">Um item por linha.</div></div>`;}
+  if(f.type==='color')return `<div class="grp"><label>${f.label}</label><input class="fld" type="color" data-k="${f.key}" value="${val||'#D4A437'}"></div>`;
+  if(f.type==='number')return `<div class="grp"><label>${f.label}</label><input class="fld" type="number" data-k="${f.key}" value="${val==null?'':val}" min="0"></div>`;
+  return `<div class="grp"><label>${f.label}</label><input class="fld" type="text" data-k="${f.key}" value="${esc(val)}"></div>`;
+}
+function collect(fields){
+  const out={};
+  for(const f of fields){
+    if(f.type==='file'){out[f.key]=drawerFiles[f.key]!==undefined?drawerFiles[f.key]:null;continue;}
+    if(f.type==='options'){const opts=drawerOptions.map(o=>(o||'').trim()).filter(Boolean);if(opts.length<2){toast('Adicione ao menos 2 alternativas.','err');return false;}out.options=drawerOptions.slice();out.correct=Math.min(drawerCorrect,drawerOptions.length-1);continue;}
+    if(f.type==='multiselect'){out[f.key]=$$(`[data-msel="${f.key}"]:checked`).map(c=>c.value);continue;}
+    const el=$(`[data-k="${f.key}"]`);let v=el?el.value:'';
+    if(f.type==='number')v=v===''?0:Number(v);
+    if(f.type==='lines')v=v.split('\n').map(x=>x.trim()).filter(Boolean);
+    if(f.req&&(v===''||v==null)){toast('Preencha: '+f.label,'err');if(el)el.focus();return false;}
+    out[f.key]=v;
+  }
+  return out;
+}
+function renderOptions(){const c=$('#opts');if(!c)return;c.innerHTML=drawerOptions.map((o,i)=>`
+  <div class="opt"><button type="button" class="ok ${i===drawerCorrect?'on':''}" onclick="setCorrect(${i})">${String.fromCharCode(65+i)}</button>
+  <input class="fld" value="${esc(o)}" oninput="drawerOptions[${i}]=this.value"><button type="button" class="ox" onclick="rmOption(${i})">✕</button></div>`).join('');}
+function addOption(){drawerOptions.push('');renderOptions();}
+function rmOption(i){if(drawerOptions.length<=2){toast('Mínimo de 2 alternativas.','err');return;}drawerOptions.splice(i,1);if(drawerCorrect>=drawerOptions.length)drawerCorrect=0;renderOptions();}
+function setCorrect(i){drawerCorrect=i;renderOptions();}
+function renderUpload(f){
+  const wrap=$('#wrap-'+f.key);if(!wrap)return;const file=drawerFiles[f.key];
+  if(!file){
+    wrap.innerHTML=`<div class="upz" id="upz-${f.key}"><div class="upi">${f.accept&&f.accept.includes('audio')?'♪':'▶'}</div><div class="upt">Arraste um arquivo ou <b style="color:var(--gold-deep)">clique para escolher</b></div><div class="ups">${f.accept&&f.accept.includes('audio')?'MP3, WAV, M4A':'MP4, MOV, WEBM'}</div></div>`;
+    const zone=$('#upz-'+f.key);
+    zone.onclick=()=>{const inp=document.createElement('input');inp.type='file';inp.accept=f.accept||'';inp.onchange=e=>{if(e.target.files[0])setFile(f,e.target.files[0]);};inp.click();};
+    zone.ondragover=e=>{e.preventDefault();zone.classList.add('drag');};
+    zone.ondragleave=()=>zone.classList.remove('drag');
+    zone.ondrop=e=>{e.preventDefault();zone.classList.remove('drag');if(e.dataTransfer.files[0])setFile(f,e.dataTransfer.files[0]);};
+  }else{
+    const isAudio=(file.type||'').includes('audio');let prev='';
+    if(file.url)prev=isAudio?`<div class="upprev"><audio controls src="${file.url}"></audio></div>`:`<div class="upprev"><video controls src="${file.url}"></video></div>`;
+    wrap.innerHTML=`<div class="upfile"><span class="fi">${isAudio?'♪':'▶'}</span><div class="fn"><b>${esc(file.name)}</b><span>${fmtSize(file.size)} · ${esc(file.type||'arquivo')}</span></div><button type="button" class="fx" onclick="clearFile('${f.key}')">✕</button></div>${prev}${!file.url?`<div class="warnbox">Arquivo registrado. No protótipo o arquivo em si não é armazenado — reanexe se recarregar a página.</div>`:''}`;
+  }
+}
+function setFile(f,file){
+  const url=URL.createObjectURL(file);
+  drawerFiles[f.key]={name:file.name,size:file.size,type:file.type,url};_fspecs[f.key]=f;
+  const wrap=$('#wrap-'+f.key),isAudio=(file.type||'').includes('audio');
+  if(wrap){
+    wrap.innerHTML=`<div class="upfile"><span class="fi">${isAudio?'♪':'▶'}</span><div class="fn"><b>${esc(file.name)}</b><span>Enviando… ${fmtSize(file.size)}</span><div class="progbar" style="margin-top:8px"><i id="upbar-${f.key}" style="width:8%;transition:width .7s ease"></i></div></div></div>`;
+    requestAnimationFrame(()=>{const bar=$('#upbar-'+f.key);if(bar)bar.style.width='100%';});
+    setTimeout(()=>renderUpload(f),820);
+  }else{renderUpload(f);}
+}
+function clearFile(key){drawerFiles[key]=null;renderUpload(_fspecs[key]||{key,accept:''});}
+
+/* ============ CRUD ============ */
+const CERT_OPTS=[['CNPI','CNPI'],['CGA/CGE','CGA/CGE'],['Livre','Livre']];
+const STATUS_OPTS=[['publicado','Publicado'],['rascunho','Rascunho']];
+function editCourse(id){
+  const c=id?db.courses.find(c=>c.id===id):null;
+  openDrawer(c?'Editar curso':'Novo curso',[
+    {key:'title',label:'Título do curso',type:'text',req:true},
+    {key:'code',label:'Código (ex.: CNPI-CB)',type:'text'},
+    {key:'cert',label:'Certificação',type:'select',options:CERT_OPTS},
+    {key:'color',label:'Cor',type:'color'},
+    {key:'desc',label:'Descrição',type:'textarea'},
+    {key:'status',label:'Status',type:'select',options:STATUS_OPTS}
+  ],c||{color:'#D4A437',status:'rascunho',cert:'CNPI'},d=>{
+    if(c){Object.assign(c,d);}else{const nc={id:uid('c'),modules:[],...d};db.courses.push(nc);}
+    save();closeDrawer();toast('Curso salvo.');router();
+  });
+}
+function addModule(cid){const c=db.courses.find(c=>c.id===cid);openDrawer('Novo módulo',[{key:'title',label:'Nome do módulo',type:'text',req:true}],{},d=>{c.modules=c.modules||[];c.modules.push({title:d.title,lessons:[]});save();closeDrawer();toast('Módulo criado.');router();});}
+function editModule(cid,mi){const c=db.courses.find(c=>c.id===cid);const m=c.modules[mi];openDrawer('Editar módulo',[{key:'title',label:'Nome do módulo',type:'text',req:true}],m,d=>{m.title=d.title;save();closeDrawer();toast('Módulo atualizado.');router();});}
+function delModule(cid,mi){if(!confirm('Excluir este módulo e suas aulas?'))return;const c=db.courses.find(c=>c.id===cid);c.modules.splice(mi,1);save();toast('Módulo excluído.');router();}
+function editLesson(cid,mi,li){
+  const c=db.courses.find(c=>c.id===cid);const m=c.modules[mi];const l=(li!=null&&!isNaN(li))?m.lessons[li]:null;
+  openDrawer(l?'Editar aula':'Nova aula',[
+    {key:'title',label:'Título da aula',type:'text',req:true},
+    {key:'duration',label:'Duração (minutos)',type:'number'},
+    {key:'desc',label:'Descrição',type:'textarea'},
+    {key:'video',label:'Vídeo da aula',type:'file',accept:'video/*',hint:'O vídeo principal que o aluno assiste.'},
+    {key:'audio',label:'Áudio do gabarito comentado',type:'file',accept:'audio/*',hint:'Explicação em áudio para ouvir no trânsito/academia.'},
+    {key:'status',label:'Status',type:'select',options:STATUS_OPTS}
+  ],l||{status:'rascunho'},d=>{
+    if(l){Object.assign(l,d);}else{m.lessons=m.lessons||[];m.lessons.push({id:uid('l'),...d});}
+    save();closeDrawer();toast('Aula salva.');router();
+  });
+}
+function delLesson(cid,mi,li,back){if(!confirm('Excluir esta aula?'))return;const c=db.courses.find(c=>c.id===cid);c.modules[mi].lessons.splice(li,1);save();toast('Aula excluída.');if(back)location.hash='#/curso/'+cid;else router();}
+function editSimulado(id){
+  const s=id?db.simulados.find(s=>s.id===id):null;
+  openDrawer(s?'Editar simulado':'Novo simulado',[
+    {key:'title',label:'Título do simulado',type:'text',req:true},
+    {key:'cert',label:'Certificação',type:'select',options:CERT_OPTS},
+    {key:'desc',label:'Descrição',type:'textarea'},
+    {key:'duracao',label:'Duração (minutos)',type:'number'},
+    {key:'notaCorte',label:'Nota de corte (%)',type:'number'},
+    {key:'numQuestoes',label:'Nº de questões sorteadas (0 = todas)',type:'number'},
+    {key:'tentativas',label:'Tentativas permitidas (0 = ilimitado)',type:'number'},
+    {key:'mostrarGabarito',label:'Mostrar gabarito',type:'select',options:[['depois','Ao finalizar a prova'],['imediato','Após cada questão'],['nunca','Nunca']]},
+    {key:'embaralhar',label:'Embaralhar questões',type:'select',options:[['sim','Sim'],['nao','Não']]},
+    {key:'embaralharAlt',label:'Embaralhar alternativas',type:'select',options:[['nao','Não'],['sim','Sim']]},
+    {key:'status',label:'Status',type:'select',options:STATUS_OPTS}
+  ],s||{cert:'CNPI',status:'rascunho',duracao:60,notaCorte:70,numQuestoes:0,tentativas:0,mostrarGabarito:'depois',embaralhar:'sim',embaralharAlt:'nao'},d=>{
+    if(s){Object.assign(s,d);}else{const ns={id:uid('sim'),questions:[],...d};db.simulados.push(ns);}
+    save();closeDrawer();toast('Simulado salvo.');router();
+  });
+}
+function delSimulado(id){if(!confirm('Excluir este simulado e suas questões?'))return;db.simulados=db.simulados.filter(s=>s.id!==id);save();toast('Simulado excluído.');location.hash='#/simulados';router();}
+function editQuestion(sid,qi){
+  const s=db.simulados.find(s=>s.id===sid);const q=(qi!=null&&!isNaN(qi))?s.questions[qi]:null;
+  openDrawer(q?'Editar questão':'Nova questão',[
+    {key:'stmt',label:'Enunciado',type:'textarea',req:true},
+    {key:'options',label:'Alternativas',type:'options'},
+    {key:'comment',label:'Comentário do gabarito (texto)',type:'textarea'},
+    {key:'audio',label:'Áudio de explicação da questão',type:'file',accept:'audio/*',hint:'Gabarito comentado em áudio — o aluno ouve a explicação da resposta.'},
+    {key:'theme',label:'Tema',type:'text'},
+    {key:'difficulty',label:'Dificuldade',type:'select',options:[['fácil','Fácil'],['média','Média'],['difícil','Difícil']]}
+  ],q||{options:['','','',''],correct:0,difficulty:'média'},d=>{
+    s.questions=s.questions||[];if(q){Object.assign(q,d);}else{s.questions.push({id:uid('q'),...d});}
+    save();closeDrawer();toast('Questão salva.');router();
+  });
+}
+function delQuestion(sid,qi){if(!confirm('Excluir esta questão?'))return;const s=db.simulados.find(s=>s.id===sid);s.questions.splice(qi,1);save();toast('Questão excluída.');router();}
+function moveQuestion(sid,qi,dir){const s=db.simulados.find(s=>s.id===sid);if(!s)return;const j=qi+dir;if(j<0||j>=s.questions.length)return;const t=s.questions[qi];s.questions[qi]=s.questions[j];s.questions[j]=t;save();router();}
+function editTrilha(id){
+  const t=id?db.trilhas.find(t=>t.id===id):null;
+  openDrawer(t?'Editar trilha':'Nova trilha',[
+    {key:'name',label:'Nome da trilha',type:'text',req:true},
+    {key:'eye',label:'Etiqueta (ex.: Certificação)',type:'text'},
+    {key:'ico',label:'Ícone (1 caractere)',type:'text'},
+    {key:'color',label:'Cor',type:'color'},
+    {key:'desc',label:'Descrição',type:'textarea'},
+    {key:'courses',label:'Cursos incluídos',type:'multiselect',options:db.courses.map(c=>[c.id,c.title])}
+  ],t||{color:'#D4A437',ico:'◆'},d=>{
+    if(t){Object.assign(t,d);}else{db.trilhas.push({id:uid('tr'),...d});}
+    save();closeDrawer();toast('Trilha salva.');router();
+  });
+}
+function delTrilha(id,back){if(!confirm('Excluir esta trilha?'))return;db.trilhas=db.trilhas.filter(t=>t.id!==id);save();toast('Trilha excluída.');if(back)location.hash='#/trilhas';else router();}
+function editStudent(id){
+  const s=id?db.students.find(s=>s.id===id):null;
+  openDrawer(s?'Editar usuário':'Novo usuário',[
+    {key:'name',label:'Nome',type:'text',req:true},
+    {key:'email',label:'E-mail',type:'text',req:true},
+    {key:'phone',label:'Telefone',type:'text'},
+    {key:'cpf',label:'CPF',type:'text'},
+    {key:'origem',label:'Origem (como conheceu)',type:'text'},
+    {key:'role',label:'Papel / acesso',type:'select',options:[['aluno','Aluno'],['editor','Editor (edita conteúdo)'],['admin','Administrador (acesso total)']]},
+    {key:'plan',label:'Plano',type:'select',options:db.plans.map(p=>[p.id,p.name])},
+    {key:'progress',label:'Progresso (%)',type:'number'},
+    {key:'status',label:'Status',type:'select',options:[['ativo','Ativo'],['inativo','Inativo']]}
+  ],s||{plan:(db.plans[0]||{}).id,progress:0,status:'ativo',role:'aluno'},d=>{
+    if(s){Object.assign(s,d);}else{db.students.push({id:uid('s'),sims:0,joined:'hoje',last:'agora',...d});}
+    save();closeDrawer();toast('Usuário salvo.');router();
+  });
+}
+function delStudent(id,back){if(!confirm('Excluir este usuário?'))return;db.students=db.students.filter(s=>s.id!==id);save();toast('Usuário excluído.');if(back)location.hash='#/alunos';else router();}
+function toggleAdmin(id){const s=db.students.find(x=>x.id===id);if(!s)return;s.role=(s.role==='admin')?'aluno':'admin';save();toast(s.role==='admin'?s.name+' agora é administrador.':'Acesso admin removido de '+s.name+'.');router();}
+/* ---- publicar / reordenar (interativo) ---- */
+function flipStatus(o){o.status=(o.status==='publicado')?'rascunho':'publicado';return o.status;}
+function togglePubCourse(id){const c=db.courses.find(x=>x.id===id);if(!c)return;toast(flipStatus(c)==='publicado'?'Curso publicado.':'Curso em rascunho.');save();router();}
+function togglePubSim(id){const s=db.simulados.find(x=>x.id===id);if(!s)return;toast(flipStatus(s)==='publicado'?'Simulado publicado.':'Simulado em rascunho.');save();router();}
+function togglePubLesson(cid,mi,li){const c=db.courses.find(x=>x.id===cid);const l=c&&c.modules[mi]&&c.modules[mi].lessons[li];if(!l)return;flipStatus(l);save();toast(l.status==='publicado'?'Aula publicada.':'Aula em rascunho.');router();}
+function moveItem(arr,i,dir){const j=i+dir;if(j<0||j>=arr.length)return false;const t=arr[i];arr[i]=arr[j];arr[j]=t;return true;}
+function moveCourse(i,dir){if(moveItem(db.courses,i,dir)){save();router();}}
+function moveModule(cid,mi,dir){const c=db.courses.find(x=>x.id===cid);if(c&&moveItem(c.modules,mi,dir)){save();router();}}
+function moveLesson(cid,mi,li,dir){const c=db.courses.find(x=>x.id===cid),m=c&&c.modules[mi];if(m&&moveItem(m.lessons,li,dir)){save();router();}}
+function movePlan(i,dir){if(moveItem(db.plans,i,dir)){save();router();}}
+function moveTrilha(i,dir){if(moveItem(db.trilhas,i,dir)){save();router();}}
+/* ---- ordenar + ações em massa (usuários) ---- */
+let usersSort={col:'name',dir:1};
+function sortUsers(col){if(usersSort.col===col)usersSort.dir*=-1;else{usersSort.col=col;usersSort.dir=1;}router();}
+let bulkSel=new Set();
+function toggleBulk(id,el){if(el.checked)bulkSel.add(id);else bulkSel.delete(id);updateBulkBar();}
+function bulkAll(el){$$('#user-rows .urow').forEach(tr=>{if(tr.style.display==='none')return;const cb=tr.querySelector('[data-bulk]');if(!cb)return;cb.checked=el.checked;if(el.checked)bulkSel.add(cb.getAttribute('data-bulk'));else bulkSel.delete(cb.getAttribute('data-bulk'));});updateBulkBar();}
+function updateBulkBar(){const bar=$('#bulk-bar');if(!bar)return;bar.hidden=bulkSel.size===0;const c=$('#bulk-count');if(c)c.textContent=bulkSel.size+' selecionado'+(bulkSel.size===1?'':'s');}
+function bulkClear(){bulkSel.clear();$$('#user-rows [data-bulk]').forEach(c=>c.checked=false);updateBulkBar();}
+function bulkAction(type){const ids=[...bulkSel];if(!ids.length)return;if(type==='delete'){if(!confirm('Excluir '+ids.length+' usuário(s)?'))return;db.students=db.students.filter(s=>!bulkSel.has(s.id));}else{db.students.forEach(s=>{if(bulkSel.has(s.id))s.status=type;});}bulkSel.clear();save();toast(ids.length+' usuário(s) atualizados.');router();}
+function editPlan(id){
+  const p=id?db.plans.find(p=>p.id===id):null;
+  openDrawer(p?'Editar plano':'Novo plano',[
+    {key:'name',label:'Nome do plano',type:'text',req:true},
+    {key:'price',label:'Preço (ex.: R$ 197/mês)',type:'text'},
+    {key:'benefits',label:'Benefícios',type:'lines'}
+  ],p||{},d=>{
+    if(p){Object.assign(p,d);}else{db.plans.push({id:uid('pl'),...d});}
+    save();closeDrawer();toast('Plano salvo.');router();
+  });
+}
+function delPlan(id){if(!confirm('Excluir este plano?'))return;db.plans=db.plans.filter(p=>p.id!==id);save();toast('Plano excluído.');router();}
+
+/* ============ CONTEÚDO (hub) ============ */
+function viewConteudo(){
+  const cards=[
+    {t:'Cursos & aulas',d:`${db.courses.length} cursos · ${totalLessons()} aulas com vídeo e áudio`,h:'#/cursos',ic:'▤',c:'#D4A437'},
+    {t:'Simulados',d:`${db.simulados.length} simulados · ${totalQuestions()} questões · importar CSV`,h:'#/simulados',ic:'✓',c:'#3D8BE0'},
+    {t:'Trilhas',d:`${db.trilhas.length} jornadas de estudo`,h:'#/trilhas',ic:'◈',c:'#2BB673'},
+    {t:'Site (landing)',d:'Textos da página inicial e do professor',h:'#/site',ic:'◑',c:'#E8A33D'}
+  ];
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Conteúdo</h1><p>Tudo que o aluno vê: cursos, aulas, simulados, trilhas e o site.</p></div></div>
+  <div class="cardgrid">${cards.map(x=>`<div class="ecard clk" onclick="location.hash='${x.h}'"><div class="ic" style="background:${x.c}">${x.ic}</div><h3>${x.t}</h3><p>${x.d}</p><div class="acts"><span class="btn btn-ghost btn-sm">Abrir →</span></div></div>`).join('')}</div>`;
+}
+
+/* ============ VENDA ============ */
+function viewVenda(){
+  const trans=[
+    {data:'20/07 15:40',nome:'Lucas Prado',plano:'Completo',valor:'R$ 197',metodo:'Cartão',status:'Pago'},
+    {data:'20/07 12:18',nome:'Ana Beatriz',plano:'Essencial',valor:'R$ 97',metodo:'Pix',status:'Pago'},
+    {data:'20/07 10:05',nome:'Carlos Menezes',plano:'Anual',valor:'R$ 1.970',metodo:'Cartão',status:'Pago'},
+    {data:'19/07 18:22',nome:'Diego Ramos',plano:'Completo',valor:'R$ 197',metodo:'Boleto',status:'Pendente'},
+    {data:'19/07 09:10',nome:'Renata Souza',plano:'Completo',valor:'R$ 197',metodo:'Cartão',status:'Reembolsado'}
+  ];
+  const cupons=[
+    {code:'BEMVINDO10',desc:'10% na primeira compra',usos:142,status:'ativo'},
+    {code:'RETAFINAL',desc:'R$ 50 no plano anual',usos:38,status:'ativo'},
+    {code:'BLACK2025',desc:'30% Black Friday',usos:0,status:'inativo'}
+  ];
+  const receita=[['Essencial',3200],['Completo',7800],['Anual',5900]];
+  const sb=st=>st==='Pago'?'<span class="badge b-on">Pago</span>':(st==='Pendente'?'<span class="badge b-draft">Pendente</span>':'<span class="badge b-off">Reembolsado</span>');
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Venda · Financeiro</div><h1>Venda</h1><p>Assinaturas, transações, receita, cupons e inadimplência.</p></div>
+    <div class="ph-actions"><button class="btn btn-ghost" onclick="toast('Exportação completa disponível com backend.')">Exportar</button><button class="btn btn-gold" onclick="location.hash='#/planos'">Gerenciar planos</button></div></div>
+  <div class="stat-grid">
+    <div class="stat"><div class="k">Receita recorrente</div><div class="v" style="font-size:22px">R$ 12.4k</div><div class="d">MRR estimado</div></div>
+    <div class="stat"><div class="k">Assinantes ativos</div><div class="v">${db.students.filter(s=>s.status==='ativo').length}</div><div class="d">pagantes</div></div>
+    <div class="stat"><div class="k">Vendas hoje</div><div class="v">3</div><div class="d">R$ 2.264</div></div>
+    <div class="stat"><div class="k">Ticket médio</div><div class="v" style="font-size:22px">R$ 231</div><div class="d">por assinatura</div></div>
+    <div class="stat"><div class="k">Inadimplência</div><div class="v" style="color:var(--amber)">4,2%</div><div class="d">boletos vencidos</div></div>
+    <div class="stat"><div class="k">Reembolsos</div><div class="v">2</div><div class="d">este mês</div></div>
+  </div>
+  <div class="sec-title" style="margin-top:6px">Transações recentes</div>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Data</th><th>Cliente</th><th>Plano</th><th>Valor</th><th>Método</th><th>Status</th></tr></thead><tbody>
+    ${trans.map(t=>`<tr><td class="t-sub mono">${esc(t.data)}</td><td class="t-title">${esc(t.nome)}</td><td><span class="chip">${esc(t.plano)}</span></td><td style="font-weight:600">${esc(t.valor)}</td><td class="t-sub">${esc(t.metodo)}</td><td>${sb(t.status)}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="grid2" style="margin-top:22px">
+    <div class="card"><div class="sec-title">Receita por plano (mês)</div>${barChart(receita,v=>'R$ '+v.toLocaleString('pt-BR'))}</div>
+    <div class="card"><div class="sec-title">Cupons de desconto <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="toast('Criação de cupom disponível com backend.')">+ Cupom</button></div>
+      ${cupons.map(c=>`<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt mono">${esc(c.code)}</div><div class="lts"><span>${esc(c.desc)} · ${c.usos} usos</span></div></div>${c.status==='ativo'?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ============ RELATÓRIO ============ */
+function viewRelatorio(){
+  const bars=(data,fmt)=>{const max=Math.max.apply(null,data.map(x=>x[1]).concat([1]));return `<div style="display:flex;flex-direction:column;gap:11px">${data.map(x=>`<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;font-size:13px"><span style="color:var(--text)">${esc(x[0])}</span><span class="mono" style="color:var(--muted)">${fmt?fmt(x[1]):x[1]}</span></div><div class="progbar" style="height:8px"><i style="width:${Math.round(x[1]/max*100)}%"></i></div></div>`).join('')}</div>`;};
+  const money=v=>'R$ '+v.toLocaleString('pt-BR');
+  const semana=[['Seg',9],['Ter',12],['Qua',7],['Qui',14],['Sex',18],['Sáb',22],['Dom',11]];
+  const temas=[['Ética e regulação',88],['Renda fixa',74],['Valuation',66],['Renda variável',61],['Contabilidade',54]];
+  const receita=[['Essencial',3200],['Completo',7800],['Anual',5900]];
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Análises</div><h1>Relatório</h1><p>Desempenho de simulados, alunos e receita.</p></div>
+    <div class="ph-actions"><button class="btn btn-ghost" onclick="toast('Exportação completa fica disponível com backend.')">Exportar</button></div></div>
+  <div class="grid2">
+    <div class="card"><div class="sec-title">Simulados por dia (semana)</div>${bars(semana)}</div>
+    <div class="card"><div class="sec-title">Aprovação por tema</div>${bars(temas,v=>v+'%')}</div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card"><div class="sec-title">Receita por plano (mês)</div>${bars(receita,money)}</div>
+    <div class="card"><div class="sec-title">Resumo do mês</div><div class="dfields">
+      <div class="drow"><span class="dk">Simulados realizados</span><span class="dv">312</span></div>
+      <div class="drow"><span class="dk">Novos alunos</span><span class="dv">48</span></div>
+      <div class="drow"><span class="dk">Aprovação média</span><span class="dv">72%</span></div>
+      <div class="drow"><span class="dk">Receita</span><span class="dv">R$ 16.9k</span></div>
+    </div></div>
+  </div>`;
+}
+
+/* ============ SISTEMA ============ */
+function viewSistema(){
+  const integ=(nome,desc,on)=>`<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt">${esc(nome)}</div><div class="lts"><span>${esc(desc)}</span></div></div>${on?'<span class="badge b-on">Conectado</span>':'<span class="badge b-off">Desligado</span>'}</div>`;
+  return `
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Configurações</div><h1>Sistema</h1><p>Identidade, integrações e dados.</p></div></div>
+  <div class="card siteblock">
+    <div class="sec-title">Identidade & conteúdo do site</div>
+    <p class="hint" style="margin-top:0">Edite os textos e o professor da landing na seção Site.</p>
+    <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="location.hash='#/site'">Abrir editor do site →</button>
+  </div>
+  <div class="card siteblock">
+    <div class="sec-title">Integrações</div>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      ${integ('WhatsApp','Notificações e suporte',true)}
+      ${integ('E-mail (Webmail Hostinger)','Envio transacional',true)}
+      ${integ('Pagamentos','Checkout de assinaturas',false)}
+      ${integ('IA de estudos (ED)','Assistente de estudos',true)}
+    </div>
+    <p class="hint">No protótipo os status são ilustrativos.</p>
+  </div>
+  <div class="card siteblock">
+    <div class="sec-title">Administradores <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="location.hash='#/usuarios'">Gerenciar usuários →</button></div>
+    <p class="hint" style="margin-top:0;margin-bottom:10px">Usuários com acesso total ao painel. Você está logado como <b style="color:var(--head)">admin@economiadodia.com.br</b>.</p>
+    ${db.students.filter(s=>s.role==='admin').map(s=>`<div class="lrow" style="border-radius:10px;cursor:pointer" onclick="location.hash='#/aluno/${s.id}'"><span class="avatar" style="width:32px;height:32px;font-size:11px">${esc((s.name||'?').split(' ').map(p=>p[0]).slice(0,2).join(''))}</span><div class="lt"><div class="ltt">${esc(s.name)}</div><div class="lts"><span>${esc(s.email)}</span></div></div><span class="badge" style="color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd)">Admin</span></div>`).join('')||'<p class="hint">Nenhum administrador definido.</p>'}
+  </div>
+  <div class="card siteblock">
+    <div class="sec-title">Webmail</div>
+    <p class="hint" style="margin-top:0"><a href="https://mail.hostinger.com/?clearSession=true" target="_blank" rel="noopener" style="color:var(--gold-deep);font-weight:600">Abrir Webmail (Hostinger) ↗</a></p>
+  </div>
+  <div class="card siteblock">
+    <div class="sec-title" style="color:var(--red)">Dados do protótipo</div>
+    <p class="hint" style="margin-top:0">Restaura todo o conteúdo de exemplo neste navegador.</p>
+    <button class="btn btn-danger btn-sm" style="margin-top:12px" onclick="resetData()">Restaurar dados de exemplo</button>
+  </div>`;
+}
+
+/* ============ BANCO DE QUESTÕES ============ */
+function viewBanco(){
+  const temas=allTemas(),temaKeys=Object.keys(temas).sort();
+  const rows=(db.questionBank||[]).map((q,i)=>`
+    <tr class="urow" data-bq="${esc((q.stmt+' '+(q.theme||'')).toLowerCase())}" data-tema="${esc(q.theme||'')}" data-dif="${esc(q.difficulty||'')}">
+      <td><div class="t-title">${esc(q.stmt)}</div><div class="t-sub">${(q.options||[]).length} alternativas · correta ${String.fromCharCode(65+(q.correct||0))}</div></td>
+      <td><span class="chip">${esc(q.theme||'—')}</span></td>
+      <td>${diffText(q.difficulty)}</td>
+      <td>${q.audio?'<span class="filei has">♪</span>':'<span class="filei">—</span>'}</td>
+      <td class="rowend"><div class="rowact"><button class="btn btn-ghost btn-sm" onclick="editBankQuestion(${i})">${EDIT_IC} Editar</button><button class="btn btn-danger btn-sm" onclick="delBankQuestion(${i})">${DEL_IC}</button></div></td>
+    </tr>`).join('');
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Banco de questões</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Banco de questões</div><h1>Banco de questões</h1><p>Questões reutilizáveis — adicione-as a qualquer simulado sem recriar.</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editBankQuestion()">+ Nova questão</button></div></div>
+  <div class="stat-grid" style="margin-bottom:18px">
+    <div class="stat"><div class="k">Questões</div><div class="v">${(db.questionBank||[]).length}</div><div class="d">no banco</div></div>
+    <div class="stat"><div class="k">Temas</div><div class="v">${temaKeys.length}</div><div class="d">categorias</div></div>
+    <div class="stat"><div class="k">Com áudio</div><div class="v">${(db.questionBank||[]).filter(q=>q.audio).length}</div><div class="d">explicação gravada</div></div>
+  </div>
+  <div class="card" style="margin-bottom:18px"><div class="sec-title">Temas / categorias</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${temaKeys.map(t=>`<span class="chip">${esc(t)} · ${temas[t]}</span>`).join('')||'<span class="hint">Nenhum tema ainda.</span>'}</div>
+  </div>
+  <div class="toolbar">
+    <div class="searchbox" id="bank-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar questão…" oninput="filterBank()"></div>
+    <select class="fld" id="bank-tema" style="max-width:190px" onchange="filterBank()"><option value="">Todos os temas</option>${temaKeys.map(t=>`<option>${esc(t)}</option>`).join('')}</select>
+    <select class="fld" id="bank-dif" style="max-width:170px" onchange="filterBank()"><option value="">Toda dificuldade</option><option>fácil</option><option>média</option><option>difícil</option></select>
+  </div>
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Questão</th><th>Tema</th><th>Dificuldade</th><th>Áudio</th><th></th></tr></thead><tbody id="bank-rows">${rows}</tbody></table></div>`;
+}
+function filterBank(){const q=($('#bank-search input')?$('#bank-search input').value:'').toLowerCase().trim(),tema=$('#bank-tema')?$('#bank-tema').value:'',dif=$('#bank-dif')?$('#bank-dif').value:'';$$('#bank-rows .urow').forEach(tr=>{const okq=!q||tr.getAttribute('data-bq').includes(q),okt=!tema||tr.getAttribute('data-tema')===tema,okd=!dif||tr.getAttribute('data-dif')===dif;tr.style.display=(okq&&okt&&okd)?'':'none';});}
+function editBankQuestion(i){const q=(i!=null&&!isNaN(i))?db.questionBank[i]:null;
+  openDrawer(q?'Editar questão (banco)':'Nova questão (banco)',[
+    {key:'stmt',label:'Enunciado',type:'textarea',req:true},
+    {key:'options',label:'Alternativas',type:'options'},
+    {key:'comment',label:'Comentário do gabarito',type:'textarea'},
+    {key:'audio',label:'Áudio de explicação',type:'file',accept:'audio/*'},
+    {key:'theme',label:'Tema',type:'text'},
+    {key:'difficulty',label:'Dificuldade',type:'select',options:[['fácil','Fácil'],['média','Média'],['difícil','Difícil']]}
+  ],q||{options:['','','',''],correct:0,difficulty:'média'},d=>{db.questionBank=db.questionBank||[];if(q){Object.assign(q,d);}else{db.questionBank.push({id:uid('q'),...d});}save();closeDrawer();toast('Questão salva no banco.');router();});
+}
+function delBankQuestion(i){if(!confirm('Excluir esta questão do banco?'))return;db.questionBank.splice(i,1);save();toast('Questão excluída.');router();}
+function addFromBank(sid){
+  if(!(db.questionBank||[]).length){toast('Banco de questões vazio. Crie questões no banco primeiro.','err');return;}
+  const rows=db.questionBank.map((q,i)=>`<label style="display:flex;align-items:flex-start;gap:11px;margin-bottom:9px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" data-bq="${i}" style="width:16px;height:16px;margin-top:2px;accent-color:var(--gold)"><div><div style="color:var(--head);font-size:14px">${esc(q.stmt)}</div><div class="lts" style="margin-top:4px"><span class="chip">${esc(q.theme||'—')}</span><span class="chip">${diffText(q.difficulty)}</span></div></div></label>`).join('');
+  openPreview('Adicionar do banco de questões',`<p class="hint" style="margin-top:0;margin-bottom:12px">Selecione as questões para adicionar a este simulado.</p>${rows}<button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="confirmAddFromBank('${sid}')">Adicionar selecionadas</button>`);
+}
+function confirmAddFromBank(sid){const s=db.simulados.find(x=>x.id===sid);const picks=$$('#pv-body [data-bq]:checked').map(c=>+c.getAttribute('data-bq'));if(!picks.length){toast('Selecione ao menos uma questão.','err');return;}picks.forEach(i=>{const q=db.questionBank[i];s.questions.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});});save();closePreview();toast(picks.length+(picks.length===1?' questão adicionada.':' questões adicionadas.'));router();}
+
+/* ============ PROVA (aluno faz o simulado) ============ */
+let exam=null,examTimer=null;
+function startExam(sid){
+  const s=db.simulados.find(x=>x.id===sid);if(!s){toast('Simulado não encontrado.','err');return;}
+  if(!(s.questions||[]).length){toast('Este simulado não tem questões.','err');return;}
+  const cfg=simCfg(s);let order=s.questions.map((q,i)=>i);
+  if(cfg.embaralhar)shuffle(order);
+  if(cfg.numQuestoes>0)order=order.slice(0,cfg.numQuestoes);
+  const optOrder={};order.forEach(qi=>{const opts=s.questions[qi].options.map((_,i)=>i);optOrder[qi]=cfg.embaralharAlt?shuffle(opts):opts;});
+  exam={sid,cfg,order,optOrder,answers:{},marked:{},idx:0,timeLeft:cfg.duracao*60,phase:'intro',result:null};
+  examStop();location.hash='#/prova/'+sid;paintExam();
+}
+function examStop(){if(examTimer){clearInterval(examTimer);examTimer=null;}}
+function paintExam(){const v=$('#view');if(v)v.innerHTML=renderProva();}
+function examBegin(){if(!exam)return;exam.phase='running';examStop();examTimer=setInterval(examTick,1000);paintExam();}
+function examTick(){if(!exam||exam.phase!=='running'){examStop();return;}exam.timeLeft--;const el=$('#exam-clock');if(el){el.textContent=mmss(exam.timeLeft);if(exam.timeLeft<=60)el.style.color='var(--red)';}if(exam.timeLeft<=0){examSubmit(true);}}
+function examSelect(qi,opt){if(!exam)return;exam.answers[qi]=opt;paintExam();}
+function examGoto(i){if(!exam||i<0||i>=exam.order.length)return;exam.idx=i;paintExam();window.scrollTo(0,0);}
+function examMark(qi){if(!exam)return;exam.marked[qi]=!exam.marked[qi];paintExam();}
+function examSubmit(auto){if(!exam)return;if(!auto){const un=exam.order.filter(qi=>exam.answers[qi]==null).length;if(!confirm((un?un+' questão(ões) sem resposta. ':'')+'Finalizar e enviar o simulado?'))return;}
+  examStop();const s=db.simulados.find(x=>x.id===exam.sid);let acertos=0;const porTema={};
+  exam.order.forEach(qi=>{const q=s.questions[qi];const ok=exam.answers[qi]===q.correct;if(ok)acertos++;const t=q.theme||'Geral';porTema[t]=porTema[t]||{ok:0,tot:0};porTema[t].tot++;if(ok)porTema[t].ok++;});
+  const total=exam.order.length,nota=Math.round(acertos/total*100);
+  exam.result={acertos,total,nota,tempo:exam.cfg.duracao*60-exam.timeLeft,porTema,aprovado:nota>=exam.cfg.notaCorte};
+  exam.phase='result';paintExam();window.scrollTo(0,0);
+}
+function examExit(){const sid=exam?exam.sid:'';examStop();exam=null;location.hash=sid?'#/simulado/'+sid:'#/simulados';}
+function renderProva(){if(!exam)return notFound('Nenhuma prova em andamento');const s=db.simulados.find(x=>x.id===exam.sid);if(!s)return notFound('Simulado não encontrado');if(exam.phase==='intro')return provaIntro(s);if(exam.phase==='result')return provaResult(s);return provaRunning(s);}
+function provaIntro(s){const cfg=exam.cfg;return `<div style="max-width:640px;margin:0 auto">
+  <div class="crumb"><a href="#/simulado/${s.id}">${esc(s.title)}</a> <span class="sep">›</span> <span style="color:var(--text)">Prova</span></div>
+  <div class="card" style="text-align:center;padding:36px 30px">
+    <div class="eyebrow" style="justify-content:center">${esc(s.cert)} · Simulado</div>
+    <h1 style="font-size:26px;margin:6px 0 10px">${esc(s.title)}</h1>
+    <p style="color:var(--muted);max-width:460px;margin:0 auto 22px">${esc(s.desc||'')}</p>
+    <div class="stat-grid" style="margin-bottom:22px">
+      <div class="stat"><div class="k">Questões</div><div class="v">${exam.order.length}</div></div>
+      <div class="stat"><div class="k">Tempo</div><div class="v">${cfg.duracao}<span style="font-size:15px"> min</span></div></div>
+      <div class="stat"><div class="k">Nota de corte</div><div class="v">${cfg.notaCorte}%</div></div>
+    </div>
+    <div class="infobox" style="text-align:left;margin-bottom:22px">Você tem <b>${cfg.duracao} minutos</b>. Dá para marcar questões para revisar e navegar livremente. Ao finalizar, você vê a nota${cfg.mostrarGabarito!=='nunca'?' e o gabarito comentado com áudio':''}.</div>
+    <button class="btn btn-gold" style="min-width:220px" onclick="examBegin()">Iniciar prova</button>
+    <div style="margin-top:14px"><a onclick="examExit()" style="color:var(--muted);cursor:pointer;font-size:13px">Cancelar</a></div>
+  </div></div>`;}
+function provaRunning(s){const qi=exam.order[exam.idx],q=s.questions[qi],answered=exam.order.filter(x=>exam.answers[x]!=null).length;
+  return `<div style="max-width:820px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap">
+      <div><div class="eyebrow" style="margin:0">${esc(s.title)}</div><div style="font-size:13px;color:var(--muted)">Questão ${exam.idx+1} de ${exam.order.length} · ${answered} respondidas</div></div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:8px 14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-deep)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="mono" id="exam-clock" style="font-size:15px;font-weight:600">${mmss(exam.timeLeft)}</span></div>
+        <button class="btn btn-gold btn-sm" onclick="examSubmit(false)">Finalizar</button>
+      </div>
+    </div>
+    <div class="progbar" style="margin-bottom:20px"><i style="width:${Math.round((exam.idx+1)/exam.order.length*100)}%"></i></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px"><span class="chip">${esc(q.theme||'Geral')}</span><button class="btn ${exam.marked[qi]?'btn-gold':'btn-ghost'} btn-sm" onclick="examMark(${qi})">${exam.marked[qi]?'★ Marcada':'☆ Marcar p/ revisar'}</button></div>
+      <div style="font-size:17px;font-weight:500;color:var(--head);line-height:1.5;margin-bottom:20px">${esc(q.stmt)}</div>
+      ${exam.optOrder[qi].map((oi,di)=>`<div class="qo ${exam.answers[qi]===oi?'ok':''}" style="cursor:pointer" onclick="examSelect(${qi},${oi})"><span class="ql">${String.fromCharCode(65+di)}</span><span>${esc(q.options[oi])}</span></div>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-ghost" ${exam.idx===0?'disabled':''} onclick="examGoto(${exam.idx-1})">← Anterior</button>
+      <button class="btn btn-ghost" style="margin-left:auto" ${exam.idx===exam.order.length-1?'disabled':''} onclick="examGoto(${exam.idx+1})">Próxima →</button>
+    </div>
+    <div class="sec-title" style="margin:24px 0 12px">Mapa de questões</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${exam.order.map((x,i)=>{const ans=exam.answers[x]!=null,mk=exam.marked[x];return `<button onclick="examGoto(${i})" title="Questão ${i+1}" style="width:38px;height:38px;border-radius:9px;font-family:'IBM Plex Mono';font-size:13px;cursor:pointer;border:1px solid ${i===exam.idx?'var(--gold)':'var(--border)'};background:${mk?'rgba(232,163,61,.18)':(ans?'rgba(43,182,115,.14)':'var(--panel)')};color:${mk?'var(--amber)':(ans?'var(--green)':'var(--muted)')}">${mk?'★':i+1}</button>`;}).join('')}
+    </div>
+    <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--muted)"><span>● <span style="color:var(--green)">respondida</span></span><span>★ <span style="color:var(--amber)">marcada</span></span></div>
+  </div>`;}
+function provaResult(s){const r=exam.result,cfg=exam.cfg,temas=Object.keys(r.porTema);
+  const review=cfg.mostrarGabarito==='nunca'?'':exam.order.map((qi,i)=>{const q=s.questions[qi],ua=exam.answers[qi],ok=ua===q.correct;return `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><span class="chip">Q${i+1} · ${esc(q.theme||'Geral')}</span>${ok?'<span class="badge b-on">Acertou</span>':(ua==null?'<span class="badge b-draft">Em branco</span>':'<span class="badge b-off">Errou</span>')}</div>
+      <div style="font-weight:500;color:var(--head);margin-bottom:12px">${esc(q.stmt)}</div>
+      ${q.options.map((o,oi)=>`<div class="qo ${oi===q.correct?'ok':''}" style="${oi===ua&&!ok?'border-color:rgba(224,83,61,.45);background:rgba(224,83,61,.08)':''}"><span class="ql">${String.fromCharCode(65+oi)}</span><span>${esc(o)}</span>${oi===q.correct?'<span style="margin-left:auto;color:var(--green);font-size:12px">✓ correta</span>':(oi===ua&&!ok?'<span style="margin-left:auto;color:var(--red);font-size:12px">sua resposta</span>':'')}</div>`).join('')}
+      ${q.comment?`<div class="qcom" style="margin-top:10px"><b>Gabarito:</b> ${esc(q.comment)}</div>`:''}
+      ${q.audio?`<div class="audio-cta" style="margin-top:10px"><span class="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div class="at">Áudio de explicação</div><div class="as">${q.audio.url?'Toque para ouvir':esc(q.audio.name)}</div></div></div>${q.audio.url?`<div class="upprev" style="margin-top:8px"><audio controls src="${q.audio.url}"></audio></div>`:''}`:''}
+    </div>`;}).join('');
+  return `<div style="max-width:820px;margin:0 auto">
+    <div class="card" style="text-align:center;padding:32px;margin-bottom:20px;border-color:${r.aprovado?'rgba(43,182,115,.4)':'rgba(224,83,61,.35)'}">
+      <div class="eyebrow" style="justify-content:center">Resultado · ${esc(s.title)}</div>
+      <div style="font-family:'Sora';font-weight:800;font-size:56px;letter-spacing:-2px;color:${notaColor(r.nota)}">${r.nota}%</div>
+      <div style="font-size:16px;font-weight:600;color:${r.aprovado?'var(--green)':'var(--red)'};margin-bottom:6px">${r.aprovado?'Aprovado':'Abaixo da nota de corte'} · corte ${cfg.notaCorte}%</div>
+      <div style="color:var(--muted);font-size:14px">${r.acertos} de ${r.total} acertos · tempo ${mmss(r.tempo)}</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px"><button class="btn btn-gold" onclick="startExam('${s.id}')">Refazer</button><button class="btn btn-ghost" onclick="examExit()">Sair</button></div>
+    </div>
+    <div class="card" style="margin-bottom:20px"><div class="sec-title">Acertos por tema</div>${barChart(temas.map(t=>[t,Math.round(r.porTema[t].ok/r.porTema[t].tot*100)]),v=>v+'%')}</div>
+    ${review?`<div class="sec-title" style="margin-bottom:12px">Revisão questão a questão</div>${review}`:''}
+  </div>`;}
+
+/* ============ boot ============ */
+if(authed()){showApp();}else{$('#login').style.display='flex';$('#shell').hidden=true;}
+</script>
+</body>
+</html>

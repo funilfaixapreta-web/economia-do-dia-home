@@ -31,7 +31,7 @@
   --green:#1F9760;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:86px}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;
   -webkit-font-smoothing:antialiased;transition:background .4s ease,color .4s ease;overflow-x:hidden}
 h1,h2,h3{font-family:'Sora',sans-serif;color:var(--head);line-height:1.15}
@@ -313,7 +313,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   <div class="nav-inner">
     <a class="logo" href="#"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
     <div class="nav-links">
-      <a href="#programa">A formação</a><a href="#metodo">Método</a><a href="#cursos">Cursos</a><a href="#professor">Professor</a>
+      <a href="#simulados">Simulados</a><a href="#cursos">Cursos</a><a href="#professor">Professor</a>
     </div>
     <div class="nav-actions">
       <div class="seg">
@@ -321,7 +321,6 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
         <button data-theme="light">Claro</button>
       </div>
       <a class="nav-enter" href="login.html">Entrar</a>
-      <a class="btn btn-gold" href="login.html">Fazer simulado grátis</a>
     </div>
     <a class="nav-enter-m" href="login.html">Entrar</a>
     <button class="nav-burger" id="nav-burger" aria-label="Abrir menu">
@@ -329,8 +328,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     </button>
   </div>
   <div class="mobile-menu">
-    <a class="mlink" href="#programa">A formação</a>
-    <a class="mlink" href="#metodo">Método</a>
+    <a class="mlink" href="#simulados">Simulados</a>
     <a class="mlink" href="#cursos">Cursos</a>
     <a class="mlink" href="#professor">Professor</a>
     <a class="mlink menter" href="login.html">Entrar</a>
@@ -346,9 +344,9 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
 <header class="hero">
   <div class="wrap">
     <div class="hero-copy">
-      <div class="hero-eyebrow">Formação prática · cursos e simulados <span class="sep">· CNPI e CFG</span></div>
+      <div class="hero-eyebrow">Formação prática · cursos e simulados <span class="sep">· CNPI e CGA/CGE</span></div>
       <h1>Formação em<br><span class="gold">análise e gestão</span><br>no mercado financeiro</h1>
-      <p class="sub">Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer <b>atuar</b> com análise e gestão no mercado financeiro. A aprovação no CNPI e no CFG vem como consequência.</p>
+      <p class="sub">Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer <b>atuar</b> com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.</p>
       <div class="hero-cta">
         <a class="btn btn-gold" href="login.html">Fazer um simulado grátis</a>
         <a class="btn btn-ghost" href="#programa">Conhecer a formação</a>
@@ -387,7 +385,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   <div class="wrap">
     <div class="sec-head">
       <div class="eyebrow">A formação</div>
-      <h2>Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para o CNPI e o CFG.</h2>
+      <h2>Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.</h2>
       <p>Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.</p>
     </div>
     <div class="prog-grid">
@@ -439,7 +437,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
 </section>
 
 <!-- A5 MÉTODO -->
-<section class="section alt" id="metodo">
+<section class="section alt" id="simulados">
   <div class="wrap met-grid">
     <div>
       <div class="eyebrow">Por que funciona</div>
