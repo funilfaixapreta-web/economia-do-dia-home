@@ -368,6 +368,26 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 .imp-sub{font-size:11.5px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
 .imp-dest{flex:none;max-width:340px}
 .imp-sel{max-width:340px;font-size:12.5px}
+/* ===== assistente do painel (IA do admin) ===== */
+.ai-fab{position:fixed;right:22px;bottom:22px;z-index:60;width:54px;height:54px;border-radius:999px;border:none;cursor:pointer;background:var(--gold-grad);color:#0B0D10;box-shadow:0 14px 34px -8px rgba(212,164,55,.6);display:flex;align-items:center;justify-content:center;font-size:22px}
+.ai-fab:hover{filter:brightness(1.06);transform:translateY(-2px)}
+.ai-panel{position:fixed;right:22px;bottom:88px;z-index:61;width:min(390px,94vw);max-height:min(620px,80vh);background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden}
+.ai-head{display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--border)}
+.ai-ava{width:34px;height:34px;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.ai-nm{font-family:'Sora';font-weight:600;font-size:14px;color:var(--head)}
+.ai-ctx{font-size:11.5px;color:var(--gold-deep);margin-top:1px}
+.ai-body{flex:1;overflow-y:auto;padding:14px 15px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{max-width:88%;padding:9px 12px;border-radius:12px;font-size:13.5px;line-height:1.45}
+.ai-msg.bot{background:var(--overlay-soft);color:var(--text);align-self:flex-start;border:1px solid var(--border)}
+.ai-msg.me{background:var(--gold-soft-bg);color:var(--head);align-self:flex-end}
+.ai-msg .ai-go{display:inline-block;margin-top:6px;font-weight:600;color:var(--gold-deep);cursor:pointer}
+.ai-sugg{display:flex;gap:7px;flex-wrap:wrap;padding:0 15px 10px}
+.ai-sugg button{font-size:12px;font-weight:500;padding:6px 11px;border-radius:999px;border:1px solid var(--border);background:var(--overlay-soft);color:var(--muted);cursor:pointer}
+.ai-sugg button:hover{border-color:var(--gold);color:var(--text)}
+.ai-inbar{display:flex;gap:8px;padding:11px 12px;border-top:1px solid var(--border)}
+.ai-inbar input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:'Inter';font-size:13.5px}
+.ai-inbar input:focus{outline:none;border-color:var(--gold)}
+@media(max-width:560px){.ai-panel{right:3vw;left:3vw;width:auto}}
 </style>
 </head>
 <body>
@@ -452,6 +472,22 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
       <div class="seg" id="theme-seg"><button data-theme="dark">Escuro</button><button data-theme="light">Claro</button></div>
     </header>
     <main class="view" id="view"></main>
+  </div>
+
+  <!-- Assistente do painel (só admin, dentro do shell) -->
+  <button class="ai-fab" id="ai-fab" onclick="aiToggle()" aria-label="Assistente do painel" title="Assistente do painel">✦</button>
+  <div class="ai-panel" id="ai-panel" hidden>
+    <div class="ai-head">
+      <span class="ai-ava">✦</span>
+      <div><div class="ai-nm">Assistente do painel</div><div class="ai-ctx" id="ai-ctx">Vendo: Painel</div></div>
+      <button class="btn-icon" onclick="aiToggle()" aria-label="Fechar" style="margin-left:auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="ai-body" id="ai-body"></div>
+    <div class="ai-sugg" id="ai-sugg"></div>
+    <form class="ai-inbar" onsubmit="event.preventDefault();aiSubmit();">
+      <input id="ai-input" placeholder="Pergunte sobre o painel…" autocomplete="off" />
+      <button class="btn btn-gold btn-sm" type="submit">Enviar</button>
+    </form>
   </div>
 </div>
 
@@ -660,6 +696,7 @@ function router(){
   }catch(err){html=notFound('Erro ao abrir');console.error(err);}
   $('#view').innerHTML=html;window.scrollTo(0,0);
   if(r==='importar')impRender();
+  if(aiOpened)aiUpdateCtx();
   $('#side').classList.remove('open');
 }
 window.addEventListener('hashchange',router);
@@ -1377,6 +1414,47 @@ function viewImportar(){
   </div>
   <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gold" id="imp-apply" onclick="impApply()" disabled>Aplicar</button></div>`;
 }
+
+/* ============ ASSISTENTE DO PAINEL (IA do admin) ============ */
+var aiOpened=false,aiHist=[];
+var AI_KB=[
+  {k:['curso','aula','modulo','video','videoaula','criar curso','nova aula','duracao'],r:'Em <b>Conteúdo › Cursos & aulas</b> você cria cursos, módulos e aulas, sobe o vídeo e o áudio de cada aula, define publicado/rascunho e reordena arrastando.',go:'#/cursos',gol:'Ir para Cursos & aulas'},
+  {k:['simulado','prova','questao','csv','alternativa'],r:'Em <b>Conteúdo › Simulados</b> você monta simulados e questões. Um .csv vira um simulado inteiro de uma vez, e você configura duração, nota de corte e embaralhamento.',go:'#/simulados',gol:'Ir para Simulados'},
+  {k:['banco','reutiliza','reaproveita','banco de questoes'],r:'O <b>Banco de questões</b> guarda questões reutilizáveis. Use "+ Do banco" no simulado para puxar, ou "↗ Banco" numa questão para salvar uma cópia.',go:'#/banco',gol:'Abrir Banco de questões'},
+  {k:['audio','explicacao','gabarito','som','ouvir'],r:'Cada questão tem uma caixa de <b>Áudio de explicação</b>: clique em "+ Áudio" para anexar, ou Trocar/Remover se já houver. O aluno ouve a resposta comentada.',go:'#/simulados',gol:'Ir para Simulados'},
+  {k:['massa','varios','muitos arquivos','subir tudo','upload rapido','lote','importar','importacao'],r:'Em <b>Conteúdo › Importação em massa</b> você arrasta muitos vídeos, áudios e .csv de uma vez, sem limite. O sistema organiza pelo nome do arquivo (você ajusta o que precisar) e aplica tudo junto.',go:'#/importar',gol:'Abrir Importação em massa'},
+  {k:['reorden','arrast','ordem','ao vivo','mover','posic'],r:'Em <b>Área do aluno · ao vivo</b> você vê a área do aluno de verdade e reordena arrastando: cursos, trilhas, simulados e as seções do início. Muda na hora para o aluno.',go:'#/aovivo',gol:'Abrir Área do aluno · ao vivo'},
+  {k:['trilha','jornada'],r:'Em <b>Conteúdo › Trilhas</b> você cria e edita as trilhas (nome, cor, ícone, cursos incluídos). A ordem delas também dá para reordenar no "ao vivo".',go:'#/trilhas',gol:'Ir para Trilhas'},
+  {k:['site','landing','hero','professor','depoimento','rodape','pagina inicial','foto'],r:'Em <b>Conteúdo › Site</b> você edita todos os blocos da página inicial (hero, formação, professor, planos, rodapé). O que você muda aqui reflete no site de verdade.',go:'#/site',gol:'Editar o Site'},
+  {k:['area do aluno','saudacao','texto do aluno','menu do aluno','rotulo'],r:'Em <b>Conteúdo › Área do aluno</b> você edita os textos da área logada (saudação, rótulos do menu, assinatura). Reflete na área do aluno real.',go:'#/app',gol:'Editar Área do aluno'},
+  {k:['usuario','aluno','admin','papel','permissao','tornar admin','exportar'],r:'Em <b>Usuários › Listagem</b> você vê todos, define papéis (Tornar admin), faz ações em massa e exporta a lista em CSV.',go:'#/usuarios',gol:'Ir para Usuários'},
+  {k:['plano','preco','venda','assinatura','pagamento'],r:'Em <b>Venda › Planos</b> você edita os planos (nome, preço, benefícios). Eles são os mesmos do site.',go:'#/planos',gol:'Ir para Planos'},
+  {k:['relatorio','metrica','dashboard','numero','receita'],r:'O <b>Painel de Controle</b> traz o resumo do dia e <b>Relatório</b> os números por período. No protótipo os números são de exemplo.',go:'#/relatorio',gol:'Ir para Relatório'},
+  {k:['reflete','sincroniza','aparece no site','aparece no aluno','publicar mudanca'],r:'As edições que você faz no painel refletem no site e na área do aluno automaticamente (mesma base). Só troca o que você realmente mudou; o resto fica no padrão.'},
+  {k:['publicar','rascunho','despublicar','ativar','tirar do ar'],r:'Cada curso, aula e simulado tem status publicado/rascunho. Use o botão Publicar/Despublicar para ligar ou tirar do ar.'},
+  {k:['ajuda','como funciona','o que','oi','ola','tudo','ajudar'],r:'Eu ajudo você a usar o painel. Posso explicar como criar cursos e simulados, subir arquivos em massa, reordenar arrastando (ao vivo), editar o site e a área do aluno, e gerenciar usuários e planos. É só perguntar ou tocar numa sugestão.'}
+];
+function aiScreenR(){return (location.hash.replace(/^#\/?/,'').split('/')[0])||'';}
+function aiScreenName(){return TITLES[aiScreenR()]||'Painel de Controle';}
+function aiScreenTips(){var r=aiScreenR();
+  var M={'':['Ver relatórios','Como está o dia?'],usuarios:['Como torno alguém admin?','Exportar usuários em CSV'],aluno:['Como torno alguém admin?'],cursos:['Como crio uma aula?','Como subo o vídeo?'],curso:['Como subo o vídeo da aula?','Como reordeno as aulas?'],aula:['Onde ponho o áudio do gabarito?'],simulados:['Como um CSV vira simulado?','Como ponho áudio na questão?'],simulado:['Como ponho áudio na questão?','Configuração da prova'],banco:['Como reaproveito uma questão?'],importar:['Posso subir vários de uma vez?','Como funciona o automático?'],aovivo:['Como reordeno arrastando?','Reordeno trilhas também?'],trilhas:['Como edito uma trilha?'],site:['Como troco a foto do professor?','Editar preços dos planos'],app:['Como mudo a saudação?'],planos:['Como mudo o preço?'],venda:['Onde vejo as assinaturas?'],relatorio:['Quais números aparecem aqui?'],sistema:['O que tem em Sistema?']};
+  return M[r]||['Como crio um curso?','Como subo arquivos em massa?','Como reordeno arrastando?'];
+}
+function aiUpdateCtx(){var el=document.getElementById('ai-ctx');if(el)el.textContent='Vendo: '+aiScreenName();aiRenderSugg();}
+function aiRenderSugg(){var el=document.getElementById('ai-sugg');if(!el)return;el.innerHTML=aiScreenTips().map(function(s){return '<button type="button" onclick="aiAsk(this.textContent)">'+esc(s)+'</button>';}).join('');}
+function aiToggle(){aiOpened=!aiOpened;var p=document.getElementById('ai-panel');if(!p)return;p.hidden=!aiOpened;if(aiOpened){aiUpdateCtx();if(!aiHist.length)aiBot('Olá! Sou o assistente do painel (só para o admin). Você está em <b>'+esc(aiScreenName())+'</b>. Posso explicar qualquer parte do admin. É só perguntar ou tocar numa sugestão abaixo.');var i=document.getElementById('ai-input');if(i)setTimeout(function(){i.focus();},60);}}
+function aiPush(cls,html){aiHist.push({cls:cls,html:html});var b=document.getElementById('ai-body');if(b){b.insertAdjacentHTML('beforeend','<div class="ai-msg '+cls+'">'+html+'</div>');b.scrollTop=b.scrollHeight;}}
+function aiBot(html){aiPush('bot',html);}
+function aiMe(text){aiPush('me',esc(text));}
+function aiNorm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+function aiAnswer(text){var q=' '+aiNorm(text)+' ',best=null,bestScore=0;
+  AI_KB.forEach(function(t){var sc=0;t.k.forEach(function(kw){var k=aiNorm(kw);if(q.indexOf(k)>=0)sc+=k.length;});if(sc>bestScore){bestScore=sc;best=t;}});
+  if(!best||bestScore===0)return {r:'Não tenho certeza sobre isso, mas posso ajudar com: criar cursos e aulas, montar simulados (inclusive por CSV), subir arquivos em massa, reordenar arrastando no "ao vivo", editar o site e a área do aluno, e gerenciar usuários e planos. Sobre o que você quer saber?'};
+  return best;
+}
+function aiRespond(text){var a=aiAnswer(text),html=a.r;if(a.go)html+=' <a class="ai-go" onclick="location.hash=\''+a.go+'\';aiUpdateCtx();">'+esc(a.gol||'Ir para lá')+' →</a>';setTimeout(function(){aiBot(html);},220);}
+function aiAsk(text){aiMe(text);aiRespond(text);}
+function aiSubmit(){var i=document.getElementById('ai-input');if(!i)return;var t=i.value.trim();if(!t)return;i.value='';aiAsk(t);}
 function parseCSV(text){
   const rows=[];let row=[],cur='',q=false;text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   for(let i=0;i<text.length;i++){const c=text[i];
