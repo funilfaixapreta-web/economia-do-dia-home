@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulado · CFG M1 Métodos Quantitativos · Economia do Dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090C; --bg-alt:#0A0C10; --panel:#101319; --panel-2:#0D0F14;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.06);
+  --head:#FFFFFF; --text:#E7EAEF; --muted:#8A94A2; --faint:#5B6573;
+  --input-bg:#0E1116; --overlay-soft:rgba(255,255,255,.05); --overlay-bd:rgba(255,255,255,.14);
+  --gold:#D4A437; --gold-deep:#E6BE54; --gold-grad:linear-gradient(180deg,#E6BE54,#D4A437);
+  --mono-grad:linear-gradient(140deg,#EBC768,#D4A437 55%,#A8761B);
+  --gold-soft-bg:rgba(212,164,55,.10); --gold-soft-bd:rgba(212,164,55,.30);
+  --green:#2BB673; --amber:#E8A33D; --red:#E0533D; --blue:#3D8BE0;
+}
+[data-theme="light"]{
+  --bg:#F5F3EE; --bg-alt:#FBFAF6; --panel:#FFFFFF; --panel-2:#F3F1EA;
+  --border:rgba(27,31,38,.10); --border-soft:rgba(27,31,38,.07);
+  --head:#0B0D10; --text:#222831; --muted:#5B6573; --faint:#9AA3AF;
+  --input-bg:#F3F1EA; --overlay-soft:rgba(27,31,38,.04); --overlay-bd:rgba(27,31,38,.14);
+  --gold-deep:#A6781A; --gold-soft-bg:rgba(212,164,55,.14); --gold-soft-bd:rgba(212,164,55,.34);
+  --green:#1F9760;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .35s,color .35s}
+h1,h2,h3,h4{font-family:'Sora',sans-serif;color:var(--head);line-height:1.2}
+.mono{font-family:'IBM Plex Mono',monospace}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:860px;margin:0 auto;padding:0 22px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--muted);background:var(--overlay-soft);border:1px solid var(--border);border-radius:999px;padding:6px 12px}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-family:'Inter';font-weight:600;font-size:14.5px;border-radius:11px;padding:13px 22px;cursor:pointer;border:1px solid transparent;transition:transform .18s,box-shadow .22s,filter .18s,border-color .15s}
+.btn-gold{background:var(--gold-grad);color:#0B0D10;box-shadow:0 14px 32px -10px rgba(212,164,55,.55)}
+.btn-gold:hover{transform:translateY(-2px);filter:brightness(1.03)}
+.btn-ghost{background:var(--overlay-soft);color:var(--text);border-color:var(--overlay-bd)}
+.btn-ghost:hover{border-color:var(--gold)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;filter:none}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-soft)}
+.top-in{max-width:860px;margin:0 auto;padding:0 22px;height:60px;display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:9px}
+.mono-sq{width:30px;height:30px;border-radius:8px;background:var(--mono-grad);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+.mono-sq span{font-family:'Sora';font-weight:800;font-style:italic;font-size:12px;color:#0B0D10}
+.wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:15.5px;color:var(--head)}
+.wordmark b{color:var(--gold-deep)}
+.seg{margin-left:auto;display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--overlay-soft);border:1px solid var(--border)}
+.seg button{font-family:'Inter';font-weight:600;font-size:12px;padding:6px 13px;border-radius:999px;border:none;background:none;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--gold-grad);color:#0B0D10}
+
+/* intro */
+.hero{padding:38px 0 8px}
+.hero h1{font-size:32px;font-weight:800;letter-spacing:-.6px;margin:14px 0 8px}
+.hero .sub{font-size:16px;color:var(--muted);max-width:640px}
+.meta-row{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0 26px}
+.meta{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:11px 15px}
+.meta .ic{width:32px;height:32px;flex:none;border-radius:8px;background:var(--gold-soft-bg);color:var(--gold-deep);display:flex;align-items:center;justify-content:center}
+.meta .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.meta .v{font-size:14px;font-weight:700;color:var(--head);font-family:'Sora'}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:18px}
+.sec-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:var(--head);font-family:'Sora';margin-bottom:4px}
+.sec-title .n{font-family:'IBM Plex Mono';font-size:12px;font-weight:600;color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:7px;padding:2px 8px}
+.sec-sub{font-size:13.5px;color:var(--muted);margin-bottom:16px}
+
+/* ementa / outline */
+.syl-sec{border:1px solid var(--border);border-radius:12px;margin-bottom:9px;overflow:hidden;background:var(--panel-2)}
+.syl-head{width:100%;display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;background:none;border:none;text-align:left;color:var(--head)}
+.syl-head:hover{background:var(--overlay-soft)}
+.syl-head .sn{font-family:'IBM Plex Mono';font-size:12px;font-weight:600;color:var(--gold-deep);flex:none}
+.syl-head .st{font-family:'Sora';font-weight:600;font-size:14px;flex:1}
+.syl-head .cnt{font-size:11.5px;color:var(--muted)}
+.syl-head .car{color:var(--muted);transition:transform .2s;flex:none}
+.syl-sec.open .car{transform:rotate(90deg)}
+.syl-body{display:none;padding:4px 15px 14px}
+.syl-sec.open .syl-body{display:block}
+.syl-item{display:flex;gap:11px;padding:6px 0;font-size:13px;color:var(--text);align-items:baseline;border-top:1px solid var(--border-soft)}
+.syl-item:first-child{border-top:none}
+.syl-item .in{font-family:'IBM Plex Mono';font-size:11px;color:var(--faint);flex:none;min-width:56px}
+.syl-item.deep{opacity:.9}
+
+/* content table */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:0 0 10px;border-bottom:1px solid var(--border)}
+.tbl td{padding:13px 0;border-bottom:1px solid var(--border-soft)}
+.tbl td:last-child,.tbl th:last-child{text-align:right;font-family:'IBM Plex Mono';font-weight:600}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.total td{border-top:1px solid var(--border);font-weight:700;color:var(--head)}
+
+.start-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:6px 0 40px}
+.start-bar .note{font-size:13px;color:var(--muted)}
+
+/* prova */
+.exam-bar{position:sticky;top:60px;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.exam-bar-in{max-width:860px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:14px}
+.exam-title{font-family:'Sora';font-weight:600;font-size:14px;color:var(--head);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.timer{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono';font-weight:600;font-size:14px;color:var(--head);background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:7px 12px}
+.timer.warn{color:var(--red);border-color:var(--red)}
+.prog{display:flex;align-items:center;gap:9px}
+.prog .pbar{width:120px;height:6px;border-radius:99px;background:var(--overlay-soft);overflow:hidden}
+.prog .pbar i{display:block;height:100%;width:0;background:var(--gold-grad);transition:width .25s}
+.prog .pt{font-size:12.5px;color:var(--muted);font-family:'IBM Plex Mono';white-space:nowrap}
+.q{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:20px 22px;margin-bottom:14px}
+.q-h{display:flex;gap:13px;align-items:flex-start;margin-bottom:15px}
+.q-n{flex:none;width:30px;height:30px;border-radius:9px;background:var(--gold-soft-bg);color:var(--gold-deep);font-family:'Sora';font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+.q-stmt{font-size:15.5px;font-weight:600;color:var(--head);line-height:1.5}
+.opt{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--border);border-radius:11px;margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--gold-soft-bd);background:var(--overlay-soft)}
+.opt.sel{border-color:var(--gold);background:var(--gold-soft-bg)}
+.opt .letter{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-weight:600;font-size:13px;color:var(--muted);transition:.15s}
+.opt.sel .letter{background:var(--gold-grad);border-color:transparent;color:#0B0D10}
+.opt .otext{font-size:14px;color:var(--text);padding-top:2px}
+.opt.chosen{border-color:var(--gold);background:var(--gold-soft-bg)}
+.opt .tag-you{margin-left:auto;font-size:11px;font-weight:600;color:var(--gold-deep);align-self:center;white-space:nowrap}
+.q .gab{margin-top:14px;display:flex;align-items:center;gap:11px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:11px;padding:11px 14px}
+.q .gab .ai{width:34px;height:34px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center}
+.q .gab .at{font-size:13px;font-weight:600;color:var(--head)}
+.q .gab .as{font-size:12px;color:var(--muted)}
+.q .unans{margin-top:12px;font-size:12.5px;color:var(--amber);font-weight:600}
+.submit-bar{position:sticky;bottom:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--border);margin-top:6px}
+.submit-in{max-width:860px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:14px}
+.submit-in .info{font-size:13.5px;color:var(--muted)}
+.submit-in .info b{color:var(--head)}
+
+/* result */
+.res-hero{text-align:center;padding:40px 0 20px}
+.res-ring{width:120px;height:120px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--gold) var(--pct),var(--overlay-soft) 0);position:relative}
+.res-ring::before{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--bg)}
+.res-ring .rv{position:relative;font-family:'Sora';font-weight:800;font-size:30px;color:var(--head)}
+.res-hero h1{font-size:26px;margin-bottom:6px}
+.res-hero p{color:var(--muted);font-size:15px}
+.res-stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:24px 0 8px}
+.res-stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 20px;text-align:center;min-width:120px}
+.res-stat .v{font-family:'Sora';font-weight:700;font-size:20px;color:var(--head)}
+.res-stat .k{font-size:12px;color:var(--muted);margin-top:2px}
+.hidden{display:none!important}
+.foot{padding:30px 0 50px;text-align:center;color:var(--faint);font-size:12.5px}
+@media(max-width:640px){
+  .hero h1{font-size:26px}
+  .prog .pbar{width:70px}
+  .exam-title{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-in">
+    <a class="logo" href="app.html"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
+    <div class="seg" id="seg"><button class="on" data-theme="dark">Escuro</button><button data-theme="light">Claro</button></div>
+  </div>
+</div>
+
+<!-- ===================== TELA 1: ABERTURA ===================== -->
+<section id="intro">
+  <div class="wrap">
+    <div class="hero">
+      <div class="eyebrow" id="sim-eyebrow">CFG · Módulo I · Simulado</div>
+      <h1 id="sim-title">CFG - M1 - Métodos Quantitativos</h1>
+      <p class="sub" id="sim-sub">Teste seus conhecimentos sobre o Módulo I da prova do CFG, Métodos Quantitativos.</p>
+      <div class="meta-row">
+        <div class="meta" id="meta-prop"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg></span><div><div class="k">Proporção na prova</div><div class="v">8 a 12%</div></div></div>
+        <div class="meta"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><div><div class="k">Questões</div><div class="v" id="meta-q">10 questões</div></div></div>
+        <div class="meta"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><div class="k">Tempo limite</div><div class="v">30 minutos</div></div></div>
+      </div>
+    </div>
+
+    <div class="card" id="ementa-card">
+      <div class="sec-title"><span class="n">Ementa</span> O que você vai encontrar no simulado</div>
+      <div class="sec-sub">Os temas do módulo cobertos por este simulado. Toque para expandir cada bloco.</div>
+      <div id="syllabus"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title" style="margin-bottom:16px">Conteúdo</div>
+      <table class="tbl">
+        <thead><tr><th>Tópico</th><th>Perguntas</th></tr></thead>
+        <tbody>
+          <tr><td id="ct-topic">CFG - M1 - Métodos Quantitativos</td><td id="ct-count">10</td></tr>
+          <tr class="total"><td>Total</td><td id="ct-total">10</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="start-bar">
+      <button class="btn btn-gold" onclick="startSim()"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Iniciar simulado</button>
+      <span class="note">10 questões · 30 minutos · você pode revisar antes de enviar.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TELA 2: PROVA ===================== -->
+<section id="prova" class="hidden">
+  <div class="exam-bar">
+    <div class="exam-bar-in">
+      <span class="exam-title">CFG - M1 - Métodos Quantitativos</span>
+      <div class="prog"><span class="pbar"><i id="pbar-i"></i></span><span class="pt" id="prog-t">0/10</span></div>
+      <div class="timer" id="timer">30:00</div>
+    </div>
+  </div>
+  <div class="wrap" style="padding-top:22px">
+    <div id="questions"></div>
+  </div>
+  <div class="submit-bar">
+    <div class="submit-in">
+      <span class="info"><b id="ans-count">0</b> de 10 respondidas</span>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto;padding:10px 16px" onclick="backToIntro()">Sair</button>
+      <button class="btn btn-gold" style="padding:12px 20px" onclick="submitSim()">Enviar respostas</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TELA 3: RESULTADO ===================== -->
+<section id="result" class="hidden">
+  <div class="wrap">
+    <div class="res-hero">
+      <div class="res-ring" id="res-ring" style="--pct:100%"><span class="rv" id="res-rv">10/10</span></div>
+      <h1>Simulado enviado</h1>
+      <p>Suas respostas foram registradas. Confira abaixo o que você marcou.</p>
+      <div class="res-stats">
+        <div class="res-stat"><div class="v" id="rs-ans">10</div><div class="k">Respondidas</div></div>
+        <div class="res-stat"><div class="v" id="rs-time">00:00</div><div class="k">Tempo usado</div></div>
+        <div class="res-stat"><div class="v">10</div><div class="k">Questões</div></div>
+      </div>
+    </div>
+    <div class="card" style="text-align:center;background:var(--gold-soft-bg);border-color:var(--gold-soft-bd)">
+      <div style="font-family:'Sora';font-weight:600;font-size:15px;color:var(--head)">Gabarito comentado em áudio</div>
+      <div style="font-size:13.5px;color:var(--muted);margin-top:4px">O professor explica cada questão em áudio. Você revisa no trânsito ou na academia, sem tela.</div>
+    </div>
+    <div id="review"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin:10px 0 30px">
+      <button class="btn btn-ghost" onclick="backToIntro()">Voltar ao início</button>
+      <button class="btn btn-gold" onclick="startSim()">Refazer simulado</button>
+    </div>
+  </div>
+</section>
+
+<div class="foot">Economia do Dia · Simulado de demonstração</div>
+
+<script>
+/* ---------- tema ---------- */
+var seg=document.getElementById('seg');
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);seg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.theme===t);});try{localStorage.setItem('ed-theme',t)}catch(_){}}
+seg.addEventListener('click',function(e){var b=e.target.closest('button');if(b)setTheme(b.dataset.theme);});
+try{setTheme(localStorage.getItem('ed-theme')||'dark')}catch(_){setTheme('dark')}
+
+/* ---------- ementa (dados) ---------- */
+var SYL=[
+  {n:'1.1',t:'Valor do Dinheiro no Tempo',items:[
+    ['1.1.1','Taxas de desconto e taxas de juros'],
+    ['1.1.2','Frequência de capitalização (anual, semestral, trimestral, mensal, diária e contínua)'],
+    ['1.1.3','Valor presente e valor futuro'],
+    ['1.1.4','Anuidades e perpetuidades']]},
+  {n:'1.2',t:'Conceitos Básicos de Estatística',items:[
+    ['1.2.1','Medidas de tendência central: médias (aritmética, ponderada e geométrica), mediana, moda, quantis'],
+    ['1.2.2','Medidas de dispersão: variância e desvio-padrão'],
+    ['1.2.3','Covariância e coeficiente de correlação']]},
+  {n:'1.3',t:'Conceitos Básicos de Probabilidade',items:[
+    ['1.3.1','Valor esperado'],
+    ['1.3.2','Retorno esperado e variância de uma carteira'],
+    ['1.3.3','Variáveis aleatórias discretas e contínuas'],
+    ['1.3.4','Distribuições de probabilidade: normal, lognormal e t de Student']]},
+  {n:'1.4',t:'Amostragem, Estimação e Teste de Hipóteses',items:[
+    ['1.4.1','Amostragem'],
+    ['1.4.2','Distribuição da média amostral'],
+    ['1.4.3','Estimativas por ponto e por intervalo'],
+    ['1.4.4','Intervalo de confiança'],
+    ['1.4.5','Teste de hipóteses']]},
+  {n:'1.5',t:'Regressão Linear e Múltipla',items:[
+    ['1.5.1','Premissas'],
+    ['1.5.2','Variável dependente e variável independente'],
+    ['1.5.3','Termo aleatório'],
+    ['1.5.4','Coeficiente de Regressão'],
+    ['1.5.5','Coeficiente de Determinação (R²)'],
+    ['1.5.6','Forecasting com modelos de regressão'],
+    ['1.5.7','Interpretação de resultados; teste t em um coeficiente de regressão'],
+    ['1.5.8','Análise de Variância (ANOVA)'],
+    ['1.5.9','Limitações da análise de regressão']]},
+  {n:'1.6',t:'Análise Técnica',items:[
+    ['1.6.1','Distinções entre análise técnica (ou grafista) e análise fundamentalista'],
+    ['1.6.2','Premissas da análise técnica'],
+    ['1.6.3','Vantagens e desafios da análise técnica'],
+    ['1.6.4','Principais indicadores da análise técnica'],
+    ['1.6.4.1','Indicadores de tendência'],
+    ['1.6.4.1.1','Médias móveis'],
+    ['1.6.4.1.2','Oscilador de média móvel'],
+    ['1.6.4.1.3','MACD (Moving Average Convergence/Divergence)'],
+    ['1.6.4.1.4','Envelopes'],
+    ['1.6.4.1.5','Bandas'],
+    ['1.6.4.1.6','Movimento Direcional'],
+    ['1.6.4.2','Indicadores de reversão'],
+    ['1.6.4.2.1','Índice de Força Relativa (IFR)'],
+    ['1.6.4.2.2','Estocástico'],
+    ['1.6.4.2.3','Stop-and-Reverse (SAR) Parabólico'],
+    ['1.6.4.3','Indicadores de volume'],
+    ['1.6.4.3.1','On Balance Volume (OBV, Saldo de Volume)'],
+    ['1.6.4.3.2','Média Móvel de Volume']]}
+];
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+document.getElementById('syllabus').innerHTML=SYL.map(function(sec,i){
+  var body=sec.items.map(function(it){
+    var depth=it[0].split('.').length; // 3 = base (1.1.1)
+    var pad=(depth-3)*20;
+    return '<div class="syl-item'+(depth>3?' deep':'')+'" style="padding-left:'+pad+'px"><span class="in">'+it[0]+'</span><span>'+esc(it[1])+'</span></div>';
+  }).join('');
+  return '<div class="syl-sec'+(i===0?' open':'')+'" id="syl-'+i+'">'+
+    '<button class="syl-head" onclick="document.getElementById(\'syl-'+i+'\').classList.toggle(\'open\')">'+
+    '<span class="sn">'+sec.n+'</span><span class="st">'+esc(sec.t)+'</span><span class="cnt">'+sec.items.length+' tópicos</span>'+
+    '<span class="car"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></button>'+
+    '<div class="syl-body">'+body+'</div></div>';
+}).join('');
+
+/* ---------- questões (dados) ---------- */
+var Q=[
+  {stmt:'Qual das alternativas define corretamente a diferença entre variância e desvio-padrão?',opts:[
+    'O desvio-padrão é sempre maior que a variância.',
+    'A variância é sempre representada na mesma unidade dos dados analisados.',
+    'A variância é a média dos quadrados dos desvios; o desvio-padrão é a raiz quadrada da variância.',
+    'Ambos medem o mesmo conceito e são numericamente iguais.']},
+  {stmt:'Um investidor aplica todo mês R$ 860 em títulos do tesouro direto a uma rentabilidade de 100% do CDI. Durante 7 meses, o CDI permaneceu no patamar de 4,5% ao ano. Caso o investidor opte por resgatar o dinheiro ao final dos 7 meses, qual seria o valor bruto de resgate?',opts:[
+    'R$ 6.095,07','R$ 6.083,31','R$ 6.109,14','R$ 6.086,78']},
+  {stmt:'Um investidor que possui uma carteira composta por um único ativo e quer continuar assumindo riscos, mas ao mesmo tempo aproveitar ao máximo os benefícios da diversificação, deve investir em outro ativo cuja correlação com sua carteira seja de:',opts:[
+    '0,50','1,00','0,00','-1,00']},
+  {stmt:'Uma variável segue distribuição normal com média 50 e desvio-padrão 10. Qual é a probabilidade de um valor estar entre 40 e 60?',opts:[
+    'Aproximadamente 95%.','Exatamente 50%.','Exatamente 90%.','Aproximadamente 68%.']},
+  {stmt:'Calcule a taxa efetiva de 9% a.a. compostos trimestralmente:',opts:[
+    '9,17%','8,97%','9,31%','9,00%']},
+  {stmt:'Sabendo que a caderneta de poupança paga 6% a.a. que são capitalizados mensalmente, calcule a taxa equivalente anual.',opts:[
+    '6,21%','6,17%','6,00%','5,88%']},
+  {stmt:'O que caracteriza uma variável dependente em um modelo de regressão?',opts:[
+    'É sempre determinada diretamente pelos coeficientes de regressão.',
+    'É a variável que sempre deve ser categórica.',
+    'É a variável que se tenta prever ou explicar com base nas variáveis independentes.',
+    'É a variável que define o intervalo de confiança do modelo.']},
+  {stmt:'O que significa um intervalo de confiança de 99% em comparação com um de 95%?',opts:[
+    'O intervalo de 99% será mais estreito, indicando maior precisão.',
+    'O intervalo de 95% cobre mais valores extremos.',
+    'O intervalo de 99% será mais amplo, indicando maior incerteza na estimativa.',
+    'Ambos os intervalos terão a mesma amplitude.']},
+  {stmt:'Qual a principal diferença entre variáveis aleatórias discretas e contínuas?',opts:[
+    'Contínuas dependem de médias; discretas dependem de probabilidades.',
+    'Discretas representam valores numéricos; contínuas representam categorias.',
+    'Discretas assumem valores específicos; contínuas assumem qualquer valor em um intervalo.',
+    'Contínuas são contáveis; discretas não são contáveis.']},
+  {stmt:'Uma carteira ótima é caracterizada por:',opts:[
+    'Maximizar o retorno para um nível de risco específico.',
+    'Reduzir o risco a zero.',
+    'Minimizar o retorno para um nível de risco específico.',
+    'Obter sempre retornos maiores que o mercado.']}
+];
+var LETTERS=['A','B','C','D','E'];
+var answers={}, tLeft=30*60, tUsed=0, timerId=null;
+
+/* ---------- carrega um simulado real por ?sim=<id> (eda-db); senão usa o demo CFG ---------- */
+var DEMO=true, SIM_EYE='CFG · Módulo I · Simulado', SIM_TITLE='CFG - M1 - Métodos Quantitativos', SIM_SUB='Teste seus conhecimentos sobre o Módulo I da prova do CFG, Métodos Quantitativos.';
+(function(){
+  try{
+    var sid=new URLSearchParams(location.search).get('sim');
+    if(!sid)return;
+    var db=JSON.parse(localStorage.getItem('eda-db'));
+    var s=db&&db.simulados&&db.simulados.find(function(x){return x.id===sid;});
+    if(!s||!s.questions||!s.questions.length||!s.questions[0]||!s.questions[0].stmt)return;
+    Q=s.questions.map(function(q){return {stmt:q.stmt,opts:(q.options||[]).slice()};});
+    SIM_TITLE=s.title||'Simulado';SIM_SUB=s.desc||('Simulado '+(s.cert||''));SIM_EYE=(s.cert||'Simulado')+' · Simulado';
+    DEMO=false;
+  }catch(_){}
+})();
+(function(){
+  var set=function(id,txt){var e=document.getElementById(id);if(e)e.textContent=txt;};
+  set('sim-eyebrow',SIM_EYE);set('sim-title',SIM_TITLE);set('sim-sub',SIM_SUB);
+  set('meta-q',Q.length+(Q.length===1?' questão':' questões'));
+  set('ct-topic',SIM_TITLE);set('ct-count',Q.length);set('ct-total',Q.length);
+  if(!DEMO){var ec=document.getElementById('ementa-card');if(ec)ec.style.display='none';var mp=document.getElementById('meta-prop');if(mp)mp.style.display='none';}
+  document.title=SIM_TITLE+' · Economia do Dia';
+})();
+
+function renderQuestions(){
+  document.getElementById('questions').innerHTML=Q.map(function(q,qi){
+    var opts=q.opts.map(function(o,oi){
+      return '<div class="opt'+(answers[qi]===oi?' sel':'')+'" onclick="pick('+qi+','+oi+')"><span class="letter">'+LETTERS[oi]+'</span><span class="otext">'+esc(o)+'</span></div>';
+    }).join('');
+    return '<div class="q" id="q-'+qi+'"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+'</div>';
+  }).join('');
+  updateProgress();
+}
+function pick(qi,oi){
+  answers[qi]=oi;
+  var card=document.getElementById('q-'+qi);
+  card.querySelectorAll('.opt').forEach(function(el,i){el.classList.toggle('sel',i===oi);});
+  updateProgress();
+}
+function updateProgress(){
+  var n=Object.keys(answers).length;
+  document.getElementById('prog-t').textContent=n+'/10';
+  document.getElementById('ans-count').textContent=n;
+  document.getElementById('pbar-i').style.width=(n*10)+'%';
+}
+function fmt(s){var m=Math.floor(s/60),ss=s%60;return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;}
+function tick(){
+  tLeft--;tUsed++;
+  var el=document.getElementById('timer');el.textContent=fmt(Math.max(tLeft,0));
+  if(tLeft<=60)el.classList.add('warn');
+  if(tLeft<=0){clearInterval(timerId);submitSim();}
+}
+function show(id){['intro','prova','result'].forEach(function(s){document.getElementById(s).classList.toggle('hidden',s!==id);});window.scrollTo(0,0);}
+function startSim(){
+  answers={};tLeft=30*60;tUsed=0;
+  renderQuestions();
+  document.getElementById('timer').textContent='30:00';
+  document.getElementById('timer').classList.remove('warn');
+  show('prova');
+  clearInterval(timerId);timerId=setInterval(tick,1000);
+}
+function backToIntro(){clearInterval(timerId);show('intro');}
+function submitSim(){
+  clearInterval(timerId);
+  var n=Object.keys(answers).length;
+  document.getElementById('res-rv').textContent=n+'/10';
+  document.getElementById('res-ring').style.setProperty('--pct',(n*10)+'%');
+  document.getElementById('rs-ans').textContent=n;
+  document.getElementById('rs-time').textContent=fmt(tUsed);
+  document.getElementById('review').innerHTML=Q.map(function(q,qi){
+    var chosen=answers[qi];
+    var opts=q.opts.map(function(o,oi){
+      var isYou=chosen===oi;
+      return '<div class="opt'+(isYou?' chosen':'')+'" style="cursor:default"><span class="letter">'+LETTERS[oi]+'</span><span class="otext">'+esc(o)+'</span>'+(isYou?'<span class="tag-you">sua resposta</span>':'')+'</div>';
+    }).join('');
+    var unans=(chosen===undefined)?'<div class="unans">Você não respondeu esta questão.</div>':'';
+    return '<div class="q"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+unans+
+      '<div class="gab"><span class="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div class="at">Gabarito comentado em áudio</div><div class="as">O professor explica a resposta desta questão.</div></div></div></div>';
+  }).join('');
+  show('result');
+}
+</script>
+</body>
+</html>
