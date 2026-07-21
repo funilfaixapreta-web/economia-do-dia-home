@@ -346,7 +346,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     <div class="hero-copy">
       <div class="hero-eyebrow">Formação prática · cursos e simulados <span class="sep">· CNPI e CGA/CGE</span></div>
       <h1>Formação em<br><span class="gold">análise e gestão</span><br>no mercado financeiro</h1>
-      <p class="sub">Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer <b>atuar</b> com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.</p>
+      <p class="sub" data-ed="hero.promise">Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer <b>atuar</b> com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.</p>
       <div class="hero-cta">
         <a class="btn btn-gold" href="login.html">Fazer um simulado grátis</a>
         <a class="btn btn-ghost" href="#programa">Conhecer a formação</a>
@@ -385,11 +385,11 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   <div class="wrap">
     <div class="sec-head">
       <div class="eyebrow">A formação</div>
-      <h2>Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.</h2>
-      <p>Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.</p>
+      <h2 data-ed="formacao.title">Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.</h2>
+      <p data-ed="formacao.text">Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.</p>
     </div>
     <div class="prog-grid">
-      <div class="card prog-card lift">
+      <div class="card prog-card lift" data-ed-course="cb">
         <div class="top"><span class="code">CNPI-CB</span><span class="area">Conteúdo Brasileiro</span></div>
         <h3>Base do Mercado Financeiro</h3>
         <p class="desc">Fase comum a todos os analistas: sistema financeiro, renda fixa, derivativos, ética e regulação.</p>
@@ -399,7 +399,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
           <div class="drow">Aprovação<span class="v">40 acertos</span></div>
         </div>
       </div>
-      <div class="card prog-card lift">
+      <div class="card prog-card lift" data-ed-course="cg1">
         <div class="top"><span class="code">CNPI-CG1</span><span class="area">Conteúdo Global 1</span></div>
         <h3>Análise Fundamentalista</h3>
         <p class="desc">Valuation, contabilidade e finanças corporativas, com base na análise de demonstrações.</p>
@@ -415,7 +415,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
           <div>Mínimo de 15/30 acertos em cada bloco.</div>
         </div>
       </div>
-      <div class="card prog-card lift">
+      <div class="card prog-card lift" data-ed-course="ct1">
         <div class="top"><span class="code">CNPI-CT1</span><span class="area">Conteúdo Técnico 1</span></div>
         <h3>Análise Técnica (Gráfica)</h3>
         <p class="desc">Análise gráfica e tomada de decisão com base em preço e volume.</p>
@@ -441,8 +441,8 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   <div class="wrap met-grid">
     <div>
       <div class="eyebrow">Por que funciona</div>
-      <h2>Um banco de questões que não se repete até você esgotar a base.</h2>
-      <p class="lead">A maioria dos preparatórios faz você decorar respostas. Aqui, uma questão só reaparece quando todas as outras já foram vistas. Isso força entendimento, e é por isso que, no dia da prova, não há surpresa.</p>
+      <h2 data-ed="metodo.title">Um banco de questões que não se repete até você esgotar a base.</h2>
+      <p class="lead" data-ed="metodo.lead">A maioria dos preparatórios faz você decorar respostas. Aqui, uma questão só reaparece quando todas as outras já foram vistas. Isso força entendimento, e é por isso que, no dia da prova, não há surpresa.</p>
       <div class="highlight">
         <span class="pct">61%</span>
         <p>No último diagnóstico você acertou <b>61% em Renda Variável.</b> O sistema te leva direto às aulas desse tema, não manda “estudar tudo de novo”.</p>
@@ -474,9 +474,9 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     </div>
     <div>
       <div class="eyebrow">Professor</div>
-      <h2>Frederico Nobre, CFA</h2>
-      <p class="bio">Carioca, economista pela UFRJ, no mercado desde 2013. CFA Charterholder, CNPI e CGA/CGE. Gestor de recursos na Warren Investimentos, sócio responsável por asset allocation e renda variável. Dá aula porque cansou de ver gente boa reprovando por falta de método.</p>
-      <div class="cred">
+      <h2 data-ed="professor.name">Frederico Nobre, CFA</h2>
+      <p class="bio" data-ed="professor.bio">Carioca, economista pela UFRJ, no mercado desde 2013. CFA Charterholder, CNPI e CGA/CGE. Gestor de recursos na Warren Investimentos, sócio responsável por asset allocation e renda variável. Dá aula porque cansou de ver gente boa reprovando por falta de método.</p>
+      <div class="cred" data-ed="professor.creds">
         <span class="c">CFA Charterholder</span><span class="c">Gestor de recursos</span><span class="c">Warren Investimentos</span>
         <span class="c">CNPI</span><span class="c">CGA/CGE</span>
       </div>
@@ -569,7 +569,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   <div class="wrap">
     <div class="sec-head"><div class="eyebrow">Cursos</div><h2>Escolha por onde começar sua formação.</h2><p>Cursos e simulados para CNPI e CFG. Todos incluem videoaulas, simulados premium e suporte no WhatsApp.</p></div>
     <div class="cur-grid">
-      <div class="card cur-card rec lift">
+      <div class="card cur-card rec lift" data-ed-plan="completo">
         <span class="cur-badge">RECOMENDADO · ANALISTA PLENO</span>
         <span class="tag">CB + CG1 + CT1</span><h3>CNPI · Curso Completo</h3>
         <p class="cdesc">As três provas, do zero ao credenciamento. Para quem quer ser analista pleno.</p>
@@ -577,21 +577,21 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
         <span class="valid">acesso por 2 anos</span>
         <div class="cur-btn gold">Ver curso</div>
       </div>
-      <div class="card cur-card lift">
+      <div class="card cur-card lift" data-ed-plan="fundamentalista">
         <span class="tag">CB + CG1</span><h3>CNPI · Fundamentalista</h3>
         <p class="cdesc">Conteúdo Brasileiro + Global. Para o analista de research e valuation.</p>
         <div class="price"><span class="rs">R$</span><span class="big">2.197</span></div>
         <span class="valid">acesso por 1 ano</span>
         <div class="cur-btn ghost">Ver curso</div>
       </div>
-      <div class="card cur-card lift">
+      <div class="card cur-card lift" data-ed-plan="tecnico">
         <span class="tag">CB + CT1</span><h3>CNPI · Técnico</h3>
         <p class="cdesc">Conteúdo Brasileiro + Técnico. Para quem opera com análise gráfica.</p>
         <div class="price"><span class="rs">R$</span><span class="big">2.197</span></div>
         <span class="valid">acesso por 1 ano</span>
         <div class="cur-btn ghost">Ver curso</div>
       </div>
-      <div class="card cur-card lift">
+      <div class="card cur-card lift" data-ed-plan="valuation">
         <span class="tag">Valuation</span><h3>Valuation na Prática</h3>
         <p class="cdesc">Avaliação de ações e FIIs, com planilhas e relatórios reais de análise.</p>
         <div class="price"><span class="rs">R$</span><span class="big">997</span></div>
@@ -617,7 +617,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     <div class="foot-grid">
       <div>
         <a class="logo" href="#"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
-        <p class="foot-desc">Formação prática em análise e gestão do mercado financeiro, com cursos e simulados para o CNPI e o CFG.</p>
+        <p class="foot-desc" data-ed="footer.text">Formação prática em análise e gestão do mercado financeiro, com cursos e simulados para o CNPI e o CFG.</p>
       </div>
       <div><h4>Cursos</h4><a href="#cursos">CNPI Completo</a><a href="#cursos">Fundamentalista</a><a href="#cursos">Técnico</a><a href="#cursos">Valuation na Prática</a></div>
       <div><h4>Grátis</h4><a href="login.html">Simulado CFG</a><a href="login.html">Simulado CNPI</a><a href="login.html">Diagnóstico por módulo</a></div>
@@ -653,6 +653,56 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     if(hint) hint.textContent='Toque no Fred';
     stage.addEventListener('click',()=>stage.classList.toggle('revealed'));
   }
+
+  /* ===== Conteúdo vindo do painel adm (localStorage 'eda-db') =====
+     Só sobrescreve um campo quando o admin realmente mudou o valor
+     em relação ao padrão — assim o design original é preservado. */
+  (function hydrateFromAdmin(){
+    var db=null;try{db=JSON.parse(localStorage.getItem('eda-db'))}catch(_){}
+    if(!db) return;
+    var norm=function(s){return String(s==null?'':s).replace(/\s+/g,' ').trim();};
+    var S=db.site||{}, P=db.plans||[], C=db.courses||[];
+    // padrões do adm (seed) — usados como guarda de "mudou?"
+    var D={
+      'hero.promise':'Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer atuar com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.',
+      'formacao.title':'Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.',
+      'formacao.text':'Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.',
+      'metodo.title':'Um banco de questões que não se repete até você esgotar a base.',
+      'metodo.lead':'A maioria dos preparatórios faz você decorar respostas. Aqui, uma questão só reaparece quando todas as outras já foram vistas. Isso força entendimento.',
+      'professor.name':'Frederico Nobre, CFA',
+      'professor.bio':'Carioca, economista pela UFRJ, no mercado desde 2013. CFA Charterholder, CNPI e CGA/CGE. Gestor de recursos na Warren Investimentos, sócio responsável por asset allocation e renda variável.',
+      'footer.text':'Formação prática em análise e gestão do mercado financeiro, com cursos e simulados para o CNPI e o CGA/CGE.'
+    };
+    var vals={
+      'hero.promise':S.hero&&S.hero.promise,'formacao.title':S.formacao&&S.formacao.title,'formacao.text':S.formacao&&S.formacao.text,
+      'metodo.title':S.metodo&&S.metodo.title,'metodo.lead':S.metodo&&S.metodo.lead,
+      'professor.name':S.professor&&S.professor.name,'professor.bio':S.professor&&S.professor.bio,'footer.text':S.footer&&S.footer.text
+    };
+    Object.keys(vals).forEach(function(k){
+      var el=document.querySelector('[data-ed="'+k+'"]'),v=vals[k];
+      if(el&&v&&norm(v)!==norm(D[k])) el.textContent=v;
+    });
+    // credenciais do professor (chips)
+    var credDef=['CFA Charterholder','Gestor de recursos','Warren Investimentos','CNPI','CGA/CGE'];
+    if(S.professor&&S.professor.creds&&JSON.stringify(S.professor.creds)!==JSON.stringify(credDef)){
+      var cr=document.querySelector('[data-ed="professor.creds"]');
+      if(cr) cr.innerHTML=S.professor.creds.map(function(c){return '<span class="c">'+String(c).replace(/[&<>]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[x];})+'</span>';}).join('');
+    }
+    // planos → cards de "Cursos" (nome + preço)
+    var planDef={completo:{name:'CNPI · Curso Completo',price:'R$ 2.997'},fundamentalista:{name:'CNPI · Fundamentalista',price:'R$ 2.197'},tecnico:{name:'CNPI · Técnico',price:'R$ 2.197'},valuation:{name:'Valuation na Prática',price:'R$ 997'}};
+    P.forEach(function(p){
+      var card=document.querySelector('[data-ed-plan="'+p.id+'"]');if(!card)return;var def=planDef[p.id]||{};
+      var h=card.querySelector('h3');if(h&&p.name&&norm(p.name)!==norm(def.name))h.textContent=p.name;
+      var big=card.querySelector('.price .big');if(big&&p.price&&norm(p.price)!==norm(def.price)){var m=String(p.price).replace(/[^\d.,]/g,'');if(m)big.textContent=m;}
+    });
+    // cursos → cards "O programa" (título + descrição)
+    var cDef={cb:{title:'Base do Mercado Financeiro',desc:'Fase comum a todos os analistas: sistema financeiro, renda fixa, derivativos, ética e regulação.'},cg1:{title:'Análise Fundamentalista',desc:'Valuation, contabilidade e finanças corporativas.'},ct1:{title:'Análise Técnica (Gráfica)',desc:'Análise gráfica e tomada de decisão com base em preço e volume.'}};
+    C.forEach(function(co){
+      var card=document.querySelector('[data-ed-course="'+co.id+'"]');if(!card)return;var def=cDef[co.id]||{};
+      var h=card.querySelector('h3');if(h&&co.title&&norm(co.title)!==norm(def.title))h.textContent=co.title;
+      var d=card.querySelector('.desc');if(d&&co.desc&&norm(co.desc)!==norm(def.desc))d.textContent=co.desc;
+    });
+  })();
 </script>
 </body>
 </html>

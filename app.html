@@ -907,6 +907,84 @@ const PLANS=[
 ];
 
 /* =========================================================
+   OVERLAY DO PAINEL ADM  (localStorage 'eda-db')
+   Edições feitas no adm refletem aqui: sobrepõe por id
+   (título/descrição/preço) e ACRESCENTA itens novos criados
+   no painel, preservando o catálogo rico já existente.
+   Só sobrescreve quando o admin mudou o valor vs. o padrão dele.
+   ========================================================= */
+(function overlayFromAdmin(){
+  var db=null;try{db=JSON.parse(localStorage.getItem('eda-db'))}catch(_){}
+  if(!db) return;
+  var norm=function(s){return String(s==null?'':s).replace(/\s+/g,' ').trim();};
+  var onlyNum=function(s){return String(s==null?'':s).replace(/[^\d.,]/g,'');};
+
+  // ---- PLANOS: sobrepõe nome/preço por id; novos → append
+  var planDef={completo:{name:'CNPI · Curso Completo',price:'R$ 2.997'},fundamentalista:{name:'CNPI · Fundamentalista',price:'R$ 2.197'},tecnico:{name:'CNPI · Técnico',price:'R$ 2.197'},valuation:{name:'Valuation na Prática',price:'R$ 997'}};
+  (db.plans||[]).forEach(function(p){
+    var t=PLANS.find(function(x){return x.id===p.id;}),def=planDef[p.id]||{};
+    if(t){
+      if(p.name&&norm(p.name)!==norm(def.name))t.name=p.name;
+      if(p.price&&norm(p.price)!==norm(def.price)){var m=onlyNum(p.price);if(m)t.price=m;}
+    }else{
+      PLANS.push({id:p.id,name:p.name||'Plano',d:(p.benefits&&p.benefits[0])||'',price:onlyNum(p.price)||'0',per:'à vista'});
+    }
+  });
+
+  // ---- CURSOS: sobrepõe título/descrição por id; novos → append (owned)
+  var cDef={cb:{title:'Base do Mercado Financeiro',desc:'Fase comum a todos os analistas: sistema financeiro, renda fixa, derivativos, ética e regulação.'},cg1:{title:'Análise Fundamentalista',desc:'Valuation, contabilidade e finanças corporativas.'},ct1:{title:'Análise Técnica (Gráfica)',desc:'Análise gráfica e tomada de decisão com base em preço e volume.'}};
+  (db.courses||[]).forEach(function(c){
+    var t=COURSES.find(function(x){return x.id===c.id;}),def=cDef[c.id]||{};
+    if(t){
+      if(c.title&&norm(c.title)!==norm(def.title))t.title=c.title;
+      if(c.desc&&norm(c.desc)!==norm(def.desc))t.desc=c.desc;
+    }else{
+      var mods=(c.modules||[]).map(function(m){
+        return {title:m.title||'Módulo',lessons:(m.lessons||[]).map(function(l){
+          return [l.id||('l'+Math.abs((l.title||'').length*7+3)),l.title||'Aula',l.duration||0,0];
+        })};
+      });
+      COURSES.push({id:c.id,code:c.code||c.cert||'CURSO',title:c.title||'Novo curso',trilha:'cnpi',owned:true,color:c.color||'#D4A437',desc:c.desc||'',modules:mods});
+    }
+  });
+
+  // ---- SIMULADOS: sobrepõe título por id; novos → append
+  var sDef={'sim-cb':'Simulado CB Completo','sim-cg1':'Simulado CG1 · Fundamentalista','sim-cfg':'Simulado CGA/CGE'};
+  (db.simulados||[]).forEach(function(s){
+    var t=SIMULADOS.find(function(x){return x.id===s.id;});
+    if(t){
+      if(s.title&&norm(s.title)!==norm(sDef[s.id]||''))t.title=s.title;
+    }else{
+      var n=(s.questions||[]).length;
+      SIMULADOS.push({id:s.id,cert:s.cert||'CNPI',title:s.title||'Novo simulado',questions:n,dur:'2h00',score:null,modules:[[s.cert||'Questões',n||1,null]]});
+    }
+  });
+
+  // ---- ORDEM dos cursos definida no adm (arrastar em "ao vivo")
+  if(db.appOrder&&db.appOrder.length){
+    var pos={};db.appOrder.forEach(function(id,i){pos[id]=i;});
+    var base=COURSES.map(function(c){return c.id;});
+    COURSES.sort(function(a,b){
+      var ra=(a.id in pos)?pos[a.id]:1000+base.indexOf(a.id);
+      var rb=(b.id in pos)?pos[b.id]:1000+base.indexOf(b.id);
+      return ra-rb;
+    });
+  }
+
+  // ---- RÓTULOS do menu lateral (db.app.labels)
+  var A=db.app||{};
+  if(A.labels){
+    var map={inicio:A.labels.home,cursos:A.labels.cursos,trilhas:A.labels.trilhas,simulados:A.labels.simulados,desempenho:A.labels.desempenho};
+    document.querySelectorAll('.nav-item[data-route]').forEach(function(a){
+      var v=map[a.dataset.route],sp=a.querySelector('span');
+      if(sp&&v&&v.trim())sp.textContent=v;
+    });
+  }
+})();
+/* expõe o catálogo p/ o painel adm "ao vivo" ler via iframe (const não vira prop de window) */
+try{window.COURSES=COURSES;window.SIMULADOS=SIMULADOS;window.PLANS=PLANS;}catch(_){}
+
+/* =========================================================
    HELPERS
    ========================================================= */
 const $=(s,el=document)=>el.querySelector(s);

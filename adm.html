@@ -38,6 +38,13 @@ h1,h2,h3,h4{font-family:'Sora',sans-serif;color:var(--head)}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit}
 button:disabled{opacity:.4;cursor:not-allowed}
+[draggable="true"]{cursor:grab}
+[draggable="true"]:active{cursor:grabbing}
+.dropzone.dragover{outline:2px dashed var(--gold);outline-offset:-2px;background:var(--gold-soft-bg)}
+.dragging{opacity:.45}
+.grip{display:inline-flex;align-items:center;justify-content:center;color:var(--faint);cursor:grab;flex:none}
+.grip svg{width:16px;height:16px}
+.grip:active{cursor:grabbing}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--overlay-soft);border-radius:8px}
 
 .mono-sq{width:32px;height:32px;flex:none;border-radius:9px;background:var(--mono-grad);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
@@ -220,6 +227,13 @@ textarea.fld{resize:vertical;min-height:78px;line-height:1.5}
 .drawer-body{flex:1;overflow-y:auto;padding:22px}
 .drawer-foot{display:flex;gap:10px;padding:16px 22px;border-top:1px solid var(--border-soft)}
 .drawer-foot .btn{flex:1}
+.drawer.wide{width:min(880px,96vw)}
+.drawer.wide .drawer-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+.dr-preview{position:sticky;top:0}
+.dr-preview-h{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-deep);margin-bottom:10px;font-family:'IBM Plex Mono';display:flex;align-items:center;gap:7px}
+.dr-preview-h::before{content:"●";color:var(--green);font-size:9px}
+.dr-preview-body{background:var(--panel-2);border:1px solid var(--border);border-radius:14px;padding:18px;min-height:120px}
+@media(max-width:720px){.drawer.wide{width:min(480px,94vw)}.drawer.wide .drawer-body{grid-template-columns:1fr}}
 .grp{margin-bottom:18px}
 .grp > label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:7px}
 .hint{font-size:11.5px;color:var(--faint);margin-top:6px;line-height:1.5}
@@ -303,6 +317,23 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
   .view{padding:20px 18px}
   .topbar .tlink.hide-m{display:none}
 }
+/* ===== Área do aluno · ao vivo ===== */
+.lv-split{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:18px;align-items:start}
+.lv-panel,.lv-preview{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.lv-panel-h,.lv-preview-h{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--border);font-family:'Sora';font-weight:600;font-size:14px;color:var(--head)}
+.lv-preview-h .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 30%,transparent)}
+.lv-list{padding:12px;display:flex;flex-direction:column;gap:9px;max-height:640px;overflow-y:auto}
+.lv-card{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid var(--border);border-radius:11px;background:var(--panel-2,rgba(255,255,255,.02));cursor:grab;transition:border-color .15s,transform .1s,box-shadow .15s}
+.lv-card:hover{border-color:var(--gold-soft-bd,rgba(212,164,55,.28))}
+.lv-card.dragging{opacity:.5}
+.lv-card.dragover{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-soft-bg,rgba(212,164,55,.14))}
+.lv-code{font-family:'IBM Plex Mono';font-size:10.5px;font-weight:600;padding:3px 7px;border-radius:6px;border:1px solid var(--border);white-space:nowrap}
+.lv-meta{min-width:0;flex:1}
+.lv-t{font-size:13.5px;font-weight:600;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv-s{font-size:11.5px;color:var(--muted);margin-top:2px}
+.lv-ord{display:flex;gap:3px;flex:none}
+.lv-frame{width:100%;height:660px;border:none;background:var(--bg);display:block}
+@media(max-width:900px){.lv-split{grid-template-columns:1fr}.lv-frame{height:520px}}
 </style>
 </head>
 <body>
@@ -340,7 +371,6 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
         <button class="nav-parent" onclick="toggleGroup('usuarios')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg><span>Usuários</span><span class="caret">▶</span></button>
         <div class="nav-sub">
           <a class="nav-item sub" href="#/usuarios" data-r="usuarios">Listagem</a>
-          <a class="nav-item sub" href="#/usuarios" onclick="setTimeout(function(){editStudent()},60)">Adicionar usuário</a>
         </div>
       </div>
 
@@ -351,8 +381,9 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
           <a class="nav-item sub" href="#/simulados" data-r="simulados">Simulados</a>
           <a class="nav-item sub" href="#/banco" data-r="banco">Banco de questões</a>
           <a class="nav-item sub" href="#/trilhas" data-r="trilhas">Trilhas</a>
-          <a class="nav-item sub" href="#/site" data-r="site">Site (landing)</a>
+          <a class="nav-item sub" href="#/site" data-r="site">Site</a>
           <a class="nav-item sub" href="#/app" data-r="app">Área do aluno</a>
+          <a class="nav-item sub" href="#/aovivo" data-r="aovivo">Área do aluno · ao vivo</a>
         </div>
       </div>
 
@@ -498,16 +529,17 @@ function seed(){return {
   students:[
     {id:uid('s'),name:'Frederico Nobre',email:'admin@economiadodia.com.br',role:'admin',plan:'completo',progress:100,status:'ativo',sims:0,joined:'01/01/2026',last:'agora (você)',phone:'(21) 99999-0000',cpf:'000.000.000-00',origem:'Equipe'},
     {id:uid('s'),name:'Felipe Nunes',email:'felipe@economiadodia.com.br',role:'aluno',plan:'completo',progress:62,status:'ativo',sims:18,joined:'12/06/2026',last:'hoje, 10:20',phone:'(21) 99876-5432',cpf:'123.456.789-00',origem:'Instagram Ads'},
-    {id:uid('s'),name:'Mariana Alves',email:'mariana@gmail.com',role:'aluno',plan:'essencial',progress:34,status:'ativo',sims:7,joined:'28/06/2026',last:'hoje, 14:32',phone:'(11) 98765-4321',cpf:'234.567.890-11',origem:'Google'},
-    {id:uid('s'),name:'Rafael Antunes',email:'rafael@btg.com',role:'admin',plan:'anual',progress:88,status:'ativo',sims:41,joined:'03/05/2026',last:'ontem, 19:05',phone:'(21) 99911-2233',cpf:'345.678.901-22',origem:'Indicação'},
+    {id:uid('s'),name:'Mariana Alves',email:'mariana@gmail.com',role:'aluno',plan:'tecnico',progress:34,status:'ativo',sims:7,joined:'28/06/2026',last:'hoje, 14:32',phone:'(11) 98765-4321',cpf:'234.567.890-11',origem:'Google'},
+    {id:uid('s'),name:'Rafael Antunes',email:'rafael@btg.com',role:'admin',plan:'completo',progress:88,status:'ativo',sims:41,joined:'03/05/2026',last:'ontem, 19:05',phone:'(21) 99911-2233',cpf:'345.678.901-22',origem:'Indicação'},
     {id:uid('s'),name:'Bruna Costa',email:'bruna@outlook.com',role:'aluno',plan:'completo',progress:12,status:'inativo',sims:2,joined:'15/07/2026',last:'15/07/2026',phone:'(31) 98800-1122',cpf:'456.789.012-33',origem:'YouTube'},
-    {id:uid('s'),name:'João Prado',email:'joao.prado@gmail.com',role:'editor',plan:'essencial',progress:45,status:'ativo',sims:11,joined:'01/07/2026',last:'hoje, 09:12',phone:'(21) 99700-3344',cpf:'567.890.123-44',origem:'Instagram Ads'},
+    {id:uid('s'),name:'João Prado',email:'joao.prado@gmail.com',role:'editor',plan:'fundamentalista',progress:45,status:'ativo',sims:11,joined:'01/07/2026',last:'hoje, 09:12',phone:'(21) 99700-3344',cpf:'567.890.123-44',origem:'Instagram Ads'},
     {id:uid('s'),name:'Patrícia Lima',email:'patricia.lima@gmail.com',role:'aluno',plan:'completo',progress:73,status:'ativo',sims:24,joined:'20/06/2026',last:'ontem, 21:40',phone:'(85) 98600-5566',cpf:'678.901.234-55',origem:'Google'}
   ],
   plans:[
-    {id:'essencial',name:'Essencial',price:'R$ 97/mês',benefits:['Acesso aos cursos CNPI','Simulados básicos','Gabarito em texto']},
-    {id:'completo',name:'Completo',price:'R$ 197/mês',benefits:['Todos os cursos','Simulados premium ilimitados','Gabarito comentado em áudio','Suporte no WhatsApp','IA de estudos']},
-    {id:'anual',name:'Anual',price:'R$ 1.970/ano',benefits:['Tudo do Completo','2 meses grátis','Mentoria em grupo']}
+    {id:'completo',name:'CNPI · Curso Completo',price:'R$ 2.997',benefits:['CB + CG1 + CT1 · analista pleno','As três provas, do zero ao credenciamento','Acesso por 2 anos','Videoaulas + simulados premium + suporte no WhatsApp']},
+    {id:'fundamentalista',name:'CNPI · Fundamentalista',price:'R$ 2.197',benefits:['CB + CG1 · research e valuation','Conteúdo Brasileiro + Global','Acesso por 1 ano','Videoaulas + simulados premium + suporte no WhatsApp']},
+    {id:'tecnico',name:'CNPI · Técnico',price:'R$ 2.197',benefits:['CB + CT1 · análise gráfica','Conteúdo Brasileiro + Técnico','Acesso por 1 ano','Videoaulas + simulados premium + suporte no WhatsApp']},
+    {id:'valuation',name:'Valuation na Prática',price:'R$ 997',benefits:['Avaliação de ações e FIIs','Planilhas e relatórios reais de análise','Acesso por 1 ano']}
   ]
 };}
 let db;
@@ -550,8 +582,8 @@ function logout(){try{sessionStorage.removeItem('eda-auth')}catch(_){}$('#shell'
 function showApp(){$('#login').style.display='none';$('#shell').hidden=false;router();}
 
 /* ============ router ============ */
-const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site (landing)',app:'Área do aluno',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
-const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',venda:'venda',planos:'venda'};
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
+const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
 const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios'};
 function toggleGroup(g){const el=document.getElementById('g-'+g);if(el)el.classList.toggle('open');}
 function router(){
@@ -573,6 +605,7 @@ function router(){
     else if(r==='sistema'){html=viewSistema();}
     else if(r==='site'){html=viewSite();}
     else if(r==='app'){html=viewApp();}
+    else if(r==='aovivo'){html=viewAoVivo();}
     else if(r==='cursos'){html=viewCursos();}
     else if(r==='curso'){html=viewCurso(parts[1]);}
     else if(r==='aula'){html=viewAula(parts[1],+parts[2],+parts[3]);}
@@ -657,14 +690,14 @@ function viewDashboard(){
   </div>`;
 }
 
-/* ============ SITE (landing) ============ */
+/* ============ SITE ============ */
 function drow(k,v){return `<div class="drow"><span class="dk">${esc(k)}</span><span class="dv">${esc(v)}</span></div>`;}
 function siteBlock(title,editAttr,rows){return `<div class="card siteblock"><div class="sec-title">${title} <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="${editAttr}">${EDIT_IC} Editar</button></div><div class="dfields">${rows}</div></div>`;}
 function viewSite(){
   const s=db.site,h=s.hero,f=s.formacao,m=s.metodo,p=s.professor,ft=s.footer;
   return `
-  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Site (landing)</span></div>
-  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Site</div><h1>Site (landing)</h1><p>Edite todos os blocos da página inicial. Use Visualizar para ver como fica.</p></div>
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Site</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Site</div><h1>Site</h1><p>Edite todos os blocos da página inicial. Use Visualizar para ver como fica.</p></div>
     <div class="ph-actions"><button class="btn btn-ghost" onclick="previewSite()">${EYE_IC} Visualizar</button></div></div>
   <div class="infobox" style="margin-bottom:18px">As edições ficam salvas no protótipo (neste navegador) para você aprovar. Publicar de fato na landing é o passo de colocar no ar.</div>
   ${siteBlock('Hero (topo)','editHero()',drow('Etiqueta',h.eyebrow)+drow('Título',h.title)+drow('Texto / promessa',h.promise)+drow('Botão (CTA)',h.cta))}
@@ -678,10 +711,10 @@ function viewSite(){
   ${siteBlock('Rodapé','editFooter()',drow('Texto',ft.text)+drow('WhatsApp',ft.whatsapp||'—')+drow('E-mail',ft.email||'—'))}
   <div class="card siteblock"><div class="sec-title">Planos <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="location.hash='#/planos'">Gerenciar →</button></div><p class="hint" style="margin-top:0">Os planos exibidos no site são os mesmos da seção <b>Planos</b>.</p></div>`;
 }
-function editHero(){openDrawer('Editar hero',[{key:'eyebrow',label:'Etiqueta (eyebrow)',type:'text'},{key:'title',label:'Título principal',type:'textarea'},{key:'promise',label:'Texto / promessa',type:'textarea'},{key:'cta',label:'Texto do botão',type:'text'}],db.site.hero,d=>{Object.assign(db.site.hero,d);save();closeDrawer();toast('Hero atualizado.');router();});}
-function editFormacao(){openDrawer('Editar “A formação”',[{key:'eyebrow',label:'Etiqueta',type:'text'},{key:'title',label:'Título',type:'textarea'},{key:'text',label:'Texto',type:'textarea'}],db.site.formacao,d=>{Object.assign(db.site.formacao,d);save();closeDrawer();toast('Seção atualizada.');router();});}
-function editMetodo(){openDrawer('Editar “Por que funciona”',[{key:'eyebrow',label:'Etiqueta',type:'text'},{key:'title',label:'Título',type:'textarea'},{key:'lead',label:'Texto',type:'textarea'}],db.site.metodo,d=>{Object.assign(db.site.metodo,d);save();closeDrawer();toast('Seção atualizada.');router();});}
-function editProf(){openDrawer('Editar professor',[{key:'name',label:'Nome',type:'text',req:true},{key:'bio',label:'Bio',type:'textarea'},{key:'creds',label:'Credenciais',type:'lines'}],db.site.professor,d=>{Object.assign(db.site.professor,d);save();closeDrawer();toast('Professor atualizado.');router();});}
+function editHero(){openDrawer('Editar hero',[{key:'eyebrow',label:'Etiqueta (eyebrow)',type:'text'},{key:'title',label:'Título principal',type:'textarea'},{key:'promise',label:'Texto / promessa',type:'textarea'},{key:'cta',label:'Texto do botão',type:'text'}],db.site.hero,d=>{Object.assign(db.site.hero,d);save();closeDrawer();toast('Hero atualizado.');router();},lpHero);}
+function editFormacao(){openDrawer('Editar “A formação”',[{key:'eyebrow',label:'Etiqueta',type:'text'},{key:'title',label:'Título',type:'textarea'},{key:'text',label:'Texto',type:'textarea'}],db.site.formacao,d=>{Object.assign(db.site.formacao,d);save();closeDrawer();toast('Seção atualizada.');router();},lpSecao);}
+function editMetodo(){openDrawer('Editar “Por que funciona”',[{key:'eyebrow',label:'Etiqueta',type:'text'},{key:'title',label:'Título',type:'textarea'},{key:'lead',label:'Texto',type:'textarea'}],db.site.metodo,d=>{Object.assign(db.site.metodo,d);save();closeDrawer();toast('Seção atualizada.');router();},lpSecao);}
+function editProf(){openDrawer('Editar professor',[{key:'name',label:'Nome',type:'text',req:true},{key:'bio',label:'Bio',type:'textarea'},{key:'creds',label:'Credenciais',type:'lines'}],db.site.professor,d=>{Object.assign(db.site.professor,d);save();closeDrawer();toast('Professor atualizado.');router();},lpProf);}
 function editFooter(){openDrawer('Editar rodapé',[{key:'text',label:'Texto do rodapé',type:'textarea'},{key:'whatsapp',label:'WhatsApp',type:'text'},{key:'email',label:'E-mail de contato',type:'text'}],db.site.footer,d=>{Object.assign(db.site.footer,d);save();closeDrawer();toast('Rodapé atualizado.');router();});}
 function editDepoimento(i){const d=(i!=null&&!isNaN(i))?db.site.depoimentos[i]:null;openDrawer(d?'Editar depoimento':'Novo depoimento',[{key:'nome',label:'Nome',type:'text',req:true},{key:'cargo',label:'Cargo / empresa',type:'text'},{key:'texto',label:'Depoimento',type:'textarea',req:true}],d||{},v=>{db.site.depoimentos=db.site.depoimentos||[];if(d){Object.assign(d,v);}else{db.site.depoimentos.push(v);}save();closeDrawer();toast('Depoimento salvo.');router();});}
 function delDepoimento(i){if(!confirm('Excluir este depoimento?'))return;db.site.depoimentos.splice(i,1);save();toast('Depoimento excluído.');router();}
@@ -719,20 +752,73 @@ function editAppAssistant(){openDrawer('Assistente de IA',[{key:'assistantName',
 function editAppSub(){openDrawer('Assinatura',[{key:'subCta',label:'Chamada para assinar',type:'textarea'}],db.app,d=>{Object.assign(db.app,d);save();closeDrawer();toast('Texto atualizado.');router();});}
 function editAppLabels(){openDrawer('Rótulos do menu do aluno',[{key:'home',label:'Início',type:'text'},{key:'cursos',label:'Cursos',type:'text'},{key:'trilhas',label:'Trilhas',type:'text'},{key:'simulados',label:'Simulados',type:'text'},{key:'desempenho',label:'Desempenho',type:'text'}],db.app.labels,d=>{db.app.labels=d;save();closeDrawer();toast('Rótulos atualizados.');router();});}
 
+/* ============ ÁREA DO ALUNO · AO VIVO ============
+   Vê a área do aluno REAL (iframe do app.html) e reordena os cursos
+   arrastando — a ordem é salva em db.appOrder e o app.html reflete na hora. */
+function viewAoVivo(){
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Área do aluno · ao vivo</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Ao vivo</div><h1>Área do aluno · ao vivo</h1><p>Arraste qualquer curso para reordenar. A área do aluno, à direita, mostra tudo e atualiza na hora.</p></div>
+    <div class="ph-actions"><a class="btn btn-ghost" href="app.html#/cursos" target="_blank">Abrir em nova aba ↗</a></div></div>
+  <div class="infobox" style="margin-bottom:16px">À direita está a <b>área do aluno de verdade</b>, com <b>todos os cursos</b> que o aluno vê. Arraste os cartões à esquerda (ou use ↑ ↓) e a ordem muda ao vivo para o aluno.</div>
+  <div class="lv-split">
+    <div class="lv-panel">
+      <div class="lv-panel-h">Ordem dos cursos <span class="chip" id="lv-count" style="margin-left:auto">…</span></div>
+      <div id="lv-list" class="lv-list"><div class="hint" style="padding:12px;color:var(--muted)">Carregando a área do aluno…</div></div>
+    </div>
+    <div class="lv-preview">
+      <div class="lv-preview-h"><span class="dot"></span> Área do aluno — ao vivo <button class="btn-icon" title="Recarregar" style="margin-left:auto" onclick="lvRefresh()">⟳</button></div>
+      <iframe id="lv-frame" class="lv-frame" src="app.html#/cursos" title="Área do aluno" onload="lvSync()"></iframe>
+    </div>
+  </div>`;
+}
+/* lê o catálogo COMPLETO direto da área do aluno (iframe) e monta os cartões arrastáveis */
+let lvState=[];let lvDrag=null;
+function lvSync(){
+  var f=document.getElementById('lv-frame');if(!f)return;
+  var W=null;try{W=f.contentWindow;}catch(_){W=null;}
+  var list=W&&W.COURSES;
+  if(!list||!list.length){var el0=document.getElementById('lv-list');if(el0)el0.innerHTML='<div class="hint" style="padding:12px;color:var(--muted)">Não foi possível ler a área do aluno. Clique em ⟳.</div>';return;}
+  lvState=list.map(function(c){return {id:c.id,code:c.code||c.cert||'CURSO',title:c.title||'',color:c.color||'#D4A437',owned:c.owned!==false,aulas:(c.modules||[]).reduce(function(n,m){return n+((m.lessons||[]).length);},0)};});
+  lvRenderList();
+}
+function lvRenderList(){
+  var el=document.getElementById('lv-list');
+  if(el)el.innerHTML=lvState.map(function(c,i){
+    return `<div class="lv-card" draggable="true" data-i="${i}" ondragstart="lvDragStart(event,${i})" ondragover="lvDragOver(event)" ondragleave="lvDragLeave(event)" ondrop="lvDrop(event,${i})" ondragend="lvDragEnd(event)">
+      <span class="grip">⠿</span>
+      <span class="lv-code" style="color:${esc(c.color)}">${esc(c.code)}</span>
+      <div class="lv-meta"><div class="lv-t">${esc(c.title)}</div><div class="lv-s">${c.aulas} aula${c.aulas===1?'':'s'}${c.owned?'':' · bloqueado'}</div></div>
+      <div class="lv-ord">
+        <button class="btn-icon" title="Subir" ${i===0?'disabled':''} onclick="lvReorder(${i},${i-1})">↑</button>
+        <button class="btn-icon" title="Descer" ${i===lvState.length-1?'disabled':''} onclick="lvReorder(${i},${i+1})">↓</button>
+      </div>
+    </div>`;
+  }).join('');
+  var cnt=document.getElementById('lv-count');if(cnt)cnt.textContent=lvState.length;
+}
+function lvPersist(){db.appOrder=lvState.map(function(c){return c.id;});save();}
+function lvReorder(from,to){from=+from;to=+to;if(from===to||from<0||to<0||from>=lvState.length||to>=lvState.length)return;arrMove(lvState,from,to);lvPersist();lvRenderList();lvRefresh();toast('Ordem atualizada para o aluno.');}
+function lvRefresh(){var f=document.getElementById('lv-frame');if(f){try{f.contentWindow.location.reload();}catch(_){try{f.src=f.src;}catch(__){}}}}
+function lvDragStart(e,i){lvDrag=+i;e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain','x')}catch(_){}try{e.currentTarget.classList.add('dragging')}catch(_){}}
+function lvDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('dragover');}
+function lvDragLeave(e){e.currentTarget.classList.remove('dragover');}
+function lvDragEnd(e){try{e.currentTarget.classList.remove('dragging')}catch(_){}$$('#lv-list .dragover').forEach(el=>el.classList.remove('dragover'));lvDrag=null;}
+function lvDrop(e,i){e.preventDefault();e.currentTarget.classList.remove('dragover');if(lvDrag==null)return;lvReorder(lvDrag,+i);lvDrag=null;}
+
 /* ============ CURSOS ============ */
 function viewCursos(){
   const cards=db.courses.map((c,ci)=>`
-    <div class="ecard">
+    <div class="ecard dropzone" draggable="true" ondragstart="dragStart(event,'course',${ci})" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondragend="dragEnd(event)" ondrop="dropOn(event,'course',${ci})">
       <div class="ic" style="background:${c.color}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="2"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H11v16H4.5A2.5 2.5 0 0 1 2 17.5z"/><path d="M22 6.5A2.5 2.5 0 0 0 19.5 4H13v16h6.5a2.5 2.5 0 0 0 2.5-2.5z"/></svg></div>
       <div class="meta">${esc(c.code||'')} · ${esc(c.cert||'')}</div>
       <h3>${esc(c.title)}</h3>
       <p>${esc(c.desc||'')}</p>
       <div class="foot"><span>${(c.modules||[]).length} módulos</span><span>·</span><span>${countLessons(c)} aulas</span><span>·</span><span>${courseMinutes(c)} min</span><span style="margin-left:auto">${stBadge(c.status)}</span></div>
       <div class="acts">
+        <span class="grip" title="Arraste para reordenar"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span>
         <button class="btn btn-gold btn-sm" onclick="location.hash='#/curso/${c.id}'">Abrir & editar</button>
         <button class="btn btn-ghost btn-sm" onclick="togglePubCourse('${c.id}')">${c.status==='publicado'?'Despublicar':'Publicar'}</button>
-        <button class="btn-icon" title="Subir" ${ci===0?'disabled':''} onclick="moveCourse(${ci},-1)">↑</button>
-        <button class="btn-icon" title="Descer" ${ci===(db.courses.length-1)?'disabled':''} onclick="moveCourse(${ci},1)">↓</button>
       </div>
     </div>`).join('');
   return `
@@ -755,14 +841,12 @@ function viewCurso(id){
         <button class="btn btn-danger btn-sm" onclick="delModule('${c.id}',${mi})">${DEL_IC}</button>
       </div>
       ${(m.lessons||[]).map((l,li)=>`
-        <div class="lrow">
-          <span class="lnum">${li+1}</span>
+        <div class="lrow dropzone" draggable="true" ondragstart="dragStart(event,'lesson',${li},'${c.id}',${mi})" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondragend="dragEnd(event)" ondrop="dropOn(event,'lesson',${li},'${c.id}',${mi})">
+          <span class="grip" title="Arraste para reordenar"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span>
           <div class="lt" onclick="location.hash='#/aula/${c.id}/${mi}/${li}'"><div class="ltt">${esc(l.title)}</div>
             <div class="lts"><span>${l.duration||0} min</span><span class="filei ${l.video?'has':''}">▶ ${l.video?'vídeo':'sem vídeo'}</span><span class="filei ${l.audio?'has':''}">♪ ${l.audio?'áudio':'sem áudio'}</span>${stBadge(l.status)}</div>
           </div>
           <div class="rowact">
-            <button class="btn-icon" title="Subir" ${li===0?'disabled':''} onclick="moveLesson('${c.id}',${mi},${li},-1)">↑</button>
-            <button class="btn-icon" title="Descer" ${li===(m.lessons.length-1)?'disabled':''} onclick="moveLesson('${c.id}',${mi},${li},1)">↓</button>
             <button class="btn btn-ghost btn-sm" onclick="togglePubLesson('${c.id}',${mi},${li})">${l.status==='publicado'?'Despublicar':'Publicar'}</button>
             <button class="btn btn-ghost btn-sm" onclick="previewAula('${c.id}',${mi},${li})">${EYE_IC}</button>
             <button class="btn btn-ghost btn-sm" onclick="editLesson('${c.id}',${mi},${li})">${EDIT_IC}</button>
@@ -837,7 +921,7 @@ function viewSimulados(){
     </tr>`).join('');
   return `
   <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Simulados</h1><p>Monte simulados e o banco de questões. Um CSV vira um simulado inteiro — várias questões de uma vez.</p></div>
-    <div class="ph-actions"><button class="btn btn-ghost" onclick="importCSVNew()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg> Novo por CSV</button><button class="btn btn-gold" onclick="editSimulado()">+ Novo simulado</button></div></div>
+    <div class="ph-actions"><button class="btn btn-ghost" onclick="importCSVNew()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg> Novo por CSV</button><button class="btn btn-gold" onclick="editSimulado()">+ Novo simulado</button></div></div>
   <div class="infobox" style="margin-bottom:16px"><b>CSV vira simulado:</b> envie um arquivo .csv e ele cria um simulado com todas as questões de uma vez. Colunas: <b>enunciado, alternativa_a…d, correta (A–D), comentario, tema, dificuldade</b>. <a href="#" onclick="csvTemplate();return false" style="color:var(--gold-deep);font-weight:600">Baixar modelo .csv</a></div>
   ${db.simulados.length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Simulado</th><th>Cert.</th><th>Questões</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
     :emptyState('✓','Nenhum simulado','Crie um simulado do zero ou importe um CSV.','+ Novo simulado','editSimulado()')}`;
@@ -851,6 +935,7 @@ function viewSimulado(id){
         <span class="chip">${esc(q.theme||'—')}</span><span class="chip">${diffText(q.difficulty)}</span><span class="filei ${q.audio?'has':''}">♪ ${q.audio?'áudio':'sem áudio'}</span>
         <button class="btn-icon" title="Subir" ${qi===0?'disabled':''} onclick="moveQuestion('${s.id}',${qi},-1)">↑</button>
         <button class="btn-icon" title="Descer" ${qi===(s.questions.length-1)?'disabled':''} onclick="moveQuestion('${s.id}',${qi},1)">↓</button>
+        <button class="btn btn-ghost btn-sm" title="Salvar cópia no banco de questões (reutilizável)" onclick="saveQToBank('${s.id}',${qi})">↗ Banco</button>
         <button class="btn btn-ghost btn-sm" onclick="editQuestion('${s.id}',${qi})">${EDIT_IC} Editar</button>
         <button class="btn btn-danger btn-sm" onclick="delQuestion('${s.id}',${qi})">${DEL_IC}</button>
       </div>
@@ -869,7 +954,7 @@ function viewSimulado(id){
       <button class="btn btn-ghost" onclick="previewSimulado('${s.id}')">${EYE_IC} Visualizar</button>
       <button class="btn btn-ghost" onclick="editQuestion('${s.id}')">+ Questão</button>
       <button class="btn btn-ghost" onclick="addFromBank('${s.id}')">+ Do banco</button>
-      <button class="btn btn-ghost" onclick="importCSV('${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg> CSV</button>
+      <button class="btn btn-ghost" onclick="importCSV('${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg> CSV</button>
       <button class="btn btn-ghost" onclick="editSimulado('${s.id}')">${EDIT_IC} Config</button>
     </div></div>
   <div class="stat-grid" style="margin-bottom:16px">
@@ -947,7 +1032,7 @@ function viewAlunos(){
   return `
   <div class="crumb"><span>Usuários</span> <span class="sep">›</span> <span style="color:var(--text)">Listagem</span></div>
   <div class="page-head"><div class="ph-l"><div class="eyebrow">Usuários · Listagem</div><h1>Usuários</h1><p>Ordene clicando nas colunas, selecione vários para ações em massa e defina papéis.</p></div>
-    <div class="ph-actions"><button class="btn btn-gold" onclick="editStudent()">+ Novo usuário</button></div></div>
+    <div class="ph-actions"><button class="btn btn-ghost" onclick="exportUsersCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg> Exportar CSV</button><button class="btn btn-gold" onclick="editStudent()">+ Novo usuário</button></div></div>
   <div class="stat-grid" style="margin-bottom:18px">
     <div class="stat"><div class="k">Total</div><div class="v">${total}</div><div class="d">usuários</div></div>
     <div class="stat"><div class="k">Administradores</div><div class="v" style="color:var(--gold-deep)">${admins}</div><div class="d">com acesso total</div></div>
@@ -977,6 +1062,16 @@ function viewAlunos(){
     <th>Último acesso</th>
     <th onclick="sortUsers('status')" style="cursor:pointer">Status${sc('status')}</th>
     <th></th></tr></thead><tbody id="user-rows">${rows}</tbody></table></div>`;
+}
+function exportUsersCSV(){
+  const cols=['Nome','E-mail','Telefone','CPF','Papel','Plano','Progresso (%)','Simulados','Status','Origem','Cadastro','Último acesso'];
+  const linhas=db.students.map(s=>[s.name||'',s.email||'',s.phone||'',s.cpf||'',roleName(s.role),planName(s.plan),(s.progress||0),(s.sims||0),s.status||'',s.origem||'',s.joined||'',s.last||'']);
+  const csv=[cols].concat(linhas).map(r=>r.map(c=>{const v=String(c==null?'':c);return /[";\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(';')).join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='usuarios-economia-do-dia.csv';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  toast(db.students.length+' usuários exportados para CSV.');
 }
 function filterUsers(){const q=($('#user-search input')?$('#user-search input').value:'').toLowerCase().trim(),role=$('#user-role')?$('#user-role').value:'';let n=0;$$('#user-rows .urow').forEach(tr=>{const show=(!q||tr.getAttribute('data-s').includes(q))&&(!role||tr.getAttribute('data-role')===role);tr.style.display=show?'':'none';if(show)n++;});const c=$('#user-count');if(c)c.textContent=n+(n===1?' usuário':' usuários');}
 function viewAluno(id){
@@ -1130,17 +1225,46 @@ function doImportCSV(sid,text){const qs=csvToQuestions(text);if(!qs.length){toas
 function doImportCSVNew(fname,text){const qs=csvToQuestions(text);if(!qs.length){toast('Nenhuma questão válida no CSV.','err');return;}const nm='Simulado '+String(fname||'CSV').replace(/\.csv$/i,'').replace(/[-_]+/g,' ').trim();const ns={id:uid('sim'),cert:'CNPI',title:nm,status:'rascunho',desc:qs.length+' questões importadas por CSV.',questions:qs};db.simulados.push(ns);save();toast('Simulado criado com '+qs.length+' questões.');location.hash='#/simulado/'+ns.id;router();}
 
 /* ============ DRAWER + FORM ENGINE ============ */
-let drawerFiles={};let drawerOptions=[];let drawerCorrect=0;let onSaveFn=null;const _fspecs={};
-function openDrawer(title,fields,values,onSave){
-  drawerFiles={};drawerOptions=[];drawerCorrect=0;onSaveFn=onSave;values=values||{};
+let drawerFiles={};let drawerOptions=[];let drawerCorrect=0;let onSaveFn=null;let drawerFields=null;let drawerPreview=null;const _fspecs={};
+function openDrawer(title,fields,values,onSave,previewFn){
+  drawerFiles={};drawerOptions=[];drawerCorrect=0;onSaveFn=onSave;values=values||{};drawerFields=fields;drawerPreview=previewFn||null;
   $('#dr-title').textContent=title;
-  $('#dr-body').innerHTML=fields.map(f=>buildField(f,values[f.key])).join('');
+  const formHTML=fields.map(f=>buildField(f,values[f.key])).join('');
+  $('#drawer').classList.toggle('wide',!!previewFn);
+  $('#dr-body').innerHTML=previewFn?`<div class="dr-form">${formHTML}</div><div class="dr-preview"><div class="dr-preview-h">Prévia — como o aluno vê</div><div class="dr-preview-body" id="dr-preview-body"></div></div>`:formHTML;
   fields.filter(f=>f.type==='file').forEach(f=>{ _fspecs[f.key]=f; drawerFiles[f.key]=values[f.key]!==undefined?values[f.key]:null; renderUpload(f); });
   fields.filter(f=>f.type==='options').forEach(()=>{drawerOptions=(values.options||['','','','']).slice();drawerCorrect=values.correct||0;renderOptions();});
   $('#dr-save').onclick=()=>{const data=collect(fields);if(data===false)return;onSaveFn(data);};
+  if(previewFn){liveUpdate();$$('#dr-body [data-k],#dr-body [data-msel]').forEach(el=>{el.addEventListener('input',liveUpdate);el.addEventListener('change',liveUpdate);});}
   $('#scrim').hidden=false;$('#drawer').hidden=false;requestAnimationFrame(()=>{$('#scrim').classList.add('show');$('#drawer').classList.add('show');});
   setTimeout(()=>{const fi=$('#dr-body .fld');if(fi)fi.focus();},260);
 }
+function collectLive(fields){const out={};for(const f of fields){
+  if(f.type==='file'){out[f.key]=drawerFiles[f.key];continue;}
+  if(f.type==='options'){out.options=drawerOptions.slice();out.correct=drawerCorrect;continue;}
+  if(f.type==='multiselect'){out[f.key]=$$(`[data-msel="${f.key}"]:checked`).map(c=>c.value);continue;}
+  const el=$(`[data-k="${f.key}"]`);let v=el?el.value:'';
+  if(f.type==='number')v=v===''?0:Number(v);
+  if(f.type==='lines')v=v.split('\n').map(x=>x.trim()).filter(Boolean);
+  out[f.key]=v;}
+  return out;}
+function liveUpdate(){if(!drawerPreview)return;const b=$('#dr-preview-body');if(!b)return;try{b.innerHTML=drawerPreview(collectLive(drawerFields));}catch(err){}}
+/* ---- prévias ao vivo (como o aluno vê) ---- */
+function lpLesson(v){const vid=v.video,aud=v.audio;return `
+  <div class="player">${vid&&vid.url?`<video controls src="${vid.url}"></video>`:`<div class="pbtn"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><div class="pph">${vid?esc(vid.name):'Vídeo da aula'}</div>`}</div>
+  <h3 style="font-size:17px;margin:14px 0 6px">${esc(v.title||'Título da aula')}</h3>
+  <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px"><span class="chip">${v.duration||0} min</span><span class="chip">${v.status==='publicado'?'Publicado':'Rascunho'}</span></div>
+  <p style="color:var(--muted);font-size:13.5px;line-height:1.6">${esc(v.desc||'A descrição da aula aparece aqui.')}</p>
+  ${aud?`<div class="audio-cta" style="margin-top:12px"><span class="ai"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div class="at">Áudio de explicação</div><div class="as">${aud.url?'Toque para ouvir':esc(aud.name||'')}</div></div></div>`:''}`;}
+function lpQuestion(v){const opts=(v.options||[]).map(o=>String(o));return `
+  <div class="pvq" style="margin:0;padding:0;border:none;background:none"><div class="qn">Questão · ${esc(v.theme||'tema')}</div>
+  <div class="qs">${esc(v.stmt||'O enunciado da questão aparece aqui…')}</div>
+  ${opts.map((o,i)=>o.trim()?`<div class="qo ${i===v.correct?'ok':''}"><span class="ql">${String.fromCharCode(65+i)}</span><span>${esc(o)}</span>${i===v.correct?'<span style="margin-left:auto;color:var(--green);font-size:12px">✓ correta</span>':''}</div>`:'').join('')}
+  ${v.comment?`<div class="qcom" style="margin-top:10px"><b>Gabarito:</b> ${esc(v.comment)}</div>`:''}</div>`;}
+function lpHero(v){return `<div style="font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:8px">${esc(v.eyebrow||'')}</div><h1 style="font-size:22px;line-height:1.12;letter-spacing:-.5px;margin-bottom:12px">${esc(v.title||'Título do hero')}</h1><p style="color:var(--muted);font-size:13.5px;line-height:1.6;margin-bottom:14px">${esc(v.promise||'')}</p><span class="btn btn-gold btn-sm">${esc(v.cta||'Botão')}</span>`;}
+function lpSecao(v){return `<div style="font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:8px">${esc(v.eyebrow||'')}</div><h2 style="font-size:18px;line-height:1.2;margin-bottom:8px">${esc(v.title||'')}</h2><p style="color:var(--muted);font-size:13.5px;line-height:1.6">${esc(v.text||v.lead||'')}</p>`;}
+function lpProf(v){const creds=Array.isArray(v.creds)?v.creds:String(v.creds||'').split('\n').map(x=>x.trim()).filter(Boolean);return `<div style="font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:8px">Professor</div><h2 style="font-size:19px;margin-bottom:8px">${esc(v.name||'Nome do professor')}</h2><p style="color:var(--muted);font-size:13.5px;line-height:1.6;margin-bottom:10px">${esc(v.bio||'')}</p><div style="display:flex;gap:7px;flex-wrap:wrap">${creds.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>`;}
+function lpCourse(v){return `<div class="ecard" style="cursor:default"><div class="ic" style="background:${v.color||'#D4A437'}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="2"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H11v16H4.5A2.5 2.5 0 0 1 2 17.5z"/><path d="M22 6.5A2.5 2.5 0 0 0 19.5 4H13v16h6.5a2.5 2.5 0 0 0 2.5-2.5z"/></svg></div><div class="meta">${esc(v.code||'')} · ${esc(v.cert||'')}</div><h3>${esc(v.title||'Título do curso')}</h3><p>${esc(v.desc||'')}</p><div class="foot"><span class="chip">${v.status==='publicado'?'Publicado':'Rascunho'}</span></div></div>`;}
 function closeDrawer(){$('#scrim').classList.remove('show');$('#drawer').classList.remove('show');setTimeout(()=>{$('#scrim').hidden=true;$('#drawer').hidden=true;$('#dr-body').innerHTML='';},280);}
 function buildField(f,val){
   if(f.type==='file')return `<div class="grp"><label>${f.label}</label><div id="wrap-${f.key}"></div>${f.hint?`<div class="hint">${f.hint}</div>`:''}</div>`;
@@ -1169,10 +1293,10 @@ function collect(fields){
 }
 function renderOptions(){const c=$('#opts');if(!c)return;c.innerHTML=drawerOptions.map((o,i)=>`
   <div class="opt"><button type="button" class="ok ${i===drawerCorrect?'on':''}" onclick="setCorrect(${i})">${String.fromCharCode(65+i)}</button>
-  <input class="fld" value="${esc(o)}" oninput="drawerOptions[${i}]=this.value"><button type="button" class="ox" onclick="rmOption(${i})">✕</button></div>`).join('');}
-function addOption(){drawerOptions.push('');renderOptions();}
-function rmOption(i){if(drawerOptions.length<=2){toast('Mínimo de 2 alternativas.','err');return;}drawerOptions.splice(i,1);if(drawerCorrect>=drawerOptions.length)drawerCorrect=0;renderOptions();}
-function setCorrect(i){drawerCorrect=i;renderOptions();}
+  <input class="fld" value="${esc(o)}" oninput="drawerOptions[${i}]=this.value;liveUpdate()"><button type="button" class="ox" onclick="rmOption(${i})">✕</button></div>`).join('');}
+function addOption(){drawerOptions.push('');renderOptions();liveUpdate();}
+function rmOption(i){if(drawerOptions.length<=2){toast('Mínimo de 2 alternativas.','err');return;}drawerOptions.splice(i,1);if(drawerCorrect>=drawerOptions.length)drawerCorrect=0;renderOptions();liveUpdate();}
+function setCorrect(i){drawerCorrect=i;renderOptions();liveUpdate();}
 function renderUpload(f){
   const wrap=$('#wrap-'+f.key);if(!wrap)return;const file=drawerFiles[f.key];
   if(!file){
@@ -1190,7 +1314,7 @@ function renderUpload(f){
 }
 function setFile(f,file){
   const url=URL.createObjectURL(file);
-  drawerFiles[f.key]={name:file.name,size:file.size,type:file.type,url};_fspecs[f.key]=f;
+  drawerFiles[f.key]={name:file.name,size:file.size,type:file.type,url};_fspecs[f.key]=f;liveUpdate();
   const wrap=$('#wrap-'+f.key),isAudio=(file.type||'').includes('audio');
   if(wrap){
     wrap.innerHTML=`<div class="upfile"><span class="fi">${isAudio?'♪':'▶'}</span><div class="fn"><b>${esc(file.name)}</b><span>Enviando… ${fmtSize(file.size)}</span><div class="progbar" style="margin-top:8px"><i id="upbar-${f.key}" style="width:8%;transition:width .7s ease"></i></div></div></div>`;
@@ -1198,7 +1322,7 @@ function setFile(f,file){
     setTimeout(()=>renderUpload(f),820);
   }else{renderUpload(f);}
 }
-function clearFile(key){drawerFiles[key]=null;renderUpload(_fspecs[key]||{key,accept:''});}
+function clearFile(key){drawerFiles[key]=null;renderUpload(_fspecs[key]||{key,accept:''});liveUpdate();}
 
 /* ============ CRUD ============ */
 const CERT_OPTS=[['CNPI','CNPI'],['CGA/CGE','CGA/CGE'],['Livre','Livre']];
@@ -1215,7 +1339,7 @@ function editCourse(id){
   ],c||{color:'#D4A437',status:'rascunho',cert:'CNPI'},d=>{
     if(c){Object.assign(c,d);}else{const nc={id:uid('c'),modules:[],...d};db.courses.push(nc);}
     save();closeDrawer();toast('Curso salvo.');router();
-  });
+  },lpCourse);
 }
 function addModule(cid){const c=db.courses.find(c=>c.id===cid);openDrawer('Novo módulo',[{key:'title',label:'Nome do módulo',type:'text',req:true}],{},d=>{c.modules=c.modules||[];c.modules.push({title:d.title,lessons:[]});save();closeDrawer();toast('Módulo criado.');router();});}
 function editModule(cid,mi){const c=db.courses.find(c=>c.id===cid);const m=c.modules[mi];openDrawer('Editar módulo',[{key:'title',label:'Nome do módulo',type:'text',req:true}],m,d=>{m.title=d.title;save();closeDrawer();toast('Módulo atualizado.');router();});}
@@ -1232,7 +1356,7 @@ function editLesson(cid,mi,li){
   ],l||{status:'rascunho'},d=>{
     if(l){Object.assign(l,d);}else{m.lessons=m.lessons||[];m.lessons.push({id:uid('l'),...d});}
     save();closeDrawer();toast('Aula salva.');router();
-  });
+  },lpLesson);
 }
 function delLesson(cid,mi,li,back){if(!confirm('Excluir esta aula?'))return;const c=db.courses.find(c=>c.id===cid);c.modules[mi].lessons.splice(li,1);save();toast('Aula excluída.');if(back)location.hash='#/curso/'+cid;else router();}
 function editSimulado(id){
@@ -1267,7 +1391,7 @@ function editQuestion(sid,qi){
   ],q||{options:['','','',''],correct:0,difficulty:'média'},d=>{
     s.questions=s.questions||[];if(q){Object.assign(q,d);}else{s.questions.push({id:uid('q'),...d});}
     save();closeDrawer();toast('Questão salva.');router();
-  });
+  },lpQuestion);
 }
 function delQuestion(sid,qi){if(!confirm('Excluir esta questão?'))return;const s=db.simulados.find(s=>s.id===sid);s.questions.splice(qi,1);save();toast('Questão excluída.');router();}
 function moveQuestion(sid,qi,dir){const s=db.simulados.find(s=>s.id===sid);if(!s)return;const j=qi+dir;if(j<0||j>=s.questions.length)return;const t=s.questions[qi];s.questions[qi]=s.questions[j];s.questions[j]=t;save();router();}
@@ -1316,6 +1440,18 @@ function moveModule(cid,mi,dir){const c=db.courses.find(x=>x.id===cid);if(c&&mov
 function moveLesson(cid,mi,li,dir){const c=db.courses.find(x=>x.id===cid),m=c&&c.modules[mi];if(m&&moveItem(m.lessons,li,dir)){save();router();}}
 function movePlan(i,dir){if(moveItem(db.plans,i,dir)){save();router();}}
 function moveTrilha(i,dir){if(moveItem(db.trilhas,i,dir)){save();router();}}
+/* ---- arrastar para reordenar (drag & drop) ---- */
+let dragCtx=null;
+function dragStart(e,kind,idx,cid,mi){dragCtx={kind,idx:+idx,cid:cid==null?null:cid,mi:mi==null?null:+mi};e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain','x')}catch(_){}try{e.currentTarget.classList.add('dragging')}catch(_){}}
+function dragOver(e){if(!dragCtx)return;e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('dragover');}
+function dragLeave(e){e.currentTarget.classList.remove('dragover');}
+function dragEnd(e){try{e.currentTarget.classList.remove('dragging')}catch(_){}$$('.dragover').forEach(el=>el.classList.remove('dragover'));dragCtx=null;}
+function dropOn(e,kind,idx,cid,mi){e.preventDefault();e.currentTarget.classList.remove('dragover');if(!dragCtx||dragCtx.kind!==kind){dragCtx=null;return;}idx=+idx;
+  if(kind==='course'){arrMove(db.courses,dragCtx.idx,idx);}
+  else if(kind==='lesson'){if(dragCtx.cid!==cid||dragCtx.mi!==(mi==null?null:+mi)){dragCtx=null;return;}const c=db.courses.find(x=>x.id===cid);if(c&&c.modules[mi])arrMove(c.modules[mi].lessons,dragCtx.idx,idx);}
+  dragCtx=null;save();router();
+}
+function arrMove(arr,from,to){if(from===to||from<0||to<0||from>=arr.length||to>=arr.length)return;const it=arr.splice(from,1)[0];arr.splice(to,0,it);}
 /* ---- ordenar + ações em massa (usuários) ---- */
 let usersSort={col:'name',dir:1};
 function sortUsers(col){if(usersSort.col===col)usersSort.dir*=-1;else{usersSort.col=col;usersSort.dir=1;}router();}
@@ -1344,7 +1480,7 @@ function viewConteudo(){
     {t:'Cursos & aulas',d:`${db.courses.length} cursos · ${totalLessons()} aulas com vídeo e áudio`,h:'#/cursos',ic:'▤',c:'#D4A437'},
     {t:'Simulados',d:`${db.simulados.length} simulados · ${totalQuestions()} questões · importar CSV`,h:'#/simulados',ic:'✓',c:'#3D8BE0'},
     {t:'Trilhas',d:`${db.trilhas.length} jornadas de estudo`,h:'#/trilhas',ic:'◈',c:'#2BB673'},
-    {t:'Site (landing)',d:'Textos da página inicial e do professor',h:'#/site',ic:'◑',c:'#E8A33D'}
+    {t:'Site',d:'Textos da página inicial e do professor',h:'#/site',ic:'◑',c:'#E8A33D'}
   ];
   return `
   <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Conteúdo</h1><p>Tudo que o aluno vê: cursos, aulas, simulados, trilhas e o site.</p></div></div>
@@ -1460,7 +1596,7 @@ function viewBanco(){
       <td><span class="chip">${esc(q.theme||'—')}</span></td>
       <td>${diffText(q.difficulty)}</td>
       <td>${q.audio?'<span class="filei has">♪</span>':'<span class="filei">—</span>'}</td>
-      <td class="rowend"><div class="rowact"><button class="btn btn-ghost btn-sm" onclick="editBankQuestion(${i})">${EDIT_IC} Editar</button><button class="btn btn-danger btn-sm" onclick="delBankQuestion(${i})">${DEL_IC}</button></div></td>
+      <td class="rowend"><div class="rowact"><button class="btn btn-ghost btn-sm" title="Adicionar esta questão a um ou mais simulados" onclick="bankToSims(${i})">+ Simulado</button><button class="btn btn-ghost btn-sm" onclick="editBankQuestion(${i})">${EDIT_IC} Editar</button><button class="btn btn-danger btn-sm" onclick="delBankQuestion(${i})">${DEL_IC}</button></div></td>
     </tr>`).join('');
   return `
   <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Banco de questões</span></div>
@@ -1499,6 +1635,14 @@ function addFromBank(sid){
   openPreview('Adicionar do banco de questões',`<p class="hint" style="margin-top:0;margin-bottom:12px">Selecione as questões para adicionar a este simulado.</p>${rows}<button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="confirmAddFromBank('${sid}')">Adicionar selecionadas</button>`);
 }
 function confirmAddFromBank(sid){const s=db.simulados.find(x=>x.id===sid);const picks=$$('#pv-body [data-bq]:checked').map(c=>+c.getAttribute('data-bq'));if(!picks.length){toast('Selecione ao menos uma questão.','err');return;}picks.forEach(i=>{const q=db.questionBank[i];s.questions.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});});save();closePreview();toast(picks.length+(picks.length===1?' questão adicionada.':' questões adicionadas.'));router();}
+/* Vincular questão do banco → simulado(s) (o "vice-versa" do "+ Do banco") */
+function bankToSims(i){const q=(db.questionBank||[])[i];if(!q)return;
+  if(!(db.simulados||[]).length){toast('Nenhum simulado criado ainda.','err');return;}
+  const rows=db.simulados.map((s,si)=>`<label style="display:flex;align-items:flex-start;gap:11px;margin-bottom:9px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" data-si="${si}" style="width:16px;height:16px;margin-top:2px;accent-color:var(--gold)"><div><div style="color:var(--head);font-size:14px">${esc(s.title)}</div><div class="lts" style="margin-top:4px"><span class="chip">${esc(s.cert)}</span><span class="chip">${(s.questions||[]).length} questões</span><span class="chip">${stBadge(s.status)}</span></div></div></label>`).join('');
+  openPreview('Vincular questão a simulado(s)',`<p class="hint" style="margin-top:0;margin-bottom:12px">"${esc((q.stmt||'').slice(0,90))}${(q.stmt||'').length>90?'…':''}" — selecione os simulados que devem incluir esta questão.</p>${rows}<button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="confirmBankToSims(${i})">Adicionar aos selecionados</button>`);}
+function confirmBankToSims(i){const q=db.questionBank[i];const picks=$$('#pv-body [data-si]:checked').map(c=>+c.getAttribute('data-si'));if(!picks.length){toast('Selecione ao menos um simulado.','err');return;}picks.forEach(si=>{const s=db.simulados[si];s.questions=s.questions||[];s.questions.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});});save();closePreview();toast('Questão vinculada a '+picks.length+(picks.length===1?' simulado.':' simulados.'));router();}
+/* Salvar questão do simulado no banco (reutilizável) */
+function saveQToBank(sid,qi){const s=db.simulados.find(x=>x.id===sid);if(!s)return;const q=(s.questions||[])[qi];if(!q)return;db.questionBank=db.questionBank||[];db.questionBank.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});save();toast('Questão salva no banco de questões.');}
 
 /* ============ PROVA (aluno faz o simulado) ============ */
 let exam=null,examTimer=null;
