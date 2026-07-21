@@ -127,6 +127,24 @@ a{color:inherit;text-decoration:none}
 .gab-audio .pb{width:36px;height:36px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
 .gab-audio .gt{font-size:13px;font-weight:600;color:var(--head)}
 .gab-audio .gs{font-size:12px;color:var(--muted)}
+.verdict{display:flex;align-items:center;gap:14px;border-radius:14px;padding:16px 20px;margin:6px 0 22px;border:1px solid}
+.verdict.pass{background:color-mix(in srgb,var(--green) 12%,transparent);border-color:color-mix(in srgb,var(--green) 40%,transparent)}
+.verdict.fail{background:color-mix(in srgb,var(--amber) 12%,transparent);border-color:color-mix(in srgb,var(--amber) 40%,transparent)}
+.verdict .vic{width:44px;height:44px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:22px}
+.verdict.pass .vic{background:var(--green);color:#fff}
+.verdict.fail .vic{background:var(--amber);color:#0B0D10}
+.verdict .vt{font-family:'Sora';font-weight:700;font-size:16px;color:var(--head)}
+.verdict .vs{font-size:13.5px;color:var(--muted);margin-top:2px}
+.res-pct{font-family:'IBM Plex Mono';font-size:14px;color:var(--muted);margin:2px 0 2px}
+.res-pct b{color:var(--head)}
+.rtbl{width:100%;border-collapse:collapse;font-size:14px}
+.rtbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;padding:0 10px 10px;border-bottom:1px solid var(--border)}
+.rtbl td{padding:12px 10px;border-bottom:1px solid var(--border-soft)}
+.rtbl td.c{text-align:center;font-family:'IBM Plex Mono';font-weight:600}
+.rtbl tr:last-child td{border-bottom:none}
+.rtabs{display:inline-flex;gap:3px;padding:3px;border-radius:11px;background:var(--overlay-soft);border:1px solid var(--border);margin:4px 0 16px}
+.rtab{font-family:'Inter';font-weight:600;font-size:13px;padding:8px 16px;border-radius:8px;border:none;background:none;color:var(--muted);cursor:pointer}
+.rtab.on{background:var(--gold-grad);color:#0B0D10}
 .q .gab{margin-top:14px;display:flex;align-items:center;gap:11px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:11px;padding:11px 14px}
 .q .gab .ai{width:34px;height:34px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center}
 .q .gab .at{font-size:13px;font-weight:600;color:var(--head)}
@@ -228,26 +246,31 @@ a{color:inherit;text-decoration:none}
 <!-- ===================== TELA 3: RESULTADO ===================== -->
 <section id="result" class="hidden">
   <div class="wrap">
+    <div class="verdict" id="verdict" style="display:none"></div>
     <div class="res-hero">
-      <div class="res-ring" id="res-ring" style="--pct:100%"><span class="rv" id="res-rv">0/10</span></div>
+      <div class="res-ring" id="res-ring" style="--pct:0%"><span class="rv" id="res-rv">0/10</span></div>
       <h1 id="res-title">Seu resultado</h1>
-      <p id="res-sub">Confira abaixo a correção, questão por questão.</p>
+      <div class="res-pct" id="res-pct"></div>
       <div class="res-stats">
         <div class="res-stat"><div class="v" id="rs-hit" style="color:var(--green)">0</div><div class="k">Acertos</div></div>
         <div class="res-stat"><div class="v" id="rs-miss" style="color:var(--red)">0</div><div class="k">Erros</div></div>
         <div class="res-stat"><div class="v" id="rs-time">00:00</div><div class="k">Tempo usado</div></div>
       </div>
     </div>
-    <div class="card" style="text-align:center;background:var(--gold-soft-bg);border-color:var(--gold-soft-bd)">
-      <div style="font-family:'Sora';font-weight:600;font-size:15px;color:var(--head)">Correção completa liberada neste simulado grátis</div>
-      <div style="font-size:13.5px;color:var(--muted);margin-top:4px">Você vê a resposta certa, o comentário do gabarito e pode ouvir a explicação em áudio de cada questão. No curso, todos os simulados vêm assim.</div>
+    <div class="card">
+      <div class="sec-title" style="margin-bottom:14px">Acertos e erros por tópico</div>
+      <table class="rtbl" id="topic-table"></table>
+    </div>
+    <div class="card" style="text-align:center;background:linear-gradient(180deg,var(--gold-soft-bg),transparent);border-color:var(--gold-soft-bd)">
+      <div style="font-family:'Sora';font-weight:700;font-size:17px;color:var(--head)">Prepare-se de forma completa para a prova</div>
+      <div style="font-size:14px;color:var(--muted);margin:6px 0 16px">No curso você tem todos os simulados, resultado detalhado por módulo e o gabarito comentado em áudio de todas as perguntas. Fale com a nossa equipe.</div>
+      <a class="btn btn-gold" href="index.html#cursos">Conhecer os cursos</a>
+    </div>
+    <div class="rtabs">
+      <button class="rtab on" data-rt="respostas" onclick="resTab('respostas')">Respostas</button>
+      <button class="rtab" data-rt="simulado" onclick="resTab('simulado')">Simulado</button>
     </div>
     <div id="review"></div>
-    <div class="card" style="text-align:center;background:linear-gradient(180deg,var(--gold-soft-bg),transparent);border-color:var(--gold-soft-bd)">
-      <div style="font-family:'Sora';font-weight:700;font-size:17px;color:var(--head)">Este foi seu simulado grátis com correção</div>
-      <div style="font-size:14px;color:var(--muted);margin:6px 0 16px">No curso você tem todos os simulados, resultado detalhado por módulo e gabarito comentado em áudio para todas as perguntas.</div>
-      <a class="btn btn-gold" href="index.html#cursos">Ver os cursos</a>
-    </div>
     <div style="display:flex;gap:12px;justify-content:center;margin:10px 0 30px">
       <button class="btn btn-ghost" onclick="backToIntro()">Voltar ao início</button>
       <button class="btn btn-ghost" onclick="startSim()">Refazer simulado</button>
@@ -442,40 +465,66 @@ function startSim(){
   clearInterval(timerId);timerId=setInterval(tick,1000);
 }
 function backToIntro(){clearInterval(timerId);show('intro');}
+var PASS_PCT=70;
 function submitSim(){
   clearInterval(timerId);
   var gradable=Q.filter(function(q){return typeof q.correct==='number';}).length;
   var hits=0;Q.forEach(function(q,qi){if(typeof q.correct==='number'&&answers[qi]===q.correct)hits++;});
   var pctScore=gradable?Math.round(hits/gradable*100):0;
-  var ringColor=pctScore>=70?'var(--green)':(pctScore>=50?'var(--amber)':'var(--red)');
+  var passed=gradable>0&&pctScore>=PASS_PCT;
   var ring=document.getElementById('res-ring');
-  document.getElementById('res-rv').textContent=gradable?(hits+'/'+gradable):(Object.keys(answers).length+'/'+Q.length);
   ring.style.setProperty('--pct',(gradable?(hits/gradable*100):0)+'%');
-  ring.style.setProperty('--ringc',ringColor);
+  ring.style.setProperty('--ringc',passed?'var(--green)':(pctScore>=50?'var(--amber)':'var(--red)'));
+  document.getElementById('res-rv').textContent=gradable?(hits+'/'+gradable):(Object.keys(answers).length+'/'+Q.length);
   document.getElementById('rs-hit').textContent=hits;
   document.getElementById('rs-miss').textContent=Math.max(gradable-hits,0);
   document.getElementById('rs-time').textContent=fmt(tUsed);
   document.getElementById('res-title').textContent=gradable?('Você acertou '+hits+' de '+gradable):'Simulado enviado';
-  document.getElementById('res-sub').textContent=gradable?('Aproveitamento de '+pctScore+'%. Confira a correção, questão por questão.'):'Confira abaixo o que você marcou.';
+  var v=document.getElementById('verdict');
+  if(gradable){
+    v.style.display='';v.className='verdict '+(passed?'pass':'fail');
+    v.innerHTML='<span class="vic">'+(passed?'✓':'!')+'</span><div><div class="vt">'+(passed?'Muito bem! Você foi aprovado neste simulado.':'Opss! Você precisa estudar mais um pouco.')+'</div><div class="vs">'+(passed?'Você atingiu o percentual mínimo de acertos.':'Você não atingiu o percentual mínimo de acertos para este simulado.')+'</div></div>';
+  }else{v.style.display='none';}
+  document.getElementById('res-pct').innerHTML=gradable?('Percentual de acerto: <b>'+pctScore+'%</b> ('+PASS_PCT+'% necessários)'):'';
+  buildTopicTable();
+  resTab('respostas');
+  try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(_){}
+  show('result');
+}
+function buildTopicTable(){
+  var groups={},order=[];
+  Q.forEach(function(q,qi){
+    if(typeof q.correct!=='number')return;
+    var t=q.theme||SIM_TITLE;
+    if(!groups[t]){groups[t]={hit:0,miss:0,total:0};order.push(t);}
+    groups[t].total++;if(answers[qi]===q.correct)groups[t].hit++;else groups[t].miss++;
+  });
+  var rows=order.map(function(t,i){var g=groups[t];return '<tr><td class="c">#'+(i+1)+'</td><td>'+esc(t)+'</td><td class="c" style="color:var(--green)">'+g.hit+'</td><td class="c" style="color:var(--red)">'+g.miss+'</td><td class="c">'+g.total+'</td></tr>';}).join('');
+  var tbl=document.getElementById('topic-table');
+  if(tbl)tbl.innerHTML='<thead><tr><th>ID</th><th>Tópico</th><th style="text-align:center">Acertos</th><th style="text-align:center">Erros</th><th style="text-align:center">Total</th></tr></thead><tbody>'+(rows||'<tr><td colspan="5" style="color:var(--muted)">Sem gabarito para este simulado.</td></tr>')+'</tbody>';
+}
+function resTab(mode){
+  document.querySelectorAll('.rtab').forEach(function(b){b.classList.toggle('on',b.dataset.rt===mode);});
+  renderReview(mode!=='simulado');
+}
+function renderReview(correction){
   document.getElementById('review').innerHTML=Q.map(function(q,qi){
     var chosen=answers[qi], hasGab=typeof q.correct==='number';
     var opts=q.opts.map(function(o,oi){
       var isYou=chosen===oi, cls='opt', tag='';
-      if(hasGab&&oi===q.correct){cls+=' correct';tag='<span class="tag-ok">correta'+(isYou?' · sua resposta':'')+'</span>';}
-      else if(isYou&&hasGab){cls+=' wrong';tag='<span class="tag-x">sua resposta</span>';}
+      if(correction&&hasGab&&oi===q.correct){cls+=' correct';tag='<span class="tag-ok">correta'+(isYou?' · sua resposta':'')+'</span>';}
+      else if(correction&&isYou&&hasGab){cls+=' wrong';tag='<span class="tag-x">sua resposta</span>';}
       else if(isYou){cls+=' chosen';tag='<span class="tag-you">sua resposta</span>';}
       return '<div class="'+cls+'" style="cursor:default"><span class="letter">'+LETTERS[oi]+'</span><span class="otext">'+esc(o)+'</span>'+tag+'</div>';
     }).join('');
     var unans=(chosen===undefined)?'<div class="unans">Você não respondeu esta questão.</div>':'';
     var gab='';
-    if(hasGab){
+    if(correction&&hasGab){
       gab='<div style="margin-top:10px;font-size:13px;color:var(--muted);background:var(--overlay-soft);border-radius:9px;padding:10px 12px"><b style="color:var(--head)">Por que '+LETTERS[q.correct]+':</b> '+esc(q.comment||'')+'</div>'+
         '<div class="gab-audio"><button class="pb" onclick="ouvirGabarito('+qi+')" title="Ouvir explicação"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div style="flex:1"><div class="gt">Gabarito comentado em áudio</div><div class="gs">Toque para ouvir a explicação da resposta.</div></div></div>';
     }
     return '<div class="q"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+unans+gab+'</div>';
   }).join('');
-  try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(_){}
-  show('result');
 }
 function ouvirGabarito(qi){
   try{
