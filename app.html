@@ -970,6 +970,16 @@ const PLANS=[
       return ra-rb;
     });
   }
+  // ---- ORDEM das trilhas definida no adm (arrastar em "ao vivo")
+  if(db.trilhaOrder&&db.trilhaOrder.length){
+    var tpos={};db.trilhaOrder.forEach(function(id,i){tpos[id]=i;});
+    var tbase=TRILHAS.map(function(t){return t.id;});
+    TRILHAS.sort(function(a,b){
+      var ra=(a.id in tpos)?tpos[a.id]:1000+tbase.indexOf(a.id);
+      var rb=(b.id in tpos)?tpos[b.id]:1000+tbase.indexOf(b.id);
+      return ra-rb;
+    });
+  }
 
   // ---- RÓTULOS do menu lateral (db.app.labels)
   var A=db.app||{};
@@ -982,7 +992,7 @@ const PLANS=[
   }
 })();
 /* expõe o catálogo p/ o painel adm "ao vivo" ler via iframe (const não vira prop de window) */
-try{window.COURSES=COURSES;window.SIMULADOS=SIMULADOS;window.PLANS=PLANS;}catch(_){}
+try{window.COURSES=COURSES;window.SIMULADOS=SIMULADOS;window.PLANS=PLANS;window.TRILHAS=TRILHAS;}catch(_){}
 
 /* =========================================================
    HELPERS
@@ -1062,6 +1072,44 @@ VIEWS.inicio=()=>{
   const NUDGE_MAP={'Contabilidade':['Análise de balanços','#/aula/cg1/l4'],'Renda variável':['Introdução a valuation','#/aula/cg1/l1'],'Renda fixa':['Marcação a mercado','#/aula/cb/l6'],'Derivativos':['Derivativos · introdução','#/aula/cb/l8'],'Sistema financeiro':['Sistema Financeiro Nacional','#/aula/cb/l3'],'Ética e regulação':['Ética e suitability','#/aula/cb/l1']};
   const worst=THEMES.slice().sort((a,b)=>a[1]-b[1])[0];
   const nm=NUDGE_MAP[worst[0]]||['o tema com mais erro','#/desempenho'];
+  // seções reordenáveis do início (arrastáveis no adm "ao vivo" → db.homeOrder)
+  const homeBlocks={
+    continuar:{label:'Continue de onde parou',html:`
+  <div class="banner" style="margin-top:20px">
+    <div class="thumb"><span class="roman">${romans[(nextLesson?.mod||1)-1]}</span>▶</div>
+    <div>
+      <div class="lbl">Continue de onde parou</div>
+      <h2>${esc(nextLesson?nextLesson.title:'Comece sua formação')}</h2>
+      <div class="meta">${nextLesson?`${esc(nextLesson.modTitle)} · ${nextLesson.code} · faltam ${Math.round(nextLesson.dur*(1-nextLesson.p/100))} min`:'Escolha uma trilha para começar'}</div>
+      <div class="bar"><i style="width:${nextLesson?nextLesson.p:0}%"></i></div>
+      <div class="btns"><a class="btn btn-gold" href="${nextLesson?`#/aula/${nextLesson.courseId}/${nextLesson.id}`:'#/trilhas'}">▶ Continuar</a><a class="btn btn-ghost" href="#/cursos">Ver todos os cursos</a></div>
+    </div>
+  </div>`},
+    assistindo:{label:'Continue assistindo',html:`
+  <div class="rowtitle"><h3>Continue assistindo</h3><a class="cnt" href="#/historico">Ver histórico →</a></div>
+  <div class="rail">${contRail||'<span style="color:var(--muted);font-size:14px">Nenhuma aula em andamento ainda.</span>'}</div>`},
+    trilhaAtual:{label:'Sua trilha atual',html:`
+  <div class="rowtitle"><h3>Sua trilha atual · ${trilhaAtual.name}</h3><a class="cnt" href="#/trilha/${trilhaAtual.id}">Abrir trilha →</a></div>
+  <a class="tcard" href="#/trilha/${trilhaAtual.id}" style="--tc:${trilhaAtual.color};display:flex">
+    <span class="tpill">${trilhaAtual.progress}% concluída</span>
+    <div><div class="thead"><span class="tico">${trilhaAtual.ico}</span><div><div class="teye">Você está aqui</div><h3>${trilhaAtual.name}</h3></div></div>
+    <p class="tdesc">${esc(trilhaAtual.desc)}</p></div>
+    <div class="tfoot"><span class="tprog"><i style="width:${trilhaAtual.progress}%"></i></span><span class="tstat">próximo: Plano de revisão de 15 dias</span></div>
+  </a>`},
+    explorarTrilhas:{label:'Explore outras trilhas',html:`
+  <div class="rowtitle"><h3>Explore outras trilhas</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
+  <div class="tgrid">${trilhasRail}</div>`},
+    cursos:{label:'Cursos disponíveis',html:`
+  <div class="rowtitle"><h3>Cursos disponíveis</h3><a class="cnt" href="#/cursos">Ver catálogo →</a></div>
+  <div class="cgrid">${cursosRail}</div>`},
+    historico:{label:'Histórico recente',html:`
+  <div class="rowtitle"><h3>Seu histórico recente</h3><a class="cnt" href="#/historico">Ver tudo →</a></div>
+  <div class="card">${histPreview.map(e=>`<a class="up-next" href="${e[5]}"><span class="un-th">${({play:'▶',check:'✓',star:'★',doc:'❐'})[e[0]]}</span><div style="flex:1"><div class="un-t">${esc(e[2])}</div><div class="un-d">${esc(e[3])}${e[4]?' · '+esc(e[4]):''}</div></div></a>`).join('')}</div>`}
+  };
+  const homeDef=['continuar','assistindo','trilhaAtual','explorarTrilhas','cursos','historico'];
+  let homeOrder=homeDef;
+  try{var _ho=(JSON.parse(localStorage.getItem('eda-db'))||{}).homeOrder;if(_ho&&_ho.length)homeOrder=_ho.filter(function(k){return homeBlocks[k];}).concat(homeDef.filter(function(k){return _ho.indexOf(k)<0;}));}catch(_){}
+  try{window.HOME_SECTIONS=homeOrder.map(function(k){return {key:k,label:homeBlocks[k].label};});}catch(_){}
   return `
   <div class="home-head">
     <div class="hh-greet"><h2>${greeting()}, ${USER.first} 👋</h2><p>Faltam <b>${examDaysLeft()} dias</b> para o CNPI e você está <b>78% pronto</b>. Bora manter o ritmo?</p></div>
@@ -1077,37 +1125,7 @@ VIEWS.inicio=()=>{
     <a class="btn btn-gold btn-sm" href="${nm[1]}">Revisar agora</a>
   </div>
   <div class="home-search" id="home-search" style="margin-top:18px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="ph">O que você quer estudar hoje? Aulas, simulados, trilhas, conteúdos…</span><span class="kbd">⌘K</span></div>
-
-  <div class="banner" style="margin-top:20px">
-    <div class="thumb"><span class="roman">${romans[(nextLesson?.mod||1)-1]}</span>▶</div>
-    <div>
-      <div class="lbl">Continue de onde parou</div>
-      <h2>${esc(nextLesson?nextLesson.title:'Comece sua formação')}</h2>
-      <div class="meta">${nextLesson?`${esc(nextLesson.modTitle)} · ${nextLesson.code} · faltam ${Math.round(nextLesson.dur*(1-nextLesson.p/100))} min`:'Escolha uma trilha para começar'}</div>
-      <div class="bar"><i style="width:${nextLesson?nextLesson.p:0}%"></i></div>
-      <div class="btns"><a class="btn btn-gold" href="${nextLesson?`#/aula/${nextLesson.courseId}/${nextLesson.id}`:'#/trilhas'}">▶ Continuar</a><a class="btn btn-ghost" href="#/cursos">Ver todos os cursos</a></div>
-    </div>
-  </div>
-
-  <div class="rowtitle"><h3>Continue assistindo</h3><a class="cnt" href="#/historico">Ver histórico →</a></div>
-  <div class="rail">${contRail||'<span style="color:var(--muted);font-size:14px">Nenhuma aula em andamento ainda.</span>'}</div>
-
-  <div class="rowtitle"><h3>Sua trilha atual · ${trilhaAtual.name}</h3><a class="cnt" href="#/trilha/${trilhaAtual.id}">Abrir trilha →</a></div>
-  <a class="tcard" href="#/trilha/${trilhaAtual.id}" style="--tc:${trilhaAtual.color};display:flex">
-    <span class="tpill">${trilhaAtual.progress}% concluída</span>
-    <div><div class="thead"><span class="tico">${trilhaAtual.ico}</span><div><div class="teye">Você está aqui</div><h3>${trilhaAtual.name}</h3></div></div>
-    <p class="tdesc">${esc(trilhaAtual.desc)}</p></div>
-    <div class="tfoot"><span class="tprog"><i style="width:${trilhaAtual.progress}%"></i></span><span class="tstat">próximo: Plano de revisão de 15 dias</span></div>
-  </a>
-
-  <div class="rowtitle"><h3>Explore outras trilhas</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
-  <div class="tgrid">${trilhasRail}</div>
-
-  <div class="rowtitle"><h3>Cursos disponíveis</h3><a class="cnt" href="#/cursos">Ver catálogo →</a></div>
-  <div class="cgrid">${cursosRail}</div>
-
-  <div class="rowtitle"><h3>Seu histórico recente</h3><a class="cnt" href="#/historico">Ver tudo →</a></div>
-  <div class="card">${histPreview.map(e=>`<a class="up-next" href="${e[5]}"><span class="un-th">${({play:'▶',check:'✓',star:'★',doc:'❐'})[e[0]]}</span><div style="flex:1"><div class="un-t">${esc(e[2])}</div><div class="un-d">${esc(e[3])}${e[4]?' · '+esc(e[4]):''}</div></div></a>`).join('')}</div>
+${homeOrder.map(function(k){return homeBlocks[k].html;}).join('\n')}
   `;
 };
 

@@ -318,6 +318,10 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
   .topbar .tlink.hide-m{display:none}
 }
 /* ===== Área do aluno · ao vivo ===== */
+.lv-tabs{display:inline-flex;gap:3px;padding:3px;border-radius:11px;background:var(--overlay-soft,rgba(255,255,255,.05));border:1px solid var(--border)}
+.lv-tab{font-family:'Inter';font-weight:600;font-size:13px;padding:7px 15px;border-radius:8px;border:none;background:none;color:var(--muted);cursor:pointer}
+.lv-tab:hover{color:var(--text)}
+.lv-tab.on{background:var(--gold-grad,linear-gradient(180deg,#E6BE54,#D4A437));color:#0B0D10}
 .lv-split{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:18px;align-items:start}
 .lv-panel,.lv-preview{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
 .lv-panel-h,.lv-preview-h{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--border);font-family:'Sora';font-weight:600;font-size:14px;color:var(--head)}
@@ -755,15 +759,28 @@ function editAppLabels(){openDrawer('Rótulos do menu do aluno',[{key:'home',lab
 /* ============ ÁREA DO ALUNO · AO VIVO ============
    Vê a área do aluno REAL (iframe do app.html) e reordena os cursos
    arrastando — a ordem é salva em db.appOrder e o app.html reflete na hora. */
+/* Ao vivo: 3 modos — Cursos, Trilhas e Início — lendo a área do aluno REAL (iframe) */
+const LV_MODES={
+  cursos:{label:'Cursos',hash:'#/cursos',src:'COURSES',orderKey:'appOrder',empty:'Nenhum curso.',
+    map:function(c){return {id:c.id,code:c.code||c.cert||'CURSO',title:c.title||'',color:c.color||'#D4A437',sub:((c.modules||[]).reduce(function(n,m){return n+((m.lessons||[]).length);},0))+' aulas'+(c.owned===false?' · bloqueado':'')};}},
+  trilhas:{label:'Trilhas',hash:'#/trilhas',src:'TRILHAS',orderKey:'trilhaOrder',empty:'Nenhuma trilha.',
+    map:function(t){return {id:t.id,code:t.ico||'◎',title:t.name||'',color:t.color||'#D4A437',sub:t.eye||'trilha'};}},
+  inicio:{label:'Início',hash:'#/inicio',src:'HOME_SECTIONS',orderKey:'homeOrder',empty:'Sem seções.',
+    map:function(s){return {id:s.key,code:'≡',title:s.label||s.key,color:'#8A94A2',sub:'seção do início'};}}
+};
+let lvMode='cursos';let lvState=[];let lvDrag=null;
 function viewAoVivo(){
+  lvMode='cursos';
+  var tabs=Object.keys(LV_MODES).map(function(m){return `<button class="lv-tab${m==='cursos'?' on':''}" data-m="${m}" onclick="lvSetMode('${m}')">${LV_MODES[m].label}</button>`;}).join('');
   return `
   <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Área do aluno · ao vivo</span></div>
-  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Ao vivo</div><h1>Área do aluno · ao vivo</h1><p>Arraste qualquer curso para reordenar. A área do aluno, à direita, mostra tudo e atualiza na hora.</p></div>
-    <div class="ph-actions"><a class="btn btn-ghost" href="app.html#/cursos" target="_blank">Abrir em nova aba ↗</a></div></div>
-  <div class="infobox" style="margin-bottom:16px">À direita está a <b>área do aluno de verdade</b>, com <b>todos os cursos</b> que o aluno vê. Arraste os cartões à esquerda (ou use ↑ ↓) e a ordem muda ao vivo para o aluno.</div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Ao vivo</div><h1>Área do aluno · ao vivo</h1><p>Reordene <b>cursos</b>, <b>trilhas</b> e as <b>seções do início</b> arrastando. A área do aluno, à direita, atualiza na hora.</p></div>
+    <div class="ph-actions"><a class="btn btn-ghost" href="app.html#/inicio" target="_blank">Abrir em nova aba ↗</a></div></div>
+  <div class="lv-tabs">${tabs}</div>
+  <div class="infobox" style="margin:12px 0 16px">À direita está a <b>área do aluno de verdade</b>. Escolha o que reordenar acima, arraste os cartões à esquerda (ou use ↑ ↓) e a ordem muda ao vivo para o aluno.</div>
   <div class="lv-split">
     <div class="lv-panel">
-      <div class="lv-panel-h">Ordem dos cursos <span class="chip" id="lv-count" style="margin-left:auto">…</span></div>
+      <div class="lv-panel-h"><span id="lv-title">Ordem dos cursos</span> <span class="chip" id="lv-count" style="margin-left:auto">…</span></div>
       <div id="lv-list" class="lv-list"><div class="hint" style="padding:12px;color:var(--muted)">Carregando a área do aluno…</div></div>
     </div>
     <div class="lv-preview">
@@ -772,15 +789,28 @@ function viewAoVivo(){
     </div>
   </div>`;
 }
-/* lê o catálogo COMPLETO direto da área do aluno (iframe) e monta os cartões arrastáveis */
-let lvState=[];let lvDrag=null;
+function lvSetMode(m){
+  if(!LV_MODES[m]||lvMode===m)return;lvMode=m;
+  $$('.lv-tab').forEach(function(t){t.classList.toggle('on',t.dataset.m===m);});
+  var tl=document.getElementById('lv-title');if(tl)tl.textContent='Ordem — '+LV_MODES[m].label;
+  var list=document.getElementById('lv-list');if(list)list.innerHTML='<div class="hint" style="padding:12px;color:var(--muted)">Carregando…</div>';
+  var f=document.getElementById('lv-frame');
+  if(f){try{f.contentWindow.location.hash=LV_MODES[m].hash;}catch(_){f.src='app.html'+LV_MODES[m].hash;}}
+  lvSyncRetry(8);
+}
+function lvSyncRetry(n){
+  var f=document.getElementById('lv-frame'),W=null;try{W=f&&f.contentWindow;}catch(_){W=null;}
+  var cfg=LV_MODES[lvMode],ready=false;try{ready=!!(W&&W[cfg.src]&&W[cfg.src].length);}catch(_){ready=false;}
+  if(ready&&(lvMode!=='inicio'||(W&&W.HOME_SECTIONS))){lvSync();return;}
+  if(n>0)setTimeout(function(){lvSyncRetry(n-1);},70);else lvSync();
+}
 function lvSync(){
   var f=document.getElementById('lv-frame');if(!f)return;
   var W=null;try{W=f.contentWindow;}catch(_){W=null;}
-  var list=W&&W.COURSES;
-  if(!list||!list.length){var el0=document.getElementById('lv-list');if(el0)el0.innerHTML='<div class="hint" style="padding:12px;color:var(--muted)">Não foi possível ler a área do aluno. Clique em ⟳.</div>';return;}
-  lvState=list.map(function(c){return {id:c.id,code:c.code||c.cert||'CURSO',title:c.title||'',color:c.color||'#D4A437',owned:c.owned!==false,aulas:(c.modules||[]).reduce(function(n,m){return n+((m.lessons||[]).length);},0)};});
-  lvRenderList();
+  var cfg=LV_MODES[lvMode],src=W&&W[cfg.src];
+  var el=document.getElementById('lv-list');
+  if(!src||!src.length){if(el)el.innerHTML='<div class="hint" style="padding:12px;color:var(--muted)">'+cfg.empty+' Clique em ⟳.</div>';var c0=document.getElementById('lv-count');if(c0)c0.textContent='0';return;}
+  lvState=src.map(cfg.map);lvRenderList();
 }
 function lvRenderList(){
   var el=document.getElementById('lv-list');
@@ -788,7 +818,7 @@ function lvRenderList(){
     return `<div class="lv-card" draggable="true" data-i="${i}" ondragstart="lvDragStart(event,${i})" ondragover="lvDragOver(event)" ondragleave="lvDragLeave(event)" ondrop="lvDrop(event,${i})" ondragend="lvDragEnd(event)">
       <span class="grip">⠿</span>
       <span class="lv-code" style="color:${esc(c.color)}">${esc(c.code)}</span>
-      <div class="lv-meta"><div class="lv-t">${esc(c.title)}</div><div class="lv-s">${c.aulas} aula${c.aulas===1?'':'s'}${c.owned?'':' · bloqueado'}</div></div>
+      <div class="lv-meta"><div class="lv-t">${esc(c.title)}</div><div class="lv-s">${esc(c.sub)}</div></div>
       <div class="lv-ord">
         <button class="btn-icon" title="Subir" ${i===0?'disabled':''} onclick="lvReorder(${i},${i-1})">↑</button>
         <button class="btn-icon" title="Descer" ${i===lvState.length-1?'disabled':''} onclick="lvReorder(${i},${i+1})">↓</button>
@@ -797,7 +827,7 @@ function lvRenderList(){
   }).join('');
   var cnt=document.getElementById('lv-count');if(cnt)cnt.textContent=lvState.length;
 }
-function lvPersist(){db.appOrder=lvState.map(function(c){return c.id;});save();}
+function lvPersist(){db[LV_MODES[lvMode].orderKey]=lvState.map(function(c){return c.id;});save();}
 function lvReorder(from,to){from=+from;to=+to;if(from===to||from<0||to<0||from>=lvState.length||to>=lvState.length)return;arrMove(lvState,from,to);lvPersist();lvRenderList();lvRefresh();toast('Ordem atualizada para o aluno.');}
 function lvRefresh(){var f=document.getElementById('lv-frame');if(f){try{f.contentWindow.location.reload();}catch(_){try{f.src=f.src;}catch(__){}}}}
 function lvDragStart(e,i){lvDrag=+i;e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain','x')}catch(_){}try{e.currentTarget.classList.add('dragging')}catch(_){}}
