@@ -116,7 +116,17 @@ a{color:inherit;text-decoration:none}
 .opt.sel .letter{background:var(--gold-grad);border-color:transparent;color:#0B0D10}
 .opt .otext{font-size:14px;color:var(--text);padding-top:2px}
 .opt.chosen{border-color:var(--gold);background:var(--gold-soft-bg)}
+.opt.correct{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent)}
+.opt.correct .letter{background:var(--green);border-color:transparent;color:#fff}
+.opt.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent)}
+.opt.wrong .letter{background:var(--red);border-color:transparent;color:#fff}
 .opt .tag-you{margin-left:auto;font-size:11px;font-weight:600;color:var(--gold-deep);align-self:center;white-space:nowrap}
+.opt .tag-ok{margin-left:auto;font-size:11px;font-weight:700;color:var(--green);align-self:center;white-space:nowrap}
+.opt .tag-x{margin-left:auto;font-size:11px;font-weight:700;color:var(--red);align-self:center;white-space:nowrap}
+.gab-audio{margin-top:12px;display:flex;align-items:center;gap:11px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:11px;padding:11px 14px}
+.gab-audio .pb{width:36px;height:36px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+.gab-audio .gt{font-size:13px;font-weight:600;color:var(--head)}
+.gab-audio .gs{font-size:12px;color:var(--muted)}
 .q .gab{margin-top:14px;display:flex;align-items:center;gap:11px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:11px;padding:11px 14px}
 .q .gab .ai{width:34px;height:34px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center}
 .q .gab .at{font-size:13px;font-weight:600;color:var(--head)}
@@ -129,7 +139,7 @@ a{color:inherit;text-decoration:none}
 
 /* result */
 .res-hero{text-align:center;padding:40px 0 20px}
-.res-ring{width:120px;height:120px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--gold) var(--pct),var(--overlay-soft) 0);position:relative}
+.res-ring{width:120px;height:120px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--ringc,var(--gold)) var(--pct),var(--overlay-soft) 0);position:relative}
 .res-ring::before{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--bg)}
 .res-ring .rv{position:relative;font-family:'Sora';font-weight:800;font-size:30px;color:var(--head)}
 .res-hero h1{font-size:26px;margin-bottom:6px}
@@ -219,23 +229,28 @@ a{color:inherit;text-decoration:none}
 <section id="result" class="hidden">
   <div class="wrap">
     <div class="res-hero">
-      <div class="res-ring" id="res-ring" style="--pct:100%"><span class="rv" id="res-rv">10/10</span></div>
-      <h1>Simulado enviado</h1>
-      <p>Suas respostas foram registradas. Confira abaixo o que você marcou.</p>
+      <div class="res-ring" id="res-ring" style="--pct:100%"><span class="rv" id="res-rv">0/10</span></div>
+      <h1 id="res-title">Seu resultado</h1>
+      <p id="res-sub">Confira abaixo a correção, questão por questão.</p>
       <div class="res-stats">
-        <div class="res-stat"><div class="v" id="rs-ans">10</div><div class="k">Respondidas</div></div>
+        <div class="res-stat"><div class="v" id="rs-hit" style="color:var(--green)">0</div><div class="k">Acertos</div></div>
+        <div class="res-stat"><div class="v" id="rs-miss" style="color:var(--red)">0</div><div class="k">Erros</div></div>
         <div class="res-stat"><div class="v" id="rs-time">00:00</div><div class="k">Tempo usado</div></div>
-        <div class="res-stat"><div class="v">10</div><div class="k">Questões</div></div>
       </div>
     </div>
     <div class="card" style="text-align:center;background:var(--gold-soft-bg);border-color:var(--gold-soft-bd)">
-      <div style="font-family:'Sora';font-weight:600;font-size:15px;color:var(--head)">Gabarito comentado em áudio</div>
-      <div style="font-size:13.5px;color:var(--muted);margin-top:4px">O professor explica cada questão em áudio. Você revisa no trânsito ou na academia, sem tela.</div>
+      <div style="font-family:'Sora';font-weight:600;font-size:15px;color:var(--head)">Correção completa liberada neste simulado grátis</div>
+      <div style="font-size:13.5px;color:var(--muted);margin-top:4px">Você vê a resposta certa, o comentário do gabarito e pode ouvir a explicação em áudio de cada questão. No curso, todos os simulados vêm assim.</div>
     </div>
     <div id="review"></div>
+    <div class="card" style="text-align:center;background:linear-gradient(180deg,var(--gold-soft-bg),transparent);border-color:var(--gold-soft-bd)">
+      <div style="font-family:'Sora';font-weight:700;font-size:17px;color:var(--head)">Este foi seu simulado grátis com correção</div>
+      <div style="font-size:14px;color:var(--muted);margin:6px 0 16px">No curso você tem todos os simulados, resultado detalhado por módulo e gabarito comentado em áudio para todas as perguntas.</div>
+      <a class="btn btn-gold" href="index.html#cursos">Ver os cursos</a>
+    </div>
     <div style="display:flex;gap:12px;justify-content:center;margin:10px 0 30px">
       <button class="btn btn-ghost" onclick="backToIntro()">Voltar ao início</button>
-      <button class="btn btn-gold" onclick="startSim()">Refazer simulado</button>
+      <button class="btn btn-ghost" onclick="startSim()">Refazer simulado</button>
     </div>
   </div>
 </section>
@@ -321,37 +336,47 @@ var Q=[
     'O desvio-padrão é sempre maior que a variância.',
     'A variância é sempre representada na mesma unidade dos dados analisados.',
     'A variância é a média dos quadrados dos desvios; o desvio-padrão é a raiz quadrada da variância.',
-    'Ambos medem o mesmo conceito e são numericamente iguais.']},
+    'Ambos medem o mesmo conceito e são numericamente iguais.'],correct:2,
+    comment:'A variância é a média dos quadrados dos desvios em relação à média. O desvio-padrão é a raiz quadrada da variância, o que devolve o resultado à mesma unidade dos dados.'},
   {stmt:'Um investidor aplica todo mês R$ 860 em títulos do tesouro direto a uma rentabilidade de 100% do CDI. Durante 7 meses, o CDI permaneceu no patamar de 4,5% ao ano. Caso o investidor opte por resgatar o dinheiro ao final dos 7 meses, qual seria o valor bruto de resgate?',opts:[
-    'R$ 6.095,07','R$ 6.083,31','R$ 6.109,14','R$ 6.086,78']},
+    'R$ 6.095,07','R$ 6.083,31','R$ 6.109,14','R$ 6.086,78'],correct:3,
+    comment:'Some o valor futuro de cada um dos 7 depósitos mensais de R$ 860, corrigidos por 100% do CDI (4,5% a.a. convertidos para a taxa mensal equivalente). Confira este gabarito com a sua base oficial.'},
   {stmt:'Um investidor que possui uma carteira composta por um único ativo e quer continuar assumindo riscos, mas ao mesmo tempo aproveitar ao máximo os benefícios da diversificação, deve investir em outro ativo cuja correlação com sua carteira seja de:',opts:[
-    '0,50','1,00','0,00','-1,00']},
+    '0,50','1,00','0,00','-1,00'],correct:2,
+    comment:'Correlação zero traz forte ganho de diversificação mantendo risco na carteira. Correlação -1 eliminaria o risco (não é o objetivo), e correlação positiva reduz o benefício da diversificação.'},
   {stmt:'Uma variável segue distribuição normal com média 50 e desvio-padrão 10. Qual é a probabilidade de um valor estar entre 40 e 60?',opts:[
-    'Aproximadamente 95%.','Exatamente 50%.','Exatamente 90%.','Aproximadamente 68%.']},
+    'Aproximadamente 95%.','Exatamente 50%.','Exatamente 90%.','Aproximadamente 68%.'],correct:3,
+    comment:'A faixa de 40 a 60 corresponde a mais ou menos 1 desvio-padrão da média (50 ± 10). Na distribuição normal, cerca de 68% dos valores ficam nesse intervalo.'},
   {stmt:'Calcule a taxa efetiva de 9% a.a. compostos trimestralmente:',opts:[
-    '9,17%','8,97%','9,31%','9,00%']},
+    '9,17%','8,97%','9,31%','9,00%'],correct:2,
+    comment:'Taxa efetiva = (1 + 0,09/4)^4 - 1 = (1,0225)^4 - 1 = 9,31%.'},
   {stmt:'Sabendo que a caderneta de poupança paga 6% a.a. que são capitalizados mensalmente, calcule a taxa equivalente anual.',opts:[
-    '6,21%','6,17%','6,00%','5,88%']},
+    '6,21%','6,17%','6,00%','5,88%'],correct:1,
+    comment:'Taxa equivalente anual = (1 + 0,06/12)^12 - 1 = (1,005)^12 - 1 = 6,17%.'},
   {stmt:'O que caracteriza uma variável dependente em um modelo de regressão?',opts:[
     'É sempre determinada diretamente pelos coeficientes de regressão.',
     'É a variável que sempre deve ser categórica.',
     'É a variável que se tenta prever ou explicar com base nas variáveis independentes.',
-    'É a variável que define o intervalo de confiança do modelo.']},
+    'É a variável que define o intervalo de confiança do modelo.'],correct:2,
+    comment:'A variável dependente é aquela que se quer prever ou explicar a partir das variáveis independentes do modelo.'},
   {stmt:'O que significa um intervalo de confiança de 99% em comparação com um de 95%?',opts:[
     'O intervalo de 99% será mais estreito, indicando maior precisão.',
     'O intervalo de 95% cobre mais valores extremos.',
     'O intervalo de 99% será mais amplo, indicando maior incerteza na estimativa.',
-    'Ambos os intervalos terão a mesma amplitude.']},
+    'Ambos os intervalos terão a mesma amplitude.'],correct:2,
+    comment:'Quanto maior a confiança exigida, mais amplo o intervalo. Um IC de 99% é mais largo que um de 95%, refletindo maior incerteza na estimativa.'},
   {stmt:'Qual a principal diferença entre variáveis aleatórias discretas e contínuas?',opts:[
     'Contínuas dependem de médias; discretas dependem de probabilidades.',
     'Discretas representam valores numéricos; contínuas representam categorias.',
     'Discretas assumem valores específicos; contínuas assumem qualquer valor em um intervalo.',
-    'Contínuas são contáveis; discretas não são contáveis.']},
+    'Contínuas são contáveis; discretas não são contáveis.'],correct:2,
+    comment:'Variáveis discretas assumem valores específicos e contáveis; variáveis contínuas podem assumir qualquer valor dentro de um intervalo.'},
   {stmt:'Uma carteira ótima é caracterizada por:',opts:[
     'Maximizar o retorno para um nível de risco específico.',
     'Reduzir o risco a zero.',
     'Minimizar o retorno para um nível de risco específico.',
-    'Obter sempre retornos maiores que o mercado.']}
+    'Obter sempre retornos maiores que o mercado.'],correct:0,
+    comment:'Uma carteira ótima maximiza o retorno esperado para um dado nível de risco (ou minimiza o risco para um dado retorno), ficando sobre a fronteira eficiente.'}
 ];
 var LETTERS=['A','B','C','D','E'];
 var answers={}, tLeft=30*60, tUsed=0, timerId=null;
@@ -419,22 +444,47 @@ function startSim(){
 function backToIntro(){clearInterval(timerId);show('intro');}
 function submitSim(){
   clearInterval(timerId);
-  var n=Object.keys(answers).length;
-  document.getElementById('res-rv').textContent=n+'/10';
-  document.getElementById('res-ring').style.setProperty('--pct',(n*10)+'%');
-  document.getElementById('rs-ans').textContent=n;
+  var gradable=Q.filter(function(q){return typeof q.correct==='number';}).length;
+  var hits=0;Q.forEach(function(q,qi){if(typeof q.correct==='number'&&answers[qi]===q.correct)hits++;});
+  var pctScore=gradable?Math.round(hits/gradable*100):0;
+  var ringColor=pctScore>=70?'var(--green)':(pctScore>=50?'var(--amber)':'var(--red)');
+  var ring=document.getElementById('res-ring');
+  document.getElementById('res-rv').textContent=gradable?(hits+'/'+gradable):(Object.keys(answers).length+'/'+Q.length);
+  ring.style.setProperty('--pct',(gradable?(hits/gradable*100):0)+'%');
+  ring.style.setProperty('--ringc',ringColor);
+  document.getElementById('rs-hit').textContent=hits;
+  document.getElementById('rs-miss').textContent=Math.max(gradable-hits,0);
   document.getElementById('rs-time').textContent=fmt(tUsed);
+  document.getElementById('res-title').textContent=gradable?('Você acertou '+hits+' de '+gradable):'Simulado enviado';
+  document.getElementById('res-sub').textContent=gradable?('Aproveitamento de '+pctScore+'%. Confira a correção, questão por questão.'):'Confira abaixo o que você marcou.';
   document.getElementById('review').innerHTML=Q.map(function(q,qi){
-    var chosen=answers[qi];
+    var chosen=answers[qi], hasGab=typeof q.correct==='number';
     var opts=q.opts.map(function(o,oi){
-      var isYou=chosen===oi;
-      return '<div class="opt'+(isYou?' chosen':'')+'" style="cursor:default"><span class="letter">'+LETTERS[oi]+'</span><span class="otext">'+esc(o)+'</span>'+(isYou?'<span class="tag-you">sua resposta</span>':'')+'</div>';
+      var isYou=chosen===oi, cls='opt', tag='';
+      if(hasGab&&oi===q.correct){cls+=' correct';tag='<span class="tag-ok">correta'+(isYou?' · sua resposta':'')+'</span>';}
+      else if(isYou&&hasGab){cls+=' wrong';tag='<span class="tag-x">sua resposta</span>';}
+      else if(isYou){cls+=' chosen';tag='<span class="tag-you">sua resposta</span>';}
+      return '<div class="'+cls+'" style="cursor:default"><span class="letter">'+LETTERS[oi]+'</span><span class="otext">'+esc(o)+'</span>'+tag+'</div>';
     }).join('');
     var unans=(chosen===undefined)?'<div class="unans">Você não respondeu esta questão.</div>':'';
-    return '<div class="q"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+unans+
-      '<div class="gab"><span class="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div class="at">Gabarito comentado em áudio</div><div class="as">O professor explica a resposta desta questão.</div></div></div></div>';
+    var gab='';
+    if(hasGab){
+      gab='<div style="margin-top:10px;font-size:13px;color:var(--muted);background:var(--overlay-soft);border-radius:9px;padding:10px 12px"><b style="color:var(--head)">Por que '+LETTERS[q.correct]+':</b> '+esc(q.comment||'')+'</div>'+
+        '<div class="gab-audio"><button class="pb" onclick="ouvirGabarito('+qi+')" title="Ouvir explicação"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div style="flex:1"><div class="gt">Gabarito comentado em áudio</div><div class="gs">Toque para ouvir a explicação da resposta.</div></div></div>';
+    }
+    return '<div class="q"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+unans+gab+'</div>';
   }).join('');
+  try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(_){}
   show('result');
+}
+function ouvirGabarito(qi){
+  try{
+    var q=Q[qi];if(!q||typeof q.correct!=='number')return;
+    var ss=window.speechSynthesis;if(!ss)return;
+    ss.cancel();
+    var u=new SpeechSynthesisUtterance('Questão '+(qi+1)+'. Resposta correta, letra '+LETTERS[q.correct]+'. '+(q.comment||''));
+    u.lang='pt-BR';u.rate=1;ss.speak(u);
+  }catch(_){}
 }
 </script>
 </body>
