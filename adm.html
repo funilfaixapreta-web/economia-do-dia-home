@@ -385,7 +385,7 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
     <div class="fldwrap"><label>E-mail</label><input class="fld" id="lg-email" type="email" value="admin@economiadodia.com.br" /></div>
     <div class="fldwrap"><label>Senha</label><input class="fld" id="lg-pass" type="password" value="demo1234" /></div>
     <button class="btn btn-gold" type="submit" style="width:100%;margin-top:6px">Entrar no painel</button>
-    <p class="login-note">Protótipo — sem senha real. Clique em <b>Entrar</b> para acessar.</p>
+    <p class="login-note">Protótipo, sem senha real. Clique em <b>Entrar</b> para acessar.</p>
     <a class="login-back" href="index.html">← Voltar ao site</a>
   </form>
 </div>
@@ -591,7 +591,7 @@ function totalLessons(){return db.courses.reduce((n,c)=>n+countLessons(c),0);}
 function courseMinutes(c){return (c.modules||[]).reduce((n,m)=>n+(m.lessons||[]).reduce((a,l)=>a+(+l.duration||0),0),0);}
 function totalQuestions(){return db.simulados.reduce((n,s)=>n+(s.questions||[]).length,0);}
 function stBadge(s){return s==='publicado'?'<span class="badge b-pub">Publicado</span>':'<span class="badge b-draft">Rascunho</span>';}
-function diffText(l){return {'fácil':'Fácil','média':'Média','difícil':'Difícil'}[l]||l||'—';}
+function diffText(l){return {'fácil':'Fácil','média':'Média','difícil':'Difícil'}[l]||l||'-';}
 function notaColor(n){return n>=70?'var(--green)':(n>=50?'var(--amber)':'var(--red)');}
 function roleName(r){return {admin:'Administrador',editor:'Editor',aluno:'Aluno'}[r||'aluno'];}
 function roleBadge(r){r=r||'aluno';if(r==='admin')return '<span class="badge" style="color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd)">Admin</span>';if(r==='editor')return '<span class="badge" style="color:var(--blue);background:rgba(61,139,224,.13);border:1px solid rgba(61,139,224,.3)">Editor</span>';return '<span class="chip">Aluno</span>';}
@@ -747,7 +747,7 @@ function viewSite(){
     <div class="sec-title">Depoimentos <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="editDepoimento()">+ Adicionar</button></div>
     ${(s.depoimentos||[]).map((d,i)=>`<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt">${esc(d.nome)} <span class="t-sub">· ${esc(d.cargo)}</span></div><div class="lts"><span>"${esc(d.texto)}"</span></div></div><div class="rowact"><button class="btn btn-ghost btn-sm" onclick="editDepoimento(${i})">${EDIT_IC}</button><button class="btn btn-danger btn-sm" onclick="delDepoimento(${i})">${DEL_IC}</button></div></div>`).join('')||'<p class="hint">Nenhum depoimento ainda.</p>'}
   </div>
-  ${siteBlock('Rodapé','editFooter()',drow('Texto',ft.text)+drow('WhatsApp',ft.whatsapp||'—')+drow('E-mail',ft.email||'—'))}
+  ${siteBlock('Rodapé','editFooter()',drow('Texto',ft.text)+drow('WhatsApp',ft.whatsapp||'-')+drow('E-mail',ft.email||'-'))}
   <div class="card siteblock"><div class="sec-title">Planos <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="location.hash='#/planos'">Gerenciar →</button></div><p class="hint" style="margin-top:0">Os planos exibidos no site são os mesmos da seção <b>Planos</b>.</p></div>`;
 }
 function editHero(){openDrawer('Editar hero',[{key:'eyebrow',label:'Etiqueta (eyebrow)',type:'text'},{key:'title',label:'Título principal',type:'textarea'},{key:'promise',label:'Texto / promessa',type:'textarea'},{key:'cta',label:'Texto do botão',type:'text'}],db.site.hero,d=>{Object.assign(db.site.hero,d);save();closeDrawer();toast('Hero atualizado.');router();},lpHero);}
@@ -793,8 +793,8 @@ function editAppLabels(){openDrawer('Rótulos do menu do aluno',[{key:'home',lab
 
 /* ============ ÁREA DO ALUNO · AO VIVO ============
    Vê a área do aluno REAL (iframe do app.html) e reordena os cursos
-   arrastando — a ordem é salva em db.appOrder e o app.html reflete na hora. */
-/* Ao vivo: 3 modos — Cursos, Trilhas e Início — lendo a área do aluno REAL (iframe) */
+   arrastando, a ordem é salva em db.appOrder e o app.html reflete na hora. */
+/* Ao vivo: modos Cursos, Trilhas, Simulados e Início lendo a área do aluno REAL (iframe) */
 const LV_MODES={
   cursos:{label:'Cursos',hash:'#/cursos',src:'COURSES',orderKey:'appOrder',empty:'Nenhum curso.',
     map:function(c){return {id:c.id,code:c.code||c.cert||'CURSO',title:c.title||'',color:c.color||'#D4A437',sub:((c.modules||[]).reduce(function(n,m){return n+((m.lessons||[]).length);},0))+' aulas'+(c.owned===false?' · bloqueado':'')};}},
@@ -821,7 +821,7 @@ function viewAoVivo(){
       <div id="lv-list" class="lv-list"><div class="hint" style="padding:12px;color:var(--muted)">Carregando a área do aluno…</div></div>
     </div>
     <div class="lv-preview">
-      <div class="lv-preview-h"><span class="dot"></span> Área do aluno — ao vivo <button class="btn-icon" title="Recarregar" style="margin-left:auto" onclick="lvRefresh()">⟳</button></div>
+      <div class="lv-preview-h"><span class="dot"></span> Área do aluno · ao vivo <button class="btn-icon" title="Recarregar" style="margin-left:auto" onclick="lvRefresh()">⟳</button></div>
       <iframe id="lv-frame" class="lv-frame" src="app.html#/cursos" title="Área do aluno" onload="lvSync()"></iframe>
     </div>
   </div>`;
@@ -829,7 +829,7 @@ function viewAoVivo(){
 function lvSetMode(m){
   if(!LV_MODES[m]||lvMode===m)return;lvMode=m;
   $$('.lv-tab').forEach(function(t){t.classList.toggle('on',t.dataset.m===m);});
-  var tl=document.getElementById('lv-title');if(tl)tl.textContent='Ordem — '+LV_MODES[m].label;
+  var tl=document.getElementById('lv-title');if(tl)tl.textContent='Ordem · '+LV_MODES[m].label;
   var list=document.getElementById('lv-list');if(list)list.innerHTML='<div class="hint" style="padding:12px;color:var(--muted)">Carregando…</div>';
   var f=document.getElementById('lv-frame');
   if(f){try{f.contentWindow.location.hash=LV_MODES[m].hash;}catch(_){f.src='app.html'+LV_MODES[m].hash;}}
@@ -963,8 +963,8 @@ function viewAula(cid,mi,li){
       <div class="dfields">
         <div class="drow"><span class="dk">Duração</span><span class="dv">${l.duration||0} min</span></div>
         <div class="drow"><span class="dk">Status</span><span class="dv">${l.status==='publicado'?'Publicado':'Rascunho'}</span></div>
-        <div class="drow"><span class="dk">Vídeo</span><span class="dv">${l.video?'Enviado':'—'}</span></div>
-        <div class="drow"><span class="dk">Áudio</span><span class="dv">${l.audio?'Enviado':'—'}</span></div>
+        <div class="drow"><span class="dk">Vídeo</span><span class="dv">${l.video?'Enviado':'-'}</span></div>
+        <div class="drow"><span class="dk">Áudio</span><span class="dv">${l.audio?'Enviado':'-'}</span></div>
       </div>
       <button class="btn btn-danger btn-sm" style="margin-top:16px;width:100%" onclick="delLesson('${cid}',${mi},${li},true)">${DEL_IC} Excluir aula</button>
     </div>
@@ -987,9 +987,9 @@ function viewSimulados(){
       </div></td>
     </tr>`).join('');
   return `
-  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Simulados</h1><p>Monte simulados e o banco de questões. Um CSV vira um simulado inteiro — várias questões de uma vez.</p></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Simulados</h1><p>Monte simulados e o banco de questões. Um CSV vira um simulado inteiro, com várias questões de uma vez.</p></div>
     <div class="ph-actions"><button class="btn btn-ghost" onclick="importCSVNew()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg> Novo por CSV</button><button class="btn btn-gold" onclick="editSimulado()">+ Novo simulado</button></div></div>
-  <div class="infobox" style="margin-bottom:16px"><b>CSV vira simulado:</b> envie um arquivo .csv e ele cria um simulado com todas as questões de uma vez. Colunas: <b>enunciado, alternativa_a…d, correta (A–D), comentario, tema, dificuldade</b>. <a href="#" onclick="csvTemplate();return false" style="color:var(--gold-deep);font-weight:600">Baixar modelo .csv</a></div>
+  <div class="infobox" style="margin-bottom:16px"><b>CSV vira simulado:</b> envie um arquivo .csv e ele cria um simulado com todas as questões de uma vez. Colunas: <b>enunciado, alternativa_a…d, correta (A-D), comentario, tema, dificuldade</b>. <a href="#" onclick="csvTemplate();return false" style="color:var(--gold-deep);font-weight:600">Baixar modelo .csv</a></div>
   ${db.simulados.length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Simulado</th><th>Cert.</th><th>Questões</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
     :emptyState('✓','Nenhum simulado','Crie um simulado do zero ou importe um CSV.','+ Novo simulado','editSimulado()')}`;
 }
@@ -1003,7 +1003,7 @@ function viewSimulado(id){
         <div class="qcard-hmeta">
           <div class="qcard-stmt">${esc(q.stmt||'(sem enunciado)')}</div>
           <div class="qcard-chips">
-            <span class="chip">${esc(q.theme||'—')}</span>
+            <span class="chip">${esc(q.theme||'-')}</span>
             <span class="chip">${diffText(q.difficulty)}</span>
             <span class="abadge ${q.audio?'has':'no'}">${q.audio?'♪ com áudio':'sem áudio'}</span>
           </div>
@@ -1022,7 +1022,7 @@ function viewSimulado(id){
         <div class="qaudio">
           ${q.audio
             ? `<div class="audio-cta"><span class="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div style="flex:1"><div class="at">Áudio de explicação</div><div class="as">${q.audio.url?'Pronto para ouvir':esc(q.audio.name)+(q.audio.size?' · '+fmtSize(q.audio.size):'')}</div></div><button class="btn btn-ghost btn-sm" onclick="setQuestionAudio('${s.id}',${qi})">Trocar</button><button class="btn btn-danger btn-sm" onclick="removeQuestionAudio('${s.id}',${qi})">Remover</button></div>${q.audio.url?`<div class="upprev" style="margin-top:8px"><audio controls src="${q.audio.url}"></audio></div>`:''}`
-            : `<div class="qaudio-empty"><div style="display:flex;align-items:center;gap:9px"><span class="ai" style="width:30px;height:30px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div style="font-size:13px;font-weight:600;color:var(--head)">Áudio de explicação da questão</div><div style="font-size:12px;color:var(--muted)">Grave o gabarito comentado — o aluno ouve a resposta.</div></div></div><button class="btn btn-gold btn-sm" onclick="setQuestionAudio('${s.id}',${qi})">+ Áudio</button></div>`}
+            : `<div class="qaudio-empty"><div style="display:flex;align-items:center;gap:9px"><span class="ai" style="width:30px;height:30px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div style="font-size:13px;font-weight:600;color:var(--head)">Áudio de explicação da questão</div><div style="font-size:12px;color:var(--muted)">Grave o gabarito comentado. O aluno ouve a resposta.</div></div></div><button class="btn btn-gold btn-sm" onclick="setQuestionAudio('${s.id}',${qi})">+ Áudio</button></div>`}
         </div>
       </div>
     </div>`).join('');
@@ -1042,14 +1042,14 @@ function viewSimulado(id){
     <div class="stat"><div class="k">Vezes realizado</div><div class="v">${st.feitos}</div><div class="d">pelos alunos</div></div>
     <div class="stat"><div class="k">Média de acertos</div><div class="v" style="color:${notaColor(st.media)}">${st.media}%</div><div class="d">desempenho médio</div></div>
     <div class="stat"><div class="k">Questões</div><div class="v">${(s.questions||[]).length}</div><div class="d">no simulado</div></div>
-    <div class="stat"><div class="k">Questão mais errada</div><div class="v" style="font-size:14px;line-height:1.3;font-weight:600">${st.pior?esc(st.pior.stmt.slice(0,44))+'…':'—'}</div><div class="d">${st.pior?esc(st.pior.theme||''):''}</div></div>
+    <div class="stat"><div class="k">Questão mais errada</div><div class="v" style="font-size:14px;line-height:1.3;font-weight:600">${st.pior?esc(st.pior.stmt.slice(0,44))+'…':'-'}</div><div class="d">${st.pior?esc(st.pior.theme||''):''}</div></div>
   </div>
   <div class="card" style="margin-bottom:16px"><div class="sec-title">Configurações da prova <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="editSimulado('${s.id}')">${EDIT_IC} Editar</button></div>
     <div style="display:flex;gap:9px;flex-wrap:wrap">
       <span class="chip">⏱ ${cfg.duracao} min</span><span class="chip">Nota de corte ${cfg.notaCorte}%</span><span class="chip">${cfg.numQuestoes>0?cfg.numQuestoes+' questões sorteadas':'Todas as questões'}</span><span class="chip">${cfg.tentativas>0?cfg.tentativas+' tentativas':'Tentativas ilimitadas'}</span><span class="chip">Embaralhar questões: ${cfg.embaralhar?'sim':'não'}</span><span class="chip">Embaralhar alternativas: ${cfg.embaralharAlt?'sim':'não'}</span><span class="chip">Gabarito: ${cfg.mostrarGabarito==='depois'?'ao finalizar':(cfg.mostrarGabarito==='imediato'?'após cada questão':'nunca')}</span>
     </div>
   </div>
-  <div class="infobox" style="margin-bottom:18px">Importar CSV: colunas <b>enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, correta (A–D), comentario, tema, dificuldade</b>. <a href="#" onclick="csvTemplate();return false" style="color:var(--gold-deep);font-weight:600">Baixar modelo .csv</a></div>
+  <div class="infobox" style="margin-bottom:18px">Importar CSV: colunas <b>enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, correta (A-D), comentario, tema, dificuldade</b>. <a href="#" onclick="csvTemplate();return false" style="color:var(--gold-deep);font-weight:600">Baixar modelo .csv</a></div>
   ${qs||emptyState('?','Sem questões','Adicione uma questão ou importe várias por CSV.','+ Questão',`editQuestion('${s.id}')`)}
   ${(s.questions||[]).length?`<div class="sec-title" style="margin:24px 0 12px">Resultados dos alunos <span class="chip" style="margin-left:auto">${st.feitos} realizações</span></div>
   <div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Nota</th><th>Acertos</th><th>Tempo</th><th>Data</th></tr></thead><tbody>
@@ -1102,7 +1102,7 @@ function viewAlunos(){
       <td>${roleBadge(s.role)}</td>
       <td><span class="chip">${esc(planName(s.plan))}</span></td>
       <td><div class="progbar" style="width:78px"><i style="width:${s.progress||0}%"></i></div><div class="t-sub" style="margin-top:4px">${s.progress||0}%</div></td>
-      <td class="t-sub mono">${esc(s.last||'—')}</td>
+      <td class="t-sub mono">${esc(s.last||'-')}</td>
       <td>${s.status==='ativo'?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</td>
       <td class="rowend"><div class="rowact">
         <button class="btn ${s.role==='admin'?'btn-ghost':'btn-gold'} btn-sm" onclick="event.stopPropagation();toggleAdmin('${s.id}')">${s.role==='admin'?'Remover admin':'Tornar admin'}</button>
@@ -1162,7 +1162,7 @@ function viewAluno(id){
   const media=hist.length?Math.round(hist.reduce((a,x)=>a+x.nota,0)/hist.length):0;
   return `
   <div class="crumb"><a href="#/usuarios">Usuários</a> <span class="sep">›</span> <span style="color:var(--text)">${esc(s.name)}</span></div>
-  <div class="page-head"><div class="ph-l"><div class="eyebrow">Usuário ${roleBadge(s.role)} ${s.status==='ativo'?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</div><h1>${esc(s.name)}</h1><p>${esc(s.email)} · ${esc(s.phone||'—')}</p></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Usuário ${roleBadge(s.role)} ${s.status==='ativo'?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</div><h1>${esc(s.name)}</h1><p>${esc(s.email)} · ${esc(s.phone||'-')}</p></div>
     <div class="ph-actions"><button class="btn ${s.role==='admin'?'btn-ghost':'btn-gold'}" onclick="toggleAdmin('${s.id}')">${s.role==='admin'?'Remover admin':'Tornar admin'}</button><button class="btn btn-ghost" onclick="editStudent('${s.id}')">${EDIT_IC} Editar</button><button class="btn btn-danger" onclick="delStudent('${s.id}',true)">${DEL_IC} Excluir</button></div></div>
   <div class="stat-grid" style="margin-bottom:18px">
     <div class="stat"><div class="k">Progresso</div><div class="v">${s.progress||0}%</div><div class="d">do conteúdo</div></div>
@@ -1176,11 +1176,11 @@ function viewAluno(id){
       <div class="dfields">
         <div class="drow"><span class="dk">Nome</span><span class="dv">${esc(s.name)}</span></div>
         <div class="drow"><span class="dk">E-mail</span><span class="dv">${esc(s.email)}</span></div>
-        <div class="drow"><span class="dk">Telefone</span><span class="dv">${esc(s.phone||'—')}</span></div>
-        <div class="drow"><span class="dk">CPF</span><span class="dv">${esc(s.cpf||'—')}</span></div>
-        <div class="drow"><span class="dk">Origem</span><span class="dv">${esc(s.origem||'—')}</span></div>
-        <div class="drow"><span class="dk">Cadastro</span><span class="dv">${esc(s.joined||'—')}</span></div>
-        <div class="drow"><span class="dk">Último acesso</span><span class="dv">${esc(s.last||'—')}</span></div>
+        <div class="drow"><span class="dk">Telefone</span><span class="dv">${esc(s.phone||'-')}</span></div>
+        <div class="drow"><span class="dk">CPF</span><span class="dv">${esc(s.cpf||'-')}</span></div>
+        <div class="drow"><span class="dk">Origem</span><span class="dv">${esc(s.origem||'-')}</span></div>
+        <div class="drow"><span class="dk">Cadastro</span><span class="dv">${esc(s.joined||'-')}</span></div>
+        <div class="drow"><span class="dk">Último acesso</span><span class="dv">${esc(s.last||'-')}</span></div>
         <div class="drow"><span class="dk">Status</span><span class="dv">${s.status==='ativo'?'Ativo':'Inativo'}</span></div>
         <div class="drow"><span class="dk">Papel / acesso</span><span class="dv">${roleName(s.role)}</span></div>
       </div>
@@ -1293,10 +1293,34 @@ function impKind(f){var t=(f.type||'').toLowerCase(),n=(f.name||'').toLowerCase(
   return 'other';}
 function flatAulas(){var out=[];db.courses.forEach(function(c){(c.modules||[]).forEach(function(m,mi){(m.lessons||[]).forEach(function(l,li){out.push({key:c.id+'|'+mi+'|'+li,label:c.title+' · '+m.title+' · '+l.title});});});});return out;}
 function flatQuestoes(){var out=[];db.simulados.forEach(function(s){(s.questions||[]).forEach(function(q,qi){out.push({key:s.id+'|'+qi,label:s.title+' · Q'+(qi+1)+': '+String(q.stmt||'').slice(0,38)});});});return out;}
-function impAdd(files){Array.prototype.forEach.call(files,function(f){impQueue.push({file:f,kind:impKind(f),name:f.name,size:f.size,target:''});});impRender();}
+function impAdd(files){Array.prototype.forEach.call(files,function(f){impQueue.push({file:f,kind:impKind(f),name:f.name,size:f.size,target:'',auto:false});});impAutoMatch();}
 function impClear(){impQueue=[];impRender();}
 function impRemove(i){impQueue.splice(i,1);impRender();}
-function impSetTarget(i,v){if(impQueue[i])impQueue[i].target=v;}
+function impSetTarget(i,v){if(impQueue[i]){impQueue[i].target=v;impQueue[i].auto=false;}}
+/* organização automática por nome do arquivo */
+function _impNorm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();}
+function _impTok(s){return _impNorm(s).split(' ').filter(function(t){return t.length>1;});}
+function _impScore(fn,cand){if(!fn.length||!cand.length)return 0;var set={};cand.forEach(function(t){set[t]=1;});var hit=0;fn.forEach(function(t){if(set[t])hit++;});return hit/Math.max(fn.length,3);}
+function impAutoMatch(force){
+  var aulas=flatAulas(),quest=flatQuestoes(),changed=0;
+  impQueue.forEach(function(it){
+    if(it.kind!=='video'&&it.kind!=='audio')return;
+    if(it.target&&!it.auto&&!force)return;
+    var fn=_impTok(it.name),cands=[];
+    if(it.kind==='video'){aulas.forEach(function(a){cands.push({key:'v:'+a.key,score:_impScore(fn,_impTok(a.label))});});}
+    else{
+      var qm=it.name.match(/q(?:uest[aã]?o?)?\s*[-_ ]?(\d{1,3})/i),qnum=qm?parseInt(qm[1],10):null;
+      quest.forEach(function(q){var kp=q.key.split('|'),qi=parseInt(kp[1],10),sc=_impScore(fn,_impTok(q.label));if(qnum!==null&&(qi+1)===qnum)sc+=0.5;cands.push({key:'q:'+q.key,score:sc});});
+      aulas.forEach(function(a){cands.push({key:'a:'+a.key,score:_impScore(fn,_impTok(a.label))});});
+    }
+    cands.sort(function(x,y){return y.score-x.score;});
+    if(cands[0]&&cands[0].score>=0.34){it.target=cands[0].key;it.auto=true;changed++;}
+    else if(force){it.target='';it.auto=false;}
+  });
+  impRender();
+  if(force)toast(changed?(changed+' arquivo(s) organizados pelo nome.'):'Nenhum nome reconhecido. Escolha o destino manualmente.');
+  return changed;
+}
 function impRender(){
   var box=document.getElementById('imp-queue');if(!box)return;
   var applyBtn=document.getElementById('imp-apply');
@@ -1305,10 +1329,10 @@ function impRender(){
   box.innerHTML=impQueue.map(function(it,i){
     var dest;
     if(it.kind==='csv')dest='<span class="chip">vira um novo simulado</span>';
-    else if(it.kind==='video')dest='<select class="fld imp-sel" onchange="impSetTarget('+i+',this.value)"><option value="">— aula de destino —</option>'+aulas.map(function(a){return '<option value="v:'+a.key+'"'+(it.target==='v:'+a.key?' selected':'')+'>'+esc(a.label)+'</option>';}).join('')+'</select>';
-    else if(it.kind==='audio')dest='<select class="fld imp-sel" onchange="impSetTarget('+i+',this.value)"><option value="">— destino do áudio —</option><optgroup label="Aula (gabarito)">'+aulas.map(function(a){return '<option value="a:'+a.key+'"'+(it.target==='a:'+a.key?' selected':'')+'>'+esc(a.label)+'</option>';}).join('')+'</optgroup><optgroup label="Questão (explicação)">'+quest.map(function(q){return '<option value="q:'+q.key+'"'+(it.target==='q:'+q.key?' selected':'')+'>'+esc(q.label)+'</option>';}).join('')+'</optgroup></select>';
+    else if(it.kind==='video')dest='<select class="fld imp-sel" onchange="impSetTarget('+i+',this.value)"><option value="">Escolher aula de destino</option>'+aulas.map(function(a){return '<option value="v:'+a.key+'"'+(it.target==='v:'+a.key?' selected':'')+'>'+esc(a.label)+'</option>';}).join('')+'</select>';
+    else if(it.kind==='audio')dest='<select class="fld imp-sel" onchange="impSetTarget('+i+',this.value)"><option value="">Escolher destino do áudio</option><optgroup label="Aula (gabarito)">'+aulas.map(function(a){return '<option value="a:'+a.key+'"'+(it.target==='a:'+a.key?' selected':'')+'>'+esc(a.label)+'</option>';}).join('')+'</optgroup><optgroup label="Questão (explicação)">'+quest.map(function(q){return '<option value="q:'+q.key+'"'+(it.target==='q:'+q.key?' selected':'')+'>'+esc(q.label)+'</option>';}).join('')+'</optgroup></select>';
     else dest='<span class="chip" style="color:var(--muted)">tipo não suportado</span>';
-    return '<div class="imp-row"><span class="imp-ic">'+({csv:'📄',video:'🎬',audio:'♪',image:'🖼',other:'?'})[it.kind]+'</span><div class="imp-meta"><div class="imp-name">'+esc(it.name)+'</div><div class="imp-sub">'+it.kind+' · '+fmtSize(it.size)+'</div></div><div class="imp-dest">'+dest+'</div><button class="btn-icon" title="Remover" onclick="impRemove('+i+')">✕</button></div>';
+    return '<div class="imp-row"><span class="imp-ic">'+({csv:'📄',video:'🎬',audio:'♪',image:'🖼',other:'?'})[it.kind]+'</span><div class="imp-meta"><div class="imp-name">'+esc(it.name)+'</div><div class="imp-sub">'+it.kind+' · '+fmtSize(it.size)+(it.auto?' · <span style="color:var(--gold-deep);font-weight:700">organizado auto</span>':'')+'</div></div><div class="imp-dest">'+dest+'</div><button class="btn-icon" title="Remover" onclick="impRemove('+i+')">✕</button></div>';
   }).join('');
   if(applyBtn){applyBtn.disabled=false;applyBtn.textContent='Aplicar '+impQueue.length+' '+(impQueue.length===1?'arquivo':'arquivos');}
 }
@@ -1340,14 +1364,15 @@ function viewImportar(){
   return `
   <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Importação em massa</span></div>
   <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Em massa</div><h1>Importação em massa</h1><p>Suba vários vídeos, áudios e simulados de uma vez. Cada .csv vira um simulado; vídeos e áudios você direciona para a aula ou a questão.</p></div></div>
-  <div class="infobox" style="margin-bottom:16px"><b>Rápido e seguro:</b> arraste tudo de uma vez, confira o destino de cada arquivo e só então clique em aplicar — nada é gravado antes da sua revisão. Vídeos e áudios grandes são pré-visualizados na sessão (protótipo, sem servidor); os .csv e as ligações ficam salvos.</div>
+  <div class="infobox" style="margin-bottom:12px"><b>Rápido e seguro.</b> Arraste quantos arquivos quiser (sem limite). O sistema organiza sozinho pelo nome do arquivo: cada .csv vira um simulado, cada vídeo vai pra uma aula e cada áudio pra uma aula (gabarito) ou pra uma questão de um simulado (explicação). Você confere e ajusta o destino antes de aplicar; nada é gravado antes da sua revisão.</div>
+  <div class="hint" style="margin-bottom:16px;color:var(--muted);font-size:12.5px">Para organizar automático, coloque o destino no nome do arquivo. Ex.: <b>renda-fixa-conceitos.mp4</b> vai pra aula certa; <b>cnpi-cb-q3.mp3</b> vai pra questão 3 do simulado CNPI-CB. Vídeos e áudios grandes são pré-visualizados na sessão (protótipo, sem servidor); os .csv e as ligações ficam salvos.</div>
   <div id="imp-drop" class="imp-drop" ondrop="impDrop(event)" ondragover="impDragOver(event)" ondragleave="impDragLeave(event)" onclick="impPick()">
     <div class="imp-drop-ic">⬆</div>
     <div class="imp-drop-t">Arraste vídeos, áudios e .csv aqui</div>
     <div class="imp-drop-s">ou clique para escolher vários arquivos</div>
   </div>
   <div class="lv-panel" style="margin-top:16px">
-    <div class="lv-panel-h">Fila de importação <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="impClear()">Limpar</button></div>
+    <div class="lv-panel-h">Fila de importação <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="impAutoMatch(true)">Organizar automático</button> <button class="btn btn-ghost btn-sm" onclick="impClear()">Limpar</button></div>
     <div id="imp-queue"></div>
   </div>
   <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gold" id="imp-apply" onclick="impApply()" disabled>Aplicar</button></div>`;
@@ -1388,7 +1413,7 @@ function openDrawer(title,fields,values,onSave,previewFn){
   $('#dr-title').textContent=title;
   const formHTML=fields.map(f=>buildField(f,values[f.key])).join('');
   $('#drawer').classList.toggle('wide',!!previewFn);
-  $('#dr-body').innerHTML=previewFn?`<div class="dr-form">${formHTML}</div><div class="dr-preview"><div class="dr-preview-h">Prévia — como o aluno vê</div><div class="dr-preview-body" id="dr-preview-body"></div></div>`:formHTML;
+  $('#dr-body').innerHTML=previewFn?`<div class="dr-form">${formHTML}</div><div class="dr-preview"><div class="dr-preview-h">Prévia · como o aluno vê</div><div class="dr-preview-body" id="dr-preview-body"></div></div>`:formHTML;
   fields.filter(f=>f.type==='file').forEach(f=>{ _fspecs[f.key]=f; drawerFiles[f.key]=values[f.key]!==undefined?values[f.key]:null; renderUpload(f); });
   fields.filter(f=>f.type==='options').forEach(()=>{drawerOptions=(values.options||['','','','']).slice();drawerCorrect=values.correct||0;renderOptions();});
   $('#dr-save').onclick=()=>{const data=collect(fields);if(data===false)return;onSaveFn(data);};
@@ -1466,7 +1491,7 @@ function renderUpload(f){
   }else{
     const isAudio=(file.type||'').includes('audio');let prev='';
     if(file.url)prev=isAudio?`<div class="upprev"><audio controls src="${file.url}"></audio></div>`:`<div class="upprev"><video controls src="${file.url}"></video></div>`;
-    wrap.innerHTML=`<div class="upfile"><span class="fi">${isAudio?'♪':'▶'}</span><div class="fn"><b>${esc(file.name)}</b><span>${fmtSize(file.size)} · ${esc(file.type||'arquivo')}</span></div><button type="button" class="fx" onclick="clearFile('${f.key}')">✕</button></div>${prev}${!file.url?`<div class="warnbox">Arquivo registrado. No protótipo o arquivo em si não é armazenado — reanexe se recarregar a página.</div>`:''}`;
+    wrap.innerHTML=`<div class="upfile"><span class="fi">${isAudio?'♪':'▶'}</span><div class="fn"><b>${esc(file.name)}</b><span>${fmtSize(file.size)} · ${esc(file.type||'arquivo')}</span></div><button type="button" class="fx" onclick="clearFile('${f.key}')">✕</button></div>${prev}${!file.url?`<div class="warnbox">Arquivo registrado. No protótipo o arquivo em si não é armazenado; reanexe se recarregar a página.</div>`:''}`;
   }
 }
 function setFile(f,file){
@@ -1542,7 +1567,7 @@ function editQuestion(sid,qi){
     {key:'stmt',label:'Enunciado',type:'textarea',req:true},
     {key:'options',label:'Alternativas',type:'options'},
     {key:'comment',label:'Comentário do gabarito (texto)',type:'textarea'},
-    {key:'audio',label:'Áudio de explicação da questão',type:'file',accept:'audio/*',hint:'Gabarito comentado em áudio — o aluno ouve a explicação da resposta.'},
+    {key:'audio',label:'Áudio de explicação da questão',type:'file',accept:'audio/*',hint:'Gabarito comentado em áudio. O aluno ouve a explicação da resposta.'},
     {key:'theme',label:'Tema',type:'text'},
     {key:'difficulty',label:'Dificuldade',type:'select',options:[['fácil','Fácil'],['média','Média'],['difícil','Difícil']]}
   ],q||{options:['','','',''],correct:0,difficulty:'média'},d=>{
@@ -1750,14 +1775,14 @@ function viewBanco(){
   const rows=(db.questionBank||[]).map((q,i)=>`
     <tr class="urow" data-bq="${esc((q.stmt+' '+(q.theme||'')).toLowerCase())}" data-tema="${esc(q.theme||'')}" data-dif="${esc(q.difficulty||'')}">
       <td><div class="t-title">${esc(q.stmt)}</div><div class="t-sub">${(q.options||[]).length} alternativas · correta ${String.fromCharCode(65+(q.correct||0))}</div></td>
-      <td><span class="chip">${esc(q.theme||'—')}</span></td>
+      <td><span class="chip">${esc(q.theme||'-')}</span></td>
       <td>${diffText(q.difficulty)}</td>
-      <td>${q.audio?'<span class="filei has">♪</span>':'<span class="filei">—</span>'}</td>
+      <td>${q.audio?'<span class="filei has">♪</span>':'<span class="filei">-</span>'}</td>
       <td class="rowend"><div class="rowact"><button class="btn btn-ghost btn-sm" title="Adicionar esta questão a um ou mais simulados" onclick="bankToSims(${i})">+ Simulado</button><button class="btn btn-ghost btn-sm" onclick="editBankQuestion(${i})">${EDIT_IC} Editar</button><button class="btn btn-danger btn-sm" onclick="delBankQuestion(${i})">${DEL_IC}</button></div></td>
     </tr>`).join('');
   return `
   <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Banco de questões</span></div>
-  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Banco de questões</div><h1>Banco de questões</h1><p>Questões reutilizáveis — adicione-as a qualquer simulado sem recriar.</p></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Banco de questões</div><h1>Banco de questões</h1><p>Questões reutilizáveis. Adicione-as a qualquer simulado sem recriar.</p></div>
     <div class="ph-actions"><button class="btn btn-gold" onclick="editBankQuestion()">+ Nova questão</button></div></div>
   <div class="stat-grid" style="margin-bottom:18px">
     <div class="stat"><div class="k">Questões</div><div class="v">${(db.questionBank||[]).length}</div><div class="d">no banco</div></div>
@@ -1788,7 +1813,7 @@ function editBankQuestion(i){const q=(i!=null&&!isNaN(i))?db.questionBank[i]:nul
 function delBankQuestion(i){if(!confirm('Excluir esta questão do banco?'))return;db.questionBank.splice(i,1);save();toast('Questão excluída.');router();}
 function addFromBank(sid){
   if(!(db.questionBank||[]).length){toast('Banco de questões vazio. Crie questões no banco primeiro.','err');return;}
-  const rows=db.questionBank.map((q,i)=>`<label style="display:flex;align-items:flex-start;gap:11px;margin-bottom:9px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" data-bq="${i}" style="width:16px;height:16px;margin-top:2px;accent-color:var(--gold)"><div><div style="color:var(--head);font-size:14px">${esc(q.stmt)}</div><div class="lts" style="margin-top:4px"><span class="chip">${esc(q.theme||'—')}</span><span class="chip">${diffText(q.difficulty)}</span></div></div></label>`).join('');
+  const rows=db.questionBank.map((q,i)=>`<label style="display:flex;align-items:flex-start;gap:11px;margin-bottom:9px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" data-bq="${i}" style="width:16px;height:16px;margin-top:2px;accent-color:var(--gold)"><div><div style="color:var(--head);font-size:14px">${esc(q.stmt)}</div><div class="lts" style="margin-top:4px"><span class="chip">${esc(q.theme||'-')}</span><span class="chip">${diffText(q.difficulty)}</span></div></div></label>`).join('');
   openPreview('Adicionar do banco de questões',`<p class="hint" style="margin-top:0;margin-bottom:12px">Selecione as questões para adicionar a este simulado.</p>${rows}<button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="confirmAddFromBank('${sid}')">Adicionar selecionadas</button>`);
 }
 function confirmAddFromBank(sid){const s=db.simulados.find(x=>x.id===sid);const picks=$$('#pv-body [data-bq]:checked').map(c=>+c.getAttribute('data-bq'));if(!picks.length){toast('Selecione ao menos uma questão.','err');return;}picks.forEach(i=>{const q=db.questionBank[i];s.questions.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});});save();closePreview();toast(picks.length+(picks.length===1?' questão adicionada.':' questões adicionadas.'));router();}
@@ -1796,7 +1821,7 @@ function confirmAddFromBank(sid){const s=db.simulados.find(x=>x.id===sid);const 
 function bankToSims(i){const q=(db.questionBank||[])[i];if(!q)return;
   if(!(db.simulados||[]).length){toast('Nenhum simulado criado ainda.','err');return;}
   const rows=db.simulados.map((s,si)=>`<label style="display:flex;align-items:flex-start;gap:11px;margin-bottom:9px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" data-si="${si}" style="width:16px;height:16px;margin-top:2px;accent-color:var(--gold)"><div><div style="color:var(--head);font-size:14px">${esc(s.title)}</div><div class="lts" style="margin-top:4px"><span class="chip">${esc(s.cert)}</span><span class="chip">${(s.questions||[]).length} questões</span><span class="chip">${stBadge(s.status)}</span></div></div></label>`).join('');
-  openPreview('Vincular questão a simulado(s)',`<p class="hint" style="margin-top:0;margin-bottom:12px">"${esc((q.stmt||'').slice(0,90))}${(q.stmt||'').length>90?'…':''}" — selecione os simulados que devem incluir esta questão.</p>${rows}<button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="confirmBankToSims(${i})">Adicionar aos selecionados</button>`);}
+  openPreview('Vincular questão a simulado(s)',`<p class="hint" style="margin-top:0;margin-bottom:12px">"${esc((q.stmt||'').slice(0,90))}${(q.stmt||'').length>90?'…':''}". Selecione os simulados que devem incluir esta questão.</p>${rows}<button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="confirmBankToSims(${i})">Adicionar aos selecionados</button>`);}
 function confirmBankToSims(i){const q=db.questionBank[i];const picks=$$('#pv-body [data-si]:checked').map(c=>+c.getAttribute('data-si'));if(!picks.length){toast('Selecione ao menos um simulado.','err');return;}picks.forEach(si=>{const s=db.simulados[si];s.questions=s.questions||[];s.questions.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});});save();closePreview();toast('Questão vinculada a '+picks.length+(picks.length===1?' simulado.':' simulados.'));router();}
 /* Salvar questão do simulado no banco (reutilizável) */
 function saveQToBank(sid,qi){const s=db.simulados.find(x=>x.id===sid);if(!s)return;const q=(s.questions||[])[qi];if(!q)return;db.questionBank=db.questionBank||[];db.questionBank.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});save();toast('Questão salva no banco de questões.');}
