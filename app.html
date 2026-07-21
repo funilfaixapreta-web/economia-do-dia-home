@@ -980,6 +980,16 @@ const PLANS=[
       return ra-rb;
     });
   }
+  // ---- ORDEM dos simulados definida no adm (arrastar em "ao vivo")
+  if(db.simuladoOrder&&db.simuladoOrder.length){
+    var spos={};db.simuladoOrder.forEach(function(id,i){spos[id]=i;});
+    var sbase=SIMULADOS.map(function(s){return s.id;});
+    SIMULADOS.sort(function(a,b){
+      var ra=(a.id in spos)?spos[a.id]:1000+sbase.indexOf(a.id);
+      var rb=(b.id in spos)?spos[b.id]:1000+sbase.indexOf(b.id);
+      return ra-rb;
+    });
+  }
 
   // ---- RÓTULOS do menu lateral (db.app.labels)
   var A=db.app||{};

@@ -338,6 +338,36 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 .lv-ord{display:flex;gap:3px;flex:none}
 .lv-frame{width:100%;height:660px;border:none;background:var(--bg);display:block}
 @media(max-width:900px){.lv-split{grid-template-columns:1fr}.lv-frame{height:520px}}
+/* ===== simulado · cartão de questão ===== */
+.qcard{border:1px solid var(--border);border-radius:12px;background:var(--panel);margin-bottom:12px;overflow:hidden}
+.qcard-h{display:flex;gap:12px;padding:13px 15px;border-bottom:1px solid var(--border);align-items:flex-start;flex-wrap:wrap}
+.qnum{flex:none;width:26px;height:26px;border-radius:7px;background:var(--gold-soft-bg);color:var(--gold-deep);font-family:'Sora';font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.qcard-hmeta{flex:1;min-width:180px}
+.qcard-stmt{font-size:14px;font-weight:600;color:var(--head);line-height:1.35}
+.qcard-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;align-items:center}
+.qcard-act{display:flex;gap:5px;flex:none;align-items:center;flex-wrap:wrap}
+.qcard-body{padding:13px 16px}
+.qopt{padding:5px 0;font-size:13.5px;color:var(--muted)}
+.qopt.ok{color:var(--green);font-weight:600}
+.qaudio{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)}
+.abadge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px}
+.abadge.has{background:var(--gold-soft-bg);color:var(--gold-deep)}
+.abadge.no{background:var(--overlay-soft);color:var(--muted)}
+.qaudio-empty{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;background:var(--gold-soft-bg);border:1px dashed var(--gold-soft-bd);border-radius:10px;padding:10px 13px}
+/* ===== importação em massa ===== */
+.imp-drop{border:2px dashed var(--border);border-radius:14px;padding:34px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;background:var(--overlay-soft,rgba(255,255,255,.03))}
+.imp-drop:hover,.imp-drop.dragover{border-color:var(--gold);background:var(--gold-soft-bg,rgba(212,164,55,.1))}
+.imp-drop-ic{font-size:28px;color:var(--gold-deep)}
+.imp-drop-t{font-family:'Sora';font-weight:600;font-size:15px;color:var(--head);margin-top:8px}
+.imp-drop-s{font-size:13px;color:var(--muted);margin-top:3px}
+.imp-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--border)}
+.imp-row:last-child{border-bottom:none}
+.imp-ic{flex:none;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--overlay-soft)}
+.imp-meta{flex:1;min-width:0}
+.imp-name{font-size:13.5px;font-weight:600;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.imp-sub{font-size:11.5px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.imp-dest{flex:none;max-width:340px}
+.imp-sel{max-width:340px;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -384,6 +414,7 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
           <a class="nav-item sub" href="#/cursos" data-r="cursos">Cursos & aulas</a>
           <a class="nav-item sub" href="#/simulados" data-r="simulados">Simulados</a>
           <a class="nav-item sub" href="#/banco" data-r="banco">Banco de questões</a>
+          <a class="nav-item sub" href="#/importar" data-r="importar">Importação em massa</a>
           <a class="nav-item sub" href="#/trilhas" data-r="trilhas">Trilhas</a>
           <a class="nav-item sub" href="#/site" data-r="site">Site</a>
           <a class="nav-item sub" href="#/app" data-r="app">Área do aluno</a>
@@ -442,6 +473,8 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 </div>
 
 <input type="file" id="csv-input" accept=".csv,text/csv" hidden />
+<input type="file" id="qaudio-input" accept="audio/*" hidden />
+<input type="file" id="imp-input" multiple hidden />
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
@@ -586,8 +619,8 @@ function logout(){try{sessionStorage.removeItem('eda-auth')}catch(_){}$('#shell'
 function showApp(){$('#login').style.display='none';$('#shell').hidden=false;router();}
 
 /* ============ router ============ */
-const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
-const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
+const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
 const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios'};
 function toggleGroup(g){const el=document.getElementById('g-'+g);if(el)el.classList.toggle('open');}
 function router(){
@@ -616,6 +649,7 @@ function router(){
     else if(r==='simulados'){html=viewSimulados();}
     else if(r==='simulado'){html=viewSimulado(parts[1]);}
     else if(r==='banco'){html=viewBanco();}
+    else if(r==='importar'){html=viewImportar();}
     else if(r==='prova'){html=renderProva();}
     else if(r==='trilhas'){html=viewTrilhas();}
     else if(r==='trilha'){html=viewTrilha(parts[1]);}
@@ -625,6 +659,7 @@ function router(){
     else {html=viewDashboard();}
   }catch(err){html=notFound('Erro ao abrir');console.error(err);}
   $('#view').innerHTML=html;window.scrollTo(0,0);
+  if(r==='importar')impRender();
   $('#side').classList.remove('open');
 }
 window.addEventListener('hashchange',router);
@@ -765,6 +800,8 @@ const LV_MODES={
     map:function(c){return {id:c.id,code:c.code||c.cert||'CURSO',title:c.title||'',color:c.color||'#D4A437',sub:((c.modules||[]).reduce(function(n,m){return n+((m.lessons||[]).length);},0))+' aulas'+(c.owned===false?' · bloqueado':'')};}},
   trilhas:{label:'Trilhas',hash:'#/trilhas',src:'TRILHAS',orderKey:'trilhaOrder',empty:'Nenhuma trilha.',
     map:function(t){return {id:t.id,code:t.ico||'◎',title:t.name||'',color:t.color||'#D4A437',sub:t.eye||'trilha'};}},
+  simulados:{label:'Simulados',hash:'#/simulados',src:'SIMULADOS',orderKey:'simuladoOrder',empty:'Nenhum simulado.',
+    map:function(s){return {id:s.id,code:s.cert||'SIM',title:s.title||'',color:'#3D8BE0',sub:(s.questions||0)+' questões'+(s.dur?' · '+s.dur:'')};}},
   inicio:{label:'Início',hash:'#/inicio',src:'HOME_SECTIONS',orderKey:'homeOrder',empty:'Sem seções.',
     map:function(s){return {id:s.key,code:'≡',title:s.label||s.key,color:'#8A94A2',sub:'seção do início'};}}
 };
@@ -960,19 +997,33 @@ function viewSimulado(id){
   const s=db.simulados.find(s=>s.id===id);if(!s)return notFound('Simulado não encontrado');
   const st=simStats(s),cfg=simCfg(s);
   const qs=(s.questions||[]).map((q,qi)=>`
-    <div class="mod">
-      <div class="mod-head"><span class="mi">${qi+1}</span><span class="mt">${esc((q.stmt||'').slice(0,90))}${(q.stmt||'').length>90?'…':''}</span>
-        <span class="chip">${esc(q.theme||'—')}</span><span class="chip">${diffText(q.difficulty)}</span><span class="filei ${q.audio?'has':''}">♪ ${q.audio?'áudio':'sem áudio'}</span>
-        <button class="btn-icon" title="Subir" ${qi===0?'disabled':''} onclick="moveQuestion('${s.id}',${qi},-1)">↑</button>
-        <button class="btn-icon" title="Descer" ${qi===(s.questions.length-1)?'disabled':''} onclick="moveQuestion('${s.id}',${qi},1)">↓</button>
-        <button class="btn btn-ghost btn-sm" title="Salvar cópia no banco de questões (reutilizável)" onclick="saveQToBank('${s.id}',${qi})">↗ Banco</button>
-        <button class="btn btn-ghost btn-sm" onclick="editQuestion('${s.id}',${qi})">${EDIT_IC} Editar</button>
-        <button class="btn btn-danger btn-sm" onclick="delQuestion('${s.id}',${qi})">${DEL_IC}</button>
+    <div class="qcard">
+      <div class="qcard-h">
+        <span class="qnum">${qi+1}</span>
+        <div class="qcard-hmeta">
+          <div class="qcard-stmt">${esc(q.stmt||'(sem enunciado)')}</div>
+          <div class="qcard-chips">
+            <span class="chip">${esc(q.theme||'—')}</span>
+            <span class="chip">${diffText(q.difficulty)}</span>
+            <span class="abadge ${q.audio?'has':'no'}">${q.audio?'♪ com áudio':'sem áudio'}</span>
+          </div>
+        </div>
+        <div class="qcard-act">
+          <button class="btn-icon" title="Subir" ${qi===0?'disabled':''} onclick="moveQuestion('${s.id}',${qi},-1)">↑</button>
+          <button class="btn-icon" title="Descer" ${qi===(s.questions.length-1)?'disabled':''} onclick="moveQuestion('${s.id}',${qi},1)">↓</button>
+          <button class="btn btn-ghost btn-sm" title="Salvar cópia no banco de questões" onclick="saveQToBank('${s.id}',${qi})">↗ Banco</button>
+          <button class="btn btn-ghost btn-sm" onclick="editQuestion('${s.id}',${qi})">${EDIT_IC} Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="delQuestion('${s.id}',${qi})">${DEL_IC}</button>
+        </div>
       </div>
-      <div style="padding:12px 16px">
-        ${(q.options||[]).map((o,oi)=>`<div class="lts" style="padding:5px 0;color:${oi===q.correct?'var(--green)':'var(--muted)'}">${String.fromCharCode(65+oi)}) ${esc(o)}${oi===q.correct?' ✓':''}</div>`).join('')}
+      <div class="qcard-body">
+        ${(q.options||[]).map((o,oi)=>`<div class="qopt ${oi===q.correct?'ok':''}"><b>${String.fromCharCode(65+oi)})</b> ${esc(o)}${oi===q.correct?' ✓':''}</div>`).join('')}
         ${q.comment?`<div class="hint" style="margin-top:8px"><b>Gabarito:</b> ${esc(q.comment)}</div>`:''}
-        ${q.audio?`<div class="audio-cta" style="margin-top:10px"><span class="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div class="at">Áudio de explicação</div><div class="as">${q.audio.url?'Toque para ouvir':esc(q.audio.name)+' · '+fmtSize(q.audio.size)}</div></div></div>${q.audio.url?`<div class="upprev" style="margin-top:8px"><audio controls src="${q.audio.url}"></audio></div>`:''}`:''}
+        <div class="qaudio">
+          ${q.audio
+            ? `<div class="audio-cta"><span class="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div style="flex:1"><div class="at">Áudio de explicação</div><div class="as">${q.audio.url?'Pronto para ouvir':esc(q.audio.name)+(q.audio.size?' · '+fmtSize(q.audio.size):'')}</div></div><button class="btn btn-ghost btn-sm" onclick="setQuestionAudio('${s.id}',${qi})">Trocar</button><button class="btn btn-danger btn-sm" onclick="removeQuestionAudio('${s.id}',${qi})">Remover</button></div>${q.audio.url?`<div class="upprev" style="margin-top:8px"><audio controls src="${q.audio.url}"></audio></div>`:''}`
+            : `<div class="qaudio-empty"><div style="display:flex;align-items:center;gap:9px"><span class="ai" style="width:30px;height:30px;flex:none;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div style="font-size:13px;font-weight:600;color:var(--head)">Áudio de explicação da questão</div><div style="font-size:12px;color:var(--muted)">Grave o gabarito comentado — o aluno ouve a resposta.</div></div></div><button class="btn btn-gold btn-sm" onclick="setQuestionAudio('${s.id}',${qi})">+ Áudio</button></div>`}
+        </div>
       </div>
     </div>`).join('');
   return `
@@ -1225,6 +1276,82 @@ let _csvSid=null,_csvName='';
 function importCSV(sid){_csvSid=sid;const inp=$('#csv-input');inp.value='';inp.click();}
 function importCSVNew(){_csvSid='__new__';const inp=$('#csv-input');inp.value='';inp.click();}
 $('#csv-input').addEventListener('change',e=>{const f=e.target.files[0];if(!f||!_csvSid)return;_csvName=f.name;const rd=new FileReader();rd.onload=()=>{const text=String(rd.result);if(_csvSid==='__new__')doImportCSVNew(_csvName,text);else doImportCSV(_csvSid,text);};rd.readAsText(f);});
+
+/* --- áudio rápido por questão (botão "+ Áudio" no cartão) --- */
+let _qAudioTarget=null;
+function setQuestionAudio(sid,qi){_qAudioTarget={sid:sid,qi:+qi};const inp=$('#qaudio-input');inp.value='';inp.click();}
+function removeQuestionAudio(sid,qi){const s=db.simulados.find(x=>x.id===sid);const q=s&&s.questions[+qi];if(!q)return;q.audio=null;save();toast('Áudio removido.');router();}
+$('#qaudio-input').addEventListener('change',e=>{const f=e.target.files[0];if(!f||!_qAudioTarget)return;const s=db.simulados.find(x=>x.id===_qAudioTarget.sid);const q=s&&s.questions[_qAudioTarget.qi];if(q){q.audio={name:f.name,size:f.size,type:f.type,url:URL.createObjectURL(f)};save();toast('Áudio anexado à questão.');router();}_qAudioTarget=null;});
+
+/* ============ IMPORTAÇÃO EM MASSA ============ */
+let impQueue=[];
+function impKind(f){var t=(f.type||'').toLowerCase(),n=(f.name||'').toLowerCase();
+  if(t.indexOf('csv')>=0||/\.csv$/.test(n))return 'csv';
+  if(t.indexOf('video')>=0||/\.(mp4|mov|webm|mkv|avi|m4v)$/.test(n))return 'video';
+  if(t.indexOf('audio')>=0||/\.(mp3|m4a|wav|ogg|aac|opus)$/.test(n))return 'audio';
+  if(t.indexOf('image')>=0||/\.(png|jpe?g|webp|gif|svg)$/.test(n))return 'image';
+  return 'other';}
+function flatAulas(){var out=[];db.courses.forEach(function(c){(c.modules||[]).forEach(function(m,mi){(m.lessons||[]).forEach(function(l,li){out.push({key:c.id+'|'+mi+'|'+li,label:c.title+' · '+m.title+' · '+l.title});});});});return out;}
+function flatQuestoes(){var out=[];db.simulados.forEach(function(s){(s.questions||[]).forEach(function(q,qi){out.push({key:s.id+'|'+qi,label:s.title+' · Q'+(qi+1)+': '+String(q.stmt||'').slice(0,38)});});});return out;}
+function impAdd(files){Array.prototype.forEach.call(files,function(f){impQueue.push({file:f,kind:impKind(f),name:f.name,size:f.size,target:''});});impRender();}
+function impClear(){impQueue=[];impRender();}
+function impRemove(i){impQueue.splice(i,1);impRender();}
+function impSetTarget(i,v){if(impQueue[i])impQueue[i].target=v;}
+function impRender(){
+  var box=document.getElementById('imp-queue');if(!box)return;
+  var applyBtn=document.getElementById('imp-apply');
+  if(!impQueue.length){box.innerHTML='<div class="hint" style="padding:14px;color:var(--muted)">Nenhum arquivo na fila. Arraste vídeos, áudios e .csv acima.</div>';if(applyBtn){applyBtn.disabled=true;applyBtn.textContent='Aplicar';}return;}
+  var aulas=flatAulas(),quest=flatQuestoes();
+  box.innerHTML=impQueue.map(function(it,i){
+    var dest;
+    if(it.kind==='csv')dest='<span class="chip">vira um novo simulado</span>';
+    else if(it.kind==='video')dest='<select class="fld imp-sel" onchange="impSetTarget('+i+',this.value)"><option value="">— aula de destino —</option>'+aulas.map(function(a){return '<option value="v:'+a.key+'"'+(it.target==='v:'+a.key?' selected':'')+'>'+esc(a.label)+'</option>';}).join('')+'</select>';
+    else if(it.kind==='audio')dest='<select class="fld imp-sel" onchange="impSetTarget('+i+',this.value)"><option value="">— destino do áudio —</option><optgroup label="Aula (gabarito)">'+aulas.map(function(a){return '<option value="a:'+a.key+'"'+(it.target==='a:'+a.key?' selected':'')+'>'+esc(a.label)+'</option>';}).join('')+'</optgroup><optgroup label="Questão (explicação)">'+quest.map(function(q){return '<option value="q:'+q.key+'"'+(it.target==='q:'+q.key?' selected':'')+'>'+esc(q.label)+'</option>';}).join('')+'</optgroup></select>';
+    else dest='<span class="chip" style="color:var(--muted)">tipo não suportado</span>';
+    return '<div class="imp-row"><span class="imp-ic">'+({csv:'📄',video:'🎬',audio:'♪',image:'🖼',other:'?'})[it.kind]+'</span><div class="imp-meta"><div class="imp-name">'+esc(it.name)+'</div><div class="imp-sub">'+it.kind+' · '+fmtSize(it.size)+'</div></div><div class="imp-dest">'+dest+'</div><button class="btn-icon" title="Remover" onclick="impRemove('+i+')">✕</button></div>';
+  }).join('');
+  if(applyBtn){applyBtn.disabled=false;applyBtn.textContent='Aplicar '+impQueue.length+' '+(impQueue.length===1?'arquivo':'arquivos');}
+}
+function impDrop(e){e.preventDefault();e.currentTarget.classList.remove('dragover');var dt=e.dataTransfer;if(dt&&dt.files&&dt.files.length)impAdd(dt.files);}
+function impDragOver(e){e.preventDefault();e.currentTarget.classList.add('dragover');}
+function impDragLeave(e){e.currentTarget.classList.remove('dragover');}
+function impPick(){var inp=$('#imp-input');inp.value='';inp.click();}
+function impApply(){
+  if(!impQueue.length)return;
+  var pend=impQueue.filter(function(it){return (it.kind==='video'||it.kind==='audio')&&!it.target;});
+  if(pend.length&&!confirm(pend.length+' arquivo(s) de mídia estão sem destino e serão pulados. Continuar?'))return;
+  var done={sim:0,video:0,audio:0,skip:0};
+  impQueue.forEach(function(it){
+    if(it.kind==='video'){if(!it.target){done.skip++;return;}var p=it.target.slice(2).split('|');var c=db.courses.find(function(x){return x.id===p[0];});var l=c&&c.modules[+p[1]]&&c.modules[+p[1]].lessons[+p[2]];if(l){l.video={name:it.name,size:it.size,type:it.file.type,url:URL.createObjectURL(it.file)};done.video++;}else done.skip++;}
+    else if(it.kind==='audio'){if(!it.target){done.skip++;return;}var tt=it.target.slice(0,1),k=it.target.slice(2).split('|');if(tt==='a'){var c2=db.courses.find(function(x){return x.id===k[0];});var l2=c2&&c2.modules[+k[1]]&&c2.modules[+k[1]].lessons[+k[2]];if(l2){l2.audio={name:it.name,size:it.size,type:it.file.type,url:URL.createObjectURL(it.file)};done.audio++;}else done.skip++;}else if(tt==='q'){var s2=db.simulados.find(function(x){return x.id===k[0];});var q2=s2&&s2.questions[+k[1]];if(q2){q2.audio={name:it.name,size:it.size,type:it.file.type,url:URL.createObjectURL(it.file)};done.audio++;}else done.skip++;}}
+    else if(it.kind!=='csv'){done.skip++;}
+  });
+  var csvItems=impQueue.filter(function(it){return it.kind==='csv';});
+  var pending=csvItems.length;
+  function finish(){save();impQueue=[];impRender();toast('Importado: '+done.sim+' simulado(s), '+done.video+' vídeo(s), '+done.audio+' áudio(s)'+(done.skip?' · '+done.skip+' pulado(s)':'')+'.');router();}
+  if(!pending){finish();return;}
+  csvItems.forEach(function(it){var rd=new FileReader();
+    rd.onload=function(){try{var qs=csvToQuestions(String(rd.result));if(qs.length){var nm='Simulado '+String(it.name||'CSV').replace(/\.csv$/i,'').replace(/[-_]+/g,' ').trim();db.simulados.push({id:uid('sim'),cert:'CNPI',title:nm,status:'rascunho',desc:qs.length+' questões importadas por CSV.',questions:qs});done.sim++;}else done.skip++;}catch(_){done.skip++;}pending--;if(pending===0)finish();};
+    rd.onerror=function(){done.skip++;pending--;if(pending===0)finish();};
+    rd.readAsText(it.file);});
+}
+$('#imp-input').addEventListener('change',e=>{if(e.target.files&&e.target.files.length)impAdd(e.target.files);});
+function viewImportar(){
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Importação em massa</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Em massa</div><h1>Importação em massa</h1><p>Suba vários vídeos, áudios e simulados de uma vez. Cada .csv vira um simulado; vídeos e áudios você direciona para a aula ou a questão.</p></div></div>
+  <div class="infobox" style="margin-bottom:16px"><b>Rápido e seguro:</b> arraste tudo de uma vez, confira o destino de cada arquivo e só então clique em aplicar — nada é gravado antes da sua revisão. Vídeos e áudios grandes são pré-visualizados na sessão (protótipo, sem servidor); os .csv e as ligações ficam salvos.</div>
+  <div id="imp-drop" class="imp-drop" ondrop="impDrop(event)" ondragover="impDragOver(event)" ondragleave="impDragLeave(event)" onclick="impPick()">
+    <div class="imp-drop-ic">⬆</div>
+    <div class="imp-drop-t">Arraste vídeos, áudios e .csv aqui</div>
+    <div class="imp-drop-s">ou clique para escolher vários arquivos</div>
+  </div>
+  <div class="lv-panel" style="margin-top:16px">
+    <div class="lv-panel-h">Fila de importação <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="impClear()">Limpar</button></div>
+    <div id="imp-queue"></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn btn-gold" id="imp-apply" onclick="impApply()" disabled>Aplicar</button></div>`;
+}
 function parseCSV(text){
   const rows=[];let row=[],cur='',q=false;text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
   for(let i=0;i<text.length;i++){const c=text[i];
