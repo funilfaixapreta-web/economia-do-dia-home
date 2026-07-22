@@ -826,7 +826,7 @@ const COURSES=[
   {id:'rendafixa',code:'MERCADO',title:'Renda Fixa na Prática',trilha:'mercado',owned:false,color:'#2BB673',price:'697',
    desc:'Do CDB ao Tesouro IPCA+: monte uma carteira de renda fixa e entenda a marcação a mercado de verdade.',
    modules:[{title:'Renda Fixa',lessons:[['l1','Tipos de título',30,0],['l2','Montando a carteira',36,0]]}]},
-  {id:'valuation',code:'MERCADO',title:'Valuation na Prática',trilha:'mercado',owned:false,color:'#2BB673',price:'997',
+  {id:'valuation',code:'MERCADO',title:'Valuation do Zero à Prática',trilha:'mercado',owned:false,color:'#2BB673',price:'997',
    desc:'Avaliação de ações e FIIs, com planilhas e relatórios reais de análise. Saia sabendo montar uma tese.',
    modules:[{title:'Valuation aplicado',lessons:[['l1','Modelo de FCD na planilha',48,0],['l2','Avaliando um FII',40,0]]}]},
   {id:'cfg',code:'CFG',title:'CFG · Gestão de Recursos',trilha:'mercado',owned:false,color:'#2BB673',price:'1.497',
@@ -901,9 +901,10 @@ const HISTORY=[
 ];
 
 const PLANS=[
-  {id:'tecnico',name:'CNPI · Técnico',d:'CB + CT1 · análise gráfica',price:'2.197',per:'à vista'},
-  {id:'fundamentalista',name:'CNPI · Fundamentalista',d:'CB + CG1 · research e valuation',price:'2.197',per:'à vista'},
-  {id:'completo',name:'CNPI · Curso Completo',d:'CB + CG1 + CT1 · analista pleno + trilhas',price:'2.997',per:'à vista'}
+  {id:'tecnico',name:'CNPI - CB + CT',d:'Preparatório para a certificação CNPI-T',price:'2.197',per:'1 ano'},
+  {id:'fundamentalista',name:'CNPI - CB + CG',d:'Preparatório para a certificação CNPI',price:'2.197',per:'1 ano'},
+  {id:'completo',name:'CNPI - Curso Completo',d:'Certificação CNPI completa (CB + CT + CG)',price:'2.997',per:'2 anos'},
+  {id:'valuation',name:'Valuation do Zero à Prática',d:'Ações e fundos imobiliários na prática',price:'997',per:'1 ano'}
 ];
 
 /* =========================================================
@@ -920,7 +921,7 @@ const PLANS=[
   var onlyNum=function(s){return String(s==null?'':s).replace(/[^\d.,]/g,'');};
 
   // ---- PLANOS: sobrepõe nome/preço por id; novos → append
-  var planDef={completo:{name:'CNPI · Curso Completo',price:'R$ 2.997'},fundamentalista:{name:'CNPI · Fundamentalista',price:'R$ 2.197'},tecnico:{name:'CNPI · Técnico',price:'R$ 2.197'},valuation:{name:'Valuation na Prática',price:'R$ 997'}};
+  var planDef={completo:{name:'CNPI - Curso Completo',price:'R$ 2.997'},fundamentalista:{name:'CNPI - CB + CG',price:'R$ 2.197'},tecnico:{name:'CNPI - CB + CT',price:'R$ 2.197'},valuation:{name:'Valuation do Zero à Prática',price:'R$ 997'}};
   (db.plans||[]).forEach(function(p){
     var t=PLANS.find(function(x){return x.id===p.id;}),def=planDef[p.id]||{};
     if(t){
@@ -1781,7 +1782,7 @@ function openPlans(){
 }
 function openManage(){
   showModal(`<div class="mic" style="background:var(--overlay-soft);border:1px solid var(--border);color:var(--text)">⚙</div>
-  <h3>Gerenciar assinatura</h3><p>Plano <b>CNPI · Curso Completo</b>, ativo até 12/12/2027.</p>
+  <h3>Gerenciar assinatura</h3><p>Plano <b>CNPI - Curso Completo</b>, ativo até 12/12/2027.</p>
   <div style="margin-top:16px">
     <div class="billrow"><span class="bl">Forma de pagamento</span><span class="bv" style="color:var(--gold-deep);cursor:pointer">Alterar cartão →</span></div>
     <div class="billrow"><span class="bl">Renovação automática</span><button class="switch on" data-toggle></button></div>

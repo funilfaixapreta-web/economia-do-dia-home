@@ -571,29 +571,29 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     <div class="cur-grid">
       <div class="card cur-card rec lift" data-ed-plan="completo">
         <span class="cur-badge">RECOMENDADO · ANALISTA PLENO</span>
-        <span class="tag">CB + CG1 + CT1</span><h3>CNPI · Curso Completo</h3>
-        <p class="cdesc">As três provas, do zero ao credenciamento. Para quem quer ser analista pleno.</p>
+        <span class="tag">CB + CT + CG</span><h3>CNPI - Curso Completo</h3>
+        <p class="cdesc">Curso preparatório para a certificação CNPI (CB + CT + CG), com videoaulas, simulados premium, suporte no WhatsApp e seguro aprovação na primeira prova.</p>
         <div class="price"><span class="rs">R$</span><span class="big">2.997</span></div>
         <span class="valid">acesso por 2 anos</span>
         <div class="cur-btn gold">Ver curso</div>
       </div>
       <div class="card cur-card lift" data-ed-plan="fundamentalista">
-        <span class="tag">CB + CG1</span><h3>CNPI · Fundamentalista</h3>
-        <p class="cdesc">Conteúdo Brasileiro + Global. Para o analista de research e valuation.</p>
+        <span class="tag">CNPI</span><h3>CNPI - CB + CG</h3>
+        <p class="cdesc">Curso preparatório para a certificação CNPI, com videoaulas, simulados premium, suporte no WhatsApp e seguro aprovação na primeira prova.</p>
         <div class="price"><span class="rs">R$</span><span class="big">2.197</span></div>
         <span class="valid">acesso por 1 ano</span>
         <div class="cur-btn ghost">Ver curso</div>
       </div>
       <div class="card cur-card lift" data-ed-plan="tecnico">
-        <span class="tag">CB + CT1</span><h3>CNPI · Técnico</h3>
-        <p class="cdesc">Conteúdo Brasileiro + Técnico. Para quem opera com análise gráfica.</p>
+        <span class="tag">CNPI-T</span><h3>CNPI - CB + CT</h3>
+        <p class="cdesc">Curso preparatório para a certificação CNPI-T, com videoaulas, simulados premium, suporte no WhatsApp e seguro aprovação na primeira prova.</p>
         <div class="price"><span class="rs">R$</span><span class="big">2.197</span></div>
         <span class="valid">acesso por 1 ano</span>
         <div class="cur-btn ghost">Ver curso</div>
       </div>
       <div class="card cur-card lift" data-ed-plan="valuation">
-        <span class="tag">Valuation</span><h3>Valuation na Prática</h3>
-        <p class="cdesc">Avaliação de ações e FIIs, com planilhas e relatórios reais de análise.</p>
+        <span class="tag">Valuation</span><h3>Valuation do Zero à Prática</h3>
+        <p class="cdesc">Avaliação de ações e fundos imobiliários na prática, com videoaulas, relatórios completos de análise e planilhas de valuation.</p>
         <div class="price"><span class="rs">R$</span><span class="big">997</span></div>
         <span class="valid">acesso por 1 ano</span>
         <div class="cur-btn ghost">Ver curso</div>
@@ -619,7 +619,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
         <a class="logo" href="#"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
         <p class="foot-desc" data-ed="footer.text">Formação prática em análise e gestão do mercado financeiro, com cursos e simulados para o CNPI e o CFG.</p>
       </div>
-      <div><h4>Cursos</h4><a href="#cursos">CNPI Completo</a><a href="#cursos">Fundamentalista</a><a href="#cursos">Técnico</a><a href="#cursos">Valuation na Prática</a></div>
+      <div><h4>Cursos</h4><a href="#cursos">CNPI - Curso Completo</a><a href="#cursos">CNPI - CB + CG</a><a href="#cursos">CNPI - CB + CT</a><a href="#cursos">Valuation do Zero à Prática</a></div>
       <div><h4>Grátis</h4><a href="simulado.html">Simulado CFG</a><a href="simulado.html">Simulado CNPI</a><a href="login.html">Diagnóstico por módulo</a></div>
       <div><h4>Contato</h4><a href="#">WhatsApp</a><a href="#">contato@economiadodia.com.br</a></div>
     </div>
@@ -689,7 +689,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
       if(cr) cr.innerHTML=S.professor.creds.map(function(c){return '<span class="c">'+String(c).replace(/[&<>]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[x];})+'</span>';}).join('');
     }
     // planos → cards de "Cursos" (nome + preço)
-    var planDef={completo:{name:'CNPI · Curso Completo',price:'R$ 2.997'},fundamentalista:{name:'CNPI · Fundamentalista',price:'R$ 2.197'},tecnico:{name:'CNPI · Técnico',price:'R$ 2.197'},valuation:{name:'Valuation na Prática',price:'R$ 997'}};
+    var planDef={completo:{name:'CNPI - Curso Completo',price:'R$ 2.997'},fundamentalista:{name:'CNPI - CB + CG',price:'R$ 2.197'},tecnico:{name:'CNPI - CB + CT',price:'R$ 2.197'},valuation:{name:'Valuation do Zero à Prática',price:'R$ 997'}};
     P.forEach(function(p){
       var card=document.querySelector('[data-ed-plan="'+p.id+'"]');if(!card)return;var def=planDef[p.id]||{};
       var h=card.querySelector('h3');if(h&&p.name&&norm(p.name)!==norm(def.name))h.textContent=p.name;
