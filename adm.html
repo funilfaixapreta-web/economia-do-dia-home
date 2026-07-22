@@ -533,7 +533,12 @@ $$('#theme-seg button').forEach(b=>b.addEventListener('click',()=>applyTheme(b.d
 
 /* ============ data ============ */
 const DB_KEY='eda-db';
+/* versão do catálogo que vem do código (planos e preços). Ao mudar preço ou nome
+   aqui, suba este número: dados antigos salvos no navegador deixam de sobrescrever
+   o site e o painel se atualiza sozinho. */
+const SEED_V=2;
 function seed(){return {
+  v:SEED_V,
   site:{
     hero:{eyebrow:'Formação prática · cursos e simulados · CNPI e CGA/CGE',title:'Formação em análise e gestão no mercado financeiro',promise:'Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer atuar com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.',cta:'Fazer um simulado grátis'},
     formacao:{eyebrow:'A formação',title:'Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.',text:'Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.'},
@@ -609,14 +614,17 @@ function seed(){return {
     {id:uid('s'),name:'Patrícia Lima',email:'patricia.lima@gmail.com',role:'aluno',plan:'completo',progress:73,status:'ativo',sims:24,joined:'20/06/2026',last:'ontem, 21:40',phone:'(85) 98600-5566',cpf:'678.901.234-55',origem:'Google'}
   ],
   plans:[
-    {id:'completo',name:'CNPI - Curso Completo',price:'R$ 2.997',benefits:['Certificação CNPI completa (CB + CT + CG)','Videoaulas + simulados premium','Suporte no WhatsApp','Seguro aprovação na primeira prova','Acesso por 2 anos']},
-    {id:'fundamentalista',name:'CNPI - CB + CG',price:'R$ 2.197',benefits:['Preparatório para a certificação CNPI','Videoaulas + simulados premium','Suporte no WhatsApp','Seguro aprovação na primeira prova','Acesso por 1 ano']},
-    {id:'tecnico',name:'CNPI - CB + CT',price:'R$ 2.197',benefits:['Preparatório para a certificação CNPI-T','Videoaulas + simulados premium','Suporte no WhatsApp','Seguro aprovação na primeira prova','Acesso por 1 ano']},
-    {id:'valuation',name:'Valuation do Zero à Prática',price:'R$ 997',benefits:['Avaliação de ações e fundos imobiliários na prática','Videoaulas + relatórios completos de análise','Planilhas de valuation','Acesso por 1 ano']}
+    {id:'completo',name:'CNPI · Curso Completo',price:'R$ 2.997',benefits:['CB + CG1 + CT1 · analista pleno','As três provas, do zero ao credenciamento','Acesso por 2 anos','Videoaulas + simulados premium + suporte no WhatsApp']},
+    {id:'fundamentalista',name:'CNPI · Fundamentalista',price:'R$ 2.197',benefits:['CB + CG1 · research e valuation','Conteúdo Brasileiro + Global','Acesso por 1 ano','Videoaulas + simulados premium + suporte no WhatsApp']},
+    {id:'tecnico',name:'CNPI · Técnico',price:'R$ 2.197',benefits:['CB + CT1 · análise gráfica','Conteúdo Brasileiro + Técnico','Acesso por 1 ano','Videoaulas + simulados premium + suporte no WhatsApp']},
+    {id:'valuation',name:'Valuation na Prática',price:'R$ 997',benefits:['Avaliação de ações e FIIs','Planilhas e relatórios reais de análise','Acesso por 1 ano']}
   ]
 };}
 let db;
-function load(){try{const r=JSON.parse(localStorage.getItem(DB_KEY));if(r&&r.courses){const sd=seed();if(!r.site)r.site=sd.site;else['hero','formacao','metodo','professor','depoimentos','footer'].forEach(k=>{if(r.site[k]==null)r.site[k]=sd.site[k];});if(!r.app)r.app=sd.app;if(!r.questionBank)r.questionBank=sd.questionBank;return r;}}catch(_){}return seed();}
+function load(){try{const r=JSON.parse(localStorage.getItem(DB_KEY));if(r&&r.courses){const sd=seed();if(!r.site)r.site=sd.site;else['hero','formacao','metodo','professor','depoimentos','footer'].forEach(k=>{if(r.site[k]==null)r.site[k]=sd.site[k];});if(!r.app)r.app=sd.app;if(!r.questionBank)r.questionBank=sd.questionBank;
+  /* catálogo mudou no código: renova os planos e marca a versão */
+  if(r.v!==SEED_V){r.plans=sd.plans;r.v=SEED_V;try{localStorage.setItem(DB_KEY,JSON.stringify(r));}catch(_){}}
+  return r;}}catch(_){}return seed();}
 function save(){try{localStorage.setItem(DB_KEY,JSON.stringify(db));}catch(_){toast('Não foi possível salvar (armazenamento cheio).','err');}}
 function resetData(){if(!confirm('Restaurar os dados de exemplo? Suas alterações neste navegador serão perdidas.'))return;db=seed();save();toast('Dados de exemplo restaurados.');router();}
 db=load();
