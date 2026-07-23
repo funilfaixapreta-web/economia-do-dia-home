@@ -432,7 +432,9 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
         <button class="nav-parent" onclick="toggleGroup('conteudo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Conteúdo</span><span class="caret">▶</span></button>
         <div class="nav-sub">
           <a class="nav-item sub" href="#/cursos" data-r="cursos">Cursos & aulas</a>
+          <a class="nav-item sub" href="#/simcategs" data-r="simcategs">Categorias de simulado</a>
           <a class="nav-item sub" href="#/simulados" data-r="simulados">Simulados</a>
+          <a class="nav-item sub" href="#/qcategs" data-r="qcategs">Categorias de questão</a>
           <a class="nav-item sub" href="#/banco" data-r="banco">Banco de questões</a>
           <a class="nav-item sub" href="#/importar" data-r="importar">Importação em massa</a>
           <a class="nav-item sub" href="#/trilhas" data-r="trilhas">Trilhas</a>
@@ -599,6 +601,22 @@ function seed(){return {
     {id:uid('q'),stmt:'Ética profissional exige, em conflito de interesse:',options:['Priorizar a corretora','Priorizar o cliente','Omitir informação','Maximizar corretagem'],correct:1,comment:'O interesse do cliente prevalece sobre o da instituição.',theme:'Ética e regulação',difficulty:'fácil',audio:null},
     {id:uid('q'),stmt:'Marcação a mercado protege principalmente contra:',options:['Inflação','Preço defasado/irreal da cota','Câmbio','Risco de crédito'],correct:1,comment:'Marcar a mercado evita que a cota reflita um preço defasado.',theme:'Renda fixa',difficulty:'difícil',audio:null}
   ],
+  simCategories:[
+    {id:'cfg',name:'CFG',desc:'Certificação ANBIMA de Fundamentos em Gestão (CFG).',chamada:'Para quem quer atuar em gestão de recursos de terceiros.',color:'#3D8BE0',integration:'73-73',active:true},
+    {id:'cnpi-cb',name:'CNPI - CB',desc:'CNPI Conteúdo Brasileiro. Fase comum a todos os analistas.',chamada:'Base do credenciamento de analista.',color:'#D4A437',integration:'',active:true},
+    {id:'cnpi-cg1',name:'CNPI - CG1',desc:'CNPI Conteúdo Global. Análise fundamentalista.',chamada:'Valuation e contabilidade.',color:'#2BB673',integration:'',active:true},
+    {id:'cnpi-ct1',name:'CNPI - CT1',desc:'CNPI Conteúdo Técnico. Análise gráfica.',chamada:'Análise técnica na prática.',color:'#E8A33D',integration:'',active:false}
+  ],
+  qCategories:[
+    {id:'cfg-m1',name:'CFG · M1 - Métodos Quantitativos',desc:'Estatística, probabilidade, regressão e análise técnica.',active:true},
+    {id:'cfg-m2',name:'CFG · M2 - Economia',desc:'',active:true},
+    {id:'cfg-m3',name:'CFG · M3 - Análise de Relatórios Financeiros',desc:'',active:true},
+    {id:'cfg-m4',name:'CFG · M4 - Finanças Corporativas',desc:'',active:true},
+    {id:'cfg-m5',name:'CFG · M5 - Mercados e Instrumentos Financeiros',desc:'',active:true},
+    {id:'cfg-m6',name:'CFG · M6 - Teoria de Carteiras',desc:'',active:true},
+    {id:'cnpi-cb-m1',name:'CNPI-CB · M1 - Sistema Financeiro Nacional',desc:'',active:true},
+    {id:'cnpi-cb-m3',name:'CNPI-CB · M3 - Mercado de Renda Fixa',desc:'',active:true}
+  ],
   trilhas:[
     {id:'cnpi',eye:'Certificação',name:'Trilha CNPI',color:'#D4A437',ico:'★',desc:'Do zero ao credenciamento de analista, na ordem exata da prova.',courses:['cb','cg1','ct1']},
     {id:'valuation',eye:'Reta final',name:'Trilha Valuation',color:'#3D8BE0',ico:'◎',desc:'Preparação intensiva por simulados e diagnóstico.',courses:['cg1']},
@@ -622,6 +640,7 @@ function seed(){return {
 };}
 let db;
 function load(){try{const r=JSON.parse(localStorage.getItem(DB_KEY));if(r&&r.courses){const sd=seed();if(!r.site)r.site=sd.site;else['hero','formacao','metodo','professor','depoimentos','footer'].forEach(k=>{if(r.site[k]==null)r.site[k]=sd.site[k];});if(!r.app)r.app=sd.app;if(!r.questionBank)r.questionBank=sd.questionBank;
+  if(!r.simCategories)r.simCategories=sd.simCategories;if(!r.qCategories)r.qCategories=sd.qCategories;
   /* catálogo mudou no código: renova os planos e marca a versão */
   if(r.v!==SEED_V){r.plans=sd.plans;r.v=SEED_V;try{localStorage.setItem(DB_KEY,JSON.stringify(r));}catch(_){}}
   return r;}}catch(_){}return seed();}
@@ -663,8 +682,8 @@ function logout(){try{sessionStorage.removeItem('eda-auth')}catch(_){}$('#shell'
 function showApp(){$('#login').style.display='none';$('#shell').hidden=false;router();}
 
 /* ============ router ============ */
-const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
-const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
+const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
 const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios'};
 function toggleGroup(g){const el=document.getElementById('g-'+g);if(el)el.classList.toggle('open');}
 function router(){
@@ -693,6 +712,8 @@ function router(){
     else if(r==='simulados'){html=viewSimulados();}
     else if(r==='simulado'){html=viewSimulado(parts[1]);}
     else if(r==='banco'){html=viewBanco();}
+    else if(r==='simcategs'){html=viewSimCategs();}
+    else if(r==='qcategs'){html=viewQCategs();}
     else if(r==='importar'){html=viewImportar();}
     else if(r==='prova'){html=renderProva();}
     else if(r==='trilhas'){html=viewTrilhas();}
@@ -1911,6 +1932,85 @@ function bankToSims(i){const q=(db.questionBank||[])[i];if(!q)return;
 function confirmBankToSims(i){const q=db.questionBank[i];const picks=$$('#pv-body [data-si]:checked').map(c=>+c.getAttribute('data-si'));if(!picks.length){toast('Selecione ao menos um simulado.','err');return;}picks.forEach(si=>{const s=db.simulados[si];s.questions=s.questions||[];s.questions.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});});save();closePreview();toast('Questão vinculada a '+picks.length+(picks.length===1?' simulado.':' simulados.'));router();}
 /* Salvar questão do simulado no banco (reutilizável) */
 function saveQToBank(sid,qi){const s=db.simulados.find(x=>x.id===sid);if(!s)return;const q=(s.questions||[])[qi];if(!q)return;db.questionBank=db.questionBank||[];db.questionBank.push({id:uid('q'),stmt:q.stmt,options:(q.options||[]).slice(),correct:q.correct,comment:q.comment,theme:q.theme,difficulty:q.difficulty,audio:q.audio||null});save();toast('Questão salva no banco de questões.');}
+
+/* ============ CATEGORIAS DE SIMULADO ============ */
+function catBadge(a){return a?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>';}
+function filterRows(boxId,rowsId){const inp=$('#'+boxId+' input');const q=inp?inp.value.toLowerCase().trim():'';$$('#'+rowsId+' .urow').forEach(tr=>{const t=tr.getAttribute('data-s')||'';tr.style.display=(!q||t.indexOf(q)>=0)?'':'none';});}
+function viewSimCategs(){
+  const rows=(db.simCategories||[]).map((c,i)=>`
+    <tr class="clk urow" data-s="${esc((c.name+' '+(c.integration||'')).toLowerCase())}" onclick="editSimCategory('${c.id}')">
+      <td class="mono t-sub">${i+1}</td>
+      <td class="mono t-sub">${esc(c.integration||'-')}</td>
+      <td>${catBadge(c.active)}</td>
+      <td><span style="display:inline-flex;align-items:center;gap:8px"><span style="width:16px;height:16px;border-radius:5px;background:${esc(c.color||'#888')};border:1px solid var(--border)"></span><span class="mono t-sub">${esc(c.color||'')}</span></span></td>
+      <td class="t-title">${esc(c.name)}</td>
+      <td class="rowend"><div class="rowact">
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();toggleSimCateg('${c.id}')">${c.active?'Desativar':'Ativar'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editSimCategory('${c.id}')">${EDIT_IC}</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delSimCateg('${c.id}')">${DEL_IC}</button>
+      </div></td>
+    </tr>`).join('');
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Categorias de simulado</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Categorias de simulado</h1><p>Agrupam os simulados por certificação (CFG, CNPI...). Cada uma tem cor, chamada e código de integração.</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editSimCategory()">+ Nova categoria</button></div></div>
+  <div class="toolbar"><div class="searchbox" id="scat-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar categoria…" oninput="filterRows('scat-search','scat-rows')"></div></div>
+  ${(db.simCategories||[]).length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Id</th><th>Integração</th><th>Ativo</th><th>Cor</th><th>Nome</th><th></th></tr></thead><tbody id="scat-rows">${rows}</tbody></table></div>`:emptyState('◑','Nenhuma categoria','Crie a primeira categoria de simulado.','+ Nova categoria','editSimCategory()')}`;
+}
+function editSimCategory(id){
+  const c=id?(db.simCategories||[]).find(x=>x.id===id):null;
+  openDrawer(c?'Editar categoria de simulado':'Nova categoria de simulado',[
+    {key:'name',label:'Nome',type:'text',req:true},
+    {key:'desc',label:'Descrição',type:'textarea'},
+    {key:'chamada',label:'Chamada (texto de destaque)',type:'textarea'},
+    {key:'color',label:'Cor de identificação',type:'color'},
+    {key:'integration',label:'Código de integração (ex.: ActiveCampaign 73-73)',type:'text'},
+    {key:'active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
+  ],c?Object.assign({},c,{active:c.active?'sim':'nao'}):{color:'#D4A437',active:'sim'},d=>{
+    d.active=d.active!=='nao';
+    db.simCategories=db.simCategories||[];
+    if(c)Object.assign(c,d);else db.simCategories.push(Object.assign({id:uid('sc')},d));
+    save();closeDrawer();toast('Categoria de simulado salva.');router();
+  });
+}
+function toggleSimCateg(id){const c=(db.simCategories||[]).find(x=>x.id===id);if(!c)return;c.active=!c.active;save();toast(c.active?'Categoria ativada.':'Categoria desativada.');router();}
+function delSimCateg(id){if(!confirm('Excluir esta categoria de simulado?'))return;db.simCategories=(db.simCategories||[]).filter(x=>x.id!==id);save();toast('Categoria excluída.');router();}
+
+/* ============ CATEGORIAS DE QUESTÃO (módulos) ============ */
+function viewQCategs(){
+  const rows=(db.qCategories||[]).map((c,i)=>`
+    <tr class="clk urow" data-s="${esc(c.name.toLowerCase())}" onclick="editQCategory('${c.id}')">
+      <td class="mono t-sub">${i+1}</td>
+      <td>${catBadge(c.active)}</td>
+      <td class="t-title">${esc(c.name)}</td>
+      <td class="rowend"><div class="rowact">
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();toggleQCateg('${c.id}')">${c.active?'Desativar':'Ativar'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editQCategory('${c.id}')">${EDIT_IC}</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delQCateg('${c.id}')">${DEL_IC}</button>
+      </div></td>
+    </tr>`).join('');
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Categorias de questão</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Categorias de questão</h1><p>São os módulos de conteúdo (ex.: "M1 - Métodos Quantitativos"). As questões pertencem a uma categoria, e o simulado sorteia questões por categoria.</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editQCategory()">+ Nova categoria</button></div></div>
+  <div class="toolbar"><div class="searchbox" id="qcat-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar categoria…" oninput="filterRows('qcat-search','qcat-rows')"></div></div>
+  ${(db.qCategories||[]).length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Id</th><th>Ativo</th><th>Nome</th><th></th></tr></thead><tbody id="qcat-rows">${rows}</tbody></table></div>`:emptyState('◔','Nenhuma categoria','Crie o primeiro módulo de questões.','+ Nova categoria','editQCategory()')}`;
+}
+function editQCategory(id){
+  const c=id?(db.qCategories||[]).find(x=>x.id===id):null;
+  openDrawer(c?'Editar categoria de questão':'Nova categoria de questão',[
+    {key:'name',label:'Nome (ex.: M1 - Métodos Quantitativos)',type:'text',req:true},
+    {key:'desc',label:'Descrição',type:'textarea'},
+    {key:'active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
+  ],c?Object.assign({},c,{active:c.active?'sim':'nao'}):{active:'sim'},d=>{
+    d.active=d.active!=='nao';
+    db.qCategories=db.qCategories||[];
+    if(c)Object.assign(c,d);else db.qCategories.push(Object.assign({id:uid('qc')},d));
+    save();closeDrawer();toast('Categoria de questão salva.');router();
+  });
+}
+function toggleQCateg(id){const c=(db.qCategories||[]).find(x=>x.id===id);if(!c)return;c.active=!c.active;save();toast(c.active?'Categoria ativada.':'Categoria desativada.');router();}
+function delQCateg(id){if(!confirm('Excluir esta categoria de questão?'))return;db.qCategories=(db.qCategories||[]).filter(x=>x.id!==id);save();toast('Categoria excluída.');router();}
 
 /* ============ PROVA (aluno faz o simulado) ============ */
 let exam=null,examTimer=null;
