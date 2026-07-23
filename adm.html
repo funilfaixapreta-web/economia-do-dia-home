@@ -435,7 +435,7 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
           <a class="nav-item sub" href="#/simcategs" data-r="simcategs">Categorias de simulado</a>
           <a class="nav-item sub" href="#/simulados" data-r="simulados">Simulados</a>
           <a class="nav-item sub" href="#/qcategs" data-r="qcategs">Categorias de questão</a>
-          <a class="nav-item sub" href="#/banco" data-r="banco">Banco de questões</a>
+          <a class="nav-item sub" href="#/perguntas" data-r="perguntas">Perguntas</a>
           <a class="nav-item sub" href="#/importar" data-r="importar">Importação em massa</a>
           <a class="nav-item sub" href="#/trilhas" data-r="trilhas">Trilhas</a>
           <a class="nav-item sub" href="#/site" data-r="site">Site</a>
@@ -617,6 +617,33 @@ function seed(){return {
     {id:'cnpi-cb-m1',name:'CNPI-CB · M1 - Sistema Financeiro Nacional',desc:'',active:true},
     {id:'cnpi-cb-m3',name:'CNPI-CB · M3 - Mercado de Renda Fixa',desc:'',active:true}
   ],
+  questions:[
+    {id:'pq1',categoryId:'cfg-m1',text:'Qual das alternativas define corretamente a diferença entre variância e desvio-padrão?',active:true,audioEmbed:'',accessRule:'livre',answers:[
+      {id:'a1',text:'O desvio-padrão é sempre maior que a variância.',correct:false,active:true},
+      {id:'a2',text:'A variância é sempre representada na mesma unidade dos dados analisados.',correct:false,active:true},
+      {id:'a3',text:'A variância é a média dos quadrados dos desvios; o desvio-padrão é a raiz quadrada da variância.',correct:true,active:true},
+      {id:'a4',text:'Ambos medem o mesmo conceito e são numericamente iguais.',correct:false,active:true}]},
+    {id:'pq2',categoryId:'cfg-m1',text:'Calcule a taxa efetiva de 9% a.a. compostos trimestralmente:',active:true,audioEmbed:'<iframe src="https://player.exemplo.com/audio/pq2" width="100%" height="60" frameborder="0"></iframe>',accessRule:'cadastrados',answers:[
+      {id:'a1',text:'9,17%',correct:false,active:true},
+      {id:'a2',text:'8,97%',correct:false,active:true},
+      {id:'a3',text:'9,31%',correct:true,active:true},
+      {id:'a4',text:'9,00%',correct:false,active:true}]},
+    {id:'pq3',categoryId:'cfg-m1',text:'Uma variável segue distribuição normal com média 50 e desvio-padrão 10. Qual a probabilidade de um valor estar entre 40 e 60?',active:false,audioEmbed:'',accessRule:'livre',answers:[
+      {id:'a1',text:'Aproximadamente 95%.',correct:false,active:true},
+      {id:'a2',text:'Exatamente 50%.',correct:false,active:true},
+      {id:'a3',text:'Aproximadamente 68%.',correct:true,active:true},
+      {id:'a4',text:'Exatamente 90%.',correct:false,active:true}]},
+    {id:'pq4',categoryId:'cfg-m2',text:'Para conter a inflação, o Copom geralmente:',active:true,audioEmbed:'',accessRule:'livre',answers:[
+      {id:'a1',text:'Reduz a taxa Selic.',correct:false,active:true},
+      {id:'a2',text:'Eleva a taxa Selic.',correct:true,active:true},
+      {id:'a3',text:'Diminui o depósito compulsório.',correct:false,active:true},
+      {id:'a4',text:'Compra títulos no open market.',correct:false,active:true}]},
+    {id:'pq5',categoryId:'cnpi-cb-m1',text:'A supervisão das bolsas e das companhias abertas no Brasil compete principalmente a:',active:true,audioEmbed:'',accessRule:'assinantes',answers:[
+      {id:'a1',text:'Banco Central (Bacen).',correct:false,active:true},
+      {id:'a2',text:'CVM.',correct:true,active:true},
+      {id:'a3',text:'Susep.',correct:false,active:true},
+      {id:'a4',text:'CMN.',correct:false,active:true}]}
+  ],
   trilhas:[
     {id:'cnpi',eye:'Certificação',name:'Trilha CNPI',color:'#D4A437',ico:'★',desc:'Do zero ao credenciamento de analista, na ordem exata da prova.',courses:['cb','cg1','ct1']},
     {id:'valuation',eye:'Reta final',name:'Trilha Valuation',color:'#3D8BE0',ico:'◎',desc:'Preparação intensiva por simulados e diagnóstico.',courses:['cg1']},
@@ -640,7 +667,7 @@ function seed(){return {
 };}
 let db;
 function load(){try{const r=JSON.parse(localStorage.getItem(DB_KEY));if(r&&r.courses){const sd=seed();if(!r.site)r.site=sd.site;else['hero','formacao','metodo','professor','depoimentos','footer'].forEach(k=>{if(r.site[k]==null)r.site[k]=sd.site[k];});if(!r.app)r.app=sd.app;if(!r.questionBank)r.questionBank=sd.questionBank;
-  if(!r.simCategories)r.simCategories=sd.simCategories;if(!r.qCategories)r.qCategories=sd.qCategories;
+  if(!r.simCategories)r.simCategories=sd.simCategories;if(!r.qCategories)r.qCategories=sd.qCategories;if(!r.questions)r.questions=sd.questions;
   /* catálogo mudou no código: renova os planos e marca a versão */
   if(r.v!==SEED_V){r.plans=sd.plans;r.v=SEED_V;try{localStorage.setItem(DB_KEY,JSON.stringify(r));}catch(_){}}
   return r;}}catch(_){}return seed();}
@@ -682,9 +709,9 @@ function logout(){try{sessionStorage.removeItem('eda-auth')}catch(_){}$('#shell'
 function showApp(){$('#login').style.display='none';$('#shell').hidden=false;router();}
 
 /* ============ router ============ */
-const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
-const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
-const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios'};
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
+const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',perguntas:'conteudo',pergunta:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
+const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios',pergunta:'perguntas'};
 function toggleGroup(g){const el=document.getElementById('g-'+g);if(el)el.classList.toggle('open');}
 function router(){
   if(!authed()){$('#shell').hidden=true;$('#login').style.display='flex';return;}
@@ -714,6 +741,8 @@ function router(){
     else if(r==='banco'){html=viewBanco();}
     else if(r==='simcategs'){html=viewSimCategs();}
     else if(r==='qcategs'){html=viewQCategs();}
+    else if(r==='perguntas'){html=viewQuestions();}
+    else if(r==='pergunta'){html=viewPergunta(parts[1]);}
     else if(r==='importar'){html=viewImportar();}
     else if(r==='prova'){html=renderProva();}
     else if(r==='trilhas'){html=viewTrilhas();}
@@ -2011,6 +2040,130 @@ function editQCategory(id){
 }
 function toggleQCateg(id){const c=(db.qCategories||[]).find(x=>x.id===id);if(!c)return;c.active=!c.active;save();toast(c.active?'Categoria ativada.':'Categoria desativada.');router();}
 function delQCateg(id){if(!confirm('Excluir esta categoria de questão?'))return;db.qCategories=(db.qCategories||[]).filter(x=>x.id!==id);save();toast('Categoria excluída.');router();}
+
+/* ============ PERGUNTAS (questões categorizadas) ============ */
+function stripHtml(s){return String(s||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();}
+const ACCESS_OPTS=[['livre','Acesso livre'],['cadastrados','Somente cadastrados'],['assinantes','Somente assinantes']];
+function accLabel(r){return ({livre:'Acesso livre',cadastrados:'Somente cadastrados',assinantes:'Somente assinantes'})[r||'livre'];}
+function qCatName(id){var c=(db.qCategories||[]).find(function(x){return x.id===id;});return c?c.name:'(sem categoria)';}
+function qHasAudio(q){return !!(q.audioEmbed&&String(q.audioEmbed).trim());}
+function viewQuestions(){
+  const rows=(db.questions||[]).map((q,i)=>{
+    const ha=qHasAudio(q), txt=stripHtml(q.text);
+    return `<tr class="clk urow" data-s="${esc((txt+' '+qCatName(q.categoryId)).toLowerCase())}" data-audio="${ha?'sim':'nao'}" data-active="${q.active?'sim':'nao'}" onclick="location.hash='#/pergunta/${q.id}'">
+      <td onclick="event.stopPropagation()"><input type="checkbox" data-qbulk="${q.id}" style="width:15px;height:15px;accent-color:var(--gold)"></td>
+      <td class="mono t-sub">${i+1}</td>
+      <td>${catBadge(q.active)}</td>
+      <td>${ha?'<span class="badge b-on">Sim</span>':'<span class="badge b-off">Não</span>'}</td>
+      <td class="t-sub">${accLabel(q.accessRule)}</td>
+      <td><span class="chip">${esc(qCatName(q.categoryId))}</span></td>
+      <td class="t-title" style="max-width:340px;white-space:normal">${esc(txt.slice(0,100))}${txt.length>100?'…':''}</td>
+      <td class="rowend"><div class="rowact">
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();toggleQuestion('${q.id}')">${q.active?'Desativar':'Ativar'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();location.hash='#/pergunta/${q.id}'">${EDIT_IC}</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delQuestion2('${q.id}')">${DEL_IC}</button>
+      </div></td>
+    </tr>`;}).join('');
+  const total=(db.questions||[]).length;
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Perguntas</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Perguntas</h1><p>Questões de múltipla escolha, organizadas por categoria. Cada pergunta tem alternativas, uma marcada como correta.</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="novaPergunta()">+ Nova pergunta</button></div></div>
+  <div class="toolbar">
+    <div class="searchbox" id="q-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar pergunta…" oninput="filterQuestions()"></div>
+    <select class="fld" id="q-faudio" style="max-width:150px" onchange="filterQuestions()"><option value="">Áudio: todos</option><option value="sim">Com áudio</option><option value="nao">Sem áudio</option></select>
+    <select class="fld" id="q-fativo" style="max-width:150px" onchange="filterQuestions()"><option value="">Ativo: todos</option><option value="sim">Ativos</option><option value="nao">Inativos</option></select>
+    <span class="chip" id="q-count">${total} perguntas</span>
+  </div>
+  <div class="card" id="q-bulk" hidden style="margin-bottom:12px;display:flex;align-items:center;gap:12px;padding:12px 16px">
+    <span id="q-bulk-n" style="font-weight:600"></span>
+    <div style="margin-left:auto;display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="qBulk('ativar')">Ativar</button><button class="btn btn-ghost btn-sm" onclick="qBulk('desativar')">Desativar</button><button class="btn btn-danger btn-sm" onclick="qBulk('excluir')">Excluir</button></div>
+  </div>
+  ${total?`<div class="tblwrap"><table class="tbl"><thead><tr><th style="width:34px"><input type="checkbox" onclick="qBulkAll(this)" style="width:15px;height:15px;accent-color:var(--gold)"></th><th>Id</th><th>Ativo</th><th>Áudio</th><th>Regra de acesso</th><th>Categoria</th><th>Texto</th><th></th></tr></thead><tbody id="q-rows">${rows}</tbody></table></div>
+  <p class="hint" style="margin-top:12px;color:var(--muted)">Em produção, com centenas de perguntas, a lista é paginada. No protótipo, todas aparecem.</p>`:emptyState('?','Nenhuma pergunta','Crie a primeira pergunta.','+ Nova pergunta','novaPergunta()')}`;
+}
+function filterQuestions(){
+  const q=($('#q-search input')?$('#q-search input').value:'').toLowerCase().trim();
+  const fa=$('#q-faudio')?$('#q-faudio').value:'', fv=$('#q-fativo')?$('#q-fativo').value:'';let vis=0;
+  $$('#q-rows .urow').forEach(tr=>{const okq=!q||(tr.getAttribute('data-s')||'').includes(q),oka=!fa||tr.getAttribute('data-audio')===fa,okv=!fv||tr.getAttribute('data-active')===fv,show=okq&&oka&&okv;tr.style.display=show?'':'none';if(show)vis++;});
+  const c=$('#q-count');if(c)c.textContent=vis+' perguntas';
+}
+function qBulkSelected(){return $$('#q-rows [data-qbulk]:checked').map(c=>c.getAttribute('data-qbulk'));}
+function updateQBulk(){const bar=$('#q-bulk');if(!bar)return;const sel=qBulkSelected();bar.hidden=sel.length===0;const n=$('#q-bulk-n');if(n)n.textContent=sel.length+' selecionada'+(sel.length===1?'':'s');}
+function qBulkAll(el){$$('#q-rows [data-qbulk]').forEach(c=>{if(c.closest('tr').style.display!=='none')c.checked=el.checked;});updateQBulk();}
+function qBulk(act){const ids=qBulkSelected();if(!ids.length)return;if(act==='excluir'&&!confirm('Excluir '+ids.length+' pergunta(s)?'))return;
+  ids.forEach(id=>{const q=(db.questions||[]).find(x=>x.id===id);if(q){if(act==='ativar')q.active=true;else if(act==='desativar')q.active=false;}});
+  if(act==='excluir')db.questions=(db.questions||[]).filter(x=>ids.indexOf(x.id)<0);
+  save();toast(ids.length+' pergunta(s) atualizada(s).');router();}
+document.addEventListener('change',function(e){if(e.target&&e.target.matches&&e.target.matches('[data-qbulk]'))updateQBulk();});
+function novaPergunta(){
+  const cats=(db.qCategories||[]).filter(c=>c.active);
+  if(!cats.length){toast('Crie uma categoria de questão primeiro.','err');location.hash='#/qcategs';return;}
+  openDrawer('Nova pergunta',[
+    {key:'categoryId',label:'Categoria',type:'select',options:cats.map(c=>[c.id,c.name])},
+    {key:'text',label:'Enunciado',type:'textarea',req:true},
+    {key:'active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
+  ],{active:'sim',categoryId:cats[0].id},d=>{
+    const id=uid('q');db.questions=db.questions||[];
+    db.questions.push({id:id,categoryId:d.categoryId,text:d.text,active:d.active!=='nao',audioEmbed:'',accessRule:'livre',answers:[]});
+    save();closeDrawer();toast('Pergunta criada. Agora adicione as respostas.');location.hash='#/pergunta/'+id;router();
+  });
+}
+function editPergunta(id){
+  const q=(db.questions||[]).find(x=>x.id===id);if(!q)return;const cats=(db.qCategories||[]);
+  openDrawer('Editar pergunta',[
+    {key:'categoryId',label:'Categoria',type:'select',options:cats.map(c=>[c.id,c.name])},
+    {key:'text',label:'Enunciado',type:'textarea',req:true},
+    {key:'active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]},
+    {key:'audioEmbed',label:'Código de incorporação (áudio/vídeo)',type:'textarea',hint:'Cole o iframe/HTML do áudio da explicação. Deixe vazio se não houver.'},
+    {key:'accessRule',label:'Regra de acesso',type:'select',options:ACCESS_OPTS}
+  ],Object.assign({},q,{active:q.active?'sim':'nao'}),d=>{d.active=d.active!=='nao';Object.assign(q,d);save();closeDrawer();toast('Pergunta salva.');router();});
+}
+function toggleQuestion(id){const q=(db.questions||[]).find(x=>x.id===id);if(!q)return;q.active=!q.active;save();toast(q.active?'Pergunta ativada.':'Pergunta desativada.');router();}
+function delQuestion2(id){if(!confirm('Excluir esta pergunta?'))return;db.questions=(db.questions||[]).filter(x=>x.id!==id);save();toast('Pergunta excluída.');router();}
+function viewPergunta(id){
+  const q=(db.questions||[]).find(x=>x.id===id);if(!q)return notFound('Pergunta não encontrada');
+  const ans=(q.answers||[]).map((a,ai)=>`
+    <tr class="urow">
+      <td class="mono t-sub">${ai+1}</td>
+      <td>${a.correct?'<span class="badge b-on">Correta</span>':'<span class="badge b-off">Não</span>'}</td>
+      <td>${a.active?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</td>
+      <td class="t-title" style="white-space:normal">${esc(stripHtml(a.text))}</td>
+      <td class="rowend"><div class="rowact">
+        <button class="btn btn-ghost btn-sm" onclick="toggleAnswerCorrect('${q.id}',${ai})">${a.correct?'Tornar incorreta':'Tornar correta'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="editAnswer('${q.id}',${ai})">${EDIT_IC}</button>
+        <button class="btn btn-danger btn-sm" onclick="delAnswer('${q.id}',${ai})">${DEL_IC}</button>
+      </div></td>
+    </tr>`).join('');
+  return `
+  <div class="crumb"><a href="#/perguntas">Perguntas</a> <span class="sep">›</span> <span>${esc(stripHtml(q.text).slice(0,60))}${stripHtml(q.text).length>60?'…':''}</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">${esc(qCatName(q.categoryId))} ${catBadge(q.active)}</div><h1 style="font-size:22px;line-height:1.35">${esc(stripHtml(q.text))}</h1>
+    <div class="lts" style="margin-top:8px"><span class="chip">${accLabel(q.accessRule)}</span><span class="chip">${qHasAudio(q)?'♪ com áudio':'sem áudio'}</span><span class="chip">${(q.answers||[]).length} alternativas</span></div></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editPergunta('${q.id}')">${EDIT_IC} Editar pergunta</button></div></div>
+  <div class="card" style="margin-bottom:16px"><div class="sec-title">Embutir / Áudio</div>
+    ${qHasAudio(q)?`<div class="hint" style="margin-bottom:8px">Código de incorporação (o aluno vê o player):</div><pre style="white-space:pre-wrap;word-break:break-all;background:var(--overlay-soft);border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-family:'IBM Plex Mono';font-size:12px;color:var(--text);margin:0">${esc(q.audioEmbed)}</pre>`:'<div class="hint" style="color:var(--muted)">Sem áudio. Adicione um código de incorporação em "Editar pergunta".</div>'}
+    <div class="lts" style="margin-top:12px">Regra de acesso: <b style="color:var(--head)">${accLabel(q.accessRule)}</b></div>
+  </div>
+  <div class="card"><div class="sec-title">Respostas <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="editAnswer('${q.id}')">+ Resposta</button></div>
+    ${(q.answers||[]).length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Id</th><th>Correta</th><th>Ativo</th><th>Texto</th><th></th></tr></thead><tbody>${ans}</tbody></table></div>`:'<div class="hint" style="color:var(--muted);padding:8px 0">Nenhuma alternativa ainda. Clique em "+ Resposta".</div>'}
+    ${(q.answers||[]).length&&!(q.answers||[]).some(a=>a.correct)?'<div style="margin-top:10px;color:var(--amber);font-size:12.5px;font-weight:600">Atenção: nenhuma alternativa está marcada como correta.</div>':''}
+  </div>`;
+}
+function editAnswer(qid,ai){
+  const q=(db.questions||[]).find(x=>x.id===qid);if(!q)return;
+  const a=(ai!=null&&!isNaN(ai))?q.answers[ai]:null;
+  openDrawer(a?'Editar resposta':'Nova resposta',[
+    {key:'text',label:'Texto da alternativa',type:'textarea',req:true},
+    {key:'correct',label:'Correta',type:'select',options:[['nao','Não'],['sim','Sim']]},
+    {key:'active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
+  ],a?{text:a.text,correct:a.correct?'sim':'nao',active:a.active?'sim':'nao'}:{correct:'nao',active:'sim'},d=>{
+    const obj={id:a?a.id:uid('a'),text:d.text,correct:d.correct==='sim',active:d.active!=='nao'};
+    q.answers=q.answers||[];if(a)Object.assign(a,obj);else q.answers.push(obj);
+    save();closeDrawer();toast('Resposta salva.');router();
+  });
+}
+function toggleAnswerCorrect(qid,ai){const q=(db.questions||[]).find(x=>x.id===qid);const a=q&&q.answers[ai];if(!a)return;a.correct=!a.correct;save();router();}
+function delAnswer(qid,ai){if(!confirm('Excluir esta alternativa?'))return;const q=(db.questions||[]).find(x=>x.id===qid);if(!q)return;q.answers.splice(ai,1);save();toast('Alternativa excluída.');router();}
 
 /* ============ PROVA (aluno faz o simulado) ============ */
 let exam=null,examTimer=null;
