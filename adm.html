@@ -107,6 +107,18 @@ textarea.fld{resize:vertical;min-height:78px;line-height:1.5}
 .nav-group.open .nav-sub{display:flex}
 .nav-item.sub{font-size:13px;padding:8px 12px;border-left:none}
 .nav-item.sub.active{background:var(--gold-soft-bg);color:var(--gold-deep)}
+.nav-subgroup{margin:1px 0}
+.nav-subparent{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;font-family:inherit;text-align:left;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;padding:8px 12px;border-radius:8px}
+.nav-subparent:hover{background:var(--overlay-soft);color:var(--text)}
+.nav-subparent .fi{font-size:12px;opacity:.7;flex:none}
+.nav-subparent .caret2{margin-left:auto;font-size:8px;opacity:.6;transition:transform .2s}
+.nav-subgroup.open>.nav-subparent{color:var(--text)}
+.nav-subgroup.open>.nav-subparent .caret2{transform:rotate(90deg)}
+.nav-subsub{display:none;flex-direction:column;gap:2px;margin:2px 0 4px 12px;padding-left:8px;border-left:1px solid var(--border-soft)}
+.nav-subgroup.open .nav-subsub{display:flex}
+.nav-item.sub2{font-size:12.5px;padding:7px 12px;border-left:none;color:var(--muted)}
+.nav-item.sub2:hover{color:var(--text)}
+.nav-item.sub2.active{background:var(--gold-soft-bg);color:var(--gold-deep)}
 .nav-lbl{font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.12em;color:var(--faint);padding:16px 12px 8px;text-transform:uppercase}
 .side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:12px}
 .user{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;border:1px solid var(--border-soft)}
@@ -431,16 +443,38 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
       <div class="nav-group" id="g-conteudo">
         <button class="nav-parent" onclick="toggleGroup('conteudo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Conteúdo</span><span class="caret">▶</span></button>
         <div class="nav-sub">
-          <a class="nav-item sub" href="#/cursos" data-r="cursos">Cursos & aulas</a>
-          <a class="nav-item sub" href="#/simcategs" data-r="simcategs">Categorias de simulado</a>
+          <div class="nav-subgroup" id="sg-apps">
+            <button class="nav-subparent" onclick="toggleSub('apps')"><span class="fi">▸</span>Artigos, Páginas e Popups <span class="caret2">▶</span></button>
+            <div class="nav-subsub">
+              <a class="nav-item sub2" href="#/artigos" data-r="artigos">Artigos</a>
+              <a class="nav-item sub2" href="#/paginas" data-r="paginas">Páginas</a>
+              <a class="nav-item sub2" href="#/popups" data-r="popups">Popups</a>
+            </div>
+          </div>
+          <a class="nav-item sub" href="#/imagens" data-r="imagens">Imagens</a>
+          <a class="nav-item sub" href="#/tags" data-r="tags">Tags</a>
           <a class="nav-item sub" href="#/simulados" data-r="simulados">Simulados</a>
-          <a class="nav-item sub" href="#/qcategs" data-r="qcategs">Categorias de questão</a>
           <a class="nav-item sub" href="#/perguntas" data-r="perguntas">Perguntas</a>
-          <a class="nav-item sub" href="#/importar" data-r="importar">Importação em massa</a>
-          <a class="nav-item sub" href="#/trilhas" data-r="trilhas">Trilhas</a>
-          <a class="nav-item sub" href="#/site" data-r="site">Site</a>
-          <a class="nav-item sub" href="#/app" data-r="app">Área do aluno</a>
-          <a class="nav-item sub" href="#/aovivo" data-r="aovivo">Área do aluno · ao vivo</a>
+          <a class="nav-item sub" href="#/simcategs" data-r="simcategs">Categorias de simulado</a>
+          <a class="nav-item sub" href="#/qcategs" data-r="qcategs">Categorias de pergunta</a>
+          <a class="nav-item sub" href="#/modulos" data-r="modulos">Módulos</a>
+          <a class="nav-item sub" href="#/editorfotos" data-r="editorfotos">Editor de Fotos</a>
+          <div class="nav-subgroup" id="sg-cursos">
+            <button class="nav-subparent" onclick="toggleSub('cursos')"><span class="fi">▸</span>Cursos e trilhas <span class="caret2">▶</span></button>
+            <div class="nav-subsub">
+              <a class="nav-item sub2" href="#/cursos" data-r="cursos">Cursos & aulas</a>
+              <a class="nav-item sub2" href="#/trilhas" data-r="trilhas">Trilhas</a>
+              <a class="nav-item sub2" href="#/importar" data-r="importar">Importação em massa</a>
+            </div>
+          </div>
+          <div class="nav-subgroup" id="sg-siteapp">
+            <button class="nav-subparent" onclick="toggleSub('siteapp')"><span class="fi">▸</span>Site e área do aluno <span class="caret2">▶</span></button>
+            <div class="nav-subsub">
+              <a class="nav-item sub2" href="#/site" data-r="site">Site</a>
+              <a class="nav-item sub2" href="#/app" data-r="app">Área do aluno</a>
+              <a class="nav-item sub2" href="#/aovivo" data-r="aovivo">Área do aluno · ao vivo</a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -644,6 +678,13 @@ function seed(){return {
       {id:'a3',text:'Susep.',correct:false,active:true},
       {id:'a4',text:'CMN.',correct:false,active:true}]}
   ],
+  tags:[
+    {id:'tg1',name:'Renda Fixa',slug:'renda-fixa',active:true},
+    {id:'tg2',name:'Valuation',slug:'valuation',active:true},
+    {id:'tg3',name:'CNPI',slug:'cnpi',active:true},
+    {id:'tg4',name:'CFG',slug:'cfg',active:true},
+    {id:'tg5',name:'Estatística',slug:'estatistica',active:false}
+  ],
   trilhas:[
     {id:'cnpi',eye:'Certificação',name:'Trilha CNPI',color:'#D4A437',ico:'★',desc:'Do zero ao credenciamento de analista, na ordem exata da prova.',courses:['cb','cg1','ct1']},
     {id:'valuation',eye:'Reta final',name:'Trilha Valuation',color:'#3D8BE0',ico:'◎',desc:'Preparação intensiva por simulados e diagnóstico.',courses:['cg1']},
@@ -667,7 +708,7 @@ function seed(){return {
 };}
 let db;
 function load(){try{const r=JSON.parse(localStorage.getItem(DB_KEY));if(r&&r.courses){const sd=seed();if(!r.site)r.site=sd.site;else['hero','formacao','metodo','professor','depoimentos','footer'].forEach(k=>{if(r.site[k]==null)r.site[k]=sd.site[k];});if(!r.app)r.app=sd.app;if(!r.questionBank)r.questionBank=sd.questionBank;
-  if(!r.simCategories)r.simCategories=sd.simCategories;if(!r.qCategories)r.qCategories=sd.qCategories;if(!r.questions)r.questions=sd.questions;
+  if(!r.simCategories)r.simCategories=sd.simCategories;if(!r.qCategories)r.qCategories=sd.qCategories;if(!r.questions)r.questions=sd.questions;if(!r.tags)r.tags=sd.tags;
   /* catálogo mudou no código: renova os planos e marca a versão */
   if(r.v!==SEED_V){r.plans=sd.plans;r.v=SEED_V;try{localStorage.setItem(DB_KEY,JSON.stringify(r));}catch(_){}}
   return r;}}catch(_){}return seed();}
@@ -709,10 +750,12 @@ function logout(){try{sessionStorage.removeItem('eda-auth')}catch(_){}$('#shell'
 function showApp(){$('#login').style.display='none';$('#shell').hidden=false;router();}
 
 /* ============ router ============ */
-const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
-const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',perguntas:'conteudo',pergunta:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',tags:'Tags',artigos:'Artigos',paginas:'Páginas',popups:'Popups',imagens:'Imagens',modulos:'Módulos',editorfotos:'Editor de Fotos',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
+const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',perguntas:'conteudo',pergunta:'conteudo',tags:'conteudo',artigos:'conteudo',paginas:'conteudo',popups:'conteudo',imagens:'conteudo',modulos:'conteudo',editorfotos:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
 const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios',pergunta:'perguntas'};
 function toggleGroup(g){const el=document.getElementById('g-'+g);if(el)el.classList.toggle('open');}
+function toggleSub(id){const el=document.getElementById('sg-'+id);if(el)el.classList.toggle('open');}
+const SUBGROUP_OF={artigos:'apps',paginas:'apps',popups:'apps',cursos:'cursos',curso:'cursos',aula:'cursos',trilhas:'cursos',trilha:'cursos',importar:'cursos',site:'siteapp',app:'siteapp',aovivo:'siteapp'};
 function router(){
   if(!authed()){$('#shell').hidden=true;$('#login').style.display='flex';return;}
   $('#login').style.display='none';$('#shell').hidden=false;
@@ -722,6 +765,7 @@ function router(){
   const activeR=HILITE[r]||r;
   $$('#nav .nav-item').forEach(a=>a.classList.toggle('active',a.dataset.r===activeR));
   const grp=GROUP_OF[r];if(grp){const g=document.getElementById('g-'+grp);if(g)g.classList.add('open');}
+  const sgr=SUBGROUP_OF[r];if(sgr){const sg=document.getElementById('sg-'+sgr);if(sg)sg.classList.add('open');}
   let html='';
   try{
     if(r===''){html=viewDashboard();}
@@ -743,6 +787,13 @@ function router(){
     else if(r==='qcategs'){html=viewQCategs();}
     else if(r==='perguntas'){html=viewQuestions();}
     else if(r==='pergunta'){html=viewPergunta(parts[1]);}
+    else if(r==='tags'){html=viewTags();}
+    else if(r==='artigos'){html=viewEmBreve('Artigos','Gerencie artigos do blog com editor de texto rico, categoria, imagem de capa e SEO.');}
+    else if(r==='paginas'){html=viewEmBreve('Páginas','Páginas institucionais (sobre, contato, termos) com editor de texto rico.');}
+    else if(r==='popups'){html=viewEmBreve('Popups','Popups de captura e avisos, com regra de exibição e conversão.');}
+    else if(r==='imagens'){html=viewEmBreve('Imagens','Biblioteca de mídia: enviar, organizar e reutilizar imagens no site e nos conteúdos.');}
+    else if(r==='modulos'){html=viewEmBreve('Módulos','Módulos de conteúdo reutilizáveis entre cursos e simulados.');}
+    else if(r==='editorfotos'){html=viewEmBreve('Editor de Fotos','Ferramenta para recortar, ajustar e tratar imagens direto no painel.');}
     else if(r==='importar'){html=viewImportar();}
     else if(r==='prova'){html=renderProva();}
     else if(r==='trilhas'){html=viewTrilhas();}
@@ -2164,6 +2215,55 @@ function editAnswer(qid,ai){
 }
 function toggleAnswerCorrect(qid,ai){const q=(db.questions||[]).find(x=>x.id===qid);const a=q&&q.answers[ai];if(!a)return;a.correct=!a.correct;save();router();}
 function delAnswer(qid,ai){if(!confirm('Excluir esta alternativa?'))return;const q=(db.questions||[]).find(x=>x.id===qid);if(!q)return;q.answers.splice(ai,1);save();toast('Alternativa excluída.');router();}
+
+/* ============ TAGS ============ */
+function slugify(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+function viewTags(){
+  const rows=(db.tags||[]).map((t,i)=>`
+    <tr class="clk urow" data-s="${esc((t.name+' '+(t.slug||'')).toLowerCase())}" onclick="editTag('${t.id}')">
+      <td class="mono t-sub">${i+1}</td>
+      <td>${catBadge(t.active)}</td>
+      <td class="t-title">${esc(t.name)}</td>
+      <td class="mono t-sub">${esc(t.slug||'')}</td>
+      <td class="rowend"><div class="rowact">
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();toggleTag('${t.id}')">${t.active?'Desativar':'Ativar'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editTag('${t.id}')">${EDIT_IC}</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delTag('${t.id}')">${DEL_IC}</button>
+      </div></td>
+    </tr>`).join('');
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Tags</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Tags</h1><p>Etiquetas reutilizáveis para classificar artigos, páginas e conteúdos. Cada tag tem um slug para URL.</p></div>
+    <div class="ph-actions"><button class="btn btn-gold" onclick="editTag()">+ Nova tag</button></div></div>
+  <div class="toolbar"><div class="searchbox" id="tag-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar tag…" oninput="filterRows('tag-search','tag-rows')"></div></div>
+  ${(db.tags||[]).length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Id</th><th>Ativo</th><th>Nome</th><th>Slug</th><th></th></tr></thead><tbody id="tag-rows">${rows}</tbody></table></div>`:emptyState('#','Nenhuma tag','Crie a primeira tag.','+ Nova tag','editTag()')}`;
+}
+function editTag(id){
+  const t=id?(db.tags||[]).find(x=>x.id===id):null;
+  openDrawer(t?'Editar tag':'Nova tag',[
+    {key:'name',label:'Nome',type:'text',req:true},
+    {key:'slug',label:'Slug (para URL, opcional)',type:'text',hint:'Se vazio, é gerado a partir do nome.'},
+    {key:'active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
+  ],t?Object.assign({},t,{active:t.active?'sim':'nao'}):{active:'sim'},d=>{
+    d.active=d.active!=='nao';d.slug=(d.slug&&d.slug.trim())?slugify(d.slug):slugify(d.name);
+    db.tags=db.tags||[];if(t)Object.assign(t,d);else db.tags.push(Object.assign({id:uid('tg')},d));
+    save();closeDrawer();toast('Tag salva.');router();
+  });
+}
+function toggleTag(id){const t=(db.tags||[]).find(x=>x.id===id);if(!t)return;t.active=!t.active;save();toast(t.active?'Tag ativada.':'Tag desativada.');router();}
+function delTag(id){if(!confirm('Excluir esta tag?'))return;db.tags=(db.tags||[]).filter(x=>x.id!==id);save();toast('Tag excluída.');router();}
+
+/* ============ PLACEHOLDER (itens novos, construídos um a um) ============ */
+function viewEmBreve(nome,desc){
+  return `
+  <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">${esc(nome)}</span></div>
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>${esc(nome)}</h1><p>${esc(desc)}</p></div></div>
+  <div class="card" style="text-align:center;padding:44px 24px">
+    <div style="font-size:34px;color:var(--gold-deep)">◷</div>
+    <div style="font-family:'Sora';font-weight:700;font-size:18px;color:var(--head);margin-top:10px">${esc(nome)} chega na próxima etapa</div>
+    <div style="font-size:14px;color:var(--muted);max-width:460px;margin:8px auto 0">${esc(desc)} Estou construindo cada item novo funcional, um por um. O menu e a estrutura já estão prontos.</div>
+  </div>`;
+}
 
 /* ============ PROVA (aluno faz o simulado) ============ */
 let exam=null,examTimer=null;
