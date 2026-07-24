@@ -434,6 +434,19 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 .pe-row label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:6px}
 .pe-row input[type=range]{width:100%;accent-color:var(--gold)}
 @media(max-width:820px){.pe-wrap{grid-template-columns:1fr}}
+/* foto do professor (publicar no site) */
+.profpub{display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;align-items:start;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:20px}
+.prof-frame{position:relative;width:100%;aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:var(--overlay-soft);border:1px solid var(--border);cursor:crosshair}
+.prof-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;user-select:none;-webkit-user-drag:none}
+.prof-frame .focal{position:absolute;width:22px;height:22px;border-radius:999px;border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.4);transform:translate(-50%,-50%);pointer-events:none;left:50%;top:50%}
+.prof-frame .fhint{position:absolute;left:0;right:0;bottom:0;padding:7px 9px;font-size:11px;text-align:center;color:#fff;background:linear-gradient(180deg,transparent,rgba(0,0,0,.55))}
+.profpub .pp-title{font-family:'Sora';font-weight:600;font-size:16px;color:var(--head);margin-bottom:3px}
+.profpub .pp-sub{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:14px}
+.profpub .pp-slider{margin-bottom:12px}
+.profpub .pp-slider label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:5px}
+.profpub .pp-slider input[type=range]{width:100%;accent-color:var(--gold)}
+.profpub .pp-acts{display:flex;gap:9px;flex-wrap:wrap;margin-top:4px}
+@media(max-width:720px){.profpub{grid-template-columns:1fr}}
 /* ===== assistente do painel (IA do admin) ===== */
 .ai-fab{position:fixed;right:22px;bottom:22px;z-index:60;width:54px;height:54px;border-radius:999px;border:none;cursor:pointer;background:var(--gold-grad);color:#0B0D10;box-shadow:0 14px 34px -8px rgba(212,164,55,.6);display:flex;align-items:center;justify-content:center;font-size:22px}
 .ai-fab:hover{filter:brightness(1.06);transform:translateY(-2px)}
@@ -688,6 +701,7 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 <input type="file" id="img-replace" accept="image/*" hidden />
 <input type="file" id="impq-input" accept=".csv,text/csv,text/plain" hidden />
 <input type="file" id="pe-input" accept="image/*" hidden />
+<input type="file" id="prof-input" accept="image/*" hidden />
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
@@ -3025,6 +3039,7 @@ function viewImagens(){
   <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Imagens</span></div>
   <div class="listhead"><div><div class="le">Conteúdo</div><h1>Imagens</h1><p>Biblioteca de mídia. Envie, edite (cortar, centralizar, girar, filtros), troque ou abra no Pixlr Express.</p></div>
     <div class="ph-actions" style="display:flex;gap:9px"><button class="btn btn-ghost" onclick="pePixlr()">↗ Pixlr Express</button><button class="btn btn-gold" onclick="document.getElementById('img-input').click()">+ Enviar imagens</button></div></div>
+  ${profPhotoPanel()}
   <div class="infobox" style="margin-bottom:16px">Clique em <b>Editar</b> em qualquer foto para cortar, centralizar, girar e ajustar; salve de volta na biblioteca ou baixe. O <b>Pixlr Express</b> abre o editor avançado em nova aba.</div>
   ${(db.imagens||[]).length?`<div class="img-grid">${cards}</div>`:emptyState('🖼','Nenhuma imagem','Envie a primeira imagem.','+ Enviar imagens',"document.getElementById('img-input').click()")}`;
 }
@@ -3034,6 +3049,60 @@ var _imgReplaceId=null;
 function imgReplace(id){_imgReplaceId=id;var inp=$('#img-replace');inp.value='';inp.click();}
 $('#img-replace').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f||!_imgReplaceId)return;var im=(db.imagens||[]).find(function(x){return x.id===_imgReplaceId;});if(im){im.name=f.name;im.size=f.size;im.url=URL.createObjectURL(f);save();toast('Imagem trocada.');router();}e.target.value='';_imgReplaceId=null;});
 $('#img-input').addEventListener('change',function(e){var fs=e.target.files;if(!fs||!fs.length)return;db.imagens=db.imagens||[];Array.prototype.forEach.call(fs,function(f){db.imagens.unshift({id:uid('im'),name:f.name,size:f.size,url:URL.createObjectURL(f)});});save();toast(fs.length+' imagem(ns) enviada(s).');e.target.value='';router();});
+
+/* ---- Foto do professor: trocar, ajustar enquadramento e publicar no site ---- */
+var PROF_DEFAULT_PHOTO='assets/frederico-nobre.jpg';
+var _profWork=null;
+function profWork(){
+  if(!_profWork){
+    var saved=(db.site&&db.site.professor&&db.site.professor.photo)||{};
+    _profWork={url:saved.url||PROF_DEFAULT_PHOTO,posX:(saved.posX==null?50:saved.posX),posY:(saved.posY==null?50:saved.posY)};
+  }
+  return _profWork;
+}
+function profPhotoPanel(){
+  var w=profWork();
+  var pub=(db.site&&db.site.professor&&db.site.professor.photo)?'Foto publicada no site.':'Ainda usando a foto padrão.';
+  return `
+  <div class="profpub">
+    <div>
+      <div class="prof-frame" id="prof-frame" onclick="profSetFocal(event)">
+        <img id="prof-preview" src="${esc(w.url)}" alt="Foto do professor" style="object-position:${w.posX}% ${w.posY}%" onerror="this.removeAttribute('src')">
+        <span class="focal" id="prof-focal" style="left:${w.posX}%;top:${w.posY}%"></span>
+        <span class="fhint">Clique na foto para ajustar o enquadramento</span>
+      </div>
+    </div>
+    <div>
+      <div class="pp-title">Foto do professor (site)</div>
+      <div class="pp-sub">Esta é a foto que aparece na seção <b>Professor</b> da página inicial. Troque a imagem, arraste os controles para enquadrar e clique em <b>Publicar no site</b>. <span style="color:var(--gold-deep)">${pub}</span></div>
+      <div class="pp-slider"><label><span>Horizontal</span><span id="pp-lx">${w.posX}%</span></label><input type="range" min="0" max="100" value="${w.posX}" oninput="profSlide('X',this.value)"></div>
+      <div class="pp-slider"><label><span>Vertical</span><span id="pp-ly">${w.posY}%</span></label><input type="range" min="0" max="100" value="${w.posY}" oninput="profSlide('Y',this.value)"></div>
+      <div class="pp-acts">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('prof-input').click()">↔ Trocar foto</button>
+        <button class="btn btn-ghost btn-sm" onclick="profCenter()">◎ Centralizar</button>
+        <button class="btn btn-gold btn-sm" onclick="profPublish()">Publicar no site</button>
+      </div>
+    </div>
+  </div>`;
+}
+function profApplyPreview(){
+  var w=profWork();
+  var img=document.getElementById('prof-preview'),foc=document.getElementById('prof-focal');
+  var lx=document.getElementById('pp-lx'),ly=document.getElementById('pp-ly');
+  if(img)img.style.objectPosition=w.posX+'% '+w.posY+'%';
+  if(foc){foc.style.left=w.posX+'%';foc.style.top=w.posY+'%';}
+  if(lx)lx.textContent=w.posX+'%';
+  if(ly)ly.textContent=w.posY+'%';
+}
+function profSlide(axis,v){var w=profWork();v=Math.max(0,Math.min(100,Math.round(+v)));if(axis==='X')w.posX=v;else w.posY=v;profApplyPreview();}
+function profSetFocal(e){var fr=document.getElementById('prof-frame');if(!fr)return;var r=fr.getBoundingClientRect();var w=profWork();
+  w.posX=Math.max(0,Math.min(100,Math.round((e.clientX-r.left)/r.width*100)));
+  w.posY=Math.max(0,Math.min(100,Math.round((e.clientY-r.top)/r.height*100)));
+  var sx=document.querySelector('.profpub .pp-slider:nth-of-type(1) input'),sy=document.querySelector('.profpub .pp-slider:nth-of-type(2) input');
+  if(sx)sx.value=w.posX;if(sy)sy.value=w.posY;profApplyPreview();}
+function profCenter(){var w=profWork();w.posX=50;w.posY=50;var sx=document.querySelector('.profpub .pp-slider:nth-of-type(1) input'),sy=document.querySelector('.profpub .pp-slider:nth-of-type(2) input');if(sx)sx.value=50;if(sy)sy.value=50;profApplyPreview();}
+function profPublish(){var w=profWork();db.site=db.site||{};db.site.professor=db.site.professor||{};db.site.professor.photo={url:w.url,posX:w.posX,posY:w.posY};save();toast('Foto do professor publicada no site.');}
+$('#prof-input').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var w=profWork();w.url=rd.result;var img=document.getElementById('prof-preview');if(img)img.src=rd.result;toast('Foto carregada. Ajuste e clique em Publicar no site.');};rd.readAsDataURL(f);e.target.value='';});
 
 /* ============ EDITOR DE FOTOS ============ */
 var peImg=null,peImgId=null,peState={brilho:100,contraste:100,saturacao:100,cinza:0,rot:0,flip:false,crop:'free'};
