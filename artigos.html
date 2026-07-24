@@ -119,15 +119,18 @@ var DEFAULT_ARTICLES=[
   {slug:'cnpi-resumao',title:'CNPI: Resumão',date:'21/05/2022 às 22:46:51',author:'Frederico Nobre, CFA',read:5,tags:['Certificações','Carreiras no mercado financeiro'],excerpt:'Confira nosso resumão super completo sobre as três provas do CNPI.'}
 ];
 function loadArticles(){
+  var out=DEFAULT_ARTICLES.map(function(d){return d;});
+  var have={};out.forEach(function(d){have[d.slug]=1;});
   try{
     var db=JSON.parse(localStorage.getItem('eda-db'));
-    if(db&&db.artigos&&db.artigos.length){
+    if(db&&db.artigos){
       var tags=db.tags||[];
-      var pub=db.artigos.filter(function(a){return a.active;});
-      if(pub.length)return pub.map(function(a){return {slug:a.slug,title:a.title,date:a.date,excerpt:a.excerpt||'',content:a.content||'',author:a.author||'Economia do Dia',youtube:a.youtube||'',cover:(a.cover&&a.cover.url)?a.cover.url:null,tags:(a.tags||[]).map(function(t){var f=tags.find(function(x){return x.id===t;});return f?f.name:t;})};});
+      db.artigos.filter(function(a){return a.active&&!have[a.slug];}).forEach(function(a){
+        out.push({slug:a.slug,title:a.title,date:a.date,excerpt:a.excerpt||'',content:a.content||'',author:a.author||'Economia do Dia',youtube:a.youtube||'',cover:(a.cover&&a.cover.url)?a.cover.url:null,tags:(a.tags||[]).map(function(t){var f=tags.find(function(x){return x.id===t;});return f?f.name:t;})});
+      });
     }
   }catch(_){}
-  return DEFAULT_ARTICLES;
+  return out;
 }
 var ALL=loadArticles(),activeTag='';
 function metaLine(a){return esc(a.author||'Economia do Dia')+' <span class="dot">·</span> '+esc((a.date||'').split(' às ')[0])+' <span class="dot">·</span> '+readTime(a)+' min de leitura';}
