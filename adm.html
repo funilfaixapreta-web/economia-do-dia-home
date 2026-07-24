@@ -847,8 +847,8 @@ function seed(){return {
     {id:'pg2',title:'Termos de uso',slug:'termos',content:'<p>Ao usar a plataforma você concorda com os termos aqui descritos.</p>',active:true}
   ],
   popups:[
-    {id:'po1',title:'Simulado grátis',content:'<p>Faça um simulado gratuito com correção completa.</p>',trigger:'saida',active:true},
-    {id:'po2',title:'Cupom de boas-vindas',content:'<p>10% de desconto no seu primeiro curso.</p>',trigger:'tempo',active:false}
+    {id:'po1',title:'Faça um simulado grátis',content:'<p>Teste seus conhecimentos com um simulado gratuito, com correção comentada e gabarito em áudio.</p>',cta:'Fazer simulado grátis',ctaUrl:'simulado.html',trigger:'saida',active:true},
+    {id:'po2',title:'Cupom de boas-vindas',content:'<p>Ganhe 10% de desconto no seu primeiro curso.</p>',cta:'Ver cursos',ctaUrl:'index.html#cursos',trigger:'tempo',active:false}
   ],
   modulos:[
     {id:'mo1',name:'Fundamentos de estatística',desc:'',active:true},
@@ -2968,6 +2968,8 @@ function editPopup(id){
   openDrawer(p?'Editar popup':'Novo popup',[
     {key:'title',label:'Título',type:'text',req:true},
     {key:'content',label:'Conteúdo',type:'rich'},
+    {key:'cta',label:'Texto do botão (opcional)',type:'text',hint:'Ex.: Fazer simulado grátis. Deixe vazio para não ter botão.'},
+    {key:'ctaUrl',label:'Link do botão (opcional)',type:'text',hint:'Ex.: simulado.html ou index.html#cursos'},
     {key:'trigger',label:'Regra de exibição',type:'select',options:TRIGGER_OPTS},
     {key:'active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
   ],p?Object.assign({},p,{active:p.active?'sim':'nao'}):{trigger:'saida',active:'sim'},d=>{
