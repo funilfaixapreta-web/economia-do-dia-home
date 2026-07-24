@@ -2,3 +2,7 @@ node_modules/
 .DS_Store
 .vercel
 *.log
+_admtest.html
+_poptest.html
+_curlight.html
+_*.html
