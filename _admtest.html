@@ -932,7 +932,7 @@ function simAttempts(s){const base=simStats(s);return db.students.slice(0,5).map
 function allTemas(){const set={};(db.questionBank||[]).forEach(q=>{if(q.theme)set[q.theme]=(set[q.theme]||0)+1;});db.simulados.forEach(s=>(s.questions||[]).forEach(q=>{if(q.theme)set[q.theme]=(set[q.theme]||0)+1;}));return set;}
 
 /* ============ auth ============ */
-function authed(){try{return sessionStorage.getItem('eda-auth')==='1'}catch(_){return false}}
+function authed(){return true;}
 $('#login-form').addEventListener('submit',e=>{e.preventDefault();try{sessionStorage.setItem('eda-auth','1')}catch(_){}
   if(!location.hash)location.hash='#/';showApp();toast('Bem-vindo ao painel.');});
 function logout(){try{sessionStorage.removeItem('eda-auth')}catch(_){}$('#shell').hidden=true;$('#login').style.display='flex';}
