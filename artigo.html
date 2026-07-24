@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Artigo · Economia do Dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090C; --bg-alt:#0A0C10; --panel:#101319; --panel-2:#0D0F14;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.06);
+  --head:#FFFFFF; --text:#E7EAEF; --muted:#8A94A2; --faint:#5B6573;
+  --overlay-soft:rgba(255,255,255,.05); --overlay-bd:rgba(255,255,255,.14);
+  --gold:#D4A437; --gold-deep:#E6BE54; --gold-grad:linear-gradient(180deg,#E6BE54,#D4A437);
+  --gold-soft-bg:rgba(212,164,55,.10); --gold-soft-bd:rgba(212,164,55,.30);
+}
+[data-theme="light"]{
+  --bg:#F5F3EE; --bg-alt:#FBFAF6; --panel:#FFFFFF; --panel-2:#F3F1EA;
+  --border:rgba(27,31,38,.10); --border-soft:rgba(27,31,38,.07);
+  --head:#0B0D10; --text:#2A313B; --muted:#5B6573; --faint:#9AA3AF;
+  --overlay-soft:rgba(27,31,38,.04); --overlay-bd:rgba(27,31,38,.14);
+  --gold-deep:#A6781A; --gold-soft-bg:rgba(212,164,55,.14); --gold-soft-bd:rgba(212,164,55,.34);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Sora',sans-serif;color:var(--head);line-height:1.25}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:720px;margin:0 auto;padding:0 22px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;border-radius:11px;padding:11px 18px;cursor:pointer;border:1px solid transparent}
+.btn-gold{background:var(--gold-grad);color:#0B0D10}
+.btn-ghost{background:var(--overlay-soft);color:var(--text);border-color:var(--overlay-bd)}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:9px}
+/* progress */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--gold-grad);z-index:40;transition:width .1s}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-soft)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:62px;max-width:1040px}
+.mono-sq{width:32px;height:32px;border-radius:9px;background:var(--gold-grad);color:#0B0D10;display:inline-flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:13px}
+.wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:17px;color:var(--head)}
+.wordmark b{color:var(--gold-deep)}
+.top .sp{flex:1}
+/* hero */
+.hero{max-width:1040px;margin:26px auto 0;padding:0 22px}
+.hcover{position:relative;height:260px;border-radius:20px;overflow:hidden;background:#12151b;border:1px solid var(--border)}
+.hcover .cimg{position:absolute;inset:0;background-size:cover;background-position:center}
+.hcover .cbig{position:absolute;left:26px;bottom:20px;font-family:'Sora';font-weight:800;font-size:60px;line-height:.9;color:rgba(255,255,255,.13);max-width:80%}
+.hcover .cmark{position:absolute;right:20px;bottom:16px;font-family:'Sora';font-weight:800;font-style:italic;color:rgba(255,255,255,.85)}
+.art{padding:26px 0 10px}
+.pmeta{display:flex;align-items:center;gap:9px;font-family:'IBM Plex Mono';font-size:12px;color:var(--faint);flex-wrap:wrap}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+.tg{font-size:11.5px;font-weight:600;color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:999px;padding:4px 11px}
+.art h1{font-size:36px;letter-spacing:-.7px;margin:8px 0 18px}
+.body{font-size:17px;color:var(--text)}
+.body>p:first-of-type{font-size:19px;color:var(--head);line-height:1.6}
+.body p{margin:18px 0}
+.body h3{font-size:22px;margin:30px 0 8px}
+.body ul,.body ol{margin:16px 0 16px 24px}
+.body li{margin:6px 0}
+.body b{color:var(--head)}
+.ytwrap{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid var(--border);margin:24px 0;background:#000}
+.ytwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.cta{margin:34px 0;padding:26px;border-radius:18px;background:linear-gradient(140deg,var(--gold-soft-bg),var(--panel));border:1px solid var(--gold-soft-bd)}
+.cta h3{font-size:20px;margin-bottom:6px}
+.cta p{color:var(--muted);font-size:14.5px;margin-bottom:16px}
+.author{display:flex;align-items:center;gap:14px;margin:30px 0 6px;padding:18px;background:var(--panel);border:1px solid var(--border);border-radius:16px}
+.author .av{width:50px;height:50px;border-radius:999px;background:var(--gold-grad);color:#0B0D10;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:17px;flex:none}
+.author .an{font-family:'Sora';font-weight:700;color:var(--head);font-size:15px}
+.author .al{font-size:12.5px;color:var(--muted)}
+.share{display:flex;align-items:center;gap:10px;margin:20px 0;flex-wrap:wrap}
+.share .lb{font-size:13px;color:var(--muted);font-weight:600}
+.share a{width:40px;height:40px;border-radius:11px;border:1px solid var(--border);background:var(--overlay-soft);display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;font-size:13px}
+.share a:hover{color:var(--gold-deep);border-color:var(--gold-soft-bd)}
+.rel{max-width:1040px;margin:20px auto 60px;padding:30px 22px 0;border-top:1px solid var(--border-soft)}
+.rel h3{font-size:18px;margin-bottom:16px}
+.relgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.rcard{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:transform .16s,border-color .16s}
+.rcard:hover{transform:translateY(-3px);border-color:var(--gold-soft-bd)}
+.rcard .cover{position:relative;height:104px;overflow:hidden}
+.rcard .cover .cbig{position:absolute;left:12px;bottom:8px;font-family:'Sora';font-weight:800;font-size:24px;color:rgba(255,255,255,.14)}
+.rcard .rb{padding:14px}
+.rcard .rd{font-family:'IBM Plex Mono';font-size:11px;color:var(--faint)}
+.rcard .rt{font-family:'Sora';font-weight:600;color:var(--head);margin-top:4px;font-size:15px;line-height:1.3}
+.foot{border-top:1px solid var(--border-soft);padding:24px 0 50px;color:var(--faint);font-size:13px}
+.promo{max-width:1040px;margin:14px auto 0;padding:30px 22px 0;border-top:1px solid var(--border-soft)}
+.promo h3{font-size:18px;margin-bottom:16px}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.plancard{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;flex-direction:column}
+.plancard.rec{border-color:var(--gold-soft-bd);background:linear-gradient(180deg,var(--gold-soft-bg),var(--panel))}
+.plancard .pn{font-family:'Sora';font-weight:700;color:var(--head);font-size:17px}
+.plancard .pp{font-family:'Sora';font-weight:800;color:var(--gold-deep);font-size:22px;margin:8px 0}
+.plancard .pp span{font-family:'Inter';font-weight:500;font-size:13px;color:var(--muted)}
+.plancard .pd{color:var(--muted);font-size:13.5px;line-height:1.6;flex:1;margin-bottom:16px}
+.simcard{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column}
+.simcard .sn{font-family:'Sora';font-weight:600;color:var(--head);font-size:15px}
+.simcard .st{font-family:'IBM Plex Mono';font-size:12px;color:var(--gold-deep);margin:7px 0}
+.simcard .sd{color:var(--muted);font-size:13px;line-height:1.6;flex:1}
+.sitefoot{border-top:1px solid var(--border-soft);margin-top:44px;background:var(--bg-alt)}
+.sitefoot .fw{max-width:1040px;margin:0 auto;padding:34px 22px 42px}
+.sitefoot .ftop{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.sitefoot .social{display:flex;gap:8px;margin-left:auto}
+.sitefoot .social a{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--overlay-soft);display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;font-weight:700}
+.sitefoot .social a:hover{color:var(--gold-deep);border-color:var(--gold-soft-bd)}
+.sitefoot .fnav{display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.sitefoot .fnav a:hover{color:var(--gold-deep)}
+.sitefoot .fbar{margin-top:20px;padding-top:16px;border-top:1px solid var(--border-soft);font-size:12.5px;color:var(--faint);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.sitefoot .fbar a:hover{color:var(--gold-deep)}
+@media(max-width:560px){.art h1{font-size:27px}.hcover{height:180px}.hcover .cbig{font-size:38px}}
+</style>
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ed-theme')||'dark');}catch(_){}</script>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="top"><div class="wrap">
+  <a href="index.html" style="display:flex;align-items:center;gap:10px"><span class="mono-sq">ED</span><span class="wordmark">Economia <b>Do Dia</b></span></a>
+  <span class="sp"></span>
+  <a class="btn btn-ghost btn-sm" href="artigos.html">← Todos os artigos</a>
+  <a class="btn btn-gold btn-sm" href="index.html#cursos">Ver cursos</a>
+</div></header>
+<div class="hero" id="hero"></div>
+<main class="wrap" id="main"></main>
+<div id="relwrap"></div>
+<section class="promo">
+  <h3>Planos e Cursos</h3>
+  <div class="pcards">
+    <div class="plancard"><div class="pn">CNPI · CB + CT</div><div class="pp">R$ 2.197,00 <span>/ 1 ano</span></div><div class="pd">Curso preparatório para a certificação CNPI-T, com videoaulas, simulados premium, suporte no WhatsApp e seguro aprovação na primeira prova.</div><a class="btn btn-ghost btn-sm" href="curso.html?cert=cnpi-ct1">Ver curso</a></div>
+    <div class="plancard rec"><div class="pn">CNPI · Curso Completo</div><div class="pp">R$ 2.997,00 <span>/ 2 anos</span></div><div class="pd">Curso preparatório para a certificação CNPI (CB + CT + CG), com videoaulas, simulados premium, suporte no WhatsApp e seguro aprovação na primeira prova.</div><a class="btn btn-gold btn-sm" href="index.html#cursos">Ver curso</a></div>
+  </div>
+</section>
+<section class="promo">
+  <h3>Simulados gratuitos</h3>
+  <div class="pcards">
+    <div class="simcard"><div class="sn">CNPI · CT1 · Módulo III</div><div class="st">⏱ Tempo limite: 20 min</div><div class="sd">Conteúdo Técnico. Teste seus conhecimentos sobre o Módulo III: Conceito de Tendência.</div><a class="btn btn-ghost btn-sm" style="margin-top:12px" href="simulado.html">Fazer simulado grátis →</a></div>
+    <div class="simcard"><div class="sn">CFG · M8 · Política de Investimentos</div><div class="st">⏱ Tempo limite: 30 min</div><div class="sd">CFG Módulo VIII. Teste seus conhecimentos sobre Política de Investimentos.</div><a class="btn btn-ghost btn-sm" style="margin-top:12px" href="simulado.html">Fazer simulado grátis →</a></div>
+  </div>
+</section>
+<footer class="sitefoot"><div class="fw">
+  <div class="ftop">
+    <a href="index.html" style="display:flex;align-items:center;gap:10px"><span class="mono-sq">ED</span><span class="wordmark">Economia <b>Do Dia</b></span></a>
+    <div class="social"><a href="https://www.economiadodia.com.br/instagram" target="_blank" rel="noopener" title="Instagram">IG</a><a href="https://www.economiadodia.com.br/videos" target="_blank" rel="noopener" title="YouTube">YT</a><a href="https://www.economiadodia.com.br/x" target="_blank" rel="noopener" title="X">X</a></div>
+  </div>
+  <div class="fnav"><a href="index.html">Inicial</a><a href="index.html#cursos">Cursos</a><a href="artigos.html">Artigos</a><a href="index.html#simulados">Simulados</a><a href="mailto:contato@economiadodia.com.br">Contato</a></div>
+  <div class="fbar"><span>© 2026 Economia do Dia. Todos os direitos reservados.</span><a href="https://www.economiadodia.com.br/termosecondicoes" target="_blank" rel="noopener">Termos e Condições</a><span>·</span><a href="https://www.economiadodia.com.br/politicadeprivacidade" target="_blank" rel="noopener">Política de Privacidade</a></div>
+</div></footer>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function hashStr(s){var h=0;s=String(s||'');for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+function readTime(a){if(a.read)return a.read;var txt=((a.content||'')+' '+(a.excerpt||'')).replace(/<[^>]*>/g,' ');var w=txt.split(/\s+/).filter(Boolean).length;return Math.max(1,Math.round(w/200));}
+function coverGrad(slug){var h=hashStr(slug),ang=100+(h%80);return 'background:linear-gradient('+ang+'deg,#0f1218,#1a1710 55%,rgba(212,164,55,.30));';}
+function ytId(u){u=String(u||'').trim();if(/^[\w-]{11}$/.test(u))return u;var m=u.match(/(?:v=|youtu\.be\/|\/embed\/|\/live\/|\/shorts\/)([\w-]{11})/);return m?m[1]:'';}
+function ytEmbed(u){var id=ytId(u);if(!id)return '';return '<div class="ytwrap"><iframe src="https://www.youtube.com/embed/'+id+'" title="Vídeo do YouTube" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';}
+var ERP='<p>O equity risk premium (ERP) é basicamente o retorno adicional exigido pelo acionista para investir em ações ao invés de aplicar na renda fixa.</p><p>A maioria das bibliografias utiliza o modelo CAPM, mas ele tem diversos problemas, pois suas premissas são pouco flexíveis.</p><h3>Premissas do modelo CAPM</h3><ul><li>O mercado é de competição perfeita</li><li>Não existe spread nem inadimplência</li><li>Os retornos dos ativos seguem uma distribuição normal</li><li>Não há custos de transação</li><li>O mercado é eficiente e não existem oportunidades de arbitragem</li><li>Investidores têm expectativas homogêneas</li><li>O modelo é estático</li></ul><p>Além disso, essa metodologia utiliza dados históricos para realizar estimativas, o que pode trazer conclusões viesadas dependendo do período analisado. Na prática, uma estimativa histórica do prêmio de risco consiste na diferença entre a rentabilidade passada de um índice de ações (como o Ibovespa ou o S&amp;P 500) e a taxa de um título do governo de longo prazo. Um ponto fraco dessa abordagem é o pressuposto de que a média e a variância dos retornos são constantes ao longo do tempo. Na verdade, o prêmio de risco costuma ser contracíclico: baixo durante o bull market e alto durante o bear market. A estimativa histórica também pode ser menos confiável por conta do viés de sobrevivência da amostra.</p><p>Existem outras alternativas ao modelo CAPM para calcular o equity risk premium. Eu prefiro, particularmente, uma abordagem que me parece mais razoável e é menos afetada pelo ciclo econômico.</p><p>Pela lógica de aversão ao risco, o investidor sempre vai exigir mais retorno ao investir em ações, o que justificaria um prêmio em relação à taxa de juros básica da economia. Para calcular o equity risk premium implícito no mercado, analistas utilizam valores projetados para determinadas métricas de retorno ao acionista.</p><p>E quais são essas métricas?</p><ul><li>Dividend Yield</li><li>Taxa de crescimento esperada para os lucros ("g")</li></ul><p><b>Equity Risk Premium = Dividend Yield + Earnings Growth - Taxa de juros de longo prazo</b></p><p>No bull market, o dividend yield é mais baixo e as taxas de crescimento dos lucros são mais altas. No bear market, o dividend yield é mais alto e as taxas de crescimento dos lucros são mais baixas.</p><p>Dividendos e crescimento nos lucros são as duas fontes de retorno para o acionista que se complementam para compor o retorno total exigido para investir em ações. Em momentos de bull market, o crescimento esperado dos lucros (componente "g") acelera; no bear market, a queda nos preços normalmente eleva o componente de dividendos (dividend yield). Assim, os dois indicadores se complementam ao longo do ciclo econômico, diferentemente do ERP calculado pelo modelo CAPM.</p><h3>Que tal aprender valuation na prática?</h3><p>Profissionais que demonstram conhecimento prático de valuation e análise de investimentos têm muito mais chances de conquistar oportunidades no mercado financeiro, e nós queremos (e podemos) te ajudar nessa jornada. Ao adquirir nosso curso, você também terá acesso a planilhas de análise e apresentações de teses de investimento.</p>';
+var DEFAULT_ARTICLES=[
+  {slug:'equity-risk-premium-como-calcular',title:'Equity Risk Premium: o que é e como calcular?',date:'30/03/2024 às 00:00:00',author:'Frederico Nobre, CFA',read:6,tags:['Destaque','Finanças e investimentos','Valuation'],content:ERP},
+  {slug:'cnpi-como-passar',title:'Como passar no CNPI em 3 meses?',date:'21/05/2022 às 23:04:17',author:'Frederico Nobre, CFA',read:5,tags:['Certificações','Opinião','Carreiras no mercado financeiro'],youtube:'_qWunQ7xI2s',content:'<p>O CNPI é a certificação que habilita o profissional de investimentos a realizar recomendações de ativos, como ações e fundos imobiliários. Trata-se de uma das provas de certificação mais difíceis do mercado financeiro.</p><p>Será que é possível se preparar de forma efetiva em apenas 3 meses?</p><p>O vídeo a seguir é a gravação de uma das lives do <a href="https://www.youtube.com/channel/UCzHNrZ-B6rKjc1rTm-Vle7Q" target="_blank" rel="noopener">canal do YouTube</a> do Economia do Dia sobre como eu passei no CNPI em 3 meses. Vale muito a pena assistir esse conteúdo irreverente, descontraído e repleto de insights sobre a Apimec e suas certificações.</p><p>Gravei o material direto do escritório da <a href="https://warren.com.br/" target="_blank" rel="noopener">Warren</a> e fui acompanhando o chat o tempo todo para tirar as dúvidas do pessoal, como se fosse uma conversa VIP entre amigos.</p><h3>Como o Economia do Dia pode te ajudar?</h3><p>Durante a live, expliquei em detalhes tudo aquilo que você precisa saber sobre a prova, sobre o curso e sobre a metodologia que te acompanhará caso você siga à risca nossa preparação completa. Além disso, expliquei também a distribuição das questões de prova (algo que nem a própria Apimec divulga).</p><p>Para se tornar analista CNPI pleno, você precisa passar por três etapas:</p><ol><li><a href="curso.html?cert=cnpi-cb">Conteúdo Brasileiro (pré-requisito)</a></li><li><a href="curso.html?cert=cnpi-ct1">Conteúdo Técnico (prova gráfica)</a></li><li><a href="curso.html?cert=cnpi-cg1">Conteúdo Global (fundamentalista)</a></li></ol><p>Todas as provas têm 60 questões e 1h50 de duração. É necessário acertar 40 questões para passar, mas não se engane com o baixo percentual: as três provas apresentam alto nível de dificuldade.</p><p>Aqui no site você tem acesso a <a href="index.html#simulados">simulados gratuitos</a> preparatórios. No curso completo, além desses materiais, você acessa mais de 300 videoaulas, o gabarito comentado de todas as questões e suporte exclusivo no grupo de alunos do WhatsApp. Acreditamos tanto na metodologia Shark Split que oferecemos o Seguro Aprovação.</p><h3>Por que o CNPI é tão importante?</h3><p>Para indicar investimentos você precisa da certificação CNPI, obrigatoriedade regulatória para atuar como analista profissional. Hoje, a lista de certificados conta com menos de 1500 analistas. Segundo o Guia de Salários Robert Half (2021), as vagas para certificados CNPI pagam de R$ 13.000 a R$ 27.000, entre fixo e variável.</p><p>Passando na prova, você pode dar um grande salto de carreira e migrar de área para avaliar empresas, tomar decisões e recomendar estratégias. Venha conhecer nosso curso e metodologia.</p>'},
+  {slug:'analistas-cnpi-crescer-5-anos',title:'Por que o número de analistas CNPI deve crescer nos próximos 5 anos?',date:'21/05/2022 às 22:58:53',author:'Frederico Nobre, CFA',read:4,tags:['Certificações','Opinião','Carreiras no mercado financeiro'],content:'<p>Entenda todos os detalhes sobre uma das profissões que tende a crescer muito no mercado financeiro.</p>'},
+  {slug:'por-que-poucos-cnpi',title:'Por que existem tão poucos analistas CNPI?',date:'21/05/2022 às 22:51:01',author:'Frederico Nobre, CFA',read:3,tags:['Certificações','Carreiras no mercado financeiro'],content:'<p>Entenda os motivos que justificam termos tão poucos analistas CNPI no Brasil.</p>'},
+  {slug:'cnpi-resumao',title:'CNPI: Resumão',date:'21/05/2022 às 22:46:51',author:'Frederico Nobre, CFA',read:5,tags:['Certificações','Carreiras no mercado financeiro'],content:'<p>Confira nosso resumão super completo sobre as três provas do CNPI: CB, CG1 e CT1.</p>'}
+];
+function loadArticles(){
+  try{
+    var db=JSON.parse(localStorage.getItem('eda-db'));
+    if(db&&db.artigos&&db.artigos.length){
+      var tags=db.tags||[];
+      var pub=db.artigos.filter(function(a){return a.active;});
+      if(pub.length)return pub.map(function(a){return {slug:a.slug,title:a.title,date:a.date,author:a.author||'Economia do Dia',content:a.content||('<p>'+esc(a.excerpt||'')+'</p>'),excerpt:a.excerpt||'',youtube:a.youtube||'',cover:(a.cover&&a.cover.url)?a.cover.url:null,tags:(a.tags||[]).map(function(t){var f=tags.find(function(x){return x.id===t;});return f?f.name:t;})};});
+    }
+  }catch(_){}
+  return DEFAULT_ARTICLES;
+}
+function CINITIAL(n){return (n||'?').split(' ').map(function(p){return p[0];}).slice(0,2).join('').toUpperCase();}
+(function(){
+  var arts=loadArticles();
+  var slug=(location.search.match(/[?&]slug=([^&]+)/)||[])[1];slug=slug?decodeURIComponent(slug):'';
+  var a=arts.filter(function(x){return x.slug===slug;})[0]||arts[0];
+  if(!a){document.getElementById('main').innerHTML='<div class="art"><h1>Artigo não encontrado</h1><p style="color:var(--muted)">Ele pode ter sido removido ou despublicado.</p><a class="btn btn-ghost btn-sm" style="margin-top:14px" href="artigos.html">← Todos os artigos</a></div>';return;}
+  document.title=a.title+' · Economia do Dia';
+  var big=(a.tags&&a.tags[0])?esc(a.tags[0]):'Economia do Dia';
+  var img=a.cover?('<span class="cimg" style="background-image:url('+a.cover+')"></span>'):'';
+  document.getElementById('hero').innerHTML='<div class="hcover" style="'+coverGrad(a.slug)+'">'+img+'<span class="cbig">'+big+'</span><span class="cmark">Economia do Dia</span></div>';
+  var shareUrl=encodeURIComponent(location.href);
+  var body=a.content||'';var vid=ytEmbed(a.youtube);if(vid){var _i=body.indexOf('</p>');body=_i>=0?body.slice(0,_i+4)+vid+body.slice(_i+4):vid+body;}
+  document.getElementById('main').innerHTML=
+    '<article class="art">'+
+      '<div class="eyebrow">Artigo</div>'+
+      '<div class="tags">'+(a.tags||[]).map(function(t){return '<a class="tg" href="artigos.html">'+esc(t)+'</a>';}).join('')+'</div>'+
+      '<h1>'+esc(a.title)+'</h1>'+
+      '<div class="pmeta">Por '+esc(a.author||'Economia do Dia')+' <span>·</span> '+esc((a.date||'').split(' às ')[0])+' <span>·</span> '+readTime(a)+' min de leitura</div>'+
+      '<div class="body" style="margin-top:22px">'+body+'</div>'+
+      '<div class="cta"><h3>Aprenda valuation e análise na prática</h3><p>Cursos e simulados para o CNPI e o CFG, com correção comentada e material real de análise.</p><a class="btn btn-gold" href="index.html#cursos">Conheça nossos cursos →</a></div>'+
+      '<div class="author"><span class="av">'+esc(CINITIAL(a.author))+'</span><div><div class="an">'+esc(a.author||'Economia do Dia')+'</div><div class="al">Autor · publicado em '+esc(a.date)+'</div></div></div>'+
+      '<div class="share"><span class="lb">Compartilhe:</span>'+
+        '<a target="_blank" rel="noopener" title="Facebook" href="https://www.facebook.com/sharer/sharer.php?u='+shareUrl+'">f</a>'+
+        '<a target="_blank" rel="noopener" title="X / Twitter" href="https://twitter.com/share?url='+shareUrl+'&text='+encodeURIComponent(a.title)+'">X</a>'+
+        '<a target="_blank" rel="noopener" title="WhatsApp" href="https://api.whatsapp.com/send?text='+encodeURIComponent(a.title+' '+location.href)+'">W</a>'+
+        '<a target="_blank" rel="noopener" title="LinkedIn" href="https://www.linkedin.com/sharing/share-offsite/?url='+shareUrl+'">in</a>'+
+      '</div>'+
+    '</article>';
+  var others=arts.filter(function(x){return x.slug!==a.slug;}).slice(0,3);
+  if(others.length){
+    document.getElementById('relwrap').innerHTML='<div class="rel"><h3>Veja também</h3><div class="relgrid">'+others.map(function(o){
+      return '<a class="rcard" href="artigo.html?slug='+encodeURIComponent(o.slug)+'"><div class="cover" style="'+coverGrad(o.slug)+'"><span class="cbig">'+((o.tags&&o.tags[0])?esc(o.tags[0]):'ED')+'</span></div><div class="rb"><div class="rd">'+esc((o.date||'').split(' às ')[0])+' · '+readTime(o)+' min</div><div class="rt">'+esc(o.title)+'</div></div></a>';
+    }).join('')+'</div></div>';
+  }
+  window.scrollTo(0,0);
+  window.addEventListener('scroll',function(){var h=document.documentElement,max=h.scrollHeight-h.clientHeight;var p=max>0?(h.scrollTop/max*100):0;document.getElementById('progress').style.width=p+'%';});
+})();
+</script>
+</body>
+</html>

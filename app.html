@@ -950,15 +950,24 @@ const PLANS=[
     }
   });
 
-  // ---- SIMULADOS: sobrepõe título por id; novos → append
+  // ---- SIMULADOS: sobrepõe título por id; novos → append (só os ativos)
   var sDef={'sim-cb':'Simulado CB Completo','sim-cg1':'Simulado CG1 · Fundamentalista','sim-cfg':'Simulado CGA/CGE'};
+  var simCatName=function(id){var c=(db.simCategories||[]).find(function(x){return x.id===id;});return c?c.name:'';};
+  var qCatNm=function(id){var c=(db.qCategories||[]).find(function(x){return x.id===id;});return c?c.name:'Questões';};
+  var fmtDur=function(min){min=+min||0;if(!min)return '2h00';if(min<60)return min+' min';var h=Math.floor(min/60),m=min%60;return h+'h'+(m<10?'0':'')+m;};
   (db.simulados||[]).forEach(function(s){
+    if(s.is_active===false)return; /* simulado inativo não aparece p/ o aluno */
+    var name=s.name||s.title;
     var t=SIMULADOS.find(function(x){return x.id===s.id;});
     if(t){
-      if(s.title&&norm(s.title)!==norm(sDef[s.id]||''))t.title=s.title;
+      if(name&&norm(name)!==norm(sDef[s.id]||''))t.title=name;
     }else{
-      var n=(s.questions||[]).length;
-      SIMULADOS.push({id:s.id,cert:s.cert||'CNPI',title:s.title||'Novo simulado',questions:n,dur:'2h00',score:null,modules:[[s.cert||'Questões',n||1,null]]});
+      var comp=(s.composition||[]).filter(function(c){return c.is_active!==false;});
+      var n=comp.reduce(function(a,c){return a+(+c.questions_quantity||0);},0);
+      if(!n)n=(s.questions||[]).length;
+      var mods=comp.length?comp.map(function(c){return [qCatNm(c.question_category_id),(+c.questions_quantity||0),null];})
+                          :[[simCatName(s.quiz_category_id)||s.cert||'Questões',n||1,null]];
+      SIMULADOS.push({id:s.id,cert:simCatName(s.quiz_category_id)||s.cert||'CNPI',title:name||'Novo simulado',questions:n,dur:fmtDur(s.time_limit),score:null,modules:mods});
     }
   });
 

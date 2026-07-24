@@ -317,7 +317,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   <div class="nav-inner">
     <a class="logo" href="#"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
     <div class="nav-links">
-      <a href="#simulados">Simulados</a><a href="#cursos">Cursos</a>
+      <a href="#simulados">Simulados</a><a href="#cursos">Cursos</a><a href="artigos.html">Artigos</a>
     </div>
     <div class="nav-actions">
       <a class="nav-enter" href="login.html">Entrar</a>
@@ -330,6 +330,7 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   <div class="mobile-menu">
     <a class="mlink" href="#simulados">Simulados</a>
     <a class="mlink" href="#cursos">Cursos</a>
+    <a class="mlink" href="artigos.html">Artigos</a>
     <a class="mlink menter" href="login.html">Entrar</a>
     <a class="btn btn-gold mcta" href="simulado.html">Fazer simulado grátis</a>
     <div class="seg">
@@ -617,9 +618,9 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
         <a class="logo" href="#"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
         <p class="foot-desc" data-ed="footer.text">Formação prática em análise e gestão do mercado financeiro, com cursos e simulados para o CNPI e o CFG.</p>
       </div>
-      <div><h4>Cursos</h4><a href="#cursos">CNPI Completo</a><a href="#cursos">Fundamentalista</a><a href="#cursos">Técnico</a><a href="#cursos">Valuation na Prática</a></div>
-      <div><h4>Grátis</h4><a href="simulado.html">Simulado CFG</a><a href="simulado.html">Simulado CNPI</a><a href="login.html">Diagnóstico por módulo</a></div>
-      <div><h4>Contato</h4><a href="#">WhatsApp</a><a href="#">contato@economiadodia.com.br</a></div>
+      <div><h4>Cursos</h4><a href="curso.html?cert=cnpi-cb">CNPI Completo</a><a href="curso.html?cert=cnpi-cg1">Fundamentalista</a><a href="curso.html?cert=cnpi-ct1">Técnico</a><a href="index.html#cursos">Valuation na Prática</a></div>
+      <div><h4>Grátis</h4><a href="curso.html?cert=cfg">Simulado CFG</a><a href="curso.html?cert=cnpi-cb">Simulado CNPI</a><a href="artigos.html">Artigos</a><a href="login.html">Diagnóstico por módulo</a></div>
+      <div><h4>Contato</h4><a href="https://wa.me/5500000000000" target="_blank" rel="noopener">WhatsApp</a><a href="mailto:contato@economiadodia.com.br">contato@economiadodia.com.br</a></div>
     </div>
     <div class="foot-bar">
       <span>© 2026 Economia Do Dia</span>
@@ -707,6 +708,22 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
       var card=document.querySelector('[data-ed-course="'+co.id+'"]');if(!card)return;var def=cDef[co.id]||{};
       var h=card.querySelector('h3');if(h&&co.title&&norm(co.title)!==norm(def.title))h.textContent=co.title;
       var d=card.querySelector('.desc');if(d&&co.desc&&norm(co.desc)!==norm(def.desc))d.textContent=co.desc;
+    });
+  })();
+  /* "Ver curso" abre a página do curso (curso.html) com as informações da certificação */
+  (function(){
+    var planMap={completo:'cnpi-cb',fundamentalista:'cnpi-cg1',tecnico:'cnpi-ct1',valuation:'cnpi-cg1'};
+    document.querySelectorAll('.cur-card[data-ed-plan]').forEach(function(card){
+      var id=card.getAttribute('data-ed-plan');var btn=card.querySelector('.cur-btn');
+      if(btn){btn.style.cursor='pointer';btn.addEventListener('click',function(){location.href='curso.html?cert='+(planMap[id]||'cfg');});}
+    });
+    var progMap={cb:'cnpi-cb',cg1:'cnpi-cg1',ct1:'cnpi-ct1'};
+    document.querySelectorAll('.prog-card[data-ed-course]').forEach(function(card){
+      var id=card.getAttribute('data-ed-course');
+      if(card.querySelector('.ver-curso'))return;
+      var a=document.createElement('a');a.className='ver-curso';a.href='curso.html?cert='+(progMap[id]||'cfg');
+      a.textContent='Ver curso →';a.style.cssText='display:inline-block;margin-top:14px;color:var(--gold-deep);font-weight:700;font-size:14px';
+      card.appendChild(a);
     });
   })();
 </script>

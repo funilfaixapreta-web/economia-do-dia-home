@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Artigos · Blog · Economia do Dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090C; --bg-alt:#0A0C10; --panel:#101319; --panel-2:#0D0F14;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.06);
+  --head:#FFFFFF; --text:#E7EAEF; --muted:#8A94A2; --faint:#5B6573;
+  --input-bg:#0E1116; --overlay-soft:rgba(255,255,255,.05); --overlay-bd:rgba(255,255,255,.14);
+  --gold:#D4A437; --gold-deep:#E6BE54; --gold-grad:linear-gradient(180deg,#E6BE54,#D4A437);
+  --gold-soft-bg:rgba(212,164,55,.10); --gold-soft-bd:rgba(212,164,55,.30);
+}
+[data-theme="light"]{
+  --bg:#F5F3EE; --bg-alt:#FBFAF6; --panel:#FFFFFF; --panel-2:#F3F1EA;
+  --border:rgba(27,31,38,.10); --border-soft:rgba(27,31,38,.07);
+  --head:#0B0D10; --text:#222831; --muted:#5B6573; --faint:#9AA3AF;
+  --input-bg:#F3F1EA; --overlay-soft:rgba(27,31,38,.04); --overlay-bd:rgba(27,31,38,.14);
+  --gold-deep:#A6781A; --gold-soft-bg:rgba(212,164,55,.14); --gold-soft-bd:rgba(212,164,55,.34);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Sora',sans-serif;color:var(--head);line-height:1.25}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;border-radius:11px;padding:11px 18px;cursor:pointer;border:1px solid transparent}
+.btn-gold{background:var(--gold-grad);color:#0B0D10}
+.btn-ghost{background:var(--overlay-soft);color:var(--text);border-color:var(--overlay-bd)}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:9px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-soft)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:62px}
+.mono-sq{width:32px;height:32px;border-radius:9px;background:var(--gold-grad);color:#0B0D10;display:inline-flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:13px}
+.wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:17px;color:var(--head)}
+.wordmark b{color:var(--gold-deep)}
+.top .sp{flex:1}
+.head{padding:40px 0 4px;text-align:center}
+.head h1{font-size:40px;letter-spacing:-.8px;margin-top:8px}
+.head p{color:var(--muted);margin:8px auto 0;max-width:560px}
+/* toolbar */
+.tools{display:flex;gap:12px;align-items:center;margin:28px 0 6px;flex-wrap:wrap}
+.search{display:flex;align-items:center;gap:9px;background:var(--input-bg);border:1px solid var(--border);border-radius:11px;padding:11px 14px;flex:1;min-width:220px}
+.search input{background:none;border:none;color:var(--text);font-family:inherit;font-size:14px;width:100%;outline:none}
+.search svg{width:16px;height:16px;color:var(--faint);flex:none}
+.tagbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 26px}
+.tagpill{font-size:12.5px;font-weight:600;color:var(--muted);background:var(--overlay-soft);border:1px solid var(--border);border-radius:999px;padding:7px 14px;cursor:pointer}
+.tagpill:hover{color:var(--text);border-color:var(--gold-soft-bd)}
+.tagpill.on{background:var(--gold-grad);color:#0B0D10;border-color:transparent}
+/* cover */
+.cover{position:relative;overflow:hidden;background:#12151b}
+.cover .cimg{position:absolute;inset:0;background-size:cover;background-position:center}
+.cover .cmark{position:absolute;right:14px;bottom:12px;font-family:'Sora';font-weight:800;font-style:italic;font-size:15px;color:rgba(255,255,255,.85);text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.cover .cvid{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px)}
+.cover .cbig{position:absolute;left:16px;bottom:10px;font-family:'Sora';font-weight:800;font-size:44px;line-height:.9;color:rgba(255,255,255,.14);max-width:70%}
+/* featured */
+.feat{display:grid;grid-template-columns:1.15fr 1fr;gap:0;background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:26px}
+.feat .cover{min-height:280px}
+.feat .fbody{padding:30px}
+.feat h2{font-size:26px;letter-spacing:-.4px;margin:10px 0 10px}
+.feat .ex{color:var(--muted);font-size:15px}
+.feat .fmeta{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:12.5px;color:var(--faint);flex-wrap:wrap}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:60px}
+.pcard{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .18s,border-color .18s}
+.pcard:hover{transform:translateY(-3px);border-color:var(--gold-soft-bd)}
+.pcard .cover{height:150px}
+.pbody{padding:18px;display:flex;flex-direction:column;flex:1}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.tg{font-size:11px;font-weight:600;color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:999px;padding:3px 9px}
+.pcard h3{font-size:17px;letter-spacing:-.2px;margin-bottom:8px}
+.pcard .ex{color:var(--muted);font-size:13.5px;flex:1}
+.pmeta{display:flex;align-items:center;gap:8px;margin-top:14px;font-family:'IBM Plex Mono';font-size:11px;color:var(--faint);flex-wrap:wrap}
+.pmeta .dot{opacity:.5}
+.empty{color:var(--muted);text-align:center;padding:50px 0}
+.foot{border-top:1px solid var(--border-soft);padding:24px 0 50px;color:var(--faint);font-size:13px}
+@media(max-width:720px){.feat{grid-template-columns:1fr}.feat .cover{min-height:180px}.head h1{font-size:30px}}
+</style>
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ed-theme')||'dark');}catch(_){}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a href="index.html" style="display:flex;align-items:center;gap:10px"><span class="mono-sq">ED</span><span class="wordmark">Economia <b>Do Dia</b></span></a>
+  <span class="sp"></span>
+  <a class="btn btn-ghost btn-sm" href="index.html">← Voltar ao site</a>
+  <a class="btn btn-gold btn-sm" href="index.html#cursos">Ver cursos</a>
+</div></header>
+<main class="wrap">
+  <div class="head"><div class="eyebrow">Blog · Economia do Dia</div><h1>Artigos e Atualizações</h1><p>Conteúdo prático sobre certificações, análise e carreira no mercado financeiro, escrito por quem vive o mercado.</p></div>
+  <div class="tools">
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="Buscar por título ou tema..." oninput="applyFilter()"></div>
+  </div>
+  <div class="tagbar" id="tagbar"></div>
+  <div id="featwrap"></div>
+  <div class="grid" id="grid"></div>
+</main>
+<footer class="foot"><div class="wrap">Economia do Dia · Conteúdo de análise e gestão no mercado financeiro.</div></footer>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function hashStr(s){var h=0;s=String(s||'');for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+function coverHtml(a){
+  var h=hashStr(a.slug||a.title),ang=100+(h%80);
+  var st='background:linear-gradient('+ang+'deg,#0f1218,#1a1710 55%,rgba(212,164,55,.30));';
+  var big=(a.tags&&a.tags[0])?esc(a.tags[0]):'Economia do Dia';
+  var img=a.cover?('<span class="cimg" style="background-image:url('+a.cover+')"></span>'):'';
+  var vid=a.youtube?'<span class="cvid">▶ Vídeo</span>':'';
+  return '<div class="cover" style="'+st+'">'+img+vid+'<span class="cbig">'+big+'</span><span class="cmark">Economia do Dia</span></div>';
+}
+function readTime(a){if(a.read)return a.read;var txt=((a.content||'')+' '+(a.excerpt||'')).replace(/<[^>]*>/g,' ');var w=txt.split(/\s+/).filter(Boolean).length;return Math.max(1,Math.round(w/200));}
+var DEFAULT_ARTICLES=[
+  {slug:'equity-risk-premium-como-calcular',title:'Equity Risk Premium: o que é e como calcular?',date:'30/03/2024 às 00:00:00',author:'Frederico Nobre, CFA',read:6,tags:['Destaque','Finanças e investimentos','Valuation'],excerpt:'O equity risk premium (ERP) é o retorno adicional exigido pelo acionista para investir em ações ao invés da renda fixa. Veja o problema do CAPM e uma abordagem melhor.'},
+  {slug:'cnpi-como-passar',title:'Como passar no CNPI em 3 meses?',date:'21/05/2022 às 23:04:17',author:'Frederico Nobre, CFA',read:5,youtube:'_qWunQ7xI2s',tags:['Certificações','Opinião','Carreiras no mercado financeiro'],excerpt:'O CNPI habilita o profissional a recomendar ativos. Veja como me preparei e passei em 3 meses com a metodologia Shark Split.'},
+  {slug:'analistas-cnpi-crescer-5-anos',title:'Por que o número de analistas CNPI deve crescer nos próximos 5 anos?',date:'21/05/2022 às 22:58:53',author:'Frederico Nobre, CFA',read:4,tags:['Certificações','Opinião','Carreiras no mercado financeiro'],excerpt:'Entenda todos os detalhes sobre uma das profissões que tende a crescer muito no mercado financeiro.'},
+  {slug:'por-que-poucos-cnpi',title:'Por que existem tão poucos analistas CNPI?',date:'21/05/2022 às 22:51:01',author:'Frederico Nobre, CFA',read:3,tags:['Certificações','Carreiras no mercado financeiro'],excerpt:'Entenda os motivos que justificam termos tão poucos analistas CNPI no Brasil.'},
+  {slug:'cnpi-resumao',title:'CNPI: Resumão',date:'21/05/2022 às 22:46:51',author:'Frederico Nobre, CFA',read:5,tags:['Certificações','Carreiras no mercado financeiro'],excerpt:'Confira nosso resumão super completo sobre as três provas do CNPI.'}
+];
+function loadArticles(){
+  try{
+    var db=JSON.parse(localStorage.getItem('eda-db'));
+    if(db&&db.artigos&&db.artigos.length){
+      var tags=db.tags||[];
+      var pub=db.artigos.filter(function(a){return a.active;});
+      if(pub.length)return pub.map(function(a){return {slug:a.slug,title:a.title,date:a.date,excerpt:a.excerpt||'',content:a.content||'',author:a.author||'Economia do Dia',youtube:a.youtube||'',cover:(a.cover&&a.cover.url)?a.cover.url:null,tags:(a.tags||[]).map(function(t){var f=tags.find(function(x){return x.id===t;});return f?f.name:t;})};});
+    }
+  }catch(_){}
+  return DEFAULT_ARTICLES;
+}
+var ALL=loadArticles(),activeTag='';
+function metaLine(a){return esc(a.author||'Economia do Dia')+' <span class="dot">·</span> '+esc((a.date||'').split(' às ')[0])+' <span class="dot">·</span> '+readTime(a)+' min de leitura';}
+function cardHtml(a){
+  return '<a class="pcard" href="artigo.html?slug='+encodeURIComponent(a.slug)+'">'+coverHtml(a)+
+    '<div class="pbody"><div class="tags">'+(a.tags||[]).slice(0,2).map(function(t){return '<span class="tg">'+esc(t)+'</span>';}).join('')+'</div>'+
+    '<h3>'+esc(a.title)+'</h3><p class="ex">'+esc((a.excerpt||'').slice(0,120))+((a.excerpt||'').length>120?'…':'')+'</p>'+
+    '<div class="pmeta">'+metaLine(a)+'</div></div></a>';
+}
+function featHtml(a){
+  return '<a class="feat" href="artigo.html?slug='+encodeURIComponent(a.slug)+'">'+coverHtml(a)+
+    '<div class="fbody"><div class="tags">'+(a.tags||[]).map(function(t){return '<span class="tg">'+esc(t)+'</span>';}).join('')+'</div>'+
+    '<h2>'+esc(a.title)+'</h2><p class="ex">'+esc(a.excerpt||'')+'</p>'+
+    '<div class="fmeta">'+metaLine(a)+' <span class="btn btn-ghost btn-sm" style="margin-left:auto">Ler artigo →</span></div></div></a>';
+}
+function allTags(){var set={},out=[];ALL.forEach(function(a){(a.tags||[]).forEach(function(t){if(!set[t]){set[t]=1;out.push(t);}});});return out;}
+function pickTag(t){activeTag=(activeTag===t)?'':t;applyFilter();}
+function applyFilter(){
+  var q=(document.getElementById('q').value||'').toLowerCase().trim();
+  document.querySelectorAll('.tagpill').forEach(function(p){p.classList.toggle('on',p.dataset.t===activeTag);});
+  var list=ALL.filter(function(a){
+    if(activeTag && (a.tags||[]).indexOf(activeTag)<0)return false;
+    if(q && (a.title+' '+(a.excerpt||'')+' '+(a.tags||[]).join(' ')).toLowerCase().indexOf(q)<0)return false;
+    return true;
+  });
+  var fw=document.getElementById('featwrap'),gr=document.getElementById('grid');
+  if(!list.length){fw.innerHTML='';gr.innerHTML='<div class="empty">Nenhum artigo encontrado para a busca.</div>';return;}
+  var showFeat=(!q&&!activeTag);
+  if(showFeat){fw.innerHTML=featHtml(list[0]);gr.innerHTML=list.slice(1).map(cardHtml).join('');}
+  else{fw.innerHTML='';gr.innerHTML=list.map(cardHtml).join('');}
+}
+(function(){
+  document.getElementById('tagbar').innerHTML='<span class="tagpill'+(activeTag?'':' on')+'" data-t="" onclick="pickTag(\'\')">Todos</span>'+allTags().map(function(t){return '<span class="tagpill" data-t="'+esc(t)+'" onclick="pickTag(\''+esc(t).replace(/'/g,"\\'")+'\')">'+esc(t)+'</span>';}).join('');
+  applyFilter();
+})();
+</script>
+</body>
+</html>

@@ -406,15 +406,41 @@ var answers={}, tLeft=30*60, tUsed=0, timerId=null;
 
 /* ---------- carrega um simulado real por ?sim=<id> (eda-db); senão usa o demo CFG ---------- */
 var DEMO=true, SIM_EYE='CFG · Módulo I · Simulado', SIM_TITLE='CFG - M1 - Métodos Quantitativos', SIM_SUB='Teste seus conhecimentos sobre o Módulo I da prova do CFG, Métodos Quantitativos.';
+var SIM_TIME=30, SIM_PASS=70;
 (function(){
   try{
     var sid=new URLSearchParams(location.search).get('sim');
     if(!sid)return;
     var db=JSON.parse(localStorage.getItem('eda-db'));
     var s=db&&db.simulados&&db.simulados.find(function(x){return x.id===sid;});
-    if(!s||!s.questions||!s.questions.length||!s.questions[0]||!s.questions[0].stmt)return;
-    Q=s.questions.map(function(q){return {stmt:q.stmt,opts:(q.options||[]).slice()};});
-    SIM_TITLE=s.title||'Simulado';SIM_SUB=s.desc||('Simulado '+(s.cert||''));SIM_EYE=(s.cert||'Simulado')+' · Simulado';
+    if(!s)return;
+    var strip=function(h){return String(h||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();};
+    var catName=function(id){var c=(db.qCategories||[]).find(function(x){return x.id===id;});return c?c.name:'';};
+    var simCat=function(id){var c=(db.simCategories||[]).find(function(x){return x.id===id;});return c?c.name:'';};
+    /* monta as questões pela composição: sorteia N questões ativas de cada categoria de pergunta ativa */
+    var built=[];
+    (s.composition||[]).forEach(function(c){
+      if(c.is_active===false)return;
+      var pool=(db.questions||[]).filter(function(q){return q.active!==false && q.categoryId===c.question_category_id;});
+      for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
+      pool.slice(0,+c.questions_quantity||pool.length).forEach(function(q){
+        var acts=(q.answers||[]).filter(function(a){return a.active!==false;});
+        var ci=-1;acts.forEach(function(a,ai){if(a.correct&&ci<0)ci=ai;});
+        built.push({stmt:strip(q.text),opts:acts.map(function(a){return strip(a.text);}),correct:ci>=0?ci:null,comment:strip(q.comment)||'',theme:catName(q.categoryId)||strip(s.name)});
+      });
+    });
+    /* fallback: modelo antigo com questões embutidas no simulado */
+    if(!built.length && s.questions && s.questions.length && s.questions[0] && s.questions[0].stmt){
+      built=s.questions.map(function(q){return {stmt:q.stmt,opts:(q.options||[]).slice(),correct:(typeof q.correct==='number'?q.correct:null),comment:q.comment||'',theme:q.theme||strip(s.name)};});
+    }
+    if(!built.length)return; /* sem questões montáveis: mantém o demo CFG */
+    Q=built;
+    SIM_TITLE=s.name||s.title||'Simulado';
+    SIM_SUB=strip(s.headline)||strip(s.description)||('Simulado '+(simCat(s.quiz_category_id)||''));
+    SIM_EYE=(simCat(s.quiz_category_id)||'Simulado')+' · Simulado';
+    if(+s.time_limit>0)SIM_TIME=+s.time_limit;
+    if(+s.hit_percentage>0)SIM_PASS=+s.hit_percentage;
+    tLeft=SIM_TIME*60;
     DEMO=false;
   }catch(_){}
 })();
@@ -443,10 +469,10 @@ function pick(qi,oi){
   updateProgress();
 }
 function updateProgress(){
-  var n=Object.keys(answers).length;
-  document.getElementById('prog-t').textContent=n+'/10';
+  var n=Object.keys(answers).length, tot=Q.length||1;
+  document.getElementById('prog-t').textContent=n+'/'+Q.length;
   document.getElementById('ans-count').textContent=n;
-  document.getElementById('pbar-i').style.width=(n*10)+'%';
+  document.getElementById('pbar-i').style.width=Math.round(n/tot*100)+'%';
 }
 function fmt(s){var m=Math.floor(s/60),ss=s%60;return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;}
 function tick(){
@@ -457,15 +483,15 @@ function tick(){
 }
 function show(id){['intro','prova','result'].forEach(function(s){document.getElementById(s).classList.toggle('hidden',s!==id);});window.scrollTo(0,0);}
 function startSim(){
-  answers={};tLeft=30*60;tUsed=0;
+  answers={};tLeft=SIM_TIME*60;tUsed=0;
   renderQuestions();
-  document.getElementById('timer').textContent='30:00';
+  document.getElementById('timer').textContent=fmt(tLeft);
   document.getElementById('timer').classList.remove('warn');
   show('prova');
   clearInterval(timerId);timerId=setInterval(tick,1000);
 }
 function backToIntro(){clearInterval(timerId);show('intro');}
-var PASS_PCT=70;
+var PASS_PCT=SIM_PASS;
 function submitSim(){
   clearInterval(timerId);
   var gradable=Q.filter(function(q){return typeof q.correct==='number';}).length;
@@ -520,7 +546,8 @@ function renderReview(correction){
     var unans=(chosen===undefined)?'<div class="unans">Você não respondeu esta questão.</div>':'';
     var gab='';
     if(correction&&hasGab){
-      gab='<div style="margin-top:10px;font-size:13px;color:var(--muted);background:var(--overlay-soft);border-radius:9px;padding:10px 12px"><b style="color:var(--head)">Por que '+LETTERS[q.correct]+':</b> '+esc(q.comment||'')+'</div>'+
+      var why=q.comment?('<b style="color:var(--head)">Por que '+LETTERS[q.correct]+':</b> '+esc(q.comment)):('<b style="color:var(--head)">Resposta correta: '+LETTERS[q.correct]+')</b>');
+      gab='<div style="margin-top:10px;font-size:13px;color:var(--muted);background:var(--overlay-soft);border-radius:9px;padding:10px 12px">'+why+'</div>'+
         '<div class="gab-audio"><button class="pb" onclick="ouvirGabarito('+qi+')" title="Ouvir explicação"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div style="flex:1"><div class="gt">Gabarito comentado em áudio</div><div class="gs">Toque para ouvir a explicação da resposta.</div></div></div>';
     }
     return '<div class="q"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+unans+gab+'</div>';

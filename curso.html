@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cursos · CFG e CNPI · Economia do Dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090C; --bg-alt:#0A0C10; --panel:#101319; --panel-2:#0D0F14;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.06);
+  --head:#FFFFFF; --text:#E7EAEF; --muted:#8A94A2; --faint:#5B6573;
+  --input-bg:#0E1116; --overlay-soft:rgba(255,255,255,.05); --overlay-bd:rgba(255,255,255,.14);
+  --gold:#D4A437; --gold-deep:#E6BE54; --gold-grad:linear-gradient(180deg,#E6BE54,#D4A437);
+  --gold-soft-bg:rgba(212,164,55,.10); --gold-soft-bd:rgba(212,164,55,.30);
+  --green:#2BB673; --amber:#E8A33D; --red:#E0533D; --blue:#3D8BE0;
+}
+[data-theme="light"]{
+  --bg:#F5F3EE; --bg-alt:#FBFAF6; --panel:#FFFFFF; --panel-2:#F3F1EA;
+  --border:rgba(27,31,38,.10); --border-soft:rgba(27,31,38,.07);
+  --head:#0B0D10; --text:#222831; --muted:#5B6573; --faint:#9AA3AF;
+  --input-bg:#F3F1EA; --overlay-soft:rgba(27,31,38,.04); --overlay-bd:rgba(27,31,38,.14);
+  --gold-deep:#A6781A; --gold-soft-bg:rgba(212,164,55,.14); --gold-soft-bd:rgba(212,164,55,.34);
+  --green:#1F9760;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Sora',sans-serif;color:var(--head);line-height:1.25}
+.mono{font-family:'IBM Plex Mono',monospace}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter';font-weight:600;font-size:14px;border-radius:11px;padding:11px 18px;cursor:pointer;border:1px solid transparent;transition:transform .18s,filter .18s,border-color .15s}
+.btn-gold{background:var(--gold-grad);color:#0B0D10;box-shadow:0 14px 32px -12px rgba(212,164,55,.5)}
+.btn-gold:hover{transform:translateY(-2px);filter:brightness(1.03)}
+.btn-ghost{background:var(--overlay-soft);color:var(--text);border-color:var(--overlay-bd)}
+.btn-ghost:hover{border-color:var(--gold)}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:9px}
+/* topbar */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-soft)}
+.top .wrap{display:flex;align-items:center;gap:14px;height:62px}
+.wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:17px;color:var(--head);white-space:nowrap}
+.wordmark b{color:var(--gold-deep)}
+.mono-sq{width:32px;height:32px;border-radius:9px;background:var(--gold-grad);color:#0B0D10;display:inline-flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:13px;flex:none}
+.top .sp{flex:1}
+/* tabs */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:26px 0 8px}
+.tab{border:1px solid var(--border);background:var(--overlay-soft);color:var(--muted);font-family:'Inter';font-weight:600;font-size:13.5px;padding:9px 16px;border-radius:999px;cursor:pointer}
+.tab:hover{color:var(--text);border-color:var(--gold-soft-bd)}
+.tab.on{background:var(--gold-grad);color:#0B0D10;border-color:transparent}
+/* hero */
+.chead{padding:30px 0 8px}
+.chead h1{font-size:32px;letter-spacing:-.5px;margin:8px 0 6px}
+.intro{max-width:760px}
+.intro p{color:var(--text);font-size:15px;margin-top:12px;line-height:1.7}
+.metarow{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 4px}
+.meta{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px 15px;min-width:120px}
+.meta .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-family:'IBM Plex Mono'}
+.meta .v{font-family:'Sora';font-weight:700;font-size:18px;color:var(--head);margin-top:2px}
+/* temas */
+.temas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-top:16px}
+.tema{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border-soft);border-radius:10px;padding:10px 13px;font-size:13.5px}
+.tema .n{width:24px;height:24px;border-radius:7px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep);font-family:'IBM Plex Mono';font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+/* sims */
+.sec-title{font-family:'Sora';font-weight:700;font-size:19px;color:var(--head);margin:34px 0 4px;display:flex;align-items:center;gap:10px}
+.sec-sub{color:var(--muted);font-size:13.5px;margin-bottom:16px}
+.sims{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.sim{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:18px;display:flex;flex-direction:column}
+.sim.full{border-color:var(--gold-soft-bd);background:linear-gradient(180deg,var(--gold-soft-bg),var(--panel))}
+.sim h3{font-size:15.5px;letter-spacing:-.2px}
+.sim .time{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono';font-size:12px;color:var(--gold-deep);margin-top:7px}
+.sim .sd{color:var(--muted);font-size:13px;margin-top:10px;flex:1;line-height:1.6}
+.sim .cta{margin-top:14px}
+.foot{border-top:1px solid var(--border-soft);margin-top:44px;padding:26px 0 50px;color:var(--faint);font-size:13px}
+@media(max-width:560px){.chead h1{font-size:25px}}
+</style>
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ed-theme')||'dark');}catch(_){}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <span class="mono-sq">ED</span><span class="wordmark">Economia <b>Do Dia</b></span>
+  <span class="sp"></span>
+  <a class="btn btn-ghost btn-sm" href="index.html">← Voltar ao site</a>
+  <a class="btn btn-gold btn-sm" href="index.html#cursos">Ver planos</a>
+</div></header>
+
+<main class="wrap">
+  <div class="tabs" id="tabs"></div>
+  <div id="content"></div>
+</main>
+
+<footer class="foot"><div class="wrap">Economia do Dia · Formação em análise e gestão no mercado financeiro. Simulados gratuitos com correção comentada.</div></footer>
+
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function m(n){return {n:n};}
+/* dados das certificações */
+var CERTS={
+  cfg:{code:'CFG',name:'CFG · Fundamentos em Gestão',sub:'Certificação ANBIMA de Fundamentos em Gestão',
+    intro:[
+      'A CFG (Certificação ANBIMA de Fundamentos em Gestão) é uma certificação para quem quer iniciar ou acelerar sua carreira na área de gestão de recursos de terceiros. O profissional certificado tem o conhecimento da base técnica do setor que é diferencial para ocupar diversos cargos em empresas de asset management.',
+      'Ser certificado com a CFG é pré-requisito para conquistar a CGA e/ou a CGE, abrindo as portas para quem quer atuar em gestão de recursos de terceiros. A CFG não é obrigatória para nenhuma função e nem habilita o profissional a ser gestor.',
+      'Para se certificar, é necessário aprovação no exame. A prova tem 60 questões, a serem resolvidas em até 3h de duração. Para ser aprovado, é necessário acertar no mínimo 42 questões. As perguntas abrangem 12 áreas de conhecimento.'
+    ],
+    meta:[['Questões','60'],['Duração','3h'],['Aprovação','mín. 42'],['Áreas','12']],
+    temas:['Métodos quantitativos','Economia','Análise de relatórios financeiros','Finanças corporativas','Mercados e instrumentos financeiros','Teoria moderna de carteiras e modelos de precificação de ativos','Finanças comportamentais','Política de investimento','Alocação de ativos','Novas tecnologias em finanças','Ética e autorregulação','Legislação e regulação'],
+    sims:[
+      {n:'CFG · M1 · Métodos Quantitativos',t:30,d:'CFG Módulo I. Teste seus conhecimentos sobre Métodos Quantitativos.'},
+      {n:'CFG · M2 · Economia',t:30,d:'CFG Módulo II. Teste seus conhecimentos sobre Economia.'},
+      {n:'CFG · M3 · Análise de relatórios financeiros',t:30,d:'CFG Módulo III. Teste seus conhecimentos sobre Análise de relatórios financeiros.'},
+      {n:'CFG · M4 · Finanças Corporativas',t:30,d:'CFG Módulo IV. Teste seus conhecimentos sobre Finanças Corporativas.'},
+      {n:'CFG · M5 · Mercados e Instrumentos Financeiros',t:30,d:'CFG Módulo V. Teste seus conhecimentos sobre Mercados e Instrumentos Financeiros.'},
+      {n:'CFG · M6 · Teoria de Carteiras',t:30,d:'CFG Módulo VI. Teste seus conhecimentos sobre Teoria de Carteiras.'},
+      {n:'CFG · M7 · Finanças Comportamentais',t:30,d:'CFG Módulo VII. Teste seus conhecimentos sobre Finanças Comportamentais.'},
+      {n:'CFG · M8 · Política de Investimentos',t:30,d:'CFG Módulo VIII. Teste seus conhecimentos sobre Política de Investimentos.'},
+      {n:'CFG · M9 · Alocação de ativos',t:30,d:'CFG Módulo IX. Teste seus conhecimentos sobre Alocação de ativos.'},
+      {n:'CFG · Módulo 10 · Novas Tecnologias em finanças',t:30,d:'CFG Módulo X. Teste seus conhecimentos sobre Novas Tecnologias em Finanças.'},
+      {n:'CFG · Módulo 11 · Ética e Autorregulação',t:30,d:'CFG Módulo XI. Teste seus conhecimentos sobre Ética e Autorregulação.'},
+      {n:'CFG · Módulo 12 · Legislação e Regulação',t:30,d:'CFG Módulo XII. Teste seus conhecimentos sobre Legislação e Regulação.'},
+      {n:'CFG · Simulado Completo Gratuito',t:180,full:true,d:'Questões de prova que te obrigam a pensar. Resultado detalhado por módulo e gabarito comentado com áudio para todas as perguntas. Torne-se gestor profissional de recursos.'}
+    ]},
+  'cnpi-cb':{code:'CNPI · CB',name:'CNPI · Conteúdo Brasileiro',sub:'Fase comum a todos os analistas (APIMEC / FGV)',
+    intro:[
+      'A certificação CNPI faz parte do programa de capacitação profissional da APIMEC e é voltada para profissionais que queiram atuar na análise de valores mobiliários. A certificação e o credenciamento do analista de valores mobiliários são obrigatórios para o exercício da função, como dispõe a ICVM 598/2018. Os exames são oferecidos em tempo contínuo e realizados nos Centros de Testes da FGV, distribuídos em praticamente todo o território nacional.',
+      'Para obtenção da certificação, o profissional deve ser aprovado nos exames: CB (Conteúdo Brasileiro, fase comum ao analista fundamentalista, técnico e pleno); CG1 (Conteúdo Global 1, para o analista fundamentalista); e CT1 (Conteúdo Técnico 1, para o analista técnico).',
+      'A quem se destina: a todos os profissionais com nível superior completo em qualquer área e com interesse em se desenvolver no mercado financeiro e/ou de capitais. O resultado provisório é disponibilizado ao término do exame e o definitivo é publicado em até 5 dias úteis no site da FGV/APIMEC.'
+    ],
+    meta:[['Questões','60'],['Duração','2h'],['Aprovação','40 acertos']],
+    sims:[
+      {n:'CNPI · CB · Módulo I',t:20,d:'Conteúdo Brasileiro. Sistema Financeiro Nacional.'},
+      {n:'CNPI · CB · Módulo II',t:20,d:'Conteúdo Brasileiro. Mercado de Capitais.'},
+      {n:'CNPI · CB · Módulo III',t:20,d:'Conteúdo Brasileiro. Mercado de Renda Fixa.'},
+      {n:'CNPI · CB · Módulo IV',t:20,d:'Conteúdo Brasileiro. Mercado de Derivativos.'},
+      {n:'CNPI · CB · Módulo V',t:20,d:'Conteúdo Brasileiro. Conceitos Econômicos.'},
+      {n:'CNPI · CB · Módulo VI',t:20,d:'Conteúdo Brasileiro. Conduta e Relacionamento.'},
+      {n:'CNPI · CB · Módulo VII',t:20,d:'Conteúdo Brasileiro. Governança Corporativa e Relações com Investidores.'},
+      {n:'CNPI · CB · Módulo VIII',t:20,d:'Conteúdo Brasileiro. Integração de questões ASG à análise de investimentos.'},
+      {n:'CNPI · CB · Simulado Completo Gratuito',t:110,full:true,d:'Questões de prova que te obrigam a pensar. Resultado detalhado por módulo e gabarito comentado com áudio para todas as perguntas. Torne-se analista de investimentos.'}
+    ]},
+  'cnpi-cg1':{code:'CNPI · CG1',name:'CNPI · Conteúdo Global 1',sub:'Análise fundamentalista: valuation e contabilidade',
+    intro:[
+      'A prova de Conteúdo Global (CG1) habilita o analista a realizar análises fundamentalistas. A avaliação é um mix de fundamentos de valuation e contabilidade.',
+      'Como todas as provas da APIMEC, o CG1 é composto por 60 questões e uma hora e cinquenta minutos de duração. Para garantir a aprovação é necessário acertar pelo menos 40 questões.',
+      'A prova possui uma peculiaridade: está dividida em 30 questões de Análise de Ações e Finanças Corporativas e outras 30 de Contabilidade Financeira e Análise de Relatórios Financeiros. Para aprovação, o candidato precisa acertar pelo menos 50% de cada bloco (mínimo de 15 acertos em cada parte).'
+    ],
+    meta:[['Questões','60'],['Duração','1h50'],['Aprovação','40 · mín. 50%/bloco']],
+    sims:[
+      {n:'CNPI · CG1 · Análise de Ações e Finanças Corporativas',t:55,full:true,d:'Simulado do 1º bloco. Questões de prova que te obrigam a pensar. Resultado detalhado e gabarito comentado com áudio para todas as perguntas.'},
+      {n:'CNPI · CG1 · Contabilidade e Análise de Relatórios Financeiros',t:55,full:true,d:'Simulado do 2º bloco. Questões de prova que te obrigam a pensar. Resultado detalhado e gabarito comentado com áudio para todas as perguntas.'},
+      {n:'CNPI · CG1 · Módulo I',t:20,d:'Conteúdo Global. Modelos de Avaliação de Ações.'},
+      {n:'CNPI · CG1 · Módulo II',t:20,d:'Conteúdo Global. Análise das Operações das Empresas.'},
+      {n:'CNPI · CG1 · Módulo III',t:20,d:'Conteúdo Global. Análise Setorial.'},
+      {n:'CNPI · CG1 · Módulo IV',t:20,d:'Conteúdo Global. Fundamentos das Finanças Corporativas.'},
+      {n:'CNPI · CG1 · Módulo V',t:20,d:'Conteúdo Global. Decisões de Financiamento a Longo Prazo.'},
+      {n:'CNPI · CG1 · Módulo VI',t:20,d:'Conteúdo Global. Decisões de Financiamento a Curto Prazo.'},
+      {n:'CNPI · CG1 · Módulo VII',t:20,d:'Conteúdo Global. Estrutura de Capital e Política de Dividendos.'},
+      {n:'CNPI · CG1 · Módulo VIII',t:20,d:'Conteúdo Global. Fusões e Aquisições.'},
+      {n:'CNPI · CG1 · Módulo IX',t:20,d:'Conteúdo Global. Finanças Corporativas Internacionais.'},
+      {n:'CNPI · CG1 · Módulo X',t:20,d:'Conteúdo Global. Demonstrações Contábeis.'},
+      {n:'CNPI · CG1 · Módulo XI',t:20,d:'Conteúdo Global. Elaboração de Relatórios.'},
+      {n:'CNPI · CG1 · Módulo XII',t:20,d:'Conteúdo Global. Estrutura Conceitual Básica.'},
+      {n:'CNPI · CG1 · Módulo XIII',t:20,d:'Conteúdo Global. Demonstração dos Fluxos de Caixa.'},
+      {n:'CNPI · CG1 · Módulo XIV',t:20,d:'Conteúdo Global. Ativos, Passivos e Patrimônio Líquido.'},
+      {n:'CNPI · CG1 · Módulo XV',t:20,d:'Conteúdo Global. Conversão das Demonstrações Contábeis.'},
+      {n:'CNPI · CG1 · Módulo XVI',t:20,d:'Conteúdo Global. Relatórios Contábeis e Análise das Demonstrações.'},
+      {n:'CNPI · CG1 · Módulo XVII',t:20,d:'Conteúdo Global. Instrumentos Analíticos para estimar retorno.'},
+      {n:'CNPI · CG1 · Módulo XVIII',t:20,d:'Conteúdo Global. Questões ASG na Análise Fundamentalista.'},
+      {n:'CNPI · CG1 · Simulado Completo Gratuito',t:110,full:true,d:'Simulado completo. Questões de prova que te obrigam a pensar. Resultado detalhado por módulo e gabarito comentado com áudio para todas as perguntas. Torne-se analista profissional de investimentos.'}
+    ]},
+  'cnpi-ct1':{code:'CNPI · CT1',name:'CNPI · Conteúdo Técnico 1',sub:'Análise técnica (gráfica) de ativos',
+    intro:[
+      'A prova de Conteúdo Técnico (CT1) habilita o analista a trabalhar com recomendação de ativos utilizando análises gráficas.',
+      'Como todas as provas da APIMEC, o CT1 é composto por 60 questões e uma hora e cinquenta minutos de duração.',
+      'Para garantir a aprovação é necessário acertar pelo menos 40 questões.'
+    ],
+    meta:[['Questões','60'],['Duração','1h50'],['Aprovação','40 acertos']],
+    sims:[
+      {n:'CNPI · CT1 · Módulo I',t:20,d:'Conteúdo Técnico. Fundamentos da análise técnica.'},
+      {n:'CNPI · CT1 · Módulo II',t:20,d:'Conteúdo Técnico. Teoria de Dow.'},
+      {n:'CNPI · CT1 · Módulo III',t:20,d:'Conteúdo Técnico. Conceito de Tendência.'},
+      {n:'CNPI · CT1 · Módulo IV',t:20,d:'Conteúdo Técnico. Figuras Gráficas.'},
+      {n:'CNPI · CT1 · Módulo V',t:20,d:'Conteúdo Técnico. Ondas de Elliott.'},
+      {n:'CNPI · CT1 · Módulo VI',t:20,d:'Conteúdo Técnico. Padrões de Candlestick.'},
+      {n:'CNPI · CT1 · Módulo VII',t:20,d:'Conteúdo Técnico. Indicadores.'},
+      {n:'CNPI · CT1 · Módulo VIII',t:20,d:'Conteúdo Técnico. Gerenciamento de Risco.'},
+      {n:'CNPI · CT1 · Módulo IX',t:20,d:'Conteúdo Técnico. Estratégias Operacionais.'},
+      {n:'CNPI · CT1 · Módulo X',t:20,d:'Conteúdo Técnico. Trading Systems.'},
+      {n:'CNPI · CT1 · Simulado Completo Gratuito',t:110,full:true,d:'Questões de prova que te obrigam a pensar. Resultado detalhado por módulo e gabarito comentado com áudio para todas as perguntas. Torne-se analista profissional de investimentos.'}
+    ]}
+};
+var ORDER=['cfg','cnpi-cb','cnpi-cg1','cnpi-ct1'];
+var CLOCK='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+
+function render(cert){
+  var c=CERTS[cert]||CERTS.cfg;
+  document.getElementById('tabs').innerHTML=ORDER.map(function(id){return '<button class="tab'+(id===cert?' on':'')+'" onclick="go(\''+id+'\')">'+esc(CERTS[id].code)+'</button>';}).join('');
+  var temas=c.temas?('<h2 class="sec-title" style="font-size:16px;margin-top:26px">Temas cobrados no exame</h2><div class="temas">'+c.temas.map(function(t,i){return '<div class="tema"><span class="n">'+(i+1)+'</span><span>'+esc(t)+'</span></div>';}).join('')+'</div>'):'';
+  var sims=c.sims.map(function(s){
+    return '<div class="sim'+(s.full?' full':'')+'"><h3>'+esc(s.n)+'</h3>'+
+      '<span class="time">'+CLOCK+' Tempo limite: '+s.t+' min</span>'+
+      '<div class="sd">'+esc(s.d)+'</div>'+
+      '<div class="cta"><a class="btn '+(s.full?'btn-gold':'btn-ghost')+' btn-sm" href="simulado.html">Fazer simulado grátis →</a></div></div>';
+  }).join('');
+  document.getElementById('content').innerHTML=
+    '<div class="chead"><div class="eyebrow">'+esc(c.code)+'</div><h1>'+esc(c.name)+'</h1><div style="color:var(--muted);font-size:14px">'+esc(c.sub)+'</div>'+
+      '<div class="intro">'+c.intro.map(function(p){return '<p>'+esc(p)+'</p>';}).join('')+'</div>'+
+      '<div class="metarow">'+c.meta.map(function(mm){return '<div class="meta"><div class="k">'+esc(mm[0])+'</div><div class="v">'+esc(mm[1])+'</div></div>';}).join('')+'</div>'+
+      temas+
+    '</div>'+
+    '<h2 class="sec-title">Simulados gratuitos <span style="font-family:Inter;font-weight:500;font-size:13px;color:var(--muted)">'+c.sims.length+' disponíveis</span></h2>'+
+    '<div class="sec-sub">Cada simulado tem correção na hora, gabarito comentado e áudio de explicação. Comece de graça.</div>'+
+    '<div class="sims">'+sims+'</div>';
+  document.title=c.code+' · Cursos · Economia do Dia';
+  try{history.replaceState(null,'','curso.html?cert='+cert);}catch(_){}
+  window.scrollTo(0,0);
+}
+function go(cert){render(cert);}
+(function(){
+  var q=(location.search.match(/[?&]cert=([\w-]+)/)||[])[1];
+  render(CERTS[q]?q:'cfg');
+})();
+</script>
+</body>
+</html>
