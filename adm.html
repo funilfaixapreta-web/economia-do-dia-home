@@ -843,8 +843,10 @@ function seed(){return {
     {id:'ar-resumao',title:'CNPI: Resumão',slug:'cnpi-resumao',author:'Frederico Nobre, CFA',tags:['tg8','tg10'],active:true,date:'21/05/2022 às 22:46:51',excerpt:'Confira nosso resumão super completo sobre as três provas do CNPI.',content:'<p>Confira nosso resumão super completo sobre as três provas do CNPI: CB, CG1 e CT1.</p>'}
   ],
   paginas:[
-    {id:'pg1',title:'Sobre',slug:'sobre',content:'<p>A Economia do Dia forma analistas e gestores do mercado financeiro.</p>',active:true},
-    {id:'pg2',title:'Termos de uso',slug:'termos',content:'<p>Ao usar a plataforma você concorda com os termos aqui descritos.</p>',active:true}
+    {id:'pg1',title:'Sobre',slug:'sobre',active:true,content:'<p>A Economia do Dia é uma formação prática em análise e gestão no mercado financeiro, com cursos e simulados para o CNPI e o CFG. Preparamos profissionais para as certificações e para atuar de verdade no mercado, com metodologia própria, videoaulas e simulados que se renovam.</p>'},
+    {id:'pg2',title:'Termos de uso',slug:'termos',active:true,content:'<p>Ao acessar e usar a plataforma Economia do Dia, você concorda com estes Termos de Uso. O conteúdo é protegido por direitos autorais e destinado ao uso pessoal do aluno.</p><p>O acesso aos cursos é individual e intransferível pelo período contratado. É proibida a reprodução ou o compartilhamento do material sem autorização.</p>'},
+    {id:'pg3',title:'Política de Privacidade',slug:'privacidade',active:true,content:'<p>Respeitamos a sua privacidade. Os dados fornecidos são usados apenas para dar acesso à plataforma, enviar comunicações do curso e melhorar a sua experiência.</p><p>Não compartilhamos os seus dados com terceiros sem consentimento. Você pode solicitar a exclusão dos seus dados a qualquer momento pelo nosso contato.</p>'},
+    {id:'pg4',title:'Contato',slug:'contato',active:true,content:'<p>Fale com a equipe do Economia do Dia:</p><p>E-mail: <a href="mailto:contato@economiadodia.com.br">contato@economiadodia.com.br</a><br>Suporte e dúvidas também pelo WhatsApp.</p>'}
   ],
   popups:[
     {id:'po1',title:'Faça um simulado grátis',content:'<p>Teste seus conhecimentos com um simulado gratuito, com correção comentada e gabarito em áudio.</p>',cta:'Fazer simulado grátis',ctaUrl:'simulado.html',trigger:'saida',active:true},
@@ -882,7 +884,7 @@ function seed(){return {
 };}
 let db;
 function load(){try{const r=JSON.parse(localStorage.getItem(DB_KEY));if(r&&r.courses){const sd=seed();if(!r.site)r.site=sd.site;else['hero','formacao','metodo','professor','depoimentos','footer'].forEach(k=>{if(r.site[k]==null)r.site[k]=sd.site[k];});if(!r.app)r.app=sd.app;if(!r.questionBank)r.questionBank=sd.questionBank;
-  if(!r.simCategories)r.simCategories=sd.simCategories;if(!r.qCategories)r.qCategories=sd.qCategories;if(!r.questions)r.questions=sd.questions;if(!r.tags)r.tags=sd.tags;if(!r.artigos)r.artigos=sd.artigos;if(!r.paginas)r.paginas=sd.paginas;if(!r.popups)r.popups=sd.popups;if(!r.modulos)r.modulos=sd.modulos;if(!r.imagens)r.imagens=sd.imagens;if(!r._imgSeed){if(!r.imagens.length)r.imagens=sd.imagens.slice();r._imgSeed=1;}if(!r.settings)r.settings=defaultSettings();if(!r._artSeed3){r.tags=sd.tags.slice();r.artigos=sd.artigos.slice();r._artSeed3=1;}
+  if(!r.simCategories)r.simCategories=sd.simCategories;if(!r.qCategories)r.qCategories=sd.qCategories;if(!r.questions)r.questions=sd.questions;if(!r.tags)r.tags=sd.tags;if(!r.artigos)r.artigos=sd.artigos;if(!r.paginas)r.paginas=sd.paginas;if(!r.popups)r.popups=sd.popups;if(!r.modulos)r.modulos=sd.modulos;if(!r.imagens)r.imagens=sd.imagens;if(!r._imgSeed){if(!r.imagens.length)r.imagens=sd.imagens.slice();r._imgSeed=1;}if(!r.settings)r.settings=defaultSettings();if(!r._artSeed3){r.tags=sd.tags.slice();r.artigos=sd.artigos.slice();r._artSeed3=1;}if(!r._popSeed2){r.popups=sd.popups.slice();r._popSeed2=1;}if(!r._pgSeed){r.paginas=sd.paginas.slice();r._pgSeed=1;}
   /* catálogo mudou no código: renova os planos e marca a versão */
   if(r.v!==SEED_V){r.plans=sd.plans;r.v=SEED_V;try{localStorage.setItem(DB_KEY,JSON.stringify(r));}catch(_){}}
   return r;}}catch(_){}return seed();}

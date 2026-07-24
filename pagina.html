@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Economia do Dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090C; --bg-alt:#0A0C10; --panel:#101319; --panel-2:#0D0F14;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.06);
+  --head:#FFFFFF; --text:#E7EAEF; --muted:#8A94A2; --faint:#5B6573;
+  --overlay-soft:rgba(255,255,255,.05); --overlay-bd:rgba(255,255,255,.14);
+  --gold:#D4A437; --gold-deep:#E6BE54; --gold-grad:linear-gradient(180deg,#E6BE54,#D4A437);
+  --gold-soft-bg:rgba(212,164,55,.10); --gold-soft-bd:rgba(212,164,55,.30);
+}
+[data-theme="light"]{
+  --bg:#F5F3EE; --bg-alt:#FBFAF6; --panel:#FFFFFF; --panel-2:#F3F1EA;
+  --border:rgba(27,31,38,.10); --border-soft:rgba(27,31,38,.07);
+  --head:#0B0D10; --text:#2A313B; --muted:#5B6573; --faint:#9AA3AF;
+  --overlay-soft:rgba(27,31,38,.04); --overlay-bd:rgba(27,31,38,.14);
+  --gold-deep:#A6781A; --gold-soft-bg:rgba(212,164,55,.14); --gold-soft-bd:rgba(212,164,55,.34);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Sora',sans-serif;color:var(--head);line-height:1.25}
+a{color:var(--gold-deep)}
+.wrap{max-width:760px;margin:0 auto;padding:0 22px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;border-radius:11px;padding:11px 18px;cursor:pointer;border:1px solid transparent;text-decoration:none}
+.btn-gold{background:var(--gold-grad);color:#0B0D10}
+.btn-ghost{background:var(--overlay-soft);color:var(--text);border-color:var(--overlay-bd)}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:9px}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-soft)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:62px;max-width:1040px}
+.mono-sq{width:32px;height:32px;border-radius:9px;background:var(--gold-grad);color:#0B0D10;display:inline-flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:13px}
+.wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:17px;color:var(--head)}
+.wordmark b{color:var(--gold-deep)}
+.top .sp{flex:1}
+.pg{padding:40px 0 20px}
+.pg h1{font-size:34px;letter-spacing:-.6px;margin:8px 0 20px}
+.body{font-size:16px;color:var(--text)}
+.body p{margin:16px 0}
+.body h2{font-size:22px;margin:26px 0 8px}
+.body ul,.body ol{margin:14px 0 14px 24px}
+.body li{margin:5px 0}
+.body b{color:var(--head)}
+.foot{border-top:1px solid var(--border-soft);margin-top:40px;padding:24px 0 50px;color:var(--faint);font-size:13px}
+.foot a{color:var(--muted)}.foot a:hover{color:var(--gold-deep)}
+@media(max-width:560px){.pg h1{font-size:26px}}
+</style>
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('ed-theme')||'dark');}catch(_){}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none"><span class="mono-sq">ED</span><span class="wordmark">Economia <b>Do Dia</b></span></a>
+  <span class="sp"></span>
+  <a class="btn btn-ghost btn-sm" href="index.html">← Voltar ao site</a>
+  <a class="btn btn-gold btn-sm" href="index.html#cursos">Ver cursos</a>
+</div></header>
+<main class="wrap" id="main"></main>
+<footer class="foot"><div class="wrap">© 2026 Economia do Dia · <a href="pagina.html?slug=termos">Termos</a> · <a href="pagina.html?slug=privacidade">Privacidade</a> · <a href="pagina.html?slug=contato">Contato</a></div></footer>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var DEFAULT_PAGES=[
+  {slug:'sobre',title:'Sobre',content:'<p>A Economia do Dia é uma formação prática em análise e gestão no mercado financeiro, com cursos e simulados para o CNPI e o CFG. Preparamos profissionais para as certificações e para atuar de verdade no mercado, com metodologia própria, videoaulas e simulados que se renovam.</p>'},
+  {slug:'termos',title:'Termos de uso',content:'<p>Ao acessar e usar a plataforma Economia do Dia, você concorda com estes Termos de Uso. O conteúdo é protegido por direitos autorais e destinado ao uso pessoal do aluno.</p><p>O acesso aos cursos é individual e intransferível pelo período contratado. É proibida a reprodução ou o compartilhamento do material sem autorização.</p>'},
+  {slug:'privacidade',title:'Política de Privacidade',content:'<p>Respeitamos a sua privacidade. Os dados fornecidos são usados apenas para dar acesso à plataforma, enviar comunicações do curso e melhorar a sua experiência.</p><p>Não compartilhamos os seus dados com terceiros sem consentimento. Você pode solicitar a exclusão dos seus dados a qualquer momento pelo nosso contato.</p>'},
+  {slug:'contato',title:'Contato',content:'<p>Fale com a equipe do Economia do Dia:</p><p>E-mail: <a href="mailto:contato@economiadodia.com.br">contato@economiadodia.com.br</a><br>Suporte e dúvidas também pelo WhatsApp.</p>'}
+];
+function loadPages(){
+  try{
+    var db=JSON.parse(localStorage.getItem('eda-db'));
+    if(db&&db.paginas){var pub=db.paginas.filter(function(p){return p.active;});if(pub.length)return pub;}
+  }catch(_){}
+  return DEFAULT_PAGES;
+}
+(function(){
+  var pages=loadPages();
+  var slug=(location.search.match(/[?&]slug=([^&]+)/)||[])[1];slug=slug?decodeURIComponent(slug):'sobre';
+  var p=pages.filter(function(x){return x.slug===slug;})[0]||pages[0];
+  if(!p){document.getElementById('main').innerHTML='<div class="pg"><h1>Página não encontrada</h1><p style="color:var(--muted)">Ela pode ter sido removida ou despublicada.</p><a class="btn btn-ghost btn-sm" style="margin-top:14px" href="index.html">← Voltar ao site</a></div>';return;}
+  document.title=p.title+' · Economia do Dia';
+  document.getElementById('main').innerHTML='<article class="pg"><div class="eyebrow">Economia do Dia</div><h1></h1><div class="body"></div></article>';
+  document.querySelector('.pg h1').textContent=p.title||'';
+  document.querySelector('.pg .body').innerHTML=p.content||'';
+  window.scrollTo(0,0);
+})();
+</script>
+</body>
+</html>
