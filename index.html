@@ -199,13 +199,14 @@ a{color:inherit;text-decoration:none}
 .dep-stats b{display:block;font-family:'Sora';font-weight:700;font-size:30px;color:var(--gold-deep);letter-spacing:-.6px}
 .dep-stats span{font-size:12.5px;color:var(--muted);margin-top:5px;display:block;line-height:1.35}
 .dep-feature{margin-bottom:18px}
-.dep-wall{columns:3;column-gap:18px}
-.dep-wall .card{break-inside:avoid;margin:0 0 18px;width:100%;display:inline-block}
+.dep-wall{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;align-items:stretch}
+.dep-wall .card{display:flex;flex-direction:column;width:100%}
+.dep-wall .card .who{margin-top:auto}
 .dep-wall .stars{color:var(--gold);font-size:12px;letter-spacing:3px;margin-bottom:11px}
 .dep-wall .q{font-size:14.5px;color:var(--text);line-height:1.56;margin-bottom:16px}
-@media(max-width:1000px){.dep-wall{columns:2}.dep-stats{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:1000px){.dep-stats{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:760px){.dep-stats{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.dep-wall{columns:1}}
+@media(max-width:640px){.dep-wall{grid-template-columns:1fr}}
 
 /* cursos */
 .cur-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:42px}
@@ -430,68 +431,37 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     </div>
 
     <div class="card dep-main dep-feature">
-      <p class="q">“Eu tinha reprovado no CG1 duas vezes. O diagnóstico por módulo me mostrou que o buraco era contabilidade. Estudei só aquilo, passei na terceira, e hoje trabalho com research de verdade.”</p>
+      <p class="q">“É um curso muito bom e resumido... fiz a prova em Dezembro e agora, no dia 13 de Março, consegui me promover no banco como gerente de varejo.”</p>
       <div class="dep-foot">
         <div class="who"><span class="av" style="background:rgba(212,164,55,.16);border:1px solid rgba(212,164,55,.34);color:#D4A437">MA</span>
-          <div><div class="nm">Maria Aparecida</div><div class="rl">Analista aprovada · Caixa</div></div></div>
-        <span class="video"><span class="gold">▷</span> Ver vídeo</span>
+          <div><div class="nm">Maria Aparecida</div><div class="rl">Gerente da Caixa Econômica Federal</div></div></div>
       </div>
     </div>
 
     <div class="dep-wall">
       <div class="card">
         <div class="stars">★★★★★</div>
-        <p class="q">“O gabarito em áudio salvou minha rotina. Eu revisava indo pro trabalho, sem precisar parar pra ler nada.”</p>
+        <p class="q">“Eu tentei estudar de várias maneiras, através de várias apostilas grátis, mas os conteúdos eram muito grandes[...] O Economia do Dia é um material muito objetivo que me ajudou a resumir e a entender melhor pra que eu pudesse realizar a prova da melhor maneira e ser aprovado.”</p>
         <div class="who"><span class="av" style="background:rgba(61,139,224,.16);border:1px solid rgba(61,139,224,.34);color:#3D8BE0">MS</span>
-          <div><div class="nm">Murilo Silva</div><div class="rl">CEA · Refinitiv</div></div></div>
+          <div><div class="nm">Murilo Silva, CEA</div><div class="rl">Customer Success na Refinitiv</div></div></div>
       </div>
       <div class="card">
         <div class="stars">★★★★★</div>
-        <p class="q">“Banco de questões que não repete é outro nível. Cheguei na prova sem nenhuma surpresa.”</p>
-        <div class="who"><span class="av" style="background:rgba(43,182,115,.16);border:1px solid rgba(43,182,115,.34);color:#2BB673">LB</span>
-          <div><div class="nm">Lucas Borges</div><div class="rl">Aprovado CNPI · Oslo Investe</div></div></div>
+        <p class="q">“Super indico o curso, eles são super didáticos e é sensacional. Foi essencial na minha carreira, me ajudou bastante no banco.”</p>
+        <div class="who"><span class="av" style="background:rgba(43,182,115,.16);border:1px solid rgba(43,182,115,.34);color:#2BB673">TA</span>
+          <div><div class="nm">Tula Almeida</div><div class="rl">Estagiária no Bradesco</div></div></div>
       </div>
       <div class="card">
         <div class="stars">★★★★★</div>
-        <p class="q">“Entrei achando que era só passar na prova. Saí sabendo montar uma tese de investimento de verdade.”</p>
-        <div class="who"><span class="av" style="background:rgba(232,163,61,.16);border:1px solid rgba(232,163,61,.34);color:#E8A33D">CR</span>
-          <div><div class="nm">Camila Rezende</div><div class="rl">Analista · XP Investimentos</div></div></div>
+        <p class="q">“O Fred fez o curso de CPA-20 pros alunos da UFRJ e foi muito bom.”</p>
+        <div class="who"><span class="av" style="background:rgba(232,163,61,.16);border:1px solid rgba(232,163,61,.34);color:#E8A33D">LB</span>
+          <div><div class="nm">Lucas Borges</div><div class="rl">Economista e sócio fundador da Oslo Investe</div></div></div>
       </div>
       <div class="card">
         <div class="stars">★★★★★</div>
-        <p class="q">“As trilhas me deram ordem. Eu sabia exatamente o que estudar cada dia, sem me perder no meio de mil PDFs.”</p>
-        <div class="who"><span class="av" style="background:rgba(212,164,55,.16);border:1px solid rgba(212,164,55,.34);color:#D4A437">RA</span>
-          <div><div class="nm">Rafael Antunes</div><div class="rl">Aprovado CFG · BTG Pactual</div></div></div>
-      </div>
-      <div class="card">
-        <div class="stars">★★★★★</div>
-        <p class="q">“A plataforma me mandou revisar contabilidade três dias antes da prova. Foi exatamente o que mais caiu.”</p>
-        <div class="who"><span class="av" style="background:rgba(61,139,224,.16);border:1px solid rgba(61,139,224,.34);color:#3D8BE0">BM</span>
-          <div><div class="nm">Beatriz Machado</div><div class="rl">Assessora · Ágora</div></div></div>
-      </div>
-      <div class="card">
-        <div class="stars">★★★★★</div>
-        <p class="q">“Passei no técnico de primeira. O diagnóstico por módulo mostrou onde eu estava fraco antes de me queimar na prova.”</p>
-        <div class="who"><span class="av" style="background:rgba(43,182,115,.16);border:1px solid rgba(43,182,115,.34);color:#2BB673">DF</span>
-          <div><div class="nm">Diego Fontes</div><div class="rl">Aprovado CNPI-CT1</div></div></div>
-      </div>
-      <div class="card">
-        <div class="stars">★★★★★</div>
-        <p class="q">“Conteúdo denso, mas explicado como gente. Método sério, sem enrolação e sem promessa mágica.”</p>
-        <div class="who"><span class="av" style="background:rgba(232,163,61,.16);border:1px solid rgba(232,163,61,.34);color:#E8A33D">LP</span>
-          <div><div class="nm">Larissa Prado</div><div class="rl">Gestora júnior · Trígono</div></div></div>
-      </div>
-      <div class="card">
-        <div class="stars">★★★★★</div>
-        <p class="q">“Reprovei em outro curso antes. A diferença aqui foi o simulado que renova e o suporte no WhatsApp respondendo de verdade.”</p>
-        <div class="who"><span class="av" style="background:rgba(212,164,55,.16);border:1px solid rgba(212,164,55,.34);color:#D4A437">TN</span>
-          <div><div class="nm">Thiago Nakamura</div><div class="rl">Aprovado CB + CG1</div></div></div>
-      </div>
-      <div class="card">
-        <div class="stars">★★★★★</div>
-        <p class="q">“Estudei trabalhando full time. Aulas curtas e o áudio no deslocamento fizeram a formação caber na minha rotina.”</p>
-        <div class="who"><span class="av" style="background:rgba(61,139,224,.16);border:1px solid rgba(61,139,224,.34);color:#3D8BE0">VC</span>
-          <div><div class="nm">Vanessa Coelho</div><div class="rl">Analista de research</div></div></div>
+        <p class="q">“As aulas são bem objetivas e em uma semaninha você já está preparado pro CPA-20.”</p>
+        <div class="who"><span class="av" style="background:rgba(212,164,55,.16);border:1px solid rgba(212,164,55,.34);color:#D4A437">IF</span>
+          <div><div class="nm">Liga de Finanças InFinance</div><div class="rl">Feedback de membros · Insper</div></div></div>
       </div>
     </div>
   </div>
