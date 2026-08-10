@@ -1631,6 +1631,16 @@ function viewAluno(id){
     <div class="stat"><div class="k">Média nos simulados</div><div class="v" style="color:${notaColor(media)}">${media}%</div><div class="d">acerto médio</div></div>
     <div class="stat"><div class="k">Plano</div><div class="v" style="font-size:19px">${esc(planName(s.plan))}</div><div class="d">${pl?esc(pl.price):''}</div></div>
   </div>
+  <div class="card" style="margin-bottom:18px">
+    <div class="sec-title">Tokens
+      <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="darTokens('${s.id}')">+ Dar tokens</button>
+    </div>
+    <p class="hint" style="margin:0 0 12px">Cortesia do comercial: use para destravar um lead que gastou os tokens gratuitos e ainda está avaliando a plataforma.</p>
+    <div class="dfields">
+      <div class="drow"><span class="dk">Cortesias já concedidas</span><span class="dv">${tkn(s.tokensExtra||0)}</span></div>
+      <div class="drow"><span class="dk">Última cortesia</span><span class="dv">${esc(s.tokensQuando||'-')}${s.tokensPor?' · por '+esc(s.tokensPor):''}</span></div>
+    </div>
+  </div>
   <div class="detail">
     <div class="card">
       <div class="sec-title">Cadastro</div>
@@ -2309,6 +2319,28 @@ function viewRelatorio(){
 /* ---- Tokens do aluno (decisão da reunião de 05/08) ---- */
 var TOKENS_PADRAO={ativo:true,inicial:10,renovaMes:false,custo:{simulado:10,aula:2,ia:1}};
 function tkn(n){n=+n||0;return n+(n===1?' token':' tokens');}
+/* Cortesia de tokens para um aluno (pedido do Bruno na reunião de 05/08:
+   "o time de venda tem também uma moeda acessível para fazer um agrado").
+   No protótipo fica registrado na ficha; com backend, cai no saldo do aluno. */
+function darTokens(id){
+  var s=db.students.find(function(x){return x.id===id;});if(!s)return;
+  openDrawer('Dar tokens para '+s.name,
+    [{key:'qtd',label:'Quantos tokens',type:'number'},{key:'motivo',label:'Motivo (fica no histórico)',type:'text'}],
+    {qtd:5,motivo:''},
+    function(d){
+      var q=Math.max(0,+d.qtd||0);
+      if(!q){toast('Informe uma quantidade.');return;}
+      s.tokensExtra=(+s.tokensExtra||0)+q;
+      s.tokensQuando=new Date().toLocaleDateString('pt-BR');
+      s.tokensPor=d.motivo||'cortesia';
+      /* se o aluno for este navegador, o saldo é creditado na hora */
+      try{
+        var u=JSON.parse(localStorage.getItem('ed-user')||'null');
+        if(u&&u.email&&s.email&&u.email.toLowerCase()===s.email.toLowerCase()&&window.EDTokens)EDTokens.creditar(q);
+      }catch(_){}
+      save();closeDrawer();toast(q+' tokens concedidos a '+s.name+'.');router();
+    });
+}
 function tk(){
   var t=db.tokens||{},p=TOKENS_PADRAO,c=t.custo||{};
   return {
@@ -3343,5 +3375,6 @@ function provaResult(s){const r=exam.result,cfg=exam.cfg,temas=Object.keys(r.por
 /* ============ boot ============ */
 if(authed()){showApp();}else{$('#login').style.display='flex';$('#shell').hidden=true;}
 </script>
+<script src="tokens.js"></script>
 </body>
 </html>

@@ -40,10 +40,21 @@
   function logout(){try{localStorage.removeItem(UKEY)}catch(_){}}
 
   /* ---------- carteira ---------- */
+  function competencia(d){d=d||new Date();return d.getFullYear()+'-'+(d.getMonth()+1);}
   function wallet(){
-    var w=null;try{w=JSON.parse(localStorage.getItem(WKEY))}catch(_){}
-    if(!w||typeof w.saldo!=='number'){w={saldo:cfg().inicial,liberado:{},criadaEm:Date.now()};saveW(w);}
+    var c=cfg(), w=null;
+    try{w=JSON.parse(localStorage.getItem(WKEY))}catch(_){}
+    if(!w||typeof w.saldo!=='number'){
+      w={saldo:c.inicial,liberado:{},criadaEm:Date.now(),mes:competencia()};saveW(w);
+    }
     if(!w.liberado)w.liberado={};
+    /* recarga mensal, quando ligada no admin: repõe o saldo uma vez por mês
+       (nunca reduz, se o aluno recebeu tokens extras do comercial) */
+    if(c.renovaMes&&w.mes!==competencia()){
+      w.mes=competencia();
+      if(w.saldo<c.inicial)w.saldo=c.inicial;
+      saveW(w);
+    }
     return w;
   }
   function saveW(w){try{localStorage.setItem(WKEY,JSON.stringify(w))}catch(_){}}
