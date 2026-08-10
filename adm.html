@@ -548,6 +548,13 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 .acrow{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:9px;margin-bottom:6px;font-size:13.5px;color:var(--text);cursor:pointer}
 .acrow:hover{border-color:var(--gold-soft-bd)}
 .acrow input{width:16px;height:16px;accent-color:var(--gold);flex:none;cursor:pointer}
+.qdotsadm{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.qdotadm{width:26px;height:26px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:border-color .15s,color .15s}
+.qdotadm:hover{border-color:var(--gold-soft-bd);color:var(--text)}
+.qdotadm.hit{border-color:var(--green);color:var(--green)}
+.qdotadm.miss{border-color:var(--red);color:var(--red)}
+.qdotadm.on{background:var(--gold-grad);color:#0B0D10;border-color:transparent;font-weight:700}
 </style>
 </head>
 <body>
@@ -3334,7 +3341,7 @@ function startExam(sid){
   if(cfg.embaralhar)shuffle(order);
   if(cfg.numQuestoes>0)order=order.slice(0,cfg.numQuestoes);
   const optOrder={};order.forEach(qi=>{const opts=s.questions[qi].options.map((_,i)=>i);optOrder[qi]=cfg.embaralharAlt?shuffle(opts):opts;});
-  exam={sid,cfg,order,optOrder,answers:{},marked:{},idx:0,timeLeft:cfg.duracao*60,phase:'intro',result:null};
+  exam={sid,cfg,order,optOrder,answers:{},marked:{},idx:0,revIdx:0,timeLeft:cfg.duracao*60,phase:'intro',result:null};
   examStop();location.hash='#/prova/'+sid;paintExam();
 }
 function examStop(){if(examTimer){clearInterval(examTimer);examTimer=null;}}
@@ -3393,15 +3400,30 @@ function provaRunning(s){const qi=exam.order[exam.idx],q=s.questions[qi],answere
     </div>
     <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--muted)"><span>● <span style="color:var(--green)">respondida</span></span><span>★ <span style="color:var(--amber)">marcada</span></span></div>
   </div>`;}
+/* A revisão do resultado também é uma questão por vez (decisão da reunião de
+   05/08). Listar todas de uma vez entregaria o gabarito inteiro num scroll. */
+function revJumpAdm(i){if(!exam)return;const n=exam.order.length;if(i<0||i>=n)return;exam.revIdx=i;paintExam();window.scrollTo(0,document.body.scrollHeight);}
 function provaResult(s){const r=exam.result,cfg=exam.cfg,temas=Object.keys(r.porTema);
-  const review=cfg.mostrarGabarito==='nunca'?'':exam.order.map((qi,i)=>{const q=s.questions[qi],ua=exam.answers[qi],ok=ua===q.correct;return `
+  if(exam.revIdx==null||exam.revIdx>=exam.order.length)exam.revIdx=0;
+  const ri=exam.revIdx, n=exam.order.length;
+  const review=cfg.mostrarGabarito==='nunca'?'':(function(){
+    const qi=exam.order[ri],q=s.questions[qi],ua=exam.answers[qi],ok=ua===q.correct;
+    const dots=exam.order.map((oqi,i)=>{const acertou=exam.answers[oqi]===s.questions[oqi].correct;
+      return `<button class="qdotadm${i===ri?' on':(acertou?' hit':' miss')}" onclick="revJumpAdm(${i})" title="Questão ${i+1}">${i+1}</button>`;}).join('');
+    return `
     <div class="card" style="margin-bottom:12px">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><span class="chip">Q${i+1} · ${esc(q.theme||'Geral')}</span>${ok?'<span class="badge b-on">Acertou</span>':(ua==null?'<span class="badge b-draft">Em branco</span>':'<span class="badge b-off">Errou</span>')}</div>
+      <div class="mono" style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px">Questão ${ri+1} de ${n}</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><span class="chip">Q${ri+1} · ${esc(q.theme||'Geral')}</span>${ok?'<span class="badge b-on">Acertou</span>':(ua==null?'<span class="badge b-draft">Em branco</span>':'<span class="badge b-off">Errou</span>')}</div>
       <div style="font-weight:500;color:var(--head);margin-bottom:12px">${esc(q.stmt)}</div>
       ${q.options.map((o,oi)=>`<div class="qo ${oi===q.correct?'ok':''}" style="${oi===ua&&!ok?'border-color:rgba(224,83,61,.45);background:rgba(224,83,61,.08)':''}"><span class="ql">${String.fromCharCode(65+oi)}</span><span>${esc(o)}</span>${oi===q.correct?'<span style="margin-left:auto;color:var(--green);font-size:12px">✓ correta</span>':(oi===ua&&!ok?'<span style="margin-left:auto;color:var(--red);font-size:12px">sua resposta</span>':'')}</div>`).join('')}
       ${q.comment?`<div class="qcom" style="margin-top:10px"><b>Gabarito:</b> ${esc(q.comment)}</div>`:''}
       ${q.audio?`<div class="audio-cta" style="margin-top:10px"><span class="ai"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div><div class="at">Áudio de explicação</div><div class="as">${q.audio.url?'Toque para ouvir':esc(q.audio.name)}</div></div></div>${q.audio.url?`<div class="upprev" style="margin-top:8px"><audio controls src="${q.audio.url}"></audio></div>`:''}`:''}
-    </div>`;}).join('');
+      <div class="qdotsadm">${dots}</div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+        <button class="btn btn-ghost btn-sm" onclick="revJumpAdm(${ri-1})" ${ri===0?'disabled':''}>← Anterior</button>
+        <button class="btn btn-gold btn-sm" onclick="revJumpAdm(${ri+1})" ${ri>=n-1?'disabled':''}>Próxima →</button>
+      </div>
+    </div>`;})();
   return `<div style="max-width:820px;margin:0 auto">
     <div class="card" style="text-align:center;padding:32px;margin-bottom:20px;border-color:${r.aprovado?'rgba(43,182,115,.4)':'rgba(224,83,61,.35)'}">
       <div class="eyebrow" style="justify-content:center">Resultado · ${esc(s.title)}</div>

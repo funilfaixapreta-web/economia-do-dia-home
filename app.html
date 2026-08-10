@@ -680,6 +680,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
   .ia-nudge{bottom:146px}
   .toast-wrap{bottom:92px}
 }
+.qdotsapp{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.qdotapp{width:26px;height:26px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:border-color .15s,color .15s}
+.qdotapp:hover{border-color:var(--gold-soft-bd);color:var(--text)}
+.qdotapp.hit{border-color:var(--green);color:var(--green)}
+.qdotapp.miss{border-color:var(--red);color:var(--red)}
+.qdotapp.on{background:var(--gold-grad);color:#0B0D10;border-color:transparent;font-weight:700}
+.revnavapp{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+.revnavapp .btn[disabled]{opacity:.4;pointer-events:none}
+@media(max-width:640px){.revnavapp .btn{flex:1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -1313,6 +1323,12 @@ VIEWS.simulados=()=>`
   }).join('')}
 `;
 
+/* índice da questão aberta na revisão do Desempenho */
+var revIdx=0;
+function revIr(i){revIdx=Math.max(0,i);render();
+  var el=document.querySelector('.qrev');
+  if(el)el.scrollIntoView({block:'center'});
+}
 VIEWS.desempenho=(simId)=>{
   const done=SIMULADOS.filter(s=>s.score!=null);
   const sel=(simId&&simById(simId))?simById(simId):(done[0]||null);
@@ -1326,7 +1342,12 @@ VIEWS.desempenho=(simId)=>{
     const reviewed=reviewQuestions(sel);
     const errs=reviewed.filter(r=>r.errou);
     const L='ABCDE';
-    const qhtml=reviewed.map((r,i)=>{
+    /* Revisão uma questão por vez (decisão da reunião de 05/08): aqui ficam
+       o gabarito e o comentário de cada questão, então listar todas juntas
+       entregaria a prova inteira em um scroll só. */
+    if(revIdx>=reviewed.length)revIdx=0;
+    const qhtml=[reviewed[revIdx]].filter(Boolean).map((r)=>{
+      const i=revIdx;
       const opts=r.alts.map((a,ai)=>{
         const isC=ai===r.correct, isW=(ai===r.chosen&&r.chosen!==r.correct);
         const cls=isC?'correct':(isW?'wrong':'');
@@ -1371,9 +1392,14 @@ VIEWS.desempenho=(simId)=>{
         <div class="track" style="height:8px;margin-top:8px"><i style="width:${sel.score}%;height:100%;display:block;background:var(--gold-grad);border-radius:999px"></i></div>
       </div>
     </div>
-    <div class="rowtitle"><h3>Revisão das questões</h3><span class="cnt">${acertos} certas · ${erros} erradas no total</span></div>
+    <div class="rowtitle"><h3>Revisão das questões</h3><span class="cnt">questão ${revIdx+1} de ${reviewed.length} · ${acertos} certas · ${erros} erradas no total</span></div>
     <div class="qsum">📍 ${errs.length?`Você marcou a alternativa errada em <b>${errs.length}</b> ${errs.length>1?'questões desta revisão':'questão desta revisão'}. Seus erros se concentram em:`:'Você acertou todas as questões desta revisão. 👏'}${errs.length?`<div class="tags">${errs.map(e=>`<span class="etag">${esc(e.tema)}${e.sub?' · '+esc(e.sub):''}</span>`).join('')}</div>`:''}</div>
     ${qhtml}
+    <div class="qdotsapp">${reviewed.map((r,i)=>`<button class="qdotapp${i===revIdx?' on':(r.errou?' miss':' hit')}" onclick="revIr(${i})" title="Questão ${i+1}">${i+1}</button>`).join('')}</div>
+    <div class="revnavapp">
+      <button class="btn btn-ghost btn-sm" onclick="revIr(${revIdx-1})" ${revIdx===0?'disabled':''}>← Anterior</button>
+      <button class="btn btn-gold btn-sm" onclick="revIr(${revIdx+1})" ${revIdx>=reviewed.length-1?'disabled':''}>Próxima →</button>
+    </div>
     <div style="margin-top:6px"><span class="btn btn-gold btn-sm" data-ask="Monte um plano de revisão focado nos meus erros de ${errs[0]?esc(errs[0].tema):(worstMods[0]?esc(worstMods[0][0]):'pontos fracos')}.">✦ Plano de revisão dos meus erros com o ED</span></div>`;
   }
   return `
@@ -1749,7 +1775,7 @@ document.addEventListener('click',e=>{
   const ask=e.target.closest('[data-ask]');if(ask){openIa();sendIa(ask.dataset.ask);return;}
   const fav=e.target.closest('[data-fav]');if(fav){const key=fav.dataset.fav||'fav';let on;if(FAVS.has(key)){FAVS.delete(key);on=false;}else{FAVS.add(key);on=true;}_save('ed-favs',FAVS);fav.innerHTML=on?'★ Favoritado':'☆ Favoritar';fav.style.color=on?'var(--gold-deep)':'';toast(on?'Adicionado aos favoritos ★':'Removido dos favoritos','ok');return;}
   const dl=e.target.closest('.dl');if(dl){toast('Download iniciado.','ok');return;}
-  const simRow=e.target.closest('[data-sim-row]');if(simRow){location.hash='#/desempenho?sim='+simRow.dataset.simRow;return;}
+  const simRow=e.target.closest('[data-sim-row]');if(simRow){revIdx=0;location.hash='#/desempenho?sim='+simRow.dataset.simRow;return;}
   if(e.target.closest('#home-search')){openSearch();return;}
   if(e.target.closest('#btn-manage')){openManage();return;}
   if(e.target.closest('#btn-upgrade')){openPlans();return;}
