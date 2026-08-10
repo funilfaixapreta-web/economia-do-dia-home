@@ -163,7 +163,12 @@ a{color:inherit;text-decoration:none}
   font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:border-color .15s,color .15s}
 .qdot:hover{border-color:var(--gold-soft-bd);color:var(--text)}
 .qdot.done{border-color:var(--gold-soft-bd);color:var(--gold-deep);background:var(--gold-soft-bg)}
+.qdot.hit{border-color:var(--green);color:var(--green)}
+.qdot.miss{border-color:var(--red);color:var(--red)}
 .qdot.on{background:var(--gold-grad);color:#0B0D10;border-color:transparent;font-weight:700}
+.revnav{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.revnav .btn[disabled]{opacity:.4;pointer-events:none}
+@media(max-width:560px){.revnav .btn{flex:1;justify-content:center}}
 /* aviso de simulado gratuito único */
 .freewarn{display:flex;gap:13px;align-items:flex-start;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);
   border-radius:14px;padding:16px 18px;margin-bottom:18px}
@@ -606,12 +611,28 @@ function buildTopicTable(){
   var tbl=document.getElementById('topic-table');
   if(tbl)tbl.innerHTML='<thead><tr><th>ID</th><th>Tópico</th><th style="text-align:center">Acertos</th><th style="text-align:center">Erros</th><th style="text-align:center">Total</th></tr></thead><tbody>'+(rows||'<tr><td colspan="5" style="color:var(--muted)">Sem gabarito para este simulado.</td></tr>')+'</tbody>';
 }
+var revCur=0, revCorrection=true;
 function resTab(mode){
   document.querySelectorAll('.rtab').forEach(function(b){b.classList.toggle('on',b.dataset.rt===mode);});
+  revCur=0;
   renderReview(mode!=='simulado');
 }
+function revGo(d){revJump(revCur+d);}
+function revJump(i){
+  if(i<0||i>=Q.length)return;
+  revCur=i;renderReview(revCorrection);
+  var el=document.getElementById('review');
+  if(el)window.scrollTo(0,Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-80));
+}
+/* A revisão também é uma questão por vez: é aqui que ficam as respostas
+   certas e os comentários, então listar tudo junto entregaria o gabarito
+   inteiro em um scroll só. */
 function renderReview(correction){
-  document.getElementById('review').innerHTML=Q.map(function(q,qi){
+  revCorrection=correction;
+  if(revCur>=Q.length)revCur=0;
+  var qi=revCur, q=Q[qi];
+  if(!q){document.getElementById('review').innerHTML='';return;}
+  document.getElementById('review').innerHTML=(function(){
     var chosen=answers[qi], hasGab=typeof q.correct==='number';
     var opts=q.opts.map(function(o,oi){
       var isYou=chosen===oi, cls='opt', tag='';
@@ -627,8 +648,19 @@ function renderReview(correction){
       gab='<div style="margin-top:10px;font-size:13px;color:var(--muted);background:var(--overlay-soft);border-radius:9px;padding:10px 12px">'+why+'</div>'+
         '<div class="gab-audio"><button class="pb" onclick="ouvirGabarito('+qi+')" title="Ouvir explicação"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div style="flex:1"><div class="gt">Gabarito comentado em áudio</div><div class="gs">Toque para ouvir a explicação da resposta.</div></div></div>';
     }
-    return '<div class="q"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+unans+gab+'</div>';
-  }).join('');
+    var dots=Q.map(function(_,i){
+      var acertou=(typeof Q[i].correct==='number'&&answers[i]===Q[i].correct);
+      var st=i===qi?' on':(correction?(acertou?' hit':' miss'):(answers[i]!=null?' done':''));
+      return '<button class="qdot'+st+'" onclick="revJump('+i+')" title="Questão '+(i+1)+'">'+(i+1)+'</button>';
+    }).join('');
+    return '<div class="qpos">Questão '+(qi+1)+' de '+Q.length+'</div>'+
+      '<div class="q"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+unans+gab+'</div>'+
+      '<div class="qdots">'+dots+'</div>'+
+      '<div class="revnav">'+
+        '<button class="btn btn-ghost" onclick="revGo(-1)"'+(qi===0?' disabled':'')+'>← Anterior</button>'+
+        '<button class="btn btn-gold" onclick="revGo(1)"'+(qi>=Q.length-1?' disabled':'')+'>Próxima →</button>'+
+      '</div>';
+  })();
 }
 function ouvirGabarito(qi){
   try{
