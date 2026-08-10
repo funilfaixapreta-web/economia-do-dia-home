@@ -14,9 +14,14 @@
   var UKEY='ed-user', WKEY='ed-wallet';
 
   /* ---------- configuração (editável em Admin › Sistema › Tokens) ---------- */
+  /* O saldo inicial cobre o simulado completo E a experiência de aula/IA:
+     15 = 1 simulado (10) + 2 aulas (2+2) + 1 pergunta à IA (1).
+     Continua dando só um simulado, como o Fred pediu, mas o lead consegue
+     conhecer a plataforma por dentro antes de decidir. Tudo editável em
+     Admin › Sistema › Tokens. */
   var PADRAO={
     ativo:true,
-    inicial:10,        // saldo no primeiro login
+    inicial:15,        // saldo no primeiro login
     renovaMes:false,   // repor o saldo todo mês
     custo:{simulado:10, aula:2, ia:1}
   };
@@ -45,9 +50,13 @@
     var c=cfg(), w=null;
     try{w=JSON.parse(localStorage.getItem(WKEY))}catch(_){}
     if(!w||typeof w.saldo!=='number'){
-      w={saldo:c.inicial,liberado:{},criadaEm:Date.now(),mes:competencia()};saveW(w);
+      w={saldo:c.inicial,liberado:{},criadaEm:Date.now(),mes:competencia(),base:c.inicial};saveW(w);
     }
     if(!w.liberado)w.liberado={};
+    /* Se o admin aumentar o saldo inicial, quem já tem carteira recebe a
+       diferença. Sem isso, mexer no número não teria efeito para ninguém. */
+    if(w.base==null)w.base=c.inicial;
+    if(c.inicial>w.base){w.saldo+=(c.inicial-w.base);w.base=c.inicial;saveW(w);}
     /* recarga mensal, quando ligada no admin: repõe o saldo uma vez por mês
        (nunca reduz, se o aluno recebeu tokens extras do comercial) */
     if(c.renovaMes&&w.mes!==competencia()){

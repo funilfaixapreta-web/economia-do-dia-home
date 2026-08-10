@@ -730,7 +730,7 @@ const DB_KEY='eda-db';
 const SEED_V=2;
 function seed(){return {
   v:SEED_V,
-  tokens:{ativo:true,inicial:10,renovaMes:false,custo:{simulado:10,aula:2,ia:1}},
+  tokens:{ativo:true,inicial:15,renovaMes:false,custo:{simulado:10,aula:2,ia:1}},
   site:{
     hero:{eyebrow:'Formação prática · cursos e simulados · CNPI e CGA/CGE',title:'Formação em análise e gestão no mercado financeiro',promise:'Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer atuar com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.',cta:'Fazer um simulado grátis'},
     formacao:{eyebrow:'A formação',title:'Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.',text:'Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.'},
@@ -2317,7 +2317,7 @@ function viewRelatorio(){
 
 /* ============ SISTEMA ============ */
 /* ---- Tokens do aluno (decisão da reunião de 05/08) ---- */
-var TOKENS_PADRAO={ativo:true,inicial:10,renovaMes:false,custo:{simulado:10,aula:2,ia:1}};
+var TOKENS_PADRAO={ativo:true,inicial:15,renovaMes:false,custo:{simulado:10,aula:2,ia:1}};
 function tkn(n){n=+n||0;return n+(n===1?' token':' tokens');}
 /* Cortesia de tokens para um aluno (pedido do Bruno na reunião de 05/08:
    "o time de venda tem também uma moeda acessível para fazer um agrado").
