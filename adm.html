@@ -864,8 +864,8 @@ function seed(){return {
     {id:'pg4',title:'Contato',slug:'contato',active:true,content:'<p>Fale com a equipe do Economia do Dia:</p><p>E-mail: <a href="mailto:contato@economiadodia.com.br">contato@economiadodia.com.br</a><br>Suporte e dúvidas também pelo WhatsApp.</p>'}
   ],
   popups:[
-    {id:'po1',title:'Faça um simulado grátis',content:'<p>Teste seus conhecimentos com um simulado gratuito, com correção comentada e gabarito em áudio.</p>',cta:'Fazer simulado grátis',ctaUrl:'simulado.html',trigger:'saida',active:true},
-    {id:'po2',title:'Cupom de boas-vindas',content:'<p>Ganhe 10% de desconto no seu primeiro curso.</p>',cta:'Ver cursos',ctaUrl:'index.html#cursos',trigger:'tempo',active:false}
+    {id:'po1',title:'Faça um simulado grátis',content:'<p>Teste seus conhecimentos com um simulado gratuito, com correção comentada e gabarito em áudio.</p>',cta:'Escolher meu simulado',ctaUrl:'#simulados',pages:[],trigger:'saida',delay:25,scrollPct:40,freq:'sessao',active:true},
+    {id:'po2',title:'Cupom de boas-vindas',content:'<p>Ganhe 10% de desconto no seu primeiro curso.</p>',cta:'Ver cursos',ctaUrl:'index.html#cursos',pages:['home'],trigger:'tempo',delay:8,scrollPct:40,freq:'dia',active:false}
   ],
   modulos:[
     {id:'mo1',name:'Fundamentos de estatística',desc:'',active:true},
@@ -3011,8 +3011,25 @@ function viewEmBreve(nome,desc){
 
 /* ============ ARTIGOS / PÁGINAS / POPUPS / MÓDULOS ============ */
 function tagNames(ids){return (ids||[]).map(function(id){var t=(db.tags||[]).find(function(x){return x.id===id;});return t?t.name:'';}).filter(Boolean).join(', ');}
-const TRIGGER_OPTS=[['entrada','Ao entrar'],['saida','Intenção de saída'],['rolagem','Ao rolar a página'],['tempo','Após alguns segundos']];
+const TRIGGER_OPTS=[['entrada','Ao entrar na página'],['saida','Intenção de saída (mouse sai da janela)'],['rolagem','Ao rolar a página'],['tempo','Após alguns segundos']];
 function trigLabel(t){var o=TRIGGER_OPTS.find(function(x){return x[0]===t;});return o?o[1]:t;}
+/* ONDE o popup aparece — as páginas do site que carregam o popup.js */
+const PAGE_OPTS=[['home','Página inicial'],['cursos','Páginas de curso'],['artigos','Lista de artigos'],['artigo','Artigo aberto'],['pagina','Páginas institucionais']];
+function pagesLabel(ps){
+  if(!ps||!ps.length)return 'Todas as páginas';
+  return ps.map(function(k){var o=PAGE_OPTS.find(function(x){return x[0]===k;});return o?o[1]:k;}).join(', ');
+}
+/* COM QUE FREQUÊNCIA volta a aparecer */
+const FREQ_OPTS=[['sessao','Uma vez por sessão'],['dia','Uma vez por dia'],['sempre','Toda vez que abrir a página']];
+function freqLabel(f){var o=FREQ_OPTS.find(function(x){return x[0]===(f||'sessao');});return o?o[1]:f;}
+/* resumo legível da regra, para a listagem */
+function popRegra(p){
+  var t=p.trigger||'saida', d=(p.delay==null?null:+p.delay), s=(p.scrollPct==null?40:+p.scrollPct);
+  if(t==='tempo')return 'Após '+(d==null?8:d)+'s';
+  if(t==='rolagem')return 'Ao rolar '+s+'% da página';
+  if(t==='entrada')return 'Ao entrar'+(d?' (+'+d+'s)':'');
+  return 'Intenção de saída'+(d?' ou após '+d+'s':'');
+}
 function toggleGeneric(col,id){const it=(db[col]||[]).find(x=>x.id===id);if(!it)return;it.active=!it.active;save();toast(it.active?'Ativado.':'Desativado.');router();}
 function delGeneric(col,id,nome){if(!confirm('Excluir '+(nome||'item').toLowerCase()+'?'))return;db[col]=(db[col]||[]).filter(x=>x.id!==id);save();toast((nome||'Item')+' excluído.');router();}
 
@@ -3090,7 +3107,10 @@ function editPagina(id){
 function viewPopups(){
   const rows=(db.popups||[]).map((p,i)=>`
     <tr class="clk urow" data-s="${esc(p.title.toLowerCase())}" onclick="editPopup('${p.id}')">
-      <td class="mono t-sub">${i+1}</td><td>${catBadge(p.active)}</td><td class="t-title">${esc(p.title)}</td><td class="t-sub">${esc(trigLabel(p.trigger))}</td>
+      <td class="mono t-sub">${i+1}</td><td>${catBadge(p.active)}</td><td class="t-title">${esc(p.title)}</td>
+      <td class="t-sub">${esc(pagesLabel(p.pages))}</td>
+      <td class="t-sub">${esc(popRegra(p))}</td>
+      <td class="t-sub">${esc(freqLabel(p.freq))}</td>
       <td class="rowend"><div class="rowact"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();toggleGeneric('popups','${p.id}')">${p.active?'Desativar':'Ativar'}</button><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editPopup('${p.id}')">${EDIT_IC}</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delGeneric('popups','${p.id}','Popup')">${DEL_IC}</button></div></td>
     </tr>`).join('');
   return `
@@ -3098,7 +3118,7 @@ function viewPopups(){
   <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Popups</h1><p>Popups de captura e avisos, com conteúdo em editor rico e regra de exibição.</p></div>
     <div class="ph-actions"><button class="btn btn-gold" onclick="editPopup()">+ Novo popup</button></div></div>
   <div class="toolbar"><div class="searchbox" id="po-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar popup…" oninput="filterRows('po-search','po-rows')"></div></div>
-  ${(db.popups||[]).length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Id</th><th>Ativo</th><th>Título</th><th>Exibição</th><th></th></tr></thead><tbody id="po-rows">${rows}</tbody></table></div>`:emptyState('▢','Nenhum popup','Crie o primeiro popup.','+ Novo popup','editPopup()')}`;
+  ${(db.popups||[]).length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Id</th><th>Ativo</th><th>Título</th><th>Onde aparece</th><th>Em que caso</th><th>Frequência</th><th></th></tr></thead><tbody id="po-rows">${rows}</tbody></table></div>`:emptyState('▢','Nenhum popup','Crie o primeiro popup.','+ Novo popup','editPopup()')}`;
 }
 function editPopup(id){
   const p=id?(db.popups||[]).find(x=>x.id===id):null;
@@ -3106,13 +3126,35 @@ function editPopup(id){
     {key:'title',label:'Título',type:'text',req:true},
     {key:'content',label:'Conteúdo',type:'rich'},
     {key:'cta',label:'Texto do botão (opcional)',type:'text',hint:'Ex.: Fazer simulado grátis. Deixe vazio para não ter botão.'},
-    {key:'ctaUrl',label:'Link do botão (opcional)',type:'text',hint:'Ex.: simulado.html ou index.html#cursos'},
-    {key:'trigger',label:'Regra de exibição',type:'select',options:TRIGGER_OPTS},
+    {key:'ctaUrl',label:'Link do botão (opcional)',type:'text',hint:'Ex.: simulado.html, index.html#cursos, ou #simulados para abrir o seletor de simulados.'},
+    {key:'pages',label:'Onde aparece',type:'multiselect',options:PAGE_OPTS,hint:'Não marque nada para exibir em todas as páginas do site.'},
+    {key:'trigger',label:'Em que caso aparece',type:'select',options:TRIGGER_OPTS},
+    {key:'delay',label:'Depois de quantos segundos',type:'number',hint:'Vale para "Após alguns segundos" e "Ao entrar". Na intenção de saída, funciona como um limite: se o visitante não sair, o popup aparece assim mesmo (0 = nunca).'},
+    {key:'scrollPct',label:'A partir de quanto % da página (rolagem)',type:'number',hint:'Só vale para a regra "Ao rolar a página". Ex.: 40 = quando o visitante passar de 40% da página.'},
+    {key:'freq',label:'Com que frequência volta a aparecer',type:'select',options:FREQ_OPTS},
     {key:'active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
-  ],p?Object.assign({},p,{active:p.active?'sim':'nao'}):{trigger:'saida',active:'sim'},d=>{
-    d.active=d.active!=='nao';db.popups=db.popups||[];if(p)Object.assign(p,d);else db.popups.push(Object.assign({id:uid('po')},d));
+  ],
+  p?Object.assign({},p,{active:p.active?'sim':'nao',pages:p.pages||[],delay:p.delay==null?8:p.delay,scrollPct:p.scrollPct==null?40:p.scrollPct,freq:p.freq||'sessao'})
+   :{trigger:'saida',active:'sim',pages:[],delay:8,scrollPct:40,freq:'sessao'},
+  d=>{
+    d.active=d.active!=='nao';
+    d.delay=Math.max(0,+d.delay||0);
+    d.scrollPct=Math.min(100,Math.max(1,+d.scrollPct||40));
+    db.popups=db.popups||[];
+    if(p)Object.assign(p,d);else db.popups.push(Object.assign({id:uid('po')},d));
     save();closeDrawer();toast('Popup salvo.');router();
-  });
+  },lpPopup);
+}
+function lpPopup(v){
+  var cta=(v.cta&&v.ctaUrl)?'<span class="btn btn-gold btn-sm" style="margin-top:14px">'+esc(v.cta)+'</span>':'';
+  return '<div style="font-family:\'IBM Plex Mono\';font-size:10px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:8px">Economia do Dia</div>'
+    +'<h2 style="font-size:20px;margin-bottom:8px">'+esc(v.title||'Título do popup')+'</h2>'
+    +'<div style="color:var(--muted);font-size:13.5px;line-height:1.6">'+(v.content||'<p>Conteúdo do popup.</p>')+'</div>'
+    +cta
+    +'<div style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--border);display:flex;gap:7px;flex-wrap:wrap">'
+    +'<span class="chip">'+esc(pagesLabel(v.pages))+'</span>'
+    +'<span class="chip">'+esc(popRegra(v))+'</span>'
+    +'<span class="chip">'+esc(freqLabel(v.freq))+'</span></div>';
 }
 function viewModulos(){
   const rows=(db.modulos||[]).map((m,i)=>`
