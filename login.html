@@ -58,6 +58,17 @@ input:focus{outline:none;border-color:var(--gold)}
 .btn-ghost:hover{border-color:var(--gold)}
 .foot{text-align:center;font-size:13px;color:var(--muted);margin-top:22px}
 .foot a{color:var(--gold-deep);font-weight:600}
+.hidden{display:none!important}
+.aviso{display:flex;gap:11px;align-items:flex-start;background:var(--gold-soft-bg,rgba(212,164,55,.10));
+  border:1px solid var(--gold-soft-bd,rgba(212,164,55,.30));border-radius:12px;padding:13px 15px;margin:4px 0 18px;
+  font-size:12.5px;color:var(--muted);line-height:1.55}
+.aviso b{color:var(--text)}
+.aviso .ai{flex:none;width:22px;height:22px;border-radius:999px;background:var(--gold-grad,linear-gradient(180deg,#E6BE54,#D4A437));
+  color:#0B0D10;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:13px}
+input.cod{font-family:'IBM Plex Mono',monospace;font-size:24px;letter-spacing:.42em;text-align:center}
+.erro{font-size:12.5px;color:var(--red,#E0533D);font-weight:600;margin:-6px 0 14px}
+.proto{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);font-size:11.5px;color:var(--faint);text-align:center;line-height:1.5}
+.proto b{font-family:'IBM Plex Mono',monospace;color:var(--gold-deep)}
 </style>
 </head>
 <body>
@@ -67,10 +78,11 @@ input:focus{outline:none;border-color:var(--gold)}
   <button data-theme="light">Claro</button>
 </div>
 
-<form class="card" onsubmit="event.preventDefault();window.location.href='app.html';">
+<!-- ENTRAR -->
+<form class="card" id="form-login" onsubmit="entrar(event)">
   <div class="logo"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></div>
   <h1>Bem-vindo de volta</h1>
-  <p class="sub">Acesse suas aulas, simulados e desempenho.</p>
+  <p class="sub" id="login-sub">Acesse suas aulas, simulados e desempenho.</p>
 
   <div class="field">
     <label for="email">E-mail</label>
@@ -86,17 +98,62 @@ input:focus{outline:none;border-color:var(--gold)}
 
   <div class="divider">ou</div>
 
-  <button type="button" class="btn btn-ghost" onclick="window.location.href='app.html'">
+  <button type="button" class="btn btn-ghost" onclick="entrar()">
     <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C17.1 1.9 14.8 1 12 1 6.5 1 2 5.5 2 11s4.5 10 10 10c5.8 0 9.6-4 9.6-9.7 0-.6-.1-1.1-.2-1.6H12z"/></svg>
     Entrar com Google
   </button>
 
-  <p class="foot">Ainda não tem conta? <a href="#">Comece grátis</a></p>
+  <p class="foot">Ainda não tem conta? <a href="#" onclick="tela('cadastro');return false">Comece grátis</a></p>
 
   <a href="adm.html" class="btn btn-ghost" style="margin-top:18px;text-decoration:none">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     Entrar como administrador
   </a>
+</form>
+
+<!-- CADASTRO · e-mail + telefone (o telefone é o identificador único) -->
+<form class="card hidden" id="form-cadastro" onsubmit="enviarCodigo(event)">
+  <div class="logo"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></div>
+  <h1>Crie sua conta grátis</h1>
+  <p class="sub" id="cad-sub">Ao criar a conta você ganha tokens para fazer um simulado completo, assistir aulas e usar a IA de estudos.</p>
+
+  <div class="field">
+    <label for="c-nome">Nome</label>
+    <input id="c-nome" type="text" placeholder="Seu nome" autocomplete="name" required />
+  </div>
+  <div class="field">
+    <label for="c-email">E-mail</label>
+    <input id="c-email" type="email" placeholder="voce@email.com" autocomplete="email" required />
+  </div>
+  <div class="field">
+    <label for="c-tel">Celular com DDD</label>
+    <input id="c-tel" type="tel" placeholder="(21) 99999-9999" autocomplete="tel" required />
+  </div>
+
+  <div class="aviso">
+    <span class="ai">!</span>
+    <div><b>O seu celular será validado agora.</b> Enviaremos um código por WhatsApp ou SMS e você precisa informá-lo para concluir o cadastro.</div>
+  </div>
+
+  <button type="submit" class="btn btn-gold">Criar conta e receber código</button>
+  <p class="foot">Já tem conta? <a href="#" onclick="tela('login');return false">Entrar</a></p>
+</form>
+
+<!-- CÓDIGO -->
+<form class="card hidden" id="form-codigo" onsubmit="validarCodigo(event)">
+  <div class="logo"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></div>
+  <h1>Confirme o seu celular</h1>
+  <p class="sub">Enviamos um código de 6 dígitos para <b id="cod-dest">o seu celular</b>.</p>
+
+  <div class="field">
+    <label for="c-cod">Código de verificação</label>
+    <input id="c-cod" type="text" inputmode="numeric" maxlength="6" placeholder="000000" class="cod" required />
+  </div>
+  <div class="erro hidden" id="cod-erro">Código inválido. Confira os 6 dígitos e tente de novo.</div>
+
+  <button type="submit" class="btn btn-gold">Confirmar e entrar</button>
+  <p class="foot"><a href="#" onclick="tela('cadastro');return false">Corrigir o número</a> · <a href="#" onclick="reenviar();return false">Reenviar código</a></p>
+  <div class="proto">Protótipo: nenhum SMS é enviado de verdade. Use o código <b id="cod-demo">000000</b> para seguir.</div>
 </form>
 
 <script>
@@ -107,6 +164,65 @@ input:focus{outline:none;border-color:var(--gold)}
     try{localStorage.setItem('ed-theme',b.dataset.theme)}catch(_){}});
   try{const t=localStorage.getItem('ed-theme');if(t){document.documentElement.setAttribute('data-theme',t);
     seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.theme===t));}}catch(_){}
+
+  /* ---- para onde voltar depois de entrar (decisão da reunião: o aluno volta
+         direto para o simulado/aula que ele clicou, não para a home do aluno) ---- */
+  const NEXT=(function(){
+    const m=location.search.match(/[?&]next=([^&]+)/);
+    if(!m)return 'app.html';
+    const d=decodeURIComponent(m[1]);
+    return /^[\w./?=&#-]+$/.test(d)&&!/^https?:/i.test(d)?d:'app.html';
+  })();
+  if(NEXT!=='app.html'){
+    document.getElementById('login-sub').textContent='Entre para continuar de onde você parou.';
+    document.getElementById('cad-sub').textContent='Crie sua conta para continuar. Você ganha tokens para fazer um simulado completo, assistir aulas e usar a IA de estudos.';
+  }
+
+  function tela(qual){
+    ['login','cadastro','codigo'].forEach(t=>document.getElementById('form-'+t).classList.toggle('hidden',t!==qual));
+    window.scrollTo(0,0);
+  }
+  /* Protótipo: o código não é enviado de verdade. No backend isso vira
+     um disparo real por WhatsApp/SMS e a checagem acontece no servidor. */
+  let pendente=null, codigoDemo='000000';
+  function enviarCodigo(e){
+    e.preventDefault();
+    pendente={
+      nome:document.getElementById('c-nome').value.trim(),
+      email:document.getElementById('c-email').value.trim(),
+      telefone:document.getElementById('c-tel').value.trim()
+    };
+    document.getElementById('cod-dest').textContent=pendente.telefone;
+    document.getElementById('cod-demo').textContent=codigoDemo;
+    document.getElementById('cod-erro').classList.add('hidden');
+    document.getElementById('c-cod').value='';
+    tela('codigo');
+    setTimeout(()=>document.getElementById('c-cod').focus(),60);
+  }
+  function reenviar(){document.getElementById('cod-erro').classList.add('hidden');}
+  function validarCodigo(e){
+    e.preventDefault();
+    if(document.getElementById('c-cod').value.trim()!==codigoDemo){
+      document.getElementById('cod-erro').classList.remove('hidden');return;
+    }
+    criarSessao(pendente);
+  }
+  function entrar(e){
+    if(e)e.preventDefault();
+    criarSessao({nome:'Aluno',email:document.getElementById('email').value.trim()||'aluno@economiadodia.com.br',telefone:''});
+  }
+  function criarSessao(dados){
+    try{
+      const antigo=JSON.parse(localStorage.getItem('ed-user')||'null');
+      localStorage.setItem('ed-user',JSON.stringify({
+        nome:dados.nome||'Aluno', email:dados.email||'', telefone:dados.telefone||'',
+        plano:(antigo&&antigo.plano)||null,
+        viuTokens:!!(antigo&&antigo.viuTokens),
+        criadoEm:(antigo&&antigo.criadoEm)||Date.now()
+      }));
+    }catch(_){}
+    location.href=NEXT;
+  }
 </script>
 </body>
 </html>

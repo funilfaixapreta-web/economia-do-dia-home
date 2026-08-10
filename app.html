@@ -69,6 +69,13 @@ svg{display:block}
   display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 30px}
 .topbar .ttl{font-size:19px;font-weight:700}
 .topbar .sub{font-size:13px;color:var(--muted);margin-top:2px}
+/* saldo de tokens */
+.tkchip{display:inline-flex;align-items:center;gap:7px;font-family:'Inter';font-size:13px;font-weight:600;color:var(--gold-deep);
+  background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:999px;padding:8px 15px;cursor:pointer;white-space:nowrap}
+.tkchip:hover{border-color:var(--gold)}
+.tkchip b{font-family:'IBM Plex Mono',monospace;color:var(--gold-deep)}
+.tkchip .tkc{font-size:11px}
+@media(max-width:760px){.tkchip{padding:7px 11px;font-size:12px}}
 .top-actions{display:flex;align-items:center;gap:14px}
 .search{display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--muted);font-size:13px;min-width:220px;cursor:pointer;font-family:inherit}
 .search:hover{border-color:var(--gold-soft-bd)}
@@ -709,6 +716,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
       </div>
       <div class="top-actions">
         <button class="search" id="open-search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg> Buscar aulas, simulados, trilhas… <span class="kbd">⌘K</span></button>
+        <button class="tkchip" id="tk-chip" style="display:none" title="Seus tokens gratuitos"><span class="tkc">◉</span><b id="tk-saldo">0</b> tokens</button>
         <div class="seg" id="theme-seg"><button class="on" data-theme="dark">Escuro</button><button data-theme="light">Claro</button></div>
       </div>
     </div>
@@ -769,6 +777,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 <!-- MODAL genérico -->
 <div class="modal" id="modal"><div class="modal-card" id="modal-card"></div></div>
 
+<script src="tokens.js"></script>
 <script>
 /* =========================================================
    MODELO DE DADOS (mock · protótipo)
@@ -1225,7 +1234,15 @@ VIEWS.curso=(id)=>{
 };
 
 VIEWS.aula=(courseId,lessonId)=>{
-  const c=courseById(courseId);if(!c||!c.owned)return VIEWS.cursos();
+  const c=courseById(courseId);if(!c)return VIEWS.cursos();
+  /* Curso não comprado: o aluno pode assistir gastando tokens (reunião de 05/08,
+     Marco: "o aluno tem que ter acesso a tudo para explorar"). */
+  if(!c.owned){
+    if(!window.EDTokens){setTimeout(()=>openUpgrade(c.id),0);return VIEWS.cursos();}
+    const r=EDTokens.cobrar('aula',courseId+'/'+lessonId);
+    if(!r.ok){setTimeout(()=>EDTokens.semSaldo(r),0);return VIEWS.cursos();}
+    setTimeout(pintaSaldo,0);
+  }
   const ls=flatLessons(c);let idx=ls.findIndex(l=>l.id===lessonId);if(idx<0)idx=0;
   const l=ls[idx],prev=ls[idx-1],next=ls[idx+1],t=trilhaById(c.trilha);
   const isDone=l.p>=100;
@@ -1910,6 +1927,16 @@ function openIa(){dismissIaNudge();seedIa();refreshIa();renderSugg();$('#ia-pop'
 function closeIa(){$('#ia-pop').classList.remove('show');$('#ia-fab').style.display='';}
 function sendIa(text){
   text=(text||'').trim();if(!text)return;
+  /* cada pergunta à IA consome token de quem ainda não é assinante:
+     foi a preocupação do Fred e do Igor com o custo por lead sem receita */
+  if(window.EDTokens){
+    const u=EDTokens.user();
+    if(!(u&&u.plano)){
+      const r=EDTokens.cobrar('ia','pergunta-'+Date.now());
+      if(!r.ok){closeIa();EDTokens.semSaldo(r);return;}
+      pintaSaldo();
+    }
+  }
   seedIa();
   iaHistory.push({role:'me',text:esc(text)});refreshIa();
   // indicador de digitação
@@ -1959,9 +1986,26 @@ $('#ia-nudge').addEventListener('click',e=>{if(e.target.id==='ia-nudge-x'){dismi
 /* =========================================================
    START
    ========================================================= */
+/* ---- saldo de tokens no topo (protótipo: localStorage) ---- */
+function pintaSaldo(){
+  const chip=document.getElementById('tk-chip');if(!chip||!window.EDTokens)return;
+  const c=EDTokens.cfg(), u=EDTokens.user();
+  if(!c.ativo||(u&&u.plano)){chip.style.display='none';return;}
+  document.getElementById('tk-saldo').textContent=EDTokens.saldo();
+  chip.style.display='';
+}
+document.getElementById('tk-chip').addEventListener('click',()=>{
+  if(!window.EDTokens)return;
+  const c=EDTokens.cfg();
+  EDTokens.saldo()>0
+    ? alert('Você tem '+EDTokens.saldo()+' tokens.\n\nSimulado completo: '+c.custo.simulado+'\nAula: '+c.custo.aula+'\nPergunta para a IA: '+c.custo.ia)
+    : EDTokens.semSaldo({preco:0,saldo:0});
+});
+
 if(!location.hash)location.hash='#/inicio';
 render();
 maybeIaNudge();
+pintaSaldo();
 </script>
 </body>
 </html>

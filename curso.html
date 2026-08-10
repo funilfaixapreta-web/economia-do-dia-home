@@ -110,6 +110,7 @@ a{color:inherit;text-decoration:none}
 
 <script>
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function slug(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
 function m(n){return {n:n};}
 /* dados das certificações */
 var CERTS={
@@ -245,10 +246,11 @@ function render(cert,anchor){
   /* cada módulo tem os dois caminhos: assistir a aula e fazer o simulado */
   var aulaBase='app.html#/curso/'+(c.app||'cb');
   var sims=c.sims.map(function(s){
-    var acoes=s.full
-      ? '<a class="btn btn-gold btn-sm" href="simulado.html">Fazer simulado</a>'
-      : '<a class="btn btn-ghost btn-sm" href="'+aulaBase+'">'+PLAY+' Aula</a>'+
-        '<a class="btn btn-gold btn-sm" href="simulado.html">Simulado</a>';
+    /* o clique passa pelo portão: exige login e desconta os tokens */
+    var sid=slug(s.n);
+    var bSim='<a class="btn btn-gold btn-sm" href="simulado.html?sim='+sid+'" data-tk>'+(s.full?'Fazer simulado':'Simulado')+'</a>';
+    var bAula='<a class="btn btn-ghost btn-sm" href="'+aulaBase+'" data-tk>'+PLAY+' Aula</a>';
+    var acoes=s.full?bSim:(bAula+bSim);
     return '<div class="sim'+(s.full?' full':'')+'"><h3>'+esc(s.n)+'</h3>'+
       '<span class="time">'+CLOCK+' Tempo limite: '+s.t+' min</span>'+
       '<div class="sd">'+esc(s.d)+'</div>'+
@@ -285,7 +287,19 @@ function go(cert){render(cert);}
   var h=(location.hash||'').replace('#','');
   render(CERTS[q]?q:'cfg', h==='simulados'||h==='para-quem'?h:'');
 })();
+
+/* Aula e simulado exigem login (reunião de 05/08). Aqui só o portão de sessão:
+   o token é debitado no consumo — ao iniciar o simulado ou abrir a aula —
+   para não cobrar duas vezes pelo mesmo conteúdo. Sem sessão, manda logar e
+   volta direto para o conteúdo clicado. */
+document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('[data-tk]');
+  if(!a||!window.EDTokens||EDTokens.user())return;
+  e.preventDefault();
+  EDTokens.exigirLogin(a.getAttribute('href'));
+});
 </script>
+<script src="tokens.js"></script>
 <script src="cursos-modal.js"></script>
 <script src="popup.js"></script>
 <script src="social.js"></script>

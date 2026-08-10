@@ -730,6 +730,7 @@ const DB_KEY='eda-db';
 const SEED_V=2;
 function seed(){return {
   v:SEED_V,
+  tokens:{ativo:true,inicial:10,renovaMes:false,custo:{simulado:10,aula:2,ia:1}},
   site:{
     hero:{eyebrow:'Formação prática · cursos e simulados · CNPI e CGA/CGE',title:'Formação em análise e gestão no mercado financeiro',promise:'Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer atuar com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.',cta:'Fazer um simulado grátis'},
     formacao:{eyebrow:'A formação',title:'Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.',text:'Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.'},
@@ -1118,7 +1119,11 @@ function viewSite(){
   ${siteBlock('Hero (topo)','editHero()',drow('Etiqueta',h.eyebrow)+drow('Título',h.title)+drow('Texto / promessa',h.promise)+drow('Botão (CTA)',h.cta))}
   ${siteBlock('A formação','editFormacao()',drow('Etiqueta',f.eyebrow)+drow('Título',f.title)+drow('Texto',f.text))}
   ${siteBlock('Por que funciona (método)','editMetodo()',drow('Etiqueta',m.eyebrow)+drow('Título',m.title)+drow('Texto',m.lead))}
-  ${siteBlock('Professor','editProf()',drow('Nome',p.name)+drow('Bio',p.bio)+drow('Credenciais',(p.creds||[]).join(' · ')))}
+  <div class="card siteblock">
+    <div class="sec-title">Professores <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="editProf()">+ Adicionar professor</button></div>
+    <p class="hint" style="margin-top:0;margin-bottom:12px">O site mostra todos os professores cadastrados. Conforme novos cursos entrarem, é só adicionar aqui.</p>
+    ${profs().map((pr,i)=>`<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt">${esc(pr.name)}${i===0?' <span class="t-sub">· principal</span>':''}</div><div class="lts"><span>${esc((pr.creds||[]).join(' · ')||pr.bio||'')}</span></div></div><div class="rowact"><button class="btn btn-ghost btn-sm" onclick="editProf(${i})">${EDIT_IC}</button>${i>0?`<button class="btn btn-danger btn-sm" onclick="delProf(${i})">${DEL_IC}</button>`:''}</div></div>`).join('')}
+  </div>
   <div class="card siteblock">
     <div class="sec-title">Depoimentos <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="editDepoimento()">+ Adicionar</button></div>
     ${(s.depoimentos||[]).map((d,i)=>`<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt">${esc(d.nome)} <span class="t-sub">· ${esc(d.cargo)}</span></div><div class="lts"><span>"${esc(d.texto)}"</span></div></div><div class="rowact"><button class="btn btn-ghost btn-sm" onclick="editDepoimento(${i})">${EDIT_IC}</button><button class="btn btn-danger btn-sm" onclick="delDepoimento(${i})">${DEL_IC}</button></div></div>`).join('')||'<p class="hint">Nenhum depoimento ainda.</p>'}
@@ -1129,7 +1134,35 @@ function viewSite(){
 function editHero(){openDrawer('Editar hero',[{key:'eyebrow',label:'Etiqueta (eyebrow)',type:'text'},{key:'title',label:'Título principal',type:'textarea'},{key:'promise',label:'Texto / promessa',type:'textarea'},{key:'cta',label:'Texto do botão',type:'text'}],db.site.hero,d=>{Object.assign(db.site.hero,d);save();closeDrawer();toast('Hero atualizado.');router();},lpHero);}
 function editFormacao(){openDrawer('Editar “A formação”',[{key:'eyebrow',label:'Etiqueta',type:'text'},{key:'title',label:'Título',type:'textarea'},{key:'text',label:'Texto',type:'textarea'}],db.site.formacao,d=>{Object.assign(db.site.formacao,d);save();closeDrawer();toast('Seção atualizada.');router();},lpSecao);}
 function editMetodo(){openDrawer('Editar “Por que funciona”',[{key:'eyebrow',label:'Etiqueta',type:'text'},{key:'title',label:'Título',type:'textarea'},{key:'lead',label:'Texto',type:'textarea'}],db.site.metodo,d=>{Object.assign(db.site.metodo,d);save();closeDrawer();toast('Seção atualizada.');router();},lpSecao);}
-function editProf(){openDrawer('Editar professor',[{key:'name',label:'Nome',type:'text',req:true},{key:'bio',label:'Bio',type:'textarea'},{key:'creds',label:'Credenciais',type:'lines'}],db.site.professor,d=>{Object.assign(db.site.professor,d);save();closeDrawer();toast('Professor atualizado.');router();},lpProf);}
+/* A página de professores aceita vários (pedido do Bruno na reunião de 05/08:
+   "eventualmente vai estar minha cara aí também, e a do Gabriel do comercial").
+   O primeiro da lista é o principal e continua espelhado em site.professor
+   para não quebrar nada que já lia esse campo. */
+function profs(){
+  var s=db.site||{};
+  if(!Array.isArray(s.professores)||!s.professores.length){
+    s.professores=[Object.assign({},s.professor||{name:'Professor',bio:'',creds:[]})];
+  }
+  return s.professores;
+}
+function syncProf(){var l=profs();db.site.professor=Object.assign({},db.site.professor||{},l[0]);}
+function editProf(i){
+  var lista=profs(), novo=(i==null||isNaN(i)), p=novo?{name:'',bio:'',creds:[]}:lista[i];
+  openDrawer(novo?'Novo professor':'Editar professor',
+    [{key:'name',label:'Nome',type:'text',req:true},{key:'bio',label:'Bio',type:'textarea'},{key:'creds',label:'Credenciais',type:'lines'}],
+    p,
+    function(d){
+      if(novo)lista.push(Object.assign({},d));else Object.assign(p,d);
+      db.site.professores=lista;syncProf();save();closeDrawer();
+      toast(novo?'Professor adicionado.':'Professor atualizado.');router();
+    },lpProf);
+}
+function delProf(i){
+  var lista=profs();
+  if(i<=0||!lista[i])return;
+  if(!confirm('Excluir '+lista[i].name+'?'))return;
+  lista.splice(i,1);db.site.professores=lista;syncProf();save();toast('Professor excluído.');router();
+}
 function editFooter(){openDrawer('Editar rodapé',[{key:'text',label:'Texto do rodapé',type:'textarea'},{key:'whatsapp',label:'WhatsApp',type:'text'},{key:'email',label:'E-mail de contato',type:'text'}],db.site.footer,d=>{Object.assign(db.site.footer,d);save();closeDrawer();toast('Rodapé atualizado.');router();});}
 function editDepoimento(i){const d=(i!=null&&!isNaN(i))?db.site.depoimentos[i]:null;openDrawer(d?'Editar depoimento':'Novo depoimento',[{key:'nome',label:'Nome',type:'text',req:true},{key:'cargo',label:'Cargo / empresa',type:'text'},{key:'texto',label:'Depoimento',type:'textarea',req:true}],d||{},v=>{db.site.depoimentos=db.site.depoimentos||[];if(d){Object.assign(d,v);}else{db.site.depoimentos.push(v);}save();closeDrawer();toast('Depoimento salvo.');router();});}
 function delDepoimento(i){if(!confirm('Excluir este depoimento?'))return;db.site.depoimentos.splice(i,1);save();toast('Depoimento excluído.');router();}
@@ -2273,6 +2306,48 @@ function viewRelatorio(){
 }
 
 /* ============ SISTEMA ============ */
+/* ---- Tokens do aluno (decisão da reunião de 05/08) ---- */
+var TOKENS_PADRAO={ativo:true,inicial:10,renovaMes:false,custo:{simulado:10,aula:2,ia:1}};
+function tkn(n){n=+n||0;return n+(n===1?' token':' tokens');}
+function tk(){
+  var t=db.tokens||{},p=TOKENS_PADRAO,c=t.custo||{};
+  return {
+    ativo:t.ativo==null?p.ativo:!!t.ativo,
+    inicial:t.inicial==null?p.inicial:+t.inicial,
+    renovaMes:t.renovaMes==null?p.renovaMes:!!t.renovaMes,
+    custo:{simulado:c.simulado==null?p.custo.simulado:+c.simulado,
+           aula:c.aula==null?p.custo.aula:+c.aula,
+           ia:c.ia==null?p.custo.ia:+c.ia}
+  };
+}
+function editTokens(){
+  var v=tk();
+  openDrawer('Tokens do aluno',[
+    {key:'ativo',label:'Sistema de tokens',type:'select',options:[['sim','Ligado'],['nao','Desligado']]},
+    {key:'inicial',label:'Saldo no primeiro login',type:'number'},
+    {key:'simulado',label:'Custo de um simulado',type:'number'},
+    {key:'aula',label:'Custo de uma aula',type:'number'},
+    {key:'ia',label:'Custo de uma pergunta à IA',type:'number'},
+    {key:'renovaMes',label:'Repor o saldo todo mês',type:'select',options:[['nao','Não'],['sim','Sim']]}
+  ],{ativo:v.ativo?'sim':'nao',inicial:v.inicial,simulado:v.custo.simulado,aula:v.custo.aula,ia:v.custo.ia,renovaMes:v.renovaMes?'sim':'nao'},
+  function(d){
+    db.tokens={ativo:d.ativo!=='nao',inicial:Math.max(0,+d.inicial||0),renovaMes:d.renovaMes==='sim',
+      custo:{simulado:Math.max(0,+d.simulado||0),aula:Math.max(0,+d.aula||0),ia:Math.max(0,+d.ia||0)}};
+    save();closeDrawer();toast('Tokens atualizados.');router();
+  },lpTokens);
+}
+function lpTokens(v){
+  var ini=+v.inicial||0,cs=+v.simulado||0,ca=+v.aula||0;
+  var qs=cs>0?Math.floor(ini/cs):'∞', qa=ca>0?Math.floor(ini/ca):'∞';
+  return '<div style="font-family:\'IBM Plex Mono\';font-size:10px;letter-spacing:.1em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:8px">Como o aluno vê</div>'
+    +'<h2 style="font-size:19px;margin-bottom:8px">Você ganhou '+ini+' tokens</h2>'
+    +'<p style="color:var(--muted);font-size:13.5px;line-height:1.6;margin-bottom:10px">'
+    +(v.ativo==='nao'?'Tokens desligados: tudo fica liberado sem cobrança.'
+      :'Com esse saldo ele faz <b>'+qs+' simulado(s)</b> ou assiste a <b>'+qa+' aula(s)</b> antes de precisar comprar.')+'</p>'
+    +'<div style="display:flex;gap:7px;flex-wrap:wrap">'
+    +'<span class="chip">Simulado: '+cs+'</span><span class="chip">Aula: '+ca+'</span><span class="chip">IA: '+(+v.ia||0)+'</span></div>';
+}
+
 function viewSistema(){
   var cfg=db.settings||defaultSettings();
   var integ=function(key,nome,desc){var on=cfg.integracoes&&cfg.integracoes[key];return '<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt">'+esc(nome)+'</div><div class="lts"><span>'+esc(desc)+'</span></div></div><button class="btn '+(on?'btn-ghost':'btn-gold')+' btn-sm" onclick="toggleInteg(\''+key+'\')">'+(on?'Conectado':'Ligar')+'</button></div>';};
@@ -2291,6 +2366,20 @@ function viewSistema(){
       <div class="drow"><span class="dk">Palavras-chave</span><span class="dv">${esc(cfg.seoKeywords)}</span></div>
     </div>
     <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="location.hash='#/site'">Abrir editor do site →</button>
+  </div>
+  <div class="card siteblock">
+    <div class="sec-title">Tokens do aluno</div>
+    <p class="hint" style="margin-top:0;margin-bottom:12px">Quem cria conta ganha um saldo de tokens e gasta para fazer simulados, assistir aulas e usar a IA. Quando zera, o site oferece os cursos. Rever um conteúdo já liberado não gasta de novo.</p>
+    <div class="dfields">
+      <div class="drow"><span class="dk">Sistema de tokens</span><span class="dv">${tk().ativo?'Ligado':'Desligado'}</span></div>
+      <div class="drow"><span class="dk">Saldo no primeiro login</span><span class="dv">${tkn(tk().inicial)}</span></div>
+      <div class="drow"><span class="dk">Custo de um simulado</span><span class="dv">${tkn(tk().custo.simulado)}</span></div>
+      <div class="drow"><span class="dk">Custo de uma aula</span><span class="dv">${tkn(tk().custo.aula)}</span></div>
+      <div class="drow"><span class="dk">Custo de uma pergunta à IA</span><span class="dv">${tkn(tk().custo.ia)}</span></div>
+      <div class="drow"><span class="dk">Repor o saldo todo mês</span><span class="dv">${tk().renovaMes?'Sim':'Não'}</span></div>
+      <div class="drow"><span class="dk">Dá para o aluno fazer</span><span class="dv">${tk().custo.simulado>0?(function(n){return n+(n===1?' simulado grátis':' simulados grátis');})(Math.floor(tk().inicial/tk().custo.simulado)):'simulados ilimitados'}</span></div>
+    </div>
+    <button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="editTokens()">${EDIT_IC} Editar tokens</button>
   </div>
   <div class="card siteblock">
     <div class="sec-title">Integrações</div>

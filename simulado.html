@@ -154,6 +154,24 @@ a{color:inherit;text-decoration:none}
 .submit-in{max-width:860px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;gap:14px}
 .submit-in .info{font-size:13.5px;color:var(--muted)}
 .submit-in .info b{color:var(--head)}
+/* navegação questão a questão */
+.qpos{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px}
+.qnav{display:flex;gap:10px;margin-left:auto;align-items:center}
+.qnav .btn[disabled]{opacity:.4;pointer-events:none}
+.qdots{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.qdot{width:26px;height:26px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:border-color .15s,color .15s}
+.qdot:hover{border-color:var(--gold-soft-bd);color:var(--text)}
+.qdot.done{border-color:var(--gold-soft-bd);color:var(--gold-deep);background:var(--gold-soft-bg)}
+.qdot.on{background:var(--gold-grad);color:#0B0D10;border-color:transparent;font-weight:700}
+/* aviso de simulado gratuito único */
+.freewarn{display:flex;gap:13px;align-items:flex-start;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);
+  border-radius:14px;padding:16px 18px;margin-bottom:18px}
+.freewarn .fi{flex:none;width:34px;height:34px;border-radius:999px;background:var(--gold-grad);color:#0B0D10;
+  display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:16px}
+.freewarn .ft{font-family:'Sora';font-weight:600;font-size:14.5px;color:var(--head)}
+.freewarn .fs{font-size:13px;color:var(--muted);line-height:1.55;margin-top:4px}
+@media(max-width:560px){.submit-in{flex-wrap:wrap}.qnav{width:100%;margin-left:0}.qnav .btn{flex:1;justify-content:center}}
 
 /* result */
 .res-hero{text-align:center;padding:40px 0 20px}
@@ -215,9 +233,17 @@ a{color:inherit;text-decoration:none}
       </table>
     </div>
 
+    <div class="freewarn" id="freewarn" style="display:none">
+      <span class="fi">!</span>
+      <div>
+        <div class="ft">Você tem direito a <span id="fw-qtd">um</span> simulado gratuito com correção.</div>
+        <div class="fs" id="fw-txt">Escolha bem: depois de iniciar, este simulado consome os seus tokens gratuitos. Vale a pena fazer o simulado completo, que cobre todos os módulos, em vez de um simulado de um módulo só.</div>
+      </div>
+    </div>
+
     <div class="start-bar">
       <button class="btn btn-gold" onclick="startSim()"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Iniciar simulado</button>
-      <span class="note">10 questões · 30 minutos · você pode revisar antes de enviar.</span>
+      <span class="note" id="start-note">10 questões · 30 minutos · você pode revisar antes de enviar.</span>
     </div>
   </div>
 </section>
@@ -237,8 +263,12 @@ a{color:inherit;text-decoration:none}
   <div class="submit-bar">
     <div class="submit-in">
       <span class="info"><b id="ans-count">0</b> de 10 respondidas</span>
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto;padding:10px 16px" onclick="backToIntro()">Sair</button>
-      <button class="btn btn-gold" style="padding:12px 20px" onclick="submitSim()">Enviar respostas</button>
+      <div class="qnav">
+        <button class="btn btn-ghost btn-sm" style="padding:10px 16px" onclick="backToIntro()">Sair</button>
+        <button class="btn btn-ghost" id="nav-prev" style="padding:12px 18px" onclick="goQ(-1)">← Anterior</button>
+        <button class="btn btn-gold" id="nav-next" style="padding:12px 20px" onclick="goQ(1)">Próxima →</button>
+        <button class="btn btn-gold" id="nav-send" style="padding:12px 20px" onclick="submitSim()">Enviar respostas</button>
+      </div>
     </div>
   </div>
 </section>
@@ -280,6 +310,7 @@ a{color:inherit;text-decoration:none}
 
 <div class="foot">© 2026 Economia do Dia · <a href="index.html" style="color:var(--gold-deep)">Início</a> · <a href="artigos.html" style="color:var(--gold-deep)">Artigos</a> · <a href="pagina.html?slug=termos" style="color:var(--gold-deep)">Termos</a> · <a href="pagina.html?slug=privacidade" style="color:var(--gold-deep)">Privacidade</a> · <a href="pagina.html?slug=contato" style="color:var(--gold-deep)">Contato</a></div>
 
+<script src="tokens.js"></script>
 <script>
 /* ---------- tema ---------- */
 var seg=document.getElementById('seg');
@@ -451,21 +482,65 @@ var SIM_TIME=30, SIM_PASS=70;
   set('ct-topic',SIM_TITLE);set('ct-count',Q.length);set('ct-total',Q.length);
   if(!DEMO){var ec=document.getElementById('ementa-card');if(ec)ec.style.display='none';var mp=document.getElementById('meta-prop');if(mp)mp.style.display='none';}
   document.title=SIM_TITLE+' · Economia do Dia';
+  set('start-note',Q.length+(Q.length===1?' questão':' questões')+' · '+SIM_TIME+' minutos · você pode revisar antes de enviar.');
 })();
 
+/* id deste simulado, usado para não cobrar duas vezes pelo mesmo conteúdo */
+var SIM_ID=(location.search.match(/[?&]sim=([\w-]+)/)||[])[1]||'demo';
+/* Aviso obrigatório de que o simulado gratuito é único (pedido do Fred na
+   reunião: sem isso o usuário gasta o benefício num modular de 10 questões). */
+(function(){
+  if(!window.EDTokens)return;
+  var c=EDTokens.cfg();if(!c.ativo)return;
+  var box=document.getElementById('freewarn');if(!box)return;
+  var u=EDTokens.user();
+  if(u&&u.plano)return;                       /* assinante não vê o aviso */
+  var saldo=EDTokens.saldo(), preco=c.custo.simulado||0;
+  var quantos=preco>0?Math.floor(c.inicial/preco):0;
+  document.getElementById('fw-qtd').textContent=quantos===1?'um':quantos;
+  if(EDTokens.liberado('simulado',SIM_ID)){
+    document.getElementById('fw-txt').textContent='Você já liberou este simulado. Pode refazer quantas vezes quiser, sem gastar tokens de novo.';
+  }else if(saldo<preco){
+    document.getElementById('fw-txt').textContent='Seus tokens gratuitos acabaram. Escolha um curso para liberar todos os simulados, o gabarito comentado em áudio e as aulas.';
+  }else{
+    document.getElementById('fw-txt').textContent='Escolha bem: iniciar este simulado consome '+preco+' dos seus '+saldo+' tokens. Vale mais a pena fazer o simulado completo, que cobre todos os módulos, do que um simulado de um módulo só.';
+  }
+  box.style.display='';
+})();
+
+/* A prova é exibida uma questão por vez (decisão da reunião de 05/08):
+   experiência mais simples, melhor no celular e dificulta a cópia em massa. */
+var cur=0;
 function renderQuestions(){
-  document.getElementById('questions').innerHTML=Q.map(function(q,qi){
-    var opts=q.opts.map(function(o,oi){
-      return '<div class="opt'+(answers[qi]===oi?' sel':'')+'" onclick="pick('+qi+','+oi+')"><span class="letter">'+LETTERS[oi]+'</span><span class="otext">'+esc(o)+'</span></div>';
-    }).join('');
-    return '<div class="q" id="q-'+qi+'"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+'</div>';
+  var qi=cur,q=Q[qi];if(!q)return;
+  var opts=q.opts.map(function(o,oi){
+    return '<div class="opt'+(answers[qi]===oi?' sel':'')+'" onclick="pick('+qi+','+oi+')"><span class="letter">'+LETTERS[oi]+'</span><span class="otext">'+esc(o)+'</span></div>';
   }).join('');
+  var dots=Q.map(function(_,i){
+    return '<button class="qdot'+(i===qi?' on':(answers[i]!=null?' done':''))+'" onclick="jumpQ('+i+')" title="Questão '+(i+1)+'">'+(i+1)+'</button>';
+  }).join('');
+  document.getElementById('questions').innerHTML=
+    '<div class="qpos">Questão '+(qi+1)+' de '+Q.length+'</div>'+
+    '<div class="q" id="q-'+qi+'"><div class="q-h"><span class="q-n">'+(qi+1)+'</span><div class="q-stmt">'+esc(q.stmt)+'</div></div>'+opts+'</div>'+
+    '<div class="qdots">'+dots+'</div>';
+  var last=(qi>=Q.length-1);
+  document.getElementById('nav-prev').disabled=(qi===0);
+  document.getElementById('nav-next').style.display=last?'none':'';
+  document.getElementById('nav-send').style.display=last?'':'none';
   updateProgress();
+}
+function goQ(d){jumpQ(cur+d);}
+function jumpQ(i){
+  if(i<0||i>=Q.length)return;
+  cur=i;renderQuestions();
+  var ex=document.querySelector('.exam-bar');
+  window.scrollTo(0,Math.max(0,(document.getElementById('questions').offsetTop||0)-((ex&&ex.offsetHeight)||0)-70));
 }
 function pick(qi,oi){
   answers[qi]=oi;
   var card=document.getElementById('q-'+qi);
-  card.querySelectorAll('.opt').forEach(function(el,i){el.classList.toggle('sel',i===oi);});
+  if(card)card.querySelectorAll('.opt').forEach(function(el,i){el.classList.toggle('sel',i===oi);});
+  document.querySelectorAll('.qdot').forEach(function(el,i){el.classList.toggle('done',answers[i]!=null&&i!==cur);});
   updateProgress();
 }
 function updateProgress(){
@@ -483,7 +558,9 @@ function tick(){
 }
 function show(id){['intro','prova','result'].forEach(function(s){document.getElementById(s).classList.toggle('hidden',s!==id);});window.scrollTo(0,0);}
 function startSim(){
-  answers={};tLeft=SIM_TIME*60;tUsed=0;
+  /* portão: exige login e desconta os tokens (reunião de 05/08) */
+  if(window.EDTokens&&!EDTokens.liberar('simulado',SIM_ID))return;
+  answers={};tLeft=SIM_TIME*60;tUsed=0;cur=0;
   renderQuestions();
   document.getElementById('timer').textContent=fmt(tLeft);
   document.getElementById('timer').classList.remove('warn');
