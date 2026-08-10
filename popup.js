@@ -4,7 +4,8 @@
 (function(){
   var CSS='.edpop-scrim{position:fixed;inset:0;background:rgba(6,8,11,.72);backdrop-filter:blur(5px);z-index:400;display:none;align-items:center;justify-content:center;padding:22px;opacity:0;transition:opacity .25s}'
     +'.edpop-scrim.show{display:flex;opacity:1}'
-    +'.edpop{background:var(--panel,#101319);border:1px solid var(--gold-soft-bd,rgba(212,164,55,.3));border-radius:20px;max-width:440px;width:100%;padding:32px 30px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.55);transform:translateY(12px);transition:transform .25s}'
+    +'.edpop{background:#0B0D10;border:1px solid var(--gold-soft-bd,rgba(212,164,55,.3));border-radius:20px;max-width:440px;width:100%;padding:32px 30px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.55);transform:translateY(12px);transition:transform .25s}'
+    +'[data-theme="light"] .edpop{background:#FFFFFF}'
     +'.edpop-scrim.show .edpop{transform:none}'
     +'.edpop .x{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:9px;border:1px solid var(--border,rgba(255,255,255,.08));background:var(--overlay-soft,rgba(255,255,255,.05));color:var(--muted,#8A94A2);cursor:pointer;font-size:17px;line-height:1}'
     +'.edpop .x:hover{color:var(--head,#fff)}'
@@ -15,7 +16,9 @@
     +'.edpop .plink{background:none;border:none;color:var(--muted,#8A94A2);font-family:inherit;font-size:13.5px;cursor:pointer;padding:6px}.edpop .plink:hover{color:var(--head,#fff)}'
     +'.edpop .edbtn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:600;font-size:14px;border-radius:11px;padding:11px 18px;cursor:pointer;border:1px solid transparent;text-decoration:none;background:var(--gold-grad,linear-gradient(180deg,#E6BE54,#D4A437));color:#0B0D10}';
   var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
-  var DEFAULT_POPUP={id:'po1',title:'Faça um simulado grátis',content:'<p>Teste seus conhecimentos com um simulado gratuito, com correção comentada e gabarito em áudio.</p>',cta:'Fazer simulado grátis',ctaUrl:'simulado.html',trigger:'saida',active:true};
+  /* O CTA padrão não joga o usuário direto numa prova: abre o seletor de cursos
+     com simulados, e de lá ele vai para a página do curso escolhido. */
+  var DEFAULT_POPUP={id:'po1',title:'Faça um simulado grátis',content:'<p>Teste seus conhecimentos com um simulado gratuito, com correção comentada e gabarito em áudio.</p>',cta:'Escolher meu simulado',ctaUrl:'#simulados',trigger:'saida',active:true};
   function load(){try{var db=JSON.parse(localStorage.getItem('eda-db'));if(db&&db.popups){var a=db.popups.filter(function(p){return p.active;});return a.length?a[0]:null;}}catch(_){}return DEFAULT_POPUP;}
   var pop=load();if(!pop)return;
   if(!(pop.cta&&pop.ctaUrl)&&pop.id===DEFAULT_POPUP.id){pop.cta=DEFAULT_POPUP.cta;pop.ctaUrl=DEFAULT_POPUP.ctaUrl;}
@@ -33,6 +36,15 @@
     scrim.addEventListener('click',function(e){if(e.target===scrim)close();});
     scrim.querySelector('.x').addEventListener('click',close);
     scrim.querySelector('.pclose').addEventListener('click',close);
+    /* '#simulados' / '#cursos' abrem o seletor de cursos em vez de navegar */
+    var btn=scrim.querySelector('.edbtn');
+    if(btn&&/^#(simulados|cursos)$/.test(pop.ctaUrl||'')){
+      btn.addEventListener('click',function(e){
+        if(!window.EDCursos)return;
+        e.preventDefault();close();
+        window.EDCursos.open(pop.ctaUrl.slice(1));
+      });
+    }
     var t=pop.trigger||'tempo';
     if(t==='entrada'){setTimeout(show,1000);}
     else if(t==='tempo'){setTimeout(show,8000);}
