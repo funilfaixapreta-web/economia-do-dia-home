@@ -41,7 +41,11 @@ a{color:inherit;text-decoration:none}
 .btn-sm{padding:8px 14px;font-size:13px;border-radius:9px}
 /* topbar */
 .top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-soft)}
-.top .wrap{display:flex;align-items:center;gap:14px;height:62px}
+.top .wrap{display:flex;align-items:center;gap:10px;height:62px}
+.brand{display:inline-flex;align-items:center;gap:10px;transition:opacity .15s}
+.brand:hover{opacity:.85}
+.btn-ico{padding:8px 10px}
+@media(max-width:560px){.top .wordmark{display:none}}
 .wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:17px;color:var(--head);white-space:nowrap}
 .wordmark b{color:var(--gold-deep)}
 .mono-sq{width:32px;height:32px;border-radius:9px;background:var(--gold-grad);color:#0B0D10;display:inline-flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:13px;flex:none}
@@ -60,12 +64,14 @@ a{color:inherit;text-decoration:none}
 .meta{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px 15px;min-width:120px}
 .meta .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-family:'IBM Plex Mono'}
 .meta .v{font-family:'Sora';font-weight:700;font-size:18px;color:var(--head);margin-top:2px}
-/* temas */
-.temas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-top:16px}
-.tema{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border-soft);border-radius:10px;padding:10px 13px;font-size:13.5px}
-.tema .n{width:24px;height:24px;border-radius:7px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep);font-family:'IBM Plex Mono';font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+/* para quem é o curso */
+.pubs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.pub{display:flex;align-items:flex-start;gap:12px;background:var(--panel);border:1px solid var(--border-soft);border-radius:12px;padding:14px 15px}
+.pub .pi{flex:none;width:32px;height:32px;border-radius:9px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep);display:flex;align-items:center;justify-content:center}
+.pub .pt{font-family:'Sora';font-weight:600;font-size:14px;color:var(--head);line-height:1.35}
+.pub .pd{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:3px}
 /* sims */
-.sec-title{font-family:'Sora';font-weight:700;font-size:19px;color:var(--head);margin:34px 0 4px;display:flex;align-items:center;gap:10px}
+.sec-title{font-family:'Sora';font-weight:700;font-size:19px;color:var(--head);margin:34px 0 4px;display:flex;align-items:center;gap:10px;scroll-margin-top:78px}
 .sec-sub{color:var(--muted);font-size:13.5px;margin-bottom:16px}
 .sims{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
 .sim{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:18px;display:flex;flex-direction:column}
@@ -73,7 +79,8 @@ a{color:inherit;text-decoration:none}
 .sim h3{font-size:15.5px;letter-spacing:-.2px}
 .sim .time{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono';font-size:12px;color:var(--gold-deep);margin-top:7px}
 .sim .sd{color:var(--muted);font-size:13px;margin-top:10px;flex:1;line-height:1.6}
-.sim .cta{margin-top:14px}
+.sim .cta{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.sim .cta .btn{flex:1;min-width:110px}
 .foot{border-top:1px solid var(--border-soft);margin-top:44px;padding:26px 0 50px;color:var(--faint);font-size:13px}
 @media(max-width:560px){.chead h1{font-size:25px}}
 </style>
@@ -81,10 +88,17 @@ a{color:inherit;text-decoration:none}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <span class="mono-sq">ED</span><span class="wordmark">Economia <b>Do Dia</b></span>
+  <a class="brand" href="index.html" aria-label="Economia do Dia · ir para a home">
+    <span class="mono-sq">ED</span><span class="wordmark">Economia <b>Do Dia</b></span>
+  </a>
   <span class="sp"></span>
-  <a class="btn btn-ghost btn-sm" href="index.html">← Voltar ao site</a>
-  <a class="btn btn-gold btn-sm" href="index.html#cursos">Ver planos</a>
+  <a class="btn btn-ghost btn-sm btn-ico" href="index.html" aria-label="Início" title="Início">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.75 20v-5.5h4.5V20"/></svg>
+  </a>
+  <a class="btn btn-gold btn-sm" id="buy-btn" href="index.html#cursos">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 11.2a1.5 1.5 0 0 0 1.5 1.2h8.3a1.5 1.5 0 0 0 1.5-1.2L20 8H6"/><circle cx="9.5" cy="20" r="1.2"/><circle cx="17.5" cy="20" r="1.2"/></svg>
+    Comprar curso
+  </a>
 </div></header>
 
 <main class="wrap">
@@ -96,17 +110,23 @@ a{color:inherit;text-decoration:none}
 
 <script>
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function slug(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
 function m(n){return {n:n};}
 /* dados das certificações */
 var CERTS={
-  cfg:{code:'CFG',name:'CFG · Fundamentos em Gestão',sub:'Certificação ANBIMA de Fundamentos em Gestão',
+  cfg:{code:'CFG',name:'CFG · Fundamentos em Gestão',sub:'Certificação ANBIMA de Fundamentos em Gestão',app:'cfg',
     intro:[
       'A CFG (Certificação ANBIMA de Fundamentos em Gestão) é uma certificação para quem quer iniciar ou acelerar sua carreira na área de gestão de recursos de terceiros. O profissional certificado tem o conhecimento da base técnica do setor que é diferencial para ocupar diversos cargos em empresas de asset management.',
-      'Ser certificado com a CFG é pré-requisito para conquistar a CGA e/ou a CGE, abrindo as portas para quem quer atuar em gestão de recursos de terceiros. A CFG não é obrigatória para nenhuma função e nem habilita o profissional a ser gestor.',
-      'Para se certificar, é necessário aprovação no exame. A prova tem 60 questões, a serem resolvidas em até 3h de duração. Para ser aprovado, é necessário acertar no mínimo 42 questões. As perguntas abrangem 12 áreas de conhecimento.'
+      'Ser certificado com a CFG é pré-requisito para conquistar a CGA e/ou a CGE, abrindo as portas para quem quer atuar em gestão de recursos de terceiros. A CFG não é obrigatória para nenhuma função e nem habilita o profissional a ser gestor.'
     ],
     meta:[['Questões','60'],['Duração','3h'],['Aprovação','mín. 42'],['Áreas','12']],
-    temas:['Métodos quantitativos','Economia','Análise de relatórios financeiros','Finanças corporativas','Mercados e instrumentos financeiros','Teoria moderna de carteiras e modelos de precificação de ativos','Finanças comportamentais','Política de investimento','Alocação de ativos','Novas tecnologias em finanças','Ética e autorregulação','Legislação e regulação'],
+    publico:[
+      ['Analista de investimentos em asset management','Quem trabalha (ou quer trabalhar) na equipe de gestão de uma asset, gestora ou family office.'],
+      ['Middle e back office de gestoras','Risco, compliance, operações e controladoria de fundos, que precisam da base técnica do setor.'],
+      ['Assessor, consultor e planejador financeiro','Profissional de distribuição que quer migrar da venda para a gestão de recursos.'],
+      ['Profissional de banco em transição de carreira','Quem vem do varejo, do private ou da tesouraria e quer entrar no buy side.'],
+      ['Estudante de economia, administração e contábeis','Quem quer começar a carreira já com a porta de entrada para a CGA e a CGE.']
+    ],
     sims:[
       {n:'CFG · M1 · Métodos Quantitativos',t:30,d:'CFG Módulo I. Teste seus conhecimentos sobre Métodos Quantitativos.'},
       {n:'CFG · M2 · Economia',t:30,d:'CFG Módulo II. Teste seus conhecimentos sobre Economia.'},
@@ -122,13 +142,20 @@ var CERTS={
       {n:'CFG · Módulo 12 · Legislação e Regulação',t:30,d:'CFG Módulo XII. Teste seus conhecimentos sobre Legislação e Regulação.'},
       {n:'CFG · Simulado Completo Gratuito',t:180,full:true,d:'Questões de prova que te obrigam a pensar. Resultado detalhado por módulo e gabarito comentado com áudio para todas as perguntas. Torne-se gestor profissional de recursos.'}
     ]},
-  'cnpi-cb':{code:'CNPI · CB',name:'CNPI · Conteúdo Brasileiro',sub:'Fase comum a todos os analistas (APIMEC / FGV)',
+  'cnpi-cb':{code:'CNPI · CB',name:'CNPI · Conteúdo Brasileiro',sub:'Fase comum a todos os analistas (APIMEC / FGV)',app:'cb',
     intro:[
       'A certificação CNPI faz parte do programa de capacitação profissional da APIMEC e é voltada para profissionais que queiram atuar na análise de valores mobiliários. A certificação e o credenciamento do analista de valores mobiliários são obrigatórios para o exercício da função, como dispõe a ICVM 598/2018. Os exames são oferecidos em tempo contínuo e realizados nos Centros de Testes da FGV, distribuídos em praticamente todo o território nacional.',
       'Para obtenção da certificação, o profissional deve ser aprovado nos exames: CB (Conteúdo Brasileiro, fase comum ao analista fundamentalista, técnico e pleno); CG1 (Conteúdo Global 1, para o analista fundamentalista); e CT1 (Conteúdo Técnico 1, para o analista técnico).',
       'A quem se destina: a todos os profissionais com nível superior completo em qualquer área e com interesse em se desenvolver no mercado financeiro e/ou de capitais. O resultado provisório é disponibilizado ao término do exame e o definitivo é publicado em até 5 dias úteis no site da FGV/APIMEC.'
     ],
     meta:[['Questões','60'],['Duração','2h'],['Aprovação','40 acertos']],
+    publico:[
+      ['Analista de valores mobiliários','Certificação e credenciamento obrigatórios para exercer a função (ICVM 598/2018).'],
+      ['Analista de research (sell side e buy side)','Quem assina relatório de recomendação em corretora, banco, gestora ou casa de análise.'],
+      ['Assessor de investimentos e agente autônomo','Quem quer sair da distribuição e passar a produzir análise própria.'],
+      ['Gerente e especialista de investimentos em banco','Varejo alta renda e private que precisam da base técnica do mercado de capitais.'],
+      ['Estudante e recém-formado de qualquer área','Exige apenas nível superior completo; é a porta de entrada da carreira de analista.']
+    ],
     sims:[
       {n:'CNPI · CB · Módulo I',t:20,d:'Conteúdo Brasileiro. Sistema Financeiro Nacional.'},
       {n:'CNPI · CB · Módulo II',t:20,d:'Conteúdo Brasileiro. Mercado de Capitais.'},
@@ -140,13 +167,19 @@ var CERTS={
       {n:'CNPI · CB · Módulo VIII',t:20,d:'Conteúdo Brasileiro. Integração de questões ASG à análise de investimentos.'},
       {n:'CNPI · CB · Simulado Completo Gratuito',t:110,full:true,d:'Questões de prova que te obrigam a pensar. Resultado detalhado por módulo e gabarito comentado com áudio para todas as perguntas. Torne-se analista de investimentos.'}
     ]},
-  'cnpi-cg1':{code:'CNPI · CG1',name:'CNPI · Conteúdo Global 1',sub:'Análise fundamentalista: valuation e contabilidade',
+  'cnpi-cg1':{code:'CNPI · CG1',name:'CNPI · Conteúdo Global 1',sub:'Análise fundamentalista: valuation e contabilidade',app:'cg1',
     intro:[
       'A prova de Conteúdo Global (CG1) habilita o analista a realizar análises fundamentalistas. A avaliação é um mix de fundamentos de valuation e contabilidade.',
-      'Como todas as provas da APIMEC, o CG1 é composto por 60 questões e uma hora e cinquenta minutos de duração. Para garantir a aprovação é necessário acertar pelo menos 40 questões.',
       'A prova possui uma peculiaridade: está dividida em 30 questões de Análise de Ações e Finanças Corporativas e outras 30 de Contabilidade Financeira e Análise de Relatórios Financeiros. Para aprovação, o candidato precisa acertar pelo menos 50% de cada bloco (mínimo de 15 acertos em cada parte).'
     ],
     meta:[['Questões','60'],['Duração','1h50'],['Aprovação','40 · mín. 50%/bloco']],
+    publico:[
+      ['Analista fundamentalista de research','Equity research em corretora, banco de investimento, gestora ou casa de análise.'],
+      ['Gestor e analista de fundos de ações','Quem precisa defender tese de investimento com valuation e números auditados.'],
+      ['Profissional de finanças corporativas e M&A','Avaliação de empresas, estrutura de capital, fusões e aquisições.'],
+      ['Controller, contador e analista de RI','Quem já domina a contabilidade e quer atuar do lado da análise de investimentos.'],
+      ['Investidor profissional e produtor de conteúdo','Quem precisa de credenciamento para recomendar ações publicamente.']
+    ],
     sims:[
       {n:'CNPI · CG1 · Análise de Ações e Finanças Corporativas',t:55,full:true,d:'Simulado do 1º bloco. Questões de prova que te obrigam a pensar. Resultado detalhado e gabarito comentado com áudio para todas as perguntas.'},
       {n:'CNPI · CG1 · Contabilidade e Análise de Relatórios Financeiros',t:55,full:true,d:'Simulado do 2º bloco. Questões de prova que te obrigam a pensar. Resultado detalhado e gabarito comentado com áudio para todas as perguntas.'},
@@ -170,13 +203,18 @@ var CERTS={
       {n:'CNPI · CG1 · Módulo XVIII',t:20,d:'Conteúdo Global. Questões ASG na Análise Fundamentalista.'},
       {n:'CNPI · CG1 · Simulado Completo Gratuito',t:110,full:true,d:'Simulado completo. Questões de prova que te obrigam a pensar. Resultado detalhado por módulo e gabarito comentado com áudio para todas as perguntas. Torne-se analista profissional de investimentos.'}
     ]},
-  'cnpi-ct1':{code:'CNPI · CT1',name:'CNPI · Conteúdo Técnico 1',sub:'Análise técnica (gráfica) de ativos',
+  'cnpi-ct1':{code:'CNPI · CT1',name:'CNPI · Conteúdo Técnico 1',sub:'Análise técnica (gráfica) de ativos',app:'ct1',
     intro:[
-      'A prova de Conteúdo Técnico (CT1) habilita o analista a trabalhar com recomendação de ativos utilizando análises gráficas.',
-      'Como todas as provas da APIMEC, o CT1 é composto por 60 questões e uma hora e cinquenta minutos de duração.',
-      'Para garantir a aprovação é necessário acertar pelo menos 40 questões.'
+      'A prova de Conteúdo Técnico (CT1) habilita o analista a trabalhar com recomendação de ativos utilizando análises gráficas.'
     ],
     meta:[['Questões','60'],['Duração','1h50'],['Aprovação','40 acertos']],
+    publico:[
+      ['Analista técnico (grafista)','Quem assina recomendação de compra e venda com base em preço e volume.'],
+      ['Trader e operador de mesa','Renda variável, futuros e derivativos, em corretora, mesa proprietária ou por conta própria.'],
+      ['Especialista de renda variável em corretora','Quem atende cliente e precisa de credenciamento para recomendar operações.'],
+      ['Assessor de investimentos com foco em bolsa','Quem quer sair da distribuição e passar a produzir a própria análise gráfica.'],
+      ['Produtor de conteúdo e estrategista de mercado','Quem fala de ativos publicamente e precisa do credenciamento da APIMEC.']
+    ],
     sims:[
       {n:'CNPI · CT1 · Módulo I',t:20,d:'Conteúdo Técnico. Fundamentos da análise técnica.'},
       {n:'CNPI · CT1 · Módulo II',t:20,d:'Conteúdo Técnico. Teoria de Dow.'},
@@ -193,36 +231,76 @@ var CERTS={
 };
 var ORDER=['cfg','cnpi-cb','cnpi-cg1','cnpi-ct1'];
 var CLOCK='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+var PLAY='<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+var PERSON='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>';
 
-function render(cert){
+function render(cert,anchor){
   var c=CERTS[cert]||CERTS.cfg;
   document.getElementById('tabs').innerHTML=ORDER.map(function(id){return '<button class="tab'+(id===cert?' on':'')+'" onclick="go(\''+id+'\')">'+esc(CERTS[id].code)+'</button>';}).join('');
-  var temas=c.temas?('<h2 class="sec-title" style="font-size:16px;margin-top:26px">Temas cobrados no exame</h2><div class="temas">'+c.temas.map(function(t,i){return '<div class="tema"><span class="n">'+(i+1)+'</span><span>'+esc(t)+'</span></div>';}).join('')+'</div>'):'';
+  /* para quem é o curso */
+  var publico=c.publico?('<h2 class="sec-title" id="para-quem">Para quem é este curso</h2>'+
+    '<div class="sec-sub">Perfis que mais procuram a certificação '+esc(c.code)+'.</div>'+
+    '<div class="pubs">'+c.publico.map(function(p){
+      return '<div class="pub"><span class="pi">'+PERSON+'</span><div><div class="pt">'+esc(p[0])+'</div><div class="pd">'+esc(p[1])+'</div></div></div>';
+    }).join('')+'</div>'):'';
+  /* cada módulo tem os dois caminhos: assistir a aula e fazer o simulado */
+  var aulaBase='app.html#/curso/'+(c.app||'cb');
   var sims=c.sims.map(function(s){
+    /* o clique passa pelo portão: exige login e desconta os tokens */
+    var sid=slug(s.n);
+    var bSim='<a class="btn btn-gold btn-sm" href="simulado.html?sim='+sid+'" data-tk>'+(s.full?'Fazer simulado':'Simulado')+'</a>';
+    var bAula='<a class="btn btn-ghost btn-sm" href="'+aulaBase+'" data-tk>'+PLAY+' Aula</a>';
+    var acoes=s.full?bSim:(bAula+bSim);
     return '<div class="sim'+(s.full?' full':'')+'"><h3>'+esc(s.n)+'</h3>'+
       '<span class="time">'+CLOCK+' Tempo limite: '+s.t+' min</span>'+
       '<div class="sd">'+esc(s.d)+'</div>'+
-      '<div class="cta"><a class="btn '+(s.full?'btn-gold':'btn-ghost')+' btn-sm" href="simulado.html">Fazer simulado grátis →</a></div></div>';
+      '<div class="cta">'+acoes+'</div></div>';
   }).join('');
   document.getElementById('content').innerHTML=
     '<div class="chead"><div class="eyebrow">'+esc(c.code)+'</div><h1>'+esc(c.name)+'</h1><div style="color:var(--muted);font-size:14px">'+esc(c.sub)+'</div>'+
       '<div class="intro">'+c.intro.map(function(p){return '<p>'+esc(p)+'</p>';}).join('')+'</div>'+
       '<div class="metarow">'+c.meta.map(function(mm){return '<div class="meta"><div class="k">'+esc(mm[0])+'</div><div class="v">'+esc(mm[1])+'</div></div>';}).join('')+'</div>'+
-      temas+
     '</div>'+
-    '<h2 class="sec-title">Simulados gratuitos <span style="font-family:Inter;font-weight:500;font-size:13px;color:var(--muted)">'+c.sims.length+' disponíveis</span></h2>'+
-    '<div class="sec-sub">Cada simulado tem correção na hora, gabarito comentado e áudio de explicação. Comece de graça.</div>'+
+    publico+
+    '<h2 class="sec-title" id="simulados">Aulas e simulados <span style="font-family:Inter;font-weight:500;font-size:13px;color:var(--muted)">'+c.sims.length+' módulos</span></h2>'+
+    '<div class="sec-sub">Em cada módulo você escolhe: assistir a aula ou fazer o simulado. Correção na hora, gabarito comentado e áudio de explicação.</div>'+
     '<div class="sims">'+sims+'</div>';
   document.title=c.code+' · Cursos · Economia do Dia';
-  try{history.replaceState(null,'','curso.html?cert='+cert);}catch(_){}
-  window.scrollTo(0,0);
+  /* o botão de compra do topo leva ao plano do curso aberto */
+  var buy=document.getElementById('buy-btn');
+  if(buy) buy.href='index.html#cursos';
+  try{history.replaceState(null,'','curso.html?cert='+cert+(anchor?'#'+anchor:''));}catch(_){}
+  var alvo=anchor?document.getElementById(anchor):null;
+  if(alvo){
+    /* o navegador ainda pode mexer no scroll depois do load (fontes, imagens): reposiciona */
+    var irPara=function(){
+      var h=document.documentElement,sb=h.style.scrollBehavior;h.style.scrollBehavior='auto';
+      window.scrollTo(0,Math.max(0,alvo.getBoundingClientRect().top+window.pageYOffset-78));
+      h.style.scrollBehavior=sb;
+    };
+    irPara();setTimeout(irPara,120);window.addEventListener('load',irPara,{once:true});
+  } else window.scrollTo(0,0);
 }
 function go(cert){render(cert);}
 (function(){
   var q=(location.search.match(/[?&]cert=([\w-]+)/)||[])[1];
-  render(CERTS[q]?q:'cfg');
+  var h=(location.hash||'').replace('#','');
+  render(CERTS[q]?q:'cfg', h==='simulados'||h==='para-quem'?h:'');
 })();
+
+/* Aula e simulado exigem login (reunião de 05/08). Aqui só o portão de sessão:
+   o token é debitado no consumo — ao iniciar o simulado ou abrir a aula —
+   para não cobrar duas vezes pelo mesmo conteúdo. Sem sessão, manda logar e
+   volta direto para o conteúdo clicado. */
+document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('[data-tk]');
+  if(!a||!window.EDTokens||EDTokens.user())return;
+  e.preventDefault();
+  EDTokens.exigirLogin(a.getAttribute('href'));
+});
 </script>
+<script src="tokens.js"></script>
+<script src="cursos-modal.js"></script>
 <script src="popup.js"></script>
 <script src="social.js"></script>
 </body>

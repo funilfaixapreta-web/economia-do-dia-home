@@ -62,6 +62,24 @@ a{color:inherit;text-decoration:none}
 .nav-links{display:flex;gap:26px}
 .nav-links a{font-size:14.5px;font-weight:500;color:var(--muted);transition:color .15s}
 .nav-links a:hover{color:var(--text)}
+/* dropdown de Simulados / Cursos */
+.ndrop{position:relative}
+.ndrop-t{display:inline-flex;align-items:center;gap:6px;font-family:'Inter';font-size:14.5px;font-weight:500;color:var(--muted);
+  background:none;border:none;cursor:pointer;padding:22px 0;transition:color .15s}
+.ndrop-t:hover,.ndrop.open .ndrop-t{color:var(--text)}
+.ndrop-t svg{transition:transform .2s}
+.ndrop.open .ndrop-t svg{transform:rotate(180deg)}
+.ndrop-m{position:absolute;top:100%;left:-14px;width:352px;background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;padding:8px;box-shadow:0 30px 60px -20px rgba(0,0,0,.7);
+  opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .18s,transform .18s}
+.ndrop.open .ndrop-m{opacity:1;transform:none;pointer-events:auto}
+.ndrop-m a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;transition:background .15s}
+.ndrop-m a:hover{background:var(--overlay-soft)}
+.ndrop-m .tag{flex:none;font-family:'IBM Plex Mono';font-weight:600;font-size:10.5px;color:#0B0D10;
+  background:var(--gold-grad);border-radius:6px;padding:5px 8px;min-width:72px;text-align:center}
+.ndrop-m a > span:last-child{flex:1;min-width:0}
+.ndrop-m .nm{display:block;font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.ndrop-m .dc{display:block;font-size:12px;color:var(--faint);line-height:1.4;margin-top:2px}
 .nav-actions{display:flex;align-items:center;gap:16px}
 .seg{display:flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:var(--overlay-soft);border:1px solid var(--border)}
 .seg button{font-family:'Inter';font-weight:600;font-size:12.5px;padding:6px 14px;border-radius:999px;border:none;background:none;color:var(--muted);cursor:pointer}
@@ -74,8 +92,12 @@ a{color:inherit;text-decoration:none}
   background:radial-gradient(125% 95% at 74% 6%,#13171D,#0B0D10 52%,#07080A)}
 [data-theme="light"] .hero{background:radial-gradient(125% 95% at 74% 6%,#FFFFFF,#F3F1EA 60%)}
 .hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center;min-height:660px}
-.hero-eyebrow{font-family:'IBM Plex Mono';font-size:12.5px;color:var(--gold-deep);letter-spacing:.04em}
-.hero-eyebrow .sep{color:var(--muted)}
+.hero-eyebrow{font-family:'IBM Plex Mono';font-size:12.5px;color:var(--gold-deep);letter-spacing:.04em;
+  display:flex;flex-wrap:wrap;gap:8px}
+.hero-eyebrow a{border:1px solid var(--gold-soft-bd);background:var(--gold-soft-bg);border-radius:999px;
+  padding:6px 13px;color:var(--gold-deep);transition:transform .18s,border-color .18s,background .18s}
+.hero-eyebrow a:hover{transform:translateY(-2px);border-color:var(--gold);background:rgba(212,164,55,.18)}
+@media(max-width:980px){.hero-eyebrow{justify-content:center}}
 .hero h1{font-size:54px;font-weight:800;letter-spacing:-1.5px;line-height:1.04;margin:22px 0}
 .hero h1 .gold{color:var(--gold-deep)}
 .hero p.sub{font-size:17px;color:var(--muted);max-width:540px;line-height:1.65}
@@ -158,6 +180,9 @@ a{color:inherit;text-decoration:none}
 .feat .ic{flex:none;width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center}
 .feat h3{font-size:16px;font-weight:600}
 .feat p{font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:6px}
+.feat-ia{border-color:var(--gold-soft-bd);background:linear-gradient(180deg,var(--gold-soft-bg),var(--panel))}
+.ia-tag{display:inline-block;vertical-align:middle;margin-left:8px;font-family:'IBM Plex Mono',monospace;font-weight:600;
+  font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#0B0D10;background:var(--gold-grad);border-radius:999px;padding:3px 8px}
 @media(max-width:900px){.met-grid{grid-template-columns:1fr;gap:32px}}
 
 /* professor */
@@ -179,6 +204,15 @@ a{color:inherit;text-decoration:none}
 .cred{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
 .cred .c{font-size:13px;color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:999px;padding:8px 14px}
 @media(max-width:900px){.prof-grid{grid-template-columns:1fr;gap:32px}}
+/* demais professores */
+.mais-profs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:44px}
+.mp{padding:20px}
+.mp-h{display:flex;align-items:center;gap:13px}
+.mp-h .av{width:44px;height:44px;flex:none;border-radius:999px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);
+  color:var(--gold-deep);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:700;font-size:15px}
+.mp-n{font-family:'Sora';font-weight:600;font-size:16px;color:var(--head);line-height:1.3}
+.mp-c{font-size:12.5px;color:var(--gold-deep);margin-top:2px}
+.mp-b{font-size:13.5px;color:var(--muted);line-height:1.6;margin-top:13px}
 
 /* depoimentos */
 .dep-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:32px;align-items:stretch}
@@ -262,8 +296,12 @@ a{color:inherit;text-decoration:none}
     border-bottom:1px solid var(--border);box-shadow:0 24px 50px -20px rgba(0,0,0,.7);padding:10px 18px 22px;z-index:40;
     transform:translateY(-16px);opacity:0;pointer-events:none;transition:transform .26s cubic-bezier(.22,1,.36,1),opacity .26s}
   .nav.open .mobile-menu{transform:none;opacity:1;pointer-events:auto}
+  .mobile-menu{max-height:calc(100vh - 66px);overflow-y:auto}
   .mobile-menu .mlink{padding:14px 4px;font-size:16px;font-weight:500;color:var(--text);border-bottom:1px solid var(--border-soft)}
   .mobile-menu .mlink:active{color:var(--gold-deep)}
+  .mobile-menu .mhead{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--gold-deep);padding:16px 4px 8px;border-bottom:none}
+  .mobile-menu .msub{font-size:14.5px;color:var(--muted);padding:11px 4px}
   .mobile-menu .menter{display:flex;align-items:center;justify-content:space-between}
   .mobile-menu .menter::after{content:"→";color:var(--gold-deep)}
   .mobile-menu .mcta{margin-top:16px;justify-content:center;font-size:15px;padding:14px}
@@ -318,7 +356,28 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   <div class="nav-inner">
     <a class="logo" href="#"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
     <div class="nav-links">
-      <a href="#simulados">Simulados</a><a href="#cursos">Cursos</a><a href="artigos.html">Artigos</a>
+      <div class="ndrop" data-ndrop>
+        <button class="ndrop-t" aria-haspopup="true" aria-expanded="false">Simulados
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="ndrop-m">
+          <a href="curso.html?cert=cnpi-cb#simulados"><span class="tag">CNPI · CB</span><span><span class="nm">Base do Mercado Financeiro</span><span class="dc">Simulados por módulo + simulado completo</span></span></a>
+          <a href="curso.html?cert=cnpi-cg1#simulados"><span class="tag">CNPI · CG1</span><span><span class="nm">Análise Fundamentalista</span><span class="dc">Simulados por módulo + simulado completo</span></span></a>
+          <a href="curso.html?cert=cnpi-ct1#simulados"><span class="tag">CNPI · CT1</span><span><span class="nm">Análise Técnica (Gráfica)</span><span class="dc">Simulados por módulo + simulado completo</span></span></a>
+          <a href="curso.html?cert=cfg#simulados"><span class="tag">CFG</span><span><span class="nm">Gestão de Recursos e Fundos</span><span class="dc">12 simulados por módulo + simulado completo</span></span></a>
+        </div>
+      </div>
+      <div class="ndrop" data-ndrop>
+        <button class="ndrop-t" aria-haspopup="true" aria-expanded="false">Cursos
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="ndrop-m">
+          <a href="curso.html?cert=cnpi-cb"><span class="tag">CNPI · CB</span><span><span class="nm">Base do Mercado Financeiro</span><span class="dc">Fase comum a todos os analistas</span></span></a>
+          <a href="curso.html?cert=cnpi-cg1"><span class="tag">CNPI · CG1</span><span><span class="nm">Análise Fundamentalista</span><span class="dc">Valuation, finanças corporativas e contabilidade</span></span></a>
+          <a href="curso.html?cert=cnpi-ct1"><span class="tag">CNPI · CT1</span><span><span class="nm">Análise Técnica (Gráfica)</span><span class="dc">Tendências, candles, indicadores e estratégias</span></span></a>
+          <a href="curso.html?cert=cfg"><span class="tag">CFG</span><span><span class="nm">Gestão de Recursos e Fundos</span><span class="dc">Porta de entrada para a CGA e a CGE</span></span></a>
+        </div>
+      </div>
     </div>
     <div class="nav-actions">
       <a class="nav-enter" href="login.html">Entrar</a>
@@ -329,11 +388,18 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     </button>
   </div>
   <div class="mobile-menu">
-    <a class="mlink" href="#simulados">Simulados</a>
-    <a class="mlink" href="#cursos">Cursos</a>
-    <a class="mlink" href="artigos.html">Artigos</a>
+    <span class="mlink mhead">Simulados</span>
+    <a class="mlink msub" href="curso.html?cert=cnpi-cb#simulados">CNPI · CB · Base do Mercado Financeiro</a>
+    <a class="mlink msub" href="curso.html?cert=cnpi-cg1#simulados">CNPI · CG1 · Análise Fundamentalista</a>
+    <a class="mlink msub" href="curso.html?cert=cnpi-ct1#simulados">CNPI · CT1 · Análise Técnica</a>
+    <a class="mlink msub" href="curso.html?cert=cfg#simulados">CFG · Gestão de Recursos e Fundos</a>
+    <span class="mlink mhead">Cursos</span>
+    <a class="mlink msub" href="curso.html?cert=cnpi-cb">CNPI · CB · Base do Mercado Financeiro</a>
+    <a class="mlink msub" href="curso.html?cert=cnpi-cg1">CNPI · CG1 · Análise Fundamentalista</a>
+    <a class="mlink msub" href="curso.html?cert=cnpi-ct1">CNPI · CT1 · Análise Técnica</a>
+    <a class="mlink msub" href="curso.html?cert=cfg">CFG · Gestão de Recursos e Fundos</a>
     <a class="mlink menter" href="login.html">Entrar</a>
-    <a class="btn btn-gold mcta" href="simulado.html">Fazer simulado grátis</a>
+    <a class="btn btn-gold mcta" href="#" data-ed-cursos="simulados">Fazer simulados</a>
     <div class="seg">
       <button class="on" data-theme="dark">Escuro</button>
       <button data-theme="light">Claro</button>
@@ -345,21 +411,26 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
 <header class="hero">
   <div class="wrap">
     <div class="hero-copy">
-      <div class="hero-eyebrow">Base do Mercado Financeiro <span class="sep">·</span> Análise Fundamentalista <span class="sep">·</span> Análise Técnica <span class="sep">·</span> Gestão de Recursos e Fundos</div>
+      <div class="hero-eyebrow">
+        <a href="curso.html?cert=cnpi-cb">Base do Mercado Financeiro</a>
+        <a href="curso.html?cert=cnpi-cg1">Análise Fundamentalista</a>
+        <a href="curso.html?cert=cnpi-ct1">Análise Técnica</a>
+        <a href="curso.html?cert=cfg">Gestão de Recursos e Fundos</a>
+      </div>
       <h1>Formação em<br><span class="gold">análise e gestão</span><br>no mercado financeiro</h1>
-      <p class="sub" data-ed="hero.promise">Formação completa e prática, com cursos, trilhas, simulados e conteúdos guiados por IA, para quem quer <b>atuar</b> com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.</p>
+      <p class="sub" data-ed="hero.promise">Formação completa e prática, com cursos, trilhas, simulados e suporte de agentes de IA, para quem quer <b>atuar</b> com análise e gestão no mercado financeiro. A aprovação nas certificações CNPI e no CGA/CGE vem como consequência.</p>
       <div class="hero-cta">
-        <a class="btn btn-gold" href="#cursos">Conheça nossos cursos</a>
-        <a class="btn btn-ghost" href="simulado.html">Fazer simulados</a>
+        <a class="btn btn-gold" href="#cursos" data-ed-cursos="cursos">Conheça nossos cursos</a>
+        <a class="btn btn-ghost" href="#cursos" data-ed-cursos="simulados">Fazer simulados</a>
       </div>
     </div>
     <div class="fred-stage">
       <div class="fred-glow"></div>
       <div class="badges">
-        <div class="badge"><span class="code">CFG</span><span class="area">Gestão de Recursos e Fundos</span></div>
-        <div class="badge"><span class="code">CNPI-CB</span><span class="area">Base do Mercado Financeiro</span></div>
-        <div class="badge"><span class="code">CNPI-CG1</span><span class="area">Análise Fundamentalista</span></div>
-        <div class="badge"><span class="code">CNPI-CT1</span><span class="area">Análise Técnica (Gráfica)</span></div>
+        <a class="badge" href="curso.html?cert=cfg"><span class="code">CFG</span><span class="area">Gestão de Recursos e Fundos</span></a>
+        <a class="badge" href="curso.html?cert=cnpi-cb"><span class="code">CNPI-CB</span><span class="area">Base do Mercado Financeiro</span></a>
+        <a class="badge" href="curso.html?cert=cnpi-cg1"><span class="code">CNPI-CG1</span><span class="area">Análise Fundamentalista</span></a>
+        <a class="badge" href="curso.html?cert=cnpi-ct1"><span class="code">CNPI-CT1</span><span class="area">Análise Técnica (Gráfica)</span></a>
       </div>
       <div class="fred-imgs">
         <img class="idle" src="assets/fred-idle.png" alt="Professor Fred" />
@@ -474,6 +545,8 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
       </div>
     </div>
   </div>
+  <!-- demais professores (cadastrados em Admin › Conteúdo › Site › Professores) -->
+  <div class="wrap"><div class="mais-profs" id="mais-profs" style="display:none"></div></div>
 </section>
 
 <!-- A5 MÉTODO -->
@@ -489,6 +562,10 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
       </div>
     </div>
     <div>
+      <div class="feat feat-ia">
+        <span class="ic" style="background:rgba(212,164,55,.12);border:1px solid rgba(212,164,55,.45)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A437" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5 13.8 11.3 12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/></svg></span>
+        <div><h3>Agentes de IA de estudo <span class="ia-tag">Novo</span></h3><p>Um agente que conhece o edital e o seu histórico: tira dúvida na hora, explica a questão que você errou e monta o plano de estudo até a prova.</p></div>
+      </div>
       <div class="feat">
         <span class="ic" style="background:rgba(212,164,55,.10);border:1px solid rgba(212,164,55,.35)"><svg width="20" height="20" viewBox="0 0 24 24" fill="#D4A437"><path d="M8 5v14l11-7z"/></svg></span>
         <div><h3>Gabarito comentado em áudio</h3><p>Cada questão explicada pelo professor. Você revisa no trânsito ou na academia, sem tela.</p></div>
@@ -544,6 +621,26 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
   burger.addEventListener('click',()=>nav.classList.toggle('open'));
   document.querySelectorAll('.mobile-menu a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
 
+  /* dropdowns de Simulados e Cursos no topo (hover no desktop, clique em toque/teclado) */
+  (function(){
+    var drops=document.querySelectorAll('[data-ndrop]');
+    function closeAll(except){drops.forEach(function(d){if(d!==except){d.classList.remove('open');d.querySelector('.ndrop-t').setAttribute('aria-expanded','false');}});}
+    drops.forEach(function(d){
+      var t=d.querySelector('.ndrop-t');
+      t.addEventListener('click',function(e){
+        e.stopPropagation();
+        var willOpen=!d.classList.contains('open');
+        /* no desktop o hover já abriu o menu: o clique não pode fechá-lo */
+        if(!willOpen&&window.matchMedia('(hover:hover)').matches&&d.matches(':hover'))return;
+        closeAll(d);d.classList.toggle('open',willOpen);t.setAttribute('aria-expanded',String(willOpen));
+      });
+      d.addEventListener('mouseenter',function(){if(window.matchMedia('(hover:hover)').matches){closeAll(d);d.classList.add('open');t.setAttribute('aria-expanded','true');}});
+      d.addEventListener('mouseleave',function(){if(window.matchMedia('(hover:hover)').matches){d.classList.remove('open');t.setAttribute('aria-expanded','false');}});
+    });
+    document.addEventListener('click',function(){closeAll(null);});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll(null);});
+  })();
+
   // Fred: em telas touch (sem hover), revela/esconde ao tocar
   const stage=document.querySelector('.fred-stage');
   const hint=document.querySelector('.fred-hint');
@@ -590,6 +687,20 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
       var cr=document.querySelector('[data-ed="professor.creds"]');
       if(cr) cr.innerHTML=S.professor.creds.map(function(c){return '<span class="c">'+String(c).replace(/[&<>]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[x];})+'</span>';}).join('');
     }
+    // professores adicionais cadastrados no admin
+    if(Array.isArray(S.professores)&&S.professores.length>1){
+      var extra=S.professores.slice(1),box=document.getElementById('mais-profs');
+      if(box){
+        var ini=function(n){return String(n||'?').trim().split(/\s+/).slice(0,2).map(function(w){return w[0]}).join('').toUpperCase();};
+        var safe=function(t){return String(t==null?'':t).replace(/[&<>]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[x];});};
+        box.innerHTML=extra.map(function(p){
+          return '<div class="card mp"><div class="mp-h"><span class="av">'+safe(ini(p.name))+'</span><div><div class="mp-n">'+safe(p.name)+'</div>'+
+            '<div class="mp-c">'+safe((p.creds||[]).slice(0,2).join(' · '))+'</div></div></div>'+
+            (p.bio?'<p class="mp-b">'+safe(p.bio)+'</p>':'')+'</div>';
+        }).join('');
+        box.style.display='';
+      }
+    }
     // foto do professor (publicada pelo admin em Conteúdo › Imagens)
     var ph=S.professor&&S.professor.photo;
     if(ph){
@@ -632,6 +743,8 @@ html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px
     });
   })();
 </script>
+<script src="tokens.js"></script>
+<script src="cursos-modal.js"></script>
 <script src="popup.js"></script>
 <script src="social.js"></script>
 </body>
