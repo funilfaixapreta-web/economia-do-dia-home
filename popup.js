@@ -1,6 +1,10 @@
 /* Popup de captura/aviso do Economia do Dia, compartilhado pelas páginas do site.
-   Lê o popup ativo do admin (localStorage eda-db). Sem eda-db, usa um padrão.
-   Exibe conforme a regra (entrada/tempo/rolagem/saida), fecha e não repete na sessão. */
+   Lê os popups ativos do admin (localStorage eda-db). Sem eda-db, usa um padrão.
+   Respeita o que o admin configurou:
+     onde       → pages: quais páginas exibem este popup (vazio = todas)
+     em que caso→ trigger: entrada | tempo | rolagem | saida
+     quanto     → delay (segundos) e scrollPct (% da página)
+     frequência → freq: sessao | dia | sempre                                   */
 (function(){
   var CSS='.edpop-scrim{position:fixed;inset:0;background:rgba(6,8,11,.72);backdrop-filter:blur(5px);z-index:400;display:none;align-items:center;justify-content:center;padding:22px;opacity:0;transition:opacity .25s}'
     +'.edpop-scrim.show{display:flex;opacity:1}'
@@ -16,13 +20,61 @@
     +'.edpop .plink{background:none;border:none;color:var(--muted,#8A94A2);font-family:inherit;font-size:13.5px;cursor:pointer;padding:6px}.edpop .plink:hover{color:var(--head,#fff)}'
     +'.edpop .edbtn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:600;font-size:14px;border-radius:11px;padding:11px 18px;cursor:pointer;border:1px solid transparent;text-decoration:none;background:var(--gold-grad,linear-gradient(180deg,#E6BE54,#D4A437));color:#0B0D10}';
   var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);
-  /* O CTA padrão não joga o usuário direto numa prova: abre o seletor de cursos
-     com simulados, e de lá ele vai para a página do curso escolhido. */
-  var DEFAULT_POPUP={id:'po1',title:'Faça um simulado grátis',content:'<p>Teste seus conhecimentos com um simulado gratuito, com correção comentada e gabarito em áudio.</p>',cta:'Escolher meu simulado',ctaUrl:'#simulados',trigger:'saida',active:true};
-  function load(){try{var db=JSON.parse(localStorage.getItem('eda-db'));if(db&&db.popups){var a=db.popups.filter(function(p){return p.active;});return a.length?a[0]:null;}}catch(_){}return DEFAULT_POPUP;}
+
+  var DEFAULT_POPUP={id:'po1',title:'Faça um simulado grátis',content:'<p>Teste seus conhecimentos com um simulado gratuito, com correção comentada e gabarito em áudio.</p>',
+    cta:'Escolher meu simulado',ctaUrl:'#simulados',pages:[],trigger:'saida',delay:25,scrollPct:40,freq:'sessao',active:true};
+
+  /* qual página é esta, para casar com o "onde" do admin */
+  function paginaAtual(){
+    var f=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\.html$/,'');
+    if(f===''||f==='index')return 'home';
+    if(f==='curso')return 'cursos';
+    if(f==='artigos')return 'artigos';
+    if(f==='artigo')return 'artigo';
+    if(f==='pagina')return 'pagina';
+    return f;
+  }
+  function valeAqui(p){
+    var ps=p.pages;
+    if(!ps||!ps.length)return true;          /* vazio = todas as páginas */
+    return ps.indexOf(paginaAtual())>=0;
+  }
+
+  /* escolhe o primeiro popup ativo que vale para esta página */
+  function load(){
+    try{
+      var db=JSON.parse(localStorage.getItem('eda-db'));
+      if(db&&db.popups){
+        var a=db.popups.filter(function(p){return p.active&&valeAqui(p);});
+        return a.length?a[0]:null;
+      }
+    }catch(_){}
+    return valeAqui(DEFAULT_POPUP)?DEFAULT_POPUP:null;
+  }
   var pop=load();if(!pop)return;
   if(!(pop.cta&&pop.ctaUrl)&&pop.id===DEFAULT_POPUP.id){pop.cta=DEFAULT_POPUP.cta;pop.ctaUrl=DEFAULT_POPUP.ctaUrl;}
-  var seenKey='ed-popup-'+pop.id;try{if(sessionStorage.getItem(seenKey))return;}catch(_){}
+
+  /* frequência: já foi visto? */
+  var freq=pop.freq||'sessao', chave='ed-popup-'+pop.id;
+  function jaViu(){
+    try{
+      if(freq==='sempre')return false;
+      if(freq==='dia'){
+        var d=localStorage.getItem(chave+'-dia');
+        return d===new Date().toDateString();
+      }
+      return !!sessionStorage.getItem(chave);
+    }catch(_){return false;}
+  }
+  function marcaVisto(){
+    try{
+      if(freq==='sempre')return;
+      if(freq==='dia')localStorage.setItem(chave+'-dia',new Date().toDateString());
+      else sessionStorage.setItem(chave,'1');
+    }catch(_){}
+  }
+  if(jaViu())return;
+
   function build(){
     var scrim=document.createElement('div');scrim.className='edpop-scrim';
     var cta=(pop.cta&&pop.ctaUrl)?('<a class="edbtn" href="'+pop.ctaUrl+'">'+pop.cta+'</a>'):'';
@@ -30,12 +82,14 @@
     scrim.querySelector('h3').textContent=pop.title||'';
     scrim.querySelector('.pc').innerHTML=pop.content||'';
     document.body.appendChild(scrim);
+
     var shown=false;
-    function show(){if(shown)return;shown=true;scrim.classList.add('show');try{sessionStorage.setItem(seenKey,'1');}catch(_){}}
+    function show(){if(shown)return;shown=true;scrim.classList.add('show');marcaVisto();}
     function close(){scrim.classList.remove('show');}
     scrim.addEventListener('click',function(e){if(e.target===scrim)close();});
     scrim.querySelector('.x').addEventListener('click',close);
     scrim.querySelector('.pclose').addEventListener('click',close);
+
     /* '#simulados' / '#cursos' abrem o seletor de cursos em vez de navegar */
     var btn=scrim.querySelector('.edbtn');
     if(btn&&/^#(simulados|cursos)$/.test(pop.ctaUrl||'')){
@@ -45,11 +99,25 @@
         window.EDCursos.open(pop.ctaUrl.slice(1));
       });
     }
+
     var t=pop.trigger||'tempo';
-    if(t==='entrada'){setTimeout(show,1000);}
-    else if(t==='tempo'){setTimeout(show,8000);}
-    else if(t==='rolagem'){var os=function(){var h=document.documentElement;var max=h.scrollHeight-h.clientHeight;if(max>0&&h.scrollTop/max>0.4){show();window.removeEventListener('scroll',os);}};window.addEventListener('scroll',os,{passive:true});}
-    else{document.addEventListener('mouseout',function(e){if(!shown&&e.clientY<=0&&!e.relatedTarget)show();});setTimeout(function(){show();},25000);}
+    var seg=(pop.delay==null?null:+pop.delay);
+    if(t==='entrada'){
+      setTimeout(show,(seg==null?1:seg)*1000);
+    }else if(t==='tempo'){
+      setTimeout(show,(seg==null?8:seg)*1000);
+    }else if(t==='rolagem'){
+      var alvo=Math.min(100,Math.max(1,+pop.scrollPct||40))/100;
+      var os=function(){
+        var h=document.documentElement,max=h.scrollHeight-h.clientHeight;
+        if(max>0&&h.scrollTop/max>alvo){show();window.removeEventListener('scroll',os);}
+      };
+      window.addEventListener('scroll',os,{passive:true});
+    }else{
+      document.addEventListener('mouseout',function(e){if(!shown&&e.clientY<=0&&!e.relatedTarget)show();});
+      var limite=(seg==null?25:seg);
+      if(limite>0)setTimeout(show,limite*1000);   /* 0 = só na intenção de saída */
+    }
   }
   if(document.body)build();else document.addEventListener('DOMContentLoaded',build);
 })();

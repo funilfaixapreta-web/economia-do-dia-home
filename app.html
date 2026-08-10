@@ -701,8 +701,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
     <div class="side-foot">
       <button class="collapse-btn" id="collapse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg><span>Recolher menu</span></button>
       <div style="display:flex;align-items:center;gap:8px">
-        <a class="user" href="#/perfil" style="flex:1"><span class="avatar">FN</span><span class="meta"><span class="nm" style="display:block">Felipe Nunes</span><span class="vp">Ver perfil e conta</span></span></a>
-        <span class="logout" title="Sair" onclick="location.href='login.html'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
+        <a class="user" href="#/perfil" style="flex:1"><span class="avatar" id="side-ini">FN</span><span class="meta"><span class="nm" style="display:block" id="side-nome">Felipe Nunes</span><span class="vp">Ver perfil e conta</span></span></a>
+        <span class="logout" title="Sair" onclick="sairDaConta()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
       </div>
     </div>
   </aside>
@@ -782,7 +782,23 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 /* =========================================================
    MODELO DE DADOS (mock · protótipo)
    ========================================================= */
-const USER={name:'Felipe Nunes',first:'Felipe',email:'aluno@economiadodia.com.br',phone:'(21) 99999-0000',initials:'FN',goal:'Analista pleno (CB + CG1 + CT1)',planId:'completo'};
+/* Área do aluno exige sessão: sem login, manda cadastrar e volta pra cá. */
+(function(){
+  var u=null;try{u=JSON.parse(localStorage.getItem('ed-user'))}catch(_){}
+  if(!u){location.replace('login.html?next='+encodeURIComponent('app.html'+location.hash));}
+})();
+const USER=(function(){
+  var base={name:'Felipe Nunes',first:'Felipe',email:'aluno@economiadodia.com.br',phone:'(21) 99999-0000',initials:'FN',goal:'Analista pleno (CB + CG1 + CT1)',planId:'completo'};
+  var u=null;try{u=JSON.parse(localStorage.getItem('ed-user'))}catch(_){}
+  if(!u||!u.nome)return base;
+  var nome=String(u.nome).trim();
+  return Object.assign({},base,{
+    name:nome, first:nome.split(/\s+/)[0],
+    email:u.email||base.email, phone:u.telefone||base.phone,
+    initials:nome.split(/\s+/).slice(0,2).map(function(w){return w[0]}).join('').toUpperCase(),
+    planId:u.plano||null
+  });
+})();
 
 const TRILHAS=[
   {id:'cnpi',eye:'Certificação',name:'Trilha CNPI',color:'#D4A437',ico:'★',desc:'Do zero ao credenciamento de analista: Conteúdo Brasileiro, Global e Técnico, na ordem exata da prova.',courses:['cb','cg1','ct1'],progress:38},
@@ -1068,13 +1084,14 @@ function trilhaCard(t){
 function courseCard(c){
   const pr=courseProgress(c),cc=courseCounts(c);
   if(!c.owned){
-    return `<div class="ccard locked" data-upgrade="${c.id}">
+    /* Curso nao comprado continua explorável: abre normalmente e cada aula
+       custa tokens. O rodape do card mostra o preco em vez do cadeado. */
+    const ct=(window.EDTokens&&EDTokens.cfg().ativo)?EDTokens.cfg().custo.aula:0;
+    return `<a class="ccard" href="#/curso/${c.id}">
       <div class="cover tile"><span class="roman">${c.code}</span><span class="ctag">${c.code}</span></div>
-      <div class="cbody"><h3>${esc(c.title)}</h3><p class="cdesc">${esc(c.desc)}</p><div class="cmeta">${cc.total} aulas</div></div>
-      <div class="lock-ov"><span class="lk"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
-        <div class="lt">Curso bloqueado</div><div class="lp">Faça upgrade para liberar · R$ ${c.price}</div>
-        <span class="btn btn-gold btn-sm">Desbloquear</span></div>
-    </div>`;
+      <div class="cbody"><h3>${esc(c.title)}</h3><p class="cdesc">${esc(c.desc)}</p>
+        <div class="cmeta">${cc.total} aulas${ct?` · <span style="color:var(--gold-deep)">◉ ${ct} tokens/aula</span>`:` · R$ ${c.price}`}</div></div>
+    </a>`;
   }
   return `<a class="ccard" href="#/curso/${c.id}">
     <div class="cover tile"><span class="roman">${c.code}</span><span class="ctag">${c.code}</span></div>
@@ -1182,11 +1199,10 @@ VIEWS.trilha=(id)=>{
     const pr=c.owned?courseProgress(c):0,cc=courseCounts(c),st=!c.owned?'locked':pr>=100?'done':'';
     const inner=`<div class="jth tile"><span class="ctag">${c.code}</span></div>
       <div style="flex:1;min-width:0"><div class="jstep-lbl">Curso ${i+1}</div><h4>${esc(c.title)}</h4><div class="jmeta">${cc.total} aulas${c.owned?' · '+cc.done+' concluídas':''}</div></div>
-      <div class="jright">${c.owned?`<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono'">${pr}%</div><div class="jprog"><i style="width:${pr}%"></i></div>`:`<span class="jlk">🔒 R$ ${c.price}</span>`}</div>`;
+      <div class="jright">${c.owned?`<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono'">${pr}%</div><div class="jprog"><i style="width:${pr}%"></i></div>`:`<span class="jlk">◉ ${(window.EDTokens&&EDTokens.cfg().ativo)?EDTokens.cfg().custo.aula+' tokens/aula':'R$ '+c.price}</span>`}</div>`;
     const line=`<div class="jline"><span class="jnum">${st==='done'?'✓':i+1}</span>${i<cs.length-1?'<span class="jstick"></span>':''}</div>`;
-    return c.owned
-      ? `<div class="jstep ${st}">${line}<a class="jcard" href="#/curso/${c.id}">${inner}</a></div>`
-      : `<div class="jstep locked">${line}<div class="jcard" data-upgrade="${c.id}">${inner}</div></div>`;
+    /* todo curso da trilha é navegável para quem está logado */
+    return `<div class="jstep ${c.owned?st:''}">${line}<a class="jcard" href="#/curso/${c.id}">${inner}</a></div>`;
   }).join('')}
   </div>
   <p style="font-size:12.5px;color:var(--faint);margin-top:16px;line-height:1.5">Estrutura escalável: cada trilha reúne cursos em sequência, e cada curso reúne módulos e aulas. Novas trilhas, cursos e aulas entram sem mudar o layout.</p>
@@ -1206,7 +1222,8 @@ VIEWS.cursos=()=>{
 
 VIEWS.curso=(id)=>{
   const c=courseById(id);if(!c)return VIEWS.cursos();
-  if(!c.owned){setTimeout(()=>openUpgrade(c.id),0);return VIEWS.cursos();}
+  /* Quem esta logado navega a plataforma inteira: todo curso abre e mostra o
+     conteudo. Quem nao comprou paga a aula em tokens ao assistir. */
   const pr=courseProgress(c),cc=courseCounts(c),t=trilhaById(c.trilha);
   const next=flatLessons(c).find(l=>l.p<100)||flatLessons(c)[0];
   const mods=c.modules.map((m,mi)=>{
@@ -1510,7 +1527,7 @@ VIEWS.perfil=()=>{
       <div class="pref"><span class="pl">Recomendações da IA</span><button class="switch on" data-toggle></button></div>
     </div>
 
-    <div class="card danger"><h3>Sair da conta</h3><p style="font-size:13px;color:var(--muted);margin-bottom:14px">Você precisará entrar novamente para acessar suas aulas.</p><span class="btn btn-sm" onclick="location.href='login.html'">Sair</span></div>
+    <div class="card danger"><h3>Sair da conta</h3><p style="font-size:13px;color:var(--muted);margin-bottom:14px">Você precisará entrar novamente para acessar suas aulas.</p><span class="btn btn-sm" onclick="sairDaConta()">Sair</span></div>
   </div>
   `;
 };
@@ -2001,6 +2018,18 @@ document.getElementById('tk-chip').addEventListener('click',()=>{
     ? alert('Você tem '+EDTokens.saldo()+' tokens.\n\nSimulado completo: '+c.custo.simulado+'\nAula: '+c.custo.aula+'\nPergunta para a IA: '+c.custo.ia)
     : EDTokens.semSaldo({preco:0,saldo:0});
 });
+
+function sairDaConta(){
+  if(window.EDTokens)EDTokens.logout();
+  else try{localStorage.removeItem('ed-user')}catch(_){}
+  location.href='login.html';
+}
+/* nome real de quem entrou, na barra lateral */
+(function(){
+  var n=document.getElementById('side-nome'),i=document.getElementById('side-ini');
+  if(n)n.textContent=USER.name;
+  if(i)i.textContent=USER.initials;
+})();
 
 if(!location.hash)location.hash='#/inicio';
 render();
