@@ -690,6 +690,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 .revnavapp{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
 .revnavapp .btn[disabled]{opacity:.4;pointer-events:none}
 @media(max-width:640px){.revnavapp .btn{flex:1;justify-content:center}}
+.simframe{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--panel-2)}
+.simframe iframe{display:block;width:100%;height:calc(100vh - 210px);min-height:520px;border:0}
+@media(max-width:760px){.simframe iframe{height:calc(100vh - 190px)}}
 </style>
 </head>
 <body>
@@ -779,7 +782,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 </div>
 
 <!-- IA nudge proativo -->
-<div class="ia-nudge" id="ia-nudge"><span class="in-x" id="ia-nudge-x">✕</span><div class="in-t">👋 Oi, Felipe! Quer que eu monte seu <b>plano de estudo</b> até a prova?</div></div>
+<div class="ia-nudge" id="ia-nudge"><span class="in-x" id="ia-nudge-x">✕</span><div class="in-t" id="ia-nudge-t">👋 Quer que eu monte seu <b>plano de estudo</b> até a prova?</div></div>
 
 <!-- toasts -->
 <div class="toast-wrap" id="toast-wrap"></div>
@@ -1329,6 +1332,25 @@ function revIr(i){revIdx=Math.max(0,i);render();
   var el=document.querySelector('.qrev');
   if(el)el.scrollIntoView({block:'center'});
 }
+/* O simulado roda DENTRO da área do aluno (decisão da reunião de 05/08:
+   "a pessoa vai ter acesso a toda a plataforma do aluno para fazer o
+   simulado"). O motor da prova continua sendo o simulado.html, embutido
+   aqui em modo ?embed=1 para herdar o shell, a sidebar e o saldo. */
+VIEWS.simulado=(sid)=>{
+  const s=simById(sid);
+  const titulo=s?esc(s.title):'Simulado';
+  const meta=s?`${s.cert} · ${s.questions} questões · ${s.dur}`:'Simulado gratuito';
+  const custo=(window.EDTokens&&EDTokens.cfg().ativo)?EDTokens.cfg().custo.simulado:0;
+  return `
+  <div class="crumb"><a href="#/simulados">Simulados</a><span class="sep">/</span><span class="cur">${titulo}</span></div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+    <div><div style="font-family:'Sora';font-weight:600;font-size:17px;color:var(--head)">${titulo}</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:2px">${esc(meta)}</div></div>
+    ${custo?`<span class="chip" style="margin-left:auto;color:var(--gold-deep);border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)">◉ ${custo} tokens</span>`:''}
+  </div>
+  <div class="simframe"><iframe src="simulado.html?sim=${encodeURIComponent(sid||'')}&embed=1" title="${titulo}" loading="eager"></iframe></div>`;
+};
+
 VIEWS.desempenho=(simId)=>{
   const done=SIMULADOS.filter(s=>s.score!=null);
   const sel=(simId&&simById(simId))?simById(simId):(done[0]||null);
@@ -1371,7 +1393,7 @@ VIEWS.desempenho=(simId)=>{
     detail=`
     <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:14px">
       <div><div style="font-family:'Sora';font-weight:600;font-size:17px;color:var(--head)">${esc(sel.title)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${sel.cert} · realizado ${datas[sel.id]||'recentemente'} · ${sel.questions} questões · ${sel.dur}</div></div>
-      <a class="btn btn-ghost btn-sm" href="simulado.html?sim=${sel.id}">↻ Refazer simulado</a>
+      <a class="btn btn-ghost btn-sm" href="#/simulado/${sel.id}">↻ Refazer simulado</a>
     </div>
     <div class="dstat">
       <div class="card"><div class="dv" style="color:${scoreColor(sel.score)}">${sel.score}%</div><div class="dl">Nota</div></div>
@@ -1695,6 +1717,7 @@ const TITLES={
   curso:['Curso','Módulos, aulas e progresso.'],
   aula:['Aula','Assista, baixe os materiais e ouça o gabarito.'],
   simulados:['Simulados','Complete por módulo e veja o resultado detalhado.'],
+  simulado:['Simulado','Faça a prova aqui dentro; o resultado fica no seu desempenho.'],
   desempenho:['Desempenho','Diagnóstico, evolução e detalhe por simulado.'],
   historico:['Histórico','Tudo o que você fez, em ordem.'],
   favoritos:['Favoritos','Seu kit de revisão para a reta final.'],
@@ -1718,6 +1741,7 @@ function render(){
   else if(name==='curso')html=VIEWS.curso(params[0]);
   else if(name==='aula')html=VIEWS.aula(params[0],params[1]);
   else if(name==='simulados')html=VIEWS.simulados();
+  else if(name==='simulado')html=VIEWS.simulado(params[0]);
   else if(name==='desempenho')html=VIEWS.desempenho(qs.get('sim'));
   else if(name==='historico')html=VIEWS.historico();
   else if(name==='favoritos')html=VIEWS.favoritos();
@@ -1770,7 +1794,7 @@ document.addEventListener('click',e=>{
   const qrevH=e.target.closest('.qrev-h');if(qrevH){qrevH.parentElement.classList.toggle('open');return;}
   const simH=e.target.closest('[data-sim-toggle]');if(simH){simH.parentElement.classList.toggle('open');return;}
   const up=e.target.closest('[data-upgrade]');if(up){openUpgrade(up.dataset.upgrade);return;}
-  const openSim=e.target.closest('[data-open-sim]');if(openSim){location.href='simulado.html?sim='+encodeURIComponent(openSim.dataset.openSim);return;}
+  const openSim=e.target.closest('[data-open-sim]');if(openSim){location.hash='#/simulado/'+encodeURIComponent(openSim.dataset.openSim);return;}
   const tog=e.target.closest('[data-toggle]');if(tog){tog.classList.toggle('on');toast(tog.classList.contains('on')?'Preferência ativada':'Preferência desativada','ok');return;}
   const ask=e.target.closest('[data-ask]');if(ask){openIa();sendIa(ask.dataset.ask);return;}
   const fav=e.target.closest('[data-fav]');if(fav){const key=fav.dataset.fav||'fav';let on;if(FAVS.has(key)){FAVS.delete(key);on=false;}else{FAVS.add(key);on=true;}_save('ed-favs',FAVS);fav.innerHTML=on?'★ Favoritado':'☆ Favoritar';fav.style.color=on?'var(--gold-deep)':'';toast(on?'Adicionado aos favoritos ★':'Removido dos favoritos','ok');return;}
@@ -2055,6 +2079,8 @@ function sairDaConta(){
   var n=document.getElementById('side-nome'),i=document.getElementById('side-ini');
   if(n)n.textContent=USER.name;
   if(i)i.textContent=USER.initials;
+  var nd=document.getElementById('ia-nudge-t');
+  if(nd)nd.innerHTML='👋 Oi, '+esc(USER.first)+'! Quer que eu monte seu <b>plano de estudo</b> até a prova?';
 })();
 
 if(!location.hash)location.hash='#/inicio';

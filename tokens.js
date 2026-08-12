@@ -122,6 +122,10 @@
   /* ---------- pop-up de boas-vindas (primeiro login) ---------- */
   function boasVindas(){
     var c=cfg();if(!c.ativo)return;
+    /* dentro de um iframe (simulado embutido na área do aluno) quem mostra as
+       boas-vindas é a página de fora — senão o aviso aparece duas vezes e o
+       de dentro cobre o botão de iniciar a prova */
+    try{ if(window.top&&window.top!==window)return; }catch(_){}
     var u=user();if(!u||u.viuTokens)return;
     var w=wallet();
     abrir('<div class="pe">Economia do Dia</div>'
@@ -155,7 +159,11 @@
   /* ---------- portão: exige login e cobra o token ---------- */
   /* destino = URL para onde voltar depois do login */
   function exigirLogin(destino){
-    location.href='login.html?next='+encodeURIComponent(destino||(location.pathname.split('/').pop()+location.search+location.hash));
+    var url='login.html?next='+encodeURIComponent(destino||(location.pathname.split('/').pop()+location.search+location.hash));
+    /* se o simulado estiver rodando dentro da área do aluno (iframe),
+       o login precisa abrir na janela inteira, não dentro do quadro */
+    try{ if(window.top&&window.top!==window){ window.top.location.href=url; return; } }catch(_){}
+    location.href=url;
   }
   function liberar(tipo,id,destino){
     if(!user()){exigirLogin(destino);return false;}

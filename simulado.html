@@ -317,6 +317,17 @@ a{color:inherit;text-decoration:none}
 
 <script src="tokens.js"></script>
 <script>
+/* Rodando dentro da área do aluno (?embed=1): esconde a barra e o rodapé
+   próprios, porque quem manda no visual é o shell do app. */
+(function(){
+  if(!/[?&]embed=1/.test(location.search))return;
+  document.documentElement.classList.add('embed');
+  var st=document.createElement('style');
+  st.textContent='.embed .top{display:none}.embed .foot{display:none}'
+    +'.embed .exam-bar{top:0}.embed body{background:transparent}'
+    +'.embed .hero{padding-top:14px}';
+  document.head.appendChild(st);
+})();
 /* ---------- tema ---------- */
 var seg=document.getElementById('seg');
 function setTheme(t){document.documentElement.setAttribute('data-theme',t);seg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.theme===t);});try{localStorage.setItem('ed-theme',t)}catch(_){}}

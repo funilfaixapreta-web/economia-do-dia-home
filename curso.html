@@ -248,7 +248,9 @@ function render(cert,anchor){
   var sims=c.sims.map(function(s){
     /* o clique passa pelo portão: exige login e desconta os tokens */
     var sid=slug(s.n);
-    var bSim='<a class="btn btn-gold btn-sm" href="simulado.html?sim='+sid+'" data-tk>'+(s.full?'Fazer simulado':'Simulado')+'</a>';
+    /* simulado e aula acontecem dentro da área do aluno: sem sessão o clique
+       manda para o cadastro e volta exatamente para cá depois de logar */
+    var bSim='<a class="btn btn-gold btn-sm" href="app.html#/simulado/'+sid+'" data-tk>'+(s.full?'Fazer simulado':'Simulado')+'</a>';
     var bAula='<a class="btn btn-ghost btn-sm" href="'+aulaBase+'" data-tk>'+PLAY+' Aula</a>';
     var acoes=s.full?bSim:(bAula+bSim);
     return '<div class="sim'+(s.full?' full':'')+'"><h3>'+esc(s.n)+'</h3>'+
