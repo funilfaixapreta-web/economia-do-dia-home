@@ -46,11 +46,29 @@
 
   /* ---------- carteira ---------- */
   function competencia(d){d=d||new Date();return d.getFullYear()+'-'+(d.getMonth()+1);}
+  /* A carteira pertence a UMA conta. Sem isso, a carteira ficava solta no
+     navegador: quem criava uma conta nova herdava o saldo já gasto da conta
+     anterior e entrava com 0 tokens. */
+  function donoAtual(){
+    var u=user();if(!u)return null;
+    return String(u.email||u.telefone||u.nome||'').trim().toLowerCase()||null;
+  }
+  /* Guardamos uma carteira POR conta. Assim cada pessoa que entrar neste
+     navegador tem o seu próprio saldo, e voltar a uma conta que já gastou
+     não devolve os tokens. */
+  function chaveDono(){return donoAtual()||'_visitante';}
+  function todasCarteiras(){
+    var m=null;try{m=JSON.parse(localStorage.getItem(WKEY))}catch(_){}
+    if(!m||typeof m!=='object')return {};
+    /* migra o formato antigo (carteira única solta) */
+    if(typeof m.saldo==='number')return {[m.dono||'_visitante']:m};
+    return m;
+  }
   function wallet(){
-    var c=cfg(), w=null;
-    try{w=JSON.parse(localStorage.getItem(WKEY))}catch(_){}
+    var c=cfg(), mapa=todasCarteiras(), k=chaveDono(), w=mapa[k];
     if(!w||typeof w.saldo!=='number'){
-      w={saldo:c.inicial,liberado:{},criadaEm:Date.now(),mes:competencia(),base:c.inicial};saveW(w);
+      w={saldo:c.inicial,liberado:{},criadaEm:Date.now(),mes:competencia(),base:c.inicial,dono:donoAtual()};
+      mapa[k]=w;saveMapa(mapa);
     }
     if(!w.liberado)w.liberado={};
     /* Se o admin aumentar o saldo inicial, quem já tem carteira recebe a
@@ -66,7 +84,8 @@
     }
     return w;
   }
-  function saveW(w){try{localStorage.setItem(WKEY,JSON.stringify(w))}catch(_){}}
+  function saveMapa(m){try{localStorage.setItem(WKEY,JSON.stringify(m))}catch(_){}}
+  function saveW(w){var m=todasCarteiras();m[chaveDono()]=w;saveMapa(m);}
   function saldo(){return wallet().saldo;}
   function creditar(n){var w=wallet();w.saldo+=(+n||0);saveW(w);return w.saldo;}
 
