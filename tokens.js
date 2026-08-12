@@ -104,7 +104,14 @@
     +'.edtk .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}'
     +'.edtk .b{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;font-weight:600;font-size:14px;border-radius:11px;padding:11px 18px;cursor:pointer;border:1px solid transparent;text-decoration:none}'
     +'.edtk .b.g{background:linear-gradient(180deg,#E6BE54,#D4A437);color:#0B0D10}'
-    +'.edtk .b.o{background:var(--overlay-soft,rgba(255,255,255,.05));border-color:var(--overlay-bd,rgba(255,255,255,.14));color:var(--text,#E7EAEF)}';
+    +'.edtk .b.o{background:var(--overlay-soft,rgba(255,255,255,.05));border-color:var(--overlay-bd,rgba(255,255,255,.14));color:var(--text,#E7EAEF)}'
+    /* chip de saldo, usado em qualquer página do site */
+    +'.edsaldo{display:inline-flex;align-items:center;gap:7px;font-family:"Inter",sans-serif;font-size:13px;font-weight:600;'
+    +'color:var(--gold-deep,#E6BE54);background:var(--gold-soft-bg,rgba(212,164,55,.10));border:1px solid var(--gold-soft-bd,rgba(212,164,55,.3));'
+    +'border-radius:999px;padding:8px 15px;cursor:pointer;white-space:nowrap;transition:border-color .15s}'
+    +'.edsaldo:hover{border-color:var(--gold,#D4A437)}'
+    +'.edsaldo b{font-family:"IBM Plex Mono",monospace}'
+    +'@media(max-width:560px){.edsaldo{padding:7px 12px;font-size:12px}}';
   var styled=false, scrim=null;
   function ensure(){
     if(!styled){var st=document.createElement('style');st.textContent=CSS;document.head.appendChild(st);styled=true;}
@@ -172,14 +179,55 @@
     return true;
   }
 
+  /* ---------- saldo visível em qualquer página ----------
+     Qualquer elemento com data-ed-saldo vira um chip com o saldo atual.
+     Clicando, abre o detalhe: quanto custa cada coisa e o botão de sair. */
+  function meusTokens(){
+    var c=cfg(), u=user();
+    if(!u){
+      abrir('<div class="pe">Economia do Dia</div><h3>Crie sua conta para ganhar tokens</h3>'
+        +'<p>Com a conta você ganha '+c.inicial+' tokens para fazer o simulado completo, assistir aulas e usar a IA de estudos.</p>'
+        +'<div class="acts"><a class="b g" href="login.html">Criar conta grátis</a>'
+        +'<button class="b o" data-tk-close>Agora não</button></div>');
+      scrim.querySelector('[data-tk-close]').addEventListener('click',fechar);
+      return;
+    }
+    var w=wallet();
+    abrir('<div class="pe">Seus tokens</div>'
+      +'<h3>Você tem '+w.saldo+' token'+(w.saldo===1?'':'s')+'.</h3>'
+      +'<span class="coin">◉ '+w.saldo+' tokens</span>'
+      +'<p>Entrou como <b style="color:var(--text,#E7EAEF)">'+esc(u.nome||u.email||'aluno')+'</b>.</p>'
+      +'<ul>'
+        +'<li>Simulado completo, com correção <span class="pz">'+c.custo.simulado+' tokens</span></li>'
+        +'<li>Aula do curso <span class="pz">'+c.custo.aula+' tokens</span></li>'
+        +'<li>Pergunta para a IA de estudos <span class="pz">'+c.custo.ia+' token'+(c.custo.ia===1?'':'s')+'</span></li>'
+      +'</ul>'
+      +'<p style="font-size:13px;margin-top:12px">Rever um conteúdo que você já abriu não gasta token de novo.</p>'
+      +'<div class="acts"><a class="b g" href="app.html">Ir para a área do aluno</a>'
+      +'<button class="b o" data-tk-sair>Sair da conta</button></div>');
+    scrim.querySelector('[data-tk-sair]').addEventListener('click',function(){logout();location.reload();});
+  }
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function pintarChips(){
+    var c=cfg(), u=user();
+    var alvos=document.querySelectorAll('[data-ed-saldo]');
+    Array.prototype.forEach.call(alvos,function(el){
+      if(!c.ativo||!u){el.innerHTML='';return;}
+      el.innerHTML='<button class="edsaldo" type="button" title="Ver meus tokens">◉ <b>'+saldo()+'</b> tokens</button>';
+      el.querySelector('.edsaldo').addEventListener('click',meusTokens);
+    });
+  }
+
   window.EDTokens={
+    meusTokens:meusTokens, pintarChips:pintarChips,
     cfg:cfg, user:user, setUser:setUser, logout:logout,
     saldo:saldo, creditar:creditar, cobrar:cobrar, preco:preco, liberado:liberado,
     liberar:liberar, exigirLogin:exigirLogin,
     boasVindas:boasVindas, semSaldo:semSaldo, fechar:fechar
   };
 
-  /* mostra as boas-vindas assim que houver sessão nova */
-  if(document.readyState!=='loading')setTimeout(boasVindas,400);
-  else document.addEventListener('DOMContentLoaded',function(){setTimeout(boasVindas,400);});
+  /* pinta o saldo e mostra as boas-vindas assim que houver sessão nova */
+  function iniciar(){pintarChips();setTimeout(boasVindas,400);}
+  if(document.readyState!=='loading')iniciar();
+  else document.addEventListener('DOMContentLoaded',iniciar);
 })();
