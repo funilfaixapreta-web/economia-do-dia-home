@@ -2062,11 +2062,7 @@ function pintaSaldo(){
   chip.style.display='';
 }
 document.getElementById('tk-chip').addEventListener('click',()=>{
-  if(!window.EDTokens)return;
-  const c=EDTokens.cfg();
-  EDTokens.saldo()>0
-    ? alert('Você tem '+EDTokens.saldo()+' tokens.\n\nSimulado completo: '+c.custo.simulado+'\nAula: '+c.custo.aula+'\nPergunta para a IA: '+c.custo.ia)
-    : EDTokens.semSaldo({preco:0,saldo:0});
+  if(window.EDTokens)EDTokens.meusTokens();
 });
 
 function sairDaConta(){
