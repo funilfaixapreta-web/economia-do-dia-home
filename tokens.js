@@ -146,8 +146,15 @@
   function fechar(){if(scrim)scrim.classList.remove('show');}
 
   /* ---------- pop-up de boas-vindas (primeiro login) ---------- */
+  /* Token é assunto da área do aluno. No site público (home, cursos, artigos)
+     não aparece nem saldo nem aviso. */
+  function naAreaDoAluno(){
+    return /(^|\/)app\.html$/i.test(location.pathname)
+        || document.documentElement.hasAttribute('data-ed-area-aluno');
+  }
   function boasVindas(){
     var c=cfg();if(!c.ativo)return;
+    if(!naAreaDoAluno())return;
     /* dentro de um iframe (simulado embutido na área do aluno) quem mostra as
        boas-vindas é a página de fora — senão o aviso aparece duas vezes e o
        de dentro cobre o botão de iniciar a prova */
@@ -222,16 +229,20 @@
         +'<li>Pergunta para a IA de estudos <span class="pz">'+c.custo.ia+' token'+(c.custo.ia===1?'':'s')+'</span></li>'
       +'</ul>'
       +'<p style="font-size:13px;margin-top:12px">Rever um conteúdo que você já abriu não gasta token de novo.</p>'
-      +'<div class="acts"><a class="b g" href="app.html">Ir para a área do aluno</a>'
+      +'<div class="acts">'
+      +(naAreaDoAluno()?'<button class="b g" data-tk-close>Continuar estudando</button>'
+                       :'<a class="b g" href="app.html">Ir para a área do aluno</a>')
       +'<button class="b o" data-tk-sair>Sair da conta</button></div>');
-    scrim.querySelector('[data-tk-sair]').addEventListener('click',function(){logout();location.reload();});
+    var fechaBtn=scrim.querySelector('[data-tk-close]');
+    if(fechaBtn)fechaBtn.addEventListener('click',fechar);
+    scrim.querySelector('[data-tk-sair]').addEventListener('click',function(){logout();location.href='index.html';});
   }
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function pintarChips(){
-    var c=cfg(), u=user();
+    var c=cfg(), u=user(), dentro=naAreaDoAluno();
     var alvos=document.querySelectorAll('[data-ed-saldo]');
     Array.prototype.forEach.call(alvos,function(el){
-      if(!c.ativo||!u){el.innerHTML='';return;}
+      if(!c.ativo||!u||!dentro){el.innerHTML='';return;}
       el.innerHTML='<button class="edsaldo" type="button" title="Ver meus tokens">◉ <b>'+saldo()+'</b> tokens</button>';
       el.querySelector('.edsaldo').addEventListener('click',meusTokens);
     });
