@@ -2496,18 +2496,45 @@ function viewPublicar(){
     +'</div>';
 }
 function repintaPublicar(){var el=$('#pubcard');if(el)el.innerHTML=viewPublicar();}
+/* Entrar OU criar a conta de administrador do banco.
+   O "criar" precisa existir aqui: a tela de cadastro do site só fala com o
+   banco depois que a ponte for ligada, então sem isto não haveria como criar
+   o primeiro admin — e sem admin ninguém publica nada. O e-mail convidado
+   (admins_convidados) já nasce com o papel de admin. */
 function loginDoBanco(depois){
-  openDrawer('Entrar no banco',[
-    {key:'email',label:'E-mail de administrador',type:'text',hint:'A conta de admin cadastrada no banco (não é o login do protótipo).'},
-    {key:'senha',label:'Senha',type:'password'}
-  ],{email:'',senha:''},function(d){
-    if(!d.email||!d.senha){toast('Informe e-mail e senha.','err');return;}
-    EDPublicar.entrar(d.email.trim(),d.senha).then(function(){
-      closeDrawer();toast('Conectado ao banco.');
+  openDrawer('Conta de administrador no banco',[
+    {key:'acao',label:'O que você quer fazer',type:'select',
+     options:[['entrar','Já tenho conta · entrar'],['criar','Ainda não tenho · criar agora']]},
+    {key:'nome',label:'Seu nome (só ao criar a conta)',type:'text'},
+    {key:'email',label:'E-mail de administrador',type:'text',
+     hint:'Precisa ser um e-mail convidado como admin. Não é o login do protótipo.'},
+    {key:'senha',label:'Senha',type:'password',hint:'Mínimo de 6 caracteres.'}
+  ],{acao:'entrar',nome:'',email:'',senha:''},function(d){
+    var email=(d.email||'').trim(), senha=d.senha||'';
+    if(!email||!senha){toast('Informe e-mail e senha.','err');return;}
+
+    function pronto(){
+      closeDrawer(); toast('Conectado ao banco.');
       if(typeof depois==='function')depois();
-    }).catch(function(e){
-      toast('Não deu para entrar: '+(e&&e.message||'erro'),'err');
-    });
+    }
+    function falhou(e){
+      toast('Não deu certo: '+((e&&e.message)||'erro'),'err');
+    }
+
+    if(d.acao==='criar'){
+      if(senha.length<6){toast('A senha precisa ter pelo menos 6 caracteres.','err');return;}
+      EDApi.cadastrar({nome:(d.nome||'').trim(),email:email,telefone:'',senha:senha})
+        .then(function(r){
+          if(r&&r.precisaConfirmar){
+            closeDrawer();
+            toast('Conta criada. Confirme o e-mail e depois entre por aqui.');
+            return;
+          }
+          pronto();
+        }).catch(falhou);
+      return;
+    }
+    EDPublicar.entrar(email,senha).then(pronto).catch(falhou);
   });
 }
 function sairDoBanco(){EDPublicar.sair().then(repintaPublicar);}
