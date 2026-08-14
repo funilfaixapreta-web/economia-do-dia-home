@@ -790,6 +790,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 <!-- MODAL genérico -->
 <div class="modal" id="modal"><div class="modal-card" id="modal-card"></div></div>
 
+<script src="ed-api.js"></script>
 <script src="tokens.js"></script>
 <script>
 /* =========================================================
@@ -2061,6 +2062,7 @@ function pintaSaldo(){
   document.getElementById('tk-saldo').textContent=EDTokens.saldo();
   chip.style.display='';
 }
+window.pintaSaldo=pintaSaldo;
 document.getElementById('tk-chip').addEventListener('click',()=>{
   if(window.EDTokens)EDTokens.meusTokens();
 });

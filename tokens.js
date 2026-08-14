@@ -42,7 +42,10 @@
   /* ---------- sessão ---------- */
   function user(){try{return JSON.parse(localStorage.getItem(UKEY))||null}catch(_){return null}}
   function setUser(u){try{localStorage.setItem(UKEY,JSON.stringify(u))}catch(_){}}
-  function logout(){try{localStorage.removeItem(UKEY)}catch(_){}}
+  function logout(){
+    try{localStorage.removeItem(UKEY)}catch(_){}
+    if(window.EDApi&&EDApi.ativo())try{EDApi.sair()}catch(_){}
+  }
 
   /* ---------- carteira ---------- */
   function competencia(d){d=d||new Date();return d.getFullYear()+'-'+(d.getMonth()+1);}
@@ -102,6 +105,7 @@
     if(preco<=0){w.liberado[chaveDe(tipo,id)]=Date.now();saveW(w);return {ok:true,gratis:true};}
     if(w.saldo<preco)return {ok:false,motivo:'sem-saldo',falta:preco-w.saldo,preco:preco,saldo:w.saldo};
     w.saldo-=preco;w.liberado[chaveDe(tipo,id)]=Date.now();saveW(w);
+    confirmarNoBanco(tipo,id);
     return {ok:true,cobrado:preco,saldo:w.saldo};
   }
   function preco(tipo){var c=cfg();return c.ativo?(c.custo[tipo]||0):0;}
@@ -249,15 +253,47 @@
   }
 
   window.EDTokens={
-    meusTokens:meusTokens, pintarChips:pintarChips,
+    meusTokens:meusTokens, pintarChips:pintarChips, sincronizar:sincronizar,
     cfg:cfg, user:user, setUser:setUser, logout:logout,
     saldo:saldo, creditar:creditar, cobrar:cobrar, preco:preco, liberado:liberado,
     liberar:liberar, exigirLogin:exigirLogin,
     boasVindas:boasVindas, semSaldo:semSaldo, fechar:fechar
   };
 
+  /* ---------- ponte com o banco (ed-api.js) ----------
+     Quando o Supabase esta ligado, o servidor e a fonte da verdade: a carteira
+     local vira so cache para a interface nao piscar. O gasto e otimista na
+     tela e confirmado no banco; se o banco recusar, o saldo volta ao real.
+     A seguranca de verdade nao depende disto -- e o RLS que decide se o
+     conteudo sai do banco ou nao. */
+  function comBanco(){return !!(window.EDApi&&EDApi.ativo()&&EDApi.sessao());}
+  /* repinta todo lugar que mostra saldo: os chips daqui e o do shell do app */
+  function repintar(){
+    pintarChips();
+    if(typeof window.pintaSaldo==='function')try{window.pintaSaldo()}catch(_){}
+  }
+  function sincronizar(){
+    if(!comBanco())return;
+    EDApi.saldo().then(function(s){
+      var w=wallet();
+      if(typeof s==='number'&&s!==w.saldo){w.saldo=s;saveW(w);repintar();}
+    }).catch(function(){/* offline: segue com o cache */});
+  }
+  function confirmarNoBanco(tipo,id){
+    if(!comBanco())return;
+    EDApi.gastar(tipo,id).then(function(r){
+      if(!r)return;
+      var w=wallet();
+      if(typeof r.saldo==='number'&&r.saldo!==w.saldo){w.saldo=r.saldo;saveW(w);repintar();}
+      if(r.ok===false&&r.motivo==='sem-saldo'){
+        /* o banco recusou: desfaz a liberacao otimista */
+        delete w.liberado[chaveDe(tipo,id)];saveW(w);repintar();semSaldo(r);
+      }
+    }).catch(function(){/* offline: o proximo carregamento reconcilia */});
+  }
+
   /* pinta o saldo e mostra as boas-vindas assim que houver sessão nova */
-  function iniciar(){pintarChips();setTimeout(boasVindas,400);}
+  function iniciar(){pintarChips();sincronizar();setTimeout(boasVindas,400);}
   if(document.readyState!=='loading')iniciar();
   else document.addEventListener('DOMContentLoaded',iniciar);
 })();
