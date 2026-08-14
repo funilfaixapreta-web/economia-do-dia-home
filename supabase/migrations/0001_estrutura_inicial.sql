@@ -237,26 +237,22 @@ declare
   v_cfg   public.config_tokens%rowtype;
   v_preco int;
   v_novo  int;
+  v_atual int;
 begin
   if v_aluno is null then
-    return query select false, 0, 'sem-sessao'; return;
+    return query select false, 0, 'sem-sessao'::text; return;
   end if;
 
   select * into v_cfg from public.config_tokens where id;
+  select c.saldo into v_atual from public.carteiras c where c.aluno_id = v_aluno;
 
-  -- tokens desligados no admin: tudo liberado
   if not v_cfg.ativo then
-    return query select true, coalesce((select c.saldo from public.carteiras c
-                                         where c.aluno_id = v_aluno), 0), 'desligado';
-    return;
+    return query select true, coalesce(v_atual,0), 'desligado'::text; return;
   end if;
 
-  -- ja pagou por este item antes
   if exists (select 1 from public.liberacoes l
               where l.aluno_id = v_aluno and l.tipo = p_tipo and l.item_id = p_item_id) then
-    return query select true, (select c.saldo from public.carteiras c
-                                where c.aluno_id = v_aluno), 'ja-liberado';
-    return;
+    return query select true, coalesce(v_atual,0), 'ja-liberado'::text; return;
   end if;
 
   v_preco := case p_tipo
@@ -269,21 +265,18 @@ begin
   if v_preco <= 0 then
     insert into public.liberacoes (aluno_id, tipo, item_id)
       values (v_aluno, p_tipo, p_item_id) on conflict do nothing;
-    return query select true, (select c.saldo from public.carteiras c
-                                where c.aluno_id = v_aluno), 'gratis';
-    return;
+    return query select true, coalesce(v_atual,0), 'gratis'::text; return;
   end if;
 
-  -- o guard do UPDATE e o que garante a atomicidade
-  update public.carteiras
-     set saldo = saldo - v_preco
-   where aluno_id = v_aluno and saldo >= v_preco
-   returning saldo into v_novo;
+  -- ATENCAO: qualificar a coluna pelo alias. Sem isso, "saldo" fica ambiguo
+  -- com o parametro de saida e a funcao quebra em tempo de execucao.
+  update public.carteiras c
+     set saldo = c.saldo - v_preco
+   where c.aluno_id = v_aluno and c.saldo >= v_preco
+   returning c.saldo into v_novo;
 
   if v_novo is null then
-    return query select false, coalesce((select c.saldo from public.carteiras c
-                                          where c.aluno_id = v_aluno), 0), 'sem-saldo';
-    return;
+    return query select false, coalesce(v_atual,0), 'sem-saldo'::text; return;
   end if;
 
   insert into public.liberacoes (aluno_id, tipo, item_id)
@@ -291,7 +284,7 @@ begin
   insert into public.movimentos (aluno_id, quantidade, motivo, referencia)
     values (v_aluno, -v_preco, 'consumo:' || p_tipo, p_item_id);
 
-  return query select true, v_novo, 'cobrado';
+  return query select true, v_novo, 'cobrado'::text;
 end $$;
 
 -- Cortesia do comercial (pedido do Bruno na reuniao).
@@ -425,6 +418,31 @@ create policy admin_planos  on public.planos             for all using (public.e
 create policy admin_pc      on public.plano_cursos       for all using (public.eh_admin()) with check (public.eh_admin());
 create policy admin_config  on public.config_tokens      for update using (public.eh_admin()) with check (public.eh_admin());
 create policy admin_matr    on public.matriculas         for all using (public.eh_admin()) with check (public.eh_admin());
+
+-- ================================================ 10. PERMISSAO DAS FUNCOES
+-- Funcao em Postgres nasce com EXECUTE para PUBLIC, e anon herda dali.
+-- Revogar so de anon nao adianta: tem que tirar de PUBLIC e devolver
+-- explicitamente para quem deve chamar.
+
+-- ao_criar_usuario e funcao de GATILHO: nunca deve ser chamavel pela API.
+-- O gatilho continua rodando; isso nao depende de GRANT EXECUTE.
+revoke execute on function public.ao_criar_usuario() from public, anon, authenticated;
+
+-- Estas exigem sessao: fechadas para o visitante anonimo.
+revoke execute on function public.gastar_token(text, text)    from public, anon, authenticated;
+revoke execute on function public.dar_tokens(uuid, int, text) from public, anon, authenticated;
+grant  execute on function public.gastar_token(text, text)    to authenticated;
+grant  execute on function public.dar_tokens(uuid, int, text) to authenticated;
+
+-- eh_admin() e tem_acesso_curso() PRECISAM continuar executaveis por anon e
+-- authenticated: as policies de RLS que as usam sao avaliadas com a permissao
+-- de quem consulta, entao revogar quebraria ate a leitura do catalogo publico.
+-- Ambas devolvem apenas um booleano sobre o proprio chamador e nao expoem
+-- dado nenhum. O aviso do linter fica de proposito, com esta justificativa.
+comment on function public.eh_admin() is
+  'Helper de RLS. EXECUTE liberado por necessidade: policies sao avaliadas com a permissao do consultante. Retorna so booleano sobre o proprio chamador.';
+comment on function public.tem_acesso_curso(text) is
+  'Helper de RLS. EXECUTE liberado por necessidade: policies sao avaliadas com a permissao do consultante. Retorna so booleano sobre o proprio chamador.';
 
 -- ============================================================================
 -- Proximos passos (fora deste arquivo):
