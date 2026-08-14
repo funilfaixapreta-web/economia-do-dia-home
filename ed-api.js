@@ -120,6 +120,13 @@
     });
   }
 
+  /* chamada crua a uma funcao do banco. Serve para o painel publicar conteudo
+     mesmo com CFG.ativo desligado: o admin precisa subir o material ANTES de
+     virar a chave para os alunos. */
+  function rpc(nome,args){
+    return chamar('/rest/v1/rpc/'+nome,{metodo:'POST',corpo:args||{}});
+  }
+
   function config(){
     return chamar('/rest/v1/config_tokens?select=*').then(function(l){
       var c=(l&&l[0])||{};
@@ -132,6 +139,6 @@
     ativo:function(){return !!CFG.ativo;},
     url:CFG.url,
     sessao:sessao, cadastrar:cadastrar, entrar:entrar, sair:sair,
-    saldo:saldo, gastar:gastar, config:config
+    saldo:saldo, gastar:gastar, config:config, rpc:rpc
   };
 })();

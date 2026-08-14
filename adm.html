@@ -2027,7 +2027,8 @@ function buildField(f,val){
     <div class="rte-body" contenteditable="true" data-rk="${k}" data-ph="${esc(f.hint||'Escreva aqui...')}">${val||''}</div>
     <div class="rte-foot"><span>P</span><span>Distribuído por Tiny</span></div>
   </div></div>`;}
-  return `<div class="grp"><label>${f.label}</label><input class="fld" type="text" data-k="${f.key}" value="${esc(val)}"></div>`;
+  if(f.type==='password')return `<div class="grp"><label>${f.label}</label><input class="fld" type="password" data-k="${f.key}" value="${esc(val)}" autocomplete="current-password">${f.hint?`<div class="hint">${f.hint}</div>`:''}</div>`;
+  return `<div class="grp"><label>${f.label}</label><input class="fld" type="text" data-k="${f.key}" value="${esc(val)}">${f.hint?`<div class="hint">${f.hint}</div>`:''}</div>`;
 }
 function collect(fields){
   const out={};
@@ -2387,6 +2388,70 @@ function lpTokens(v){
     +'<span class="chip">Simulado: '+cs+'</span><span class="chip">Aula: '+ca+'</span><span class="chip">IA: '+(+v.ia||0)+'</span></div>';
 }
 
+/* ===================== Publicar conteúdo no banco =========================
+   Tudo o que o painel edita mora no navegador. Enquanto não for publicado,
+   o aluno não vê. Este bloco manda o pacote inteiro para o Postgres.       */
+function viewPublicar(){
+  if(!window.EDPublicar)
+    return '<div class="sec-title">Publicar para os alunos</div>'
+      +'<p class="hint" style="margin-top:0">A ponte com o banco não carregou. Recarregue a página.</p>';
+  var r=EDPublicar.resumo(), quem=EDPublicar.conta();
+  var alerta = r.aulasSemVideo
+    ? '<p class="hint" style="margin-top:10px;color:var(--red)">'+r.aulasSemVideo+' aula(s) ainda sem vídeo. Elas vão subir mesmo assim, mas o aluno abre e não vê nada.</p>'
+    : '';
+  if(r.simuladosCurtos&&r.simuladosCurtos.length)
+    alerta += '<p class="hint" style="margin-top:6px;color:var(--red)">Simulado pedindo mais questões do que existem no banco: '
+      + r.simuladosCurtos.map(function(s){return esc(s.nome)+' (pede '+s.pede+', tem '+s.tem+')';}).join('; ')
+      + '. A prova cai para o que houver — cadastre mais questões nessas categorias.</p>';
+  return '<div class="sec-title">Publicar para os alunos</div>'
+    +'<p class="hint" style="margin-top:0;margin-bottom:12px">O que você edita aqui fica salvo neste navegador. Publicar envia tudo para o banco de dados — é a partir daí que o aluno enxerga. Pode publicar quantas vezes quiser: o que já existe é atualizado, nada duplica.</p>'
+    +'<div class="dfields">'
+    +'<div class="drow"><span class="dk">Cursos</span><span class="dv">'+r.cursos+'</span></div>'
+    +'<div class="drow"><span class="dk">Módulos</span><span class="dv">'+r.modulos+'</span></div>'
+    +'<div class="drow"><span class="dk">Videoaulas</span><span class="dv">'+r.aulas+' <span class="t-sub">('+r.aulasComLink+' por link ou incorporação)</span></span></div>'
+    +'<div class="drow"><span class="dk">Categorias de questão</span><span class="dv">'+r.categorias+'</span></div>'
+    +'<div class="drow"><span class="dk">Questões</span><span class="dv">'+r.questoes+' <span class="t-sub">('+r.alternativas+' alternativas)</span></span></div>'
+    +'<div class="drow"><span class="dk">Simulados</span><span class="dv">'+r.simulados+'</span></div>'
+    +'<div class="drow"><span class="dk">Conta no banco</span><span class="dv">'+(quem?esc(quem):'não conectado')+'</span></div>'
+    +'</div>'+alerta
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
+    +'<button class="btn btn-gold btn-sm" id="btn-publicar" onclick="publicarTudo()">Publicar no banco</button>'
+    +(quem?'<button class="btn btn-ghost btn-sm" onclick="sairDoBanco()">Trocar de conta</button>':'')
+    +'</div>';
+}
+function repintaPublicar(){var el=$('#pubcard');if(el)el.innerHTML=viewPublicar();}
+function loginDoBanco(depois){
+  openDrawer('Entrar no banco',[
+    {key:'email',label:'E-mail de administrador',type:'text',hint:'A conta de admin cadastrada no banco (não é o login do protótipo).'},
+    {key:'senha',label:'Senha',type:'password'}
+  ],{email:'',senha:''},function(d){
+    if(!d.email||!d.senha){toast('Informe e-mail e senha.','err');return;}
+    EDPublicar.entrar(d.email.trim(),d.senha).then(function(){
+      closeDrawer();toast('Conectado ao banco.');
+      if(typeof depois==='function')depois();
+    }).catch(function(e){
+      toast('Não deu para entrar: '+(e&&e.message||'erro'),'err');
+    });
+  });
+}
+function sairDoBanco(){EDPublicar.sair().then(repintaPublicar);}
+function publicarTudo(){
+  if(!EDPublicar.conta())return loginDoBanco(publicarTudo);
+  var b=$('#btn-publicar');
+  if(b){b.disabled=true;b.textContent='Publicando…';}
+  EDPublicar.publicar().then(function(r){
+    toast('Publicado: '+r.aulas+' aulas, '+r.questoes+' questões, '+r.simulados+' simulados.');
+    repintaPublicar();
+  }).catch(function(e){
+    var m=String(e&&e.message||'');
+    if(m==='sem-sessao'){repintaPublicar();return loginDoBanco(publicarTudo);}
+    if(e&&e.status===403||/administradores/.test(m))
+      m='essa conta não é administradora no banco.';
+    toast('Não deu para publicar: '+m,'err');
+    repintaPublicar();
+  });
+}
+
 function viewSistema(){
   var cfg=db.settings||defaultSettings();
   var integ=function(key,nome,desc){var on=cfg.integracoes&&cfg.integracoes[key];return '<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt">'+esc(nome)+'</div><div class="lts"><span>'+esc(desc)+'</span></div></div><button class="btn '+(on?'btn-ghost':'btn-gold')+' btn-sm" onclick="toggleInteg(\''+key+'\')">'+(on?'Conectado':'Ligar')+'</button></div>';};
@@ -2420,6 +2485,7 @@ function viewSistema(){
     </div>
     <button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="editTokens()">${EDIT_IC} Editar tokens</button>
   </div>
+  <div class="card siteblock" id="pubcard">${viewPublicar()}</div>
   <div class="card siteblock">
     <div class="sec-title">Integrações</div>
     <div style="display:flex;flex-direction:column;gap:2px">
@@ -3440,6 +3506,7 @@ function provaResult(s){const r=exam.result,cfg=exam.cfg,temas=Object.keys(r.por
 if(authed()){showApp();}else{$('#login').style.display='flex';$('#shell').hidden=true;}
 </script>
 <script src="ed-api.js"></script>
+<script src="ed-publicar.js"></script>
 <script src="tokens.js"></script>
 </body>
 </html>
