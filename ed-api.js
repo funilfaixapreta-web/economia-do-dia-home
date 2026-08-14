@@ -127,6 +127,27 @@
     return chamar('/rest/v1/rpc/'+nome,{metodo:'POST',corpo:args||{}});
   }
 
+  /* ---------------------------------------------------------------- prova --
+     A prova passa pelo banco de ponta a ponta, e nao por engano: o gabarito
+     nao pode sair junto com as questoes. montarProva() devolve as alternativas
+     SEM dizer qual e a certa; quem corrige e o servidor, no enviarProva(). O
+     gabarito comentado so existe depois de entregue.
+
+     Todas devolvem {ok:false, motivo:...} em vez de estourar. Motivos:
+     precisa-entrar | so-assinantes | sem-questoes | simulado-nao-encontrado |
+     ja-entregue | ainda-nao-entregue | tentativa-nao-e-sua                  */
+  function montarProva(simId){
+    return rpc('montar_simulado',{p_sim:String(simId||'')});
+  }
+  /* respostas: [{questao_id, alternativa_id}] — alternativa_id null = em branco */
+  function enviarProva(tentativaId,respostas){
+    return rpc('enviar_tentativa',{p_tentativa:tentativaId,
+                                   p_respostas:respostas||[]});
+  }
+  function gabarito(tentativaId){
+    return rpc('gabarito_tentativa',{p_tentativa:tentativaId});
+  }
+
   function config(){
     return chamar('/rest/v1/config_tokens?select=*').then(function(l){
       var c=(l&&l[0])||{};
@@ -139,6 +160,7 @@
     ativo:function(){return !!CFG.ativo;},
     url:CFG.url,
     sessao:sessao, cadastrar:cadastrar, entrar:entrar, sair:sair,
-    saldo:saldo, gastar:gastar, config:config, rpc:rpc
+    saldo:saldo, gastar:gastar, config:config, rpc:rpc,
+    montarProva:montarProva, enviarProva:enviarProva, gabarito:gabarito
   };
 })();
