@@ -156,6 +156,7 @@ input.cod{font-family:'IBM Plex Mono',monospace;font-size:24px;letter-spacing:.4
   <div class="proto">Protótipo: nenhum SMS é enviado de verdade. Use o código <b id="cod-demo">000000</b> para seguir.</div>
 </form>
 
+<script src="ed-api.js"></script>
 <script>
   const seg=document.getElementById('theme-seg');
   seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
@@ -205,13 +206,31 @@ input.cod{font-family:'IBM Plex Mono',monospace;font-size:24px;letter-spacing:.4
     if(document.getElementById('c-cod').value.trim()!==codigoDemo){
       document.getElementById('cod-erro').classList.remove('hidden');return;
     }
-    criarSessao(pendente);
+    criarSessao(pendente, pendente.senha || ('ED-'+pendente.telefone.replace(/\D/g,'')));
   }
   function entrar(e){
     if(e)e.preventDefault();
-    criarSessao({nome:'Aluno',email:document.getElementById('email').value.trim()||'aluno@economiadodia.com.br',telefone:''});
+    criarSessao({nome:'Aluno',email:document.getElementById('email').value.trim()||'aluno@economiadodia.com.br',telefone:'',senhaLogin:document.getElementById('senha').value});
   }
-  function criarSessao(dados){
+  function criarSessao(dados,senha){
+    /* Banco ligado: cria a conta de verdade no Supabase. Desligado: segue o
+       protótipo em localStorage, que e o comportamento publicado hoje. */
+    if(window.EDApi&&EDApi.ativo()){
+      const acao = senha
+        ? EDApi.cadastrar({nome:dados.nome,email:dados.email,telefone:dados.telefone,senha:senha})
+        : EDApi.entrar({email:dados.email,senha:dados.senhaLogin||''});
+      return acao.then(r=>{
+        if(r&&r.precisaConfirmar){
+          alert('Conta criada. Confirme o e-mail que enviamos para '+dados.email+' e depois entre.');
+          tela('login');return;
+        }
+        location.href=NEXT;
+      }).catch(e=>{
+        const cod=document.getElementById('cod-erro');
+        if(cod){cod.textContent='Nao consegui criar a conta: '+e.message;cod.classList.remove('hidden');}
+        else alert('Nao consegui entrar: '+e.message);
+      });
+    }
     try{
       const antigo=JSON.parse(localStorage.getItem('ed-user')||'null');
       localStorage.setItem('ed-user',JSON.stringify({

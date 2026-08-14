@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finalizar compra · Economia do Dia</title>
+<meta name="description" content="Finalize a compra dos cursos do Economia do Dia." />
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090C; --panel:#101319; --panel-2:#0D0F14;
+  --border:rgba(255,255,255,.08); --border-soft:rgba(255,255,255,.06);
+  --head:#FFFFFF; --text:#E7EAEF; --muted:#8A94A2; --faint:#5B6573;
+  --input-bg:#0E1116; --overlay-soft:rgba(255,255,255,.05);
+  --gold:#D4A437; --gold-bright:#E6BE54; --gold-deep:#E6BE54;
+  --gold-soft-bg:rgba(212,164,55,.10); --gold-soft-bd:rgba(212,164,55,.34);
+  --gold-grad:linear-gradient(180deg,#E6BE54,#D4A437);
+  --mono-grad:linear-gradient(140deg,#EBC768,#D4A437 55%,#A8761B);
+  --green:#2BB673; --red:#E0533D;
+}
+[data-theme="light"]{
+  --bg:#F1EFE9; --panel:#FFFFFF; --panel-2:#F3F1EA;
+  --border:rgba(27,31,38,.10); --border-soft:rgba(27,31,38,.07);
+  --head:#0B0D10; --text:#222831; --muted:#5B6573; --faint:#9AA3AF;
+  --input-bg:#F3F1EA; --overlay-soft:rgba(27,31,38,.04); --gold-deep:#A6781A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
+  transition:background .4s,color .4s;
+  background-image:radial-gradient(120% 70% at 50% 0%,rgba(212,164,55,.05),transparent 55%)}
+a{color:inherit;text-decoration:none}
+.top{display:flex;align-items:center;gap:12px;padding:18px 26px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px}
+.mono-sq{width:30px;height:30px;border-radius:9px;background:var(--mono-grad);display:flex;align-items:center;justify-content:center}
+.mono-sq span{font-family:'Sora';font-weight:800;font-style:italic;font-size:12px;color:#0B0D10}
+.wordmark{font-family:'Sora';font-weight:700;font-style:italic;font-size:16px;color:var(--head)}
+.top .voltar{margin-left:auto;font-size:13.5px;color:var(--muted)}
+.top .voltar:hover{color:var(--gold-deep)}
+.wrap{max-width:980px;margin:0 auto;padding:34px 24px 70px}
+h1{font-family:'Sora';font-size:27px;letter-spacing:-.5px;color:var(--head);margin-bottom:6px}
+.lead{color:var(--muted);font-size:14.5px;margin-bottom:26px}
+.grade{display:grid;grid-template-columns:1fr 360px;gap:22px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px}
+.card+.card{margin-top:16px}
+h2{font-size:15px;color:var(--head);margin-bottom:16px;display:flex;align-items:center;gap:9px}
+h2 i{width:22px;height:22px;border-radius:7px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);
+  color:var(--gold-deep);font:600 11px/21px 'IBM Plex Mono',monospace;text-align:center;font-style:normal}
+.grp{margin-bottom:14px}
+.grp label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.fld{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--border);
+  background:var(--input-bg);color:var(--text);font-family:'Inter';font-size:14.5px}
+.fld:focus{outline:none;border-color:var(--gold-soft-bd)}
+.dupla{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pgs{display:flex;flex-direction:column;gap:9px}
+.pg{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-radius:12px;cursor:pointer}
+.pg:hover{border-color:var(--gold-soft-bd)}
+.pg.on{border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)}
+.pg .ic{width:34px;height:34px;border-radius:9px;background:var(--overlay-soft);display:flex;align-items:center;justify-content:center;font-size:15px}
+.pg .tt{font-size:14px;font-weight:600;color:var(--head)}
+.pg .ds{font-size:12.5px;color:var(--muted);margin-top:2px}
+.pg input{margin-left:auto;accent-color:var(--gold)}
+.res{position:sticky;top:22px}
+.ri{display:flex;gap:10px;padding:13px 0;border-bottom:1px solid var(--border-soft)}
+.ri .nm{font-size:13.5px;font-weight:600;color:var(--head);line-height:1.35}
+.ri .qt{font-size:12px;color:var(--muted);margin-top:2px}
+.ri .pr{margin-left:auto;font-family:'IBM Plex Mono';font-size:13.5px;color:var(--head);white-space:nowrap}
+.tot{display:flex;align-items:baseline;padding-top:15px}
+.tot span{color:var(--muted);font-size:14px}
+.tot b{margin-left:auto;font-family:'IBM Plex Mono';font-size:24px;color:var(--head);font-weight:600}
+.btn{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:var(--gold-grad);
+  color:#0B0D10;font-family:'Inter';font-size:15px;font-weight:600;cursor:pointer;text-align:center;margin-top:16px}
+.btn:hover{filter:brightness(1.06)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text)}
+.nota{font-size:12px;color:var(--faint);text-align:center;margin-top:11px;line-height:1.55}
+.aviso{padding:13px 15px;border-radius:11px;font-size:13.5px;line-height:1.5;margin-bottom:18px}
+.aviso.alerta{background:rgba(224,83,61,.10);border:1px solid rgba(224,83,61,.32);color:#E0533D}
+.aviso.info{background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)}
+.vazio{text-align:center;padding:70px 20px}
+.vazio h1{margin-bottom:10px}
+.ok-ic{width:56px;height:56px;border-radius:999px;background:rgba(43,182,115,.12);border:1px solid rgba(43,182,115,.34);
+  color:var(--green);font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.pedido-n{font-family:'IBM Plex Mono';font-size:15px;color:var(--gold-deep);
+  background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:9px;padding:7px 14px;display:inline-block;margin:12px 0 4px}
+.passos{text-align:left;max-width:430px;margin:22px auto 0;font-size:14px;color:var(--muted);line-height:1.75}
+.theme-seg{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--overlay-soft);border:1px solid var(--border)}
+.theme-seg button{font-family:'Inter';font-weight:600;font-size:12px;padding:5px 12px;border-radius:999px;border:none;background:none;color:var(--muted);cursor:pointer}
+.theme-seg button.on{background:var(--gold-grad);color:#0B0D10}
+@media(max-width:880px){.grade{grid-template-columns:1fr}.res{position:static}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a class="logo" href="index.html"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
+  <div class="theme-seg" id="theme-seg">
+    <button data-theme="dark">Escuro</button><button data-theme="light">Claro</button>
+  </div>
+  <a class="voltar" href="index.html#cursos">← Continuar comprando</a>
+</div>
+
+<div class="wrap" id="tela"></div>
+
+<script src="ed-api.js"></script>
+<script src="ed-conteudo.js"></script>
+<script src="carrinho.js"></script>
+<script>
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* tema, igual ao resto do site */
+(function(){var t='dark';try{t=localStorage.getItem('ed-theme')||'dark'}catch(_){}
+  aplicaTema(t);})();
+function aplicaTema(t){document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('#theme-seg button').forEach(function(b){
+    b.classList.toggle('on',b.dataset.theme===t)});
+  try{localStorage.setItem('ed-theme',t)}catch(_){}}
+document.querySelectorAll('#theme-seg button').forEach(function(b){
+  b.onclick=function(){aplicaTema(b.dataset.theme)}});
+
+function usuario(){try{return JSON.parse(localStorage.getItem('ed-user')||'null')}catch(_){return null}}
+function noBanco(){return !!(window.EDApi&&EDApi.sessao())}
+
+var METODO='pix';
+
+/* ------------------------------------------------------------------ telas */
+function telaVazia(){
+  return '<div class="vazio"><h1>Seu carrinho está vazio</h1>'
+    +'<p class="lead">Escolha um curso para começar.</p>'
+    +'<a class="btn" style="max-width:280px;margin:0 auto" href="index.html#cursos">Ver os cursos</a></div>';
+}
+
+function telaCheckout(){
+  var itens=EDCarrinho.itens(), u=usuario()||{};
+  var resumo=itens.map(function(i){
+    return '<div class="ri"><div><div class="nm">'+esc(i.nome)+'</div>'
+      +'<div class="qt">'+(i.validade?esc(i.validade)+' · ':'')+'quantidade '+i.quantidade+'</div></div>'
+      +'<div class="pr">'+EDCarrinho.emReais(i.centavos*i.quantidade)+'</div></div>';
+  }).join('');
+
+  var precisaEntrar = !u.email;
+
+  return '<h1>Finalizar compra</h1>'
+    +'<p class="lead">Revise o pedido e escolha como quer pagar.</p>'
+    +'<div class="grade"><div>'
+      + (precisaEntrar
+          ? '<div class="aviso info">Para concluir a compra você precisa de uma conta — é ela que guarda seu acesso aos cursos. '
+            +'<a href="login.html?next=checkout.html" style="text-decoration:underline">Entrar ou criar conta →</a></div>'
+          : '')
+      +'<div class="card"><h2><i>1</i>Seus dados</h2>'
+        +'<div class="grp"><label>Nome completo</label>'
+          +'<input class="fld" id="f-nome" value="'+esc(u.nome||'')+'" placeholder="Como está no seu documento"></div>'
+        +'<div class="dupla">'
+          +'<div class="grp"><label>E-mail</label><input class="fld" id="f-email" type="email" value="'+esc(u.email||'')+'" placeholder="voce@email.com"></div>'
+          +'<div class="grp"><label>Telefone</label><input class="fld" id="f-tel" value="'+esc(u.telefone||'')+'" placeholder="(21) 90000-0000"></div>'
+        +'</div>'
+        +'<div class="grp"><label>CPF</label><input class="fld" id="f-cpf" placeholder="000.000.000-00"></div>'
+      +'</div>'
+      +'<div class="card"><h2><i>2</i>Forma de pagamento</h2><div class="pgs" id="pgs">'
+        +metodoLinha('pix','PIX','Aprovação na hora','⚡')
+        +metodoLinha('cartao','Cartão de crédito','Parcele em até 12x','▭')
+        +metodoLinha('boleto','Boleto','Compensa em até 3 dias úteis','▤')
+      +'</div></div>'
+    +'</div>'
+    +'<div class="card res"><h2><i>3</i>Resumo</h2>'+resumo
+      +'<div class="tot"><span>Total</span><b>'+EDCarrinho.emReais(EDCarrinho.total())+'</b></div>'
+      +'<button class="btn" id="btn-fechar">Concluir pedido</button>'
+      +'<div class="nota">Seu acesso é liberado assim que o pagamento for confirmado.</div>'
+    +'</div></div>';
+}
+
+function metodoLinha(id,tt,ds,ic){
+  return '<label class="pg'+(METODO===id?' on':'')+'" data-pg="'+id+'">'
+    +'<span class="ic">'+ic+'</span><span><span class="tt">'+tt+'</span>'
+    +'<span class="ds" style="display:block">'+ds+'</span></span>'
+    +'<input type="radio" name="pg" value="'+id+'"'+(METODO===id?' checked':'')+'></label>';
+}
+
+function telaPronto(p){
+  var comoPagar={
+    pix:'Você vai receber o código PIX no e-mail cadastrado. Assim que o pagamento cair, o acesso é liberado automaticamente.',
+    cartao:'Você vai receber o link seguro de pagamento no e-mail cadastrado.',
+    boleto:'O boleto chega no seu e-mail. A compensação leva até 3 dias úteis.'
+  }[p.metodo]||'';
+  return '<div class="vazio"><div class="ok-ic">✓</div>'
+    +'<h1>Pedido registrado</h1>'
+    +'<div class="pedido-n">Pedido nº '+esc(p.numero)+'</div>'
+    +'<p class="lead">'+EDCarrinho.emReais(p.total)+' · aguardando pagamento</p>'
+    +'<div class="passos">'+esc(comoPagar)+'</div>'
+    +'<div style="max-width:280px;margin:26px auto 0">'
+      +'<a class="btn" href="app.html">Ir para a área do aluno</a>'
+      +'<a class="btn btn-ghost" style="margin-top:9px" href="index.html#cursos">Continuar comprando</a>'
+    +'</div></div>';
+}
+
+/* ------------------------------------------------------------------ fluxo */
+function desenhar(){
+  var alvo=$('#tela');
+  if(!EDCarrinho.contagem()){alvo.innerHTML=telaVazia();return;}
+  alvo.innerHTML=telaCheckout();
+
+  document.querySelectorAll('[data-pg]').forEach(function(el){
+    el.onclick=function(){
+      METODO=el.getAttribute('data-pg');
+      document.querySelectorAll('[data-pg]').forEach(function(x){
+        x.classList.toggle('on',x===el)});
+    };
+  });
+  $('#btn-fechar').onclick=concluir;
+}
+
+function concluir(){
+  var u=usuario();
+  var dados={
+    nome:($('#f-nome')||{}).value||'', email:($('#f-email')||{}).value||'',
+    telefone:($('#f-tel')||{}).value||'', documento:($('#f-cpf')||{}).value||''
+  };
+  if(!dados.nome.trim()||!dados.email.trim()){
+    alert('Preencha seu nome e e-mail para concluir o pedido.');return;
+  }
+  if(!u||!u.email){
+    /* sem conta nao existe para onde mandar o acesso: manda criar e volta */
+    try{localStorage.setItem('ed-checkout-dados',JSON.stringify(dados))}catch(_){}
+    location.href='login.html?next=checkout.html';
+    return;
+  }
+
+  var b=$('#btn-fechar'); b.disabled=true; b.textContent='Registrando…';
+  var itens=EDCarrinho.itens().map(function(i){
+    return {plano_id:i.id, quantidade:i.quantidade};
+  });
+  var totalLocal=EDCarrinho.total();
+
+  registrarPedido(itens,dados).then(function(r){
+    if(!r||!r.ok){
+      b.disabled=false; b.textContent='Concluir pedido';
+      alert('Não foi possível registrar o pedido: '+((r&&r.motivo)||'erro desconhecido'));
+      return;
+    }
+    EDCarrinho.limpar();
+    $('#tela').innerHTML=telaPronto({
+      numero:r.numero, total:(r.total_centavos!=null?r.total_centavos:totalLocal), metodo:METODO
+    });
+    window.scrollTo(0,0);
+  }).catch(function(e){
+    b.disabled=false; b.textContent='Concluir pedido';
+    alert('Não foi possível registrar o pedido: '+(e&&e.message||'erro'));
+  });
+}
+
+/* No banco quando a ponte está ligada; senão guarda o pedido aqui para o
+   admin ver — nenhuma venda se perde por causa da chave estar desligada. */
+function registrarPedido(itens,dados){
+  if(noBanco()&&window.EDApi&&EDApi.rpc)
+    return EDApi.rpc('criar_pedido',{p_itens:itens,p_dados:dados});
+
+  var lista=[];
+  try{lista=JSON.parse(localStorage.getItem('ed-pedidos')||'[]')}catch(_){}
+  var num=lista.length+1;
+  lista.push({numero:num, criado_em:Date.now(), status:'aguardando', metodo:METODO,
+              dados:dados, itens:EDCarrinho.itens(), total_centavos:EDCarrinho.total()});
+  try{localStorage.setItem('ed-pedidos',JSON.stringify(lista))}catch(_){}
+  return Promise.resolve({ok:true, numero:num, total_centavos:EDCarrinho.total(), local:true});
+}
+
+/* Voltou do login: recupera o que já tinha sido digitado. */
+(function(){
+  try{
+    var d=JSON.parse(localStorage.getItem('ed-checkout-dados')||'null');
+    if(d){window.__dadosSalvos=d;localStorage.removeItem('ed-checkout-dados');}
+  }catch(_){}
+})();
+
+desenhar();
+if(window.__dadosSalvos){
+  var d=window.__dadosSalvos;
+  ['nome','email','tel','cpf'].forEach(function(k,i){
+    var el=$('#f-'+k), v=[d.nome,d.email,d.telefone,d.documento][i];
+    if(el&&v&&!el.value)el.value=v;
+  });
+}
+</script>
+</body>
+</html>

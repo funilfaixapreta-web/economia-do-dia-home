@@ -2027,7 +2027,8 @@ function buildField(f,val){
     <div class="rte-body" contenteditable="true" data-rk="${k}" data-ph="${esc(f.hint||'Escreva aqui...')}">${val||''}</div>
     <div class="rte-foot"><span>P</span><span>Distribuído por Tiny</span></div>
   </div></div>`;}
-  return `<div class="grp"><label>${f.label}</label><input class="fld" type="text" data-k="${f.key}" value="${esc(val)}"></div>`;
+  if(f.type==='password')return `<div class="grp"><label>${f.label}</label><input class="fld" type="password" data-k="${f.key}" value="${esc(val)}" autocomplete="current-password">${f.hint?`<div class="hint">${f.hint}</div>`:''}</div>`;
+  return `<div class="grp"><label>${f.label}</label><input class="fld" type="text" data-k="${f.key}" value="${esc(val)}">${f.hint?`<div class="hint">${f.hint}</div>`:''}</div>`;
 }
 function collect(fields){
   const out={};
@@ -2259,6 +2260,75 @@ function viewConteudo(){
 }
 
 /* ============ VENDA ============ */
+/* ======================= Pedidos de verdade ==============================
+   Vem do banco quando a ponte está ligada; senão, dos pedidos que o checkout
+   registrou neste navegador. Nada aqui é exemplo.                          */
+var PEDIDOS_BANCO=null;
+function reais(c){return 'R$ '+((+c||0)/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pedidosLocais(){
+  try{return JSON.parse(localStorage.getItem('ed-pedidos')||'[]');}catch(_){return [];}
+}
+function statusBadge(s){
+  if(s==='pago')return '<span class="badge b-on">Pago</span>';
+  if(s==='cancelado'||s==='estornado')return '<span class="badge b-off">'+esc(s)+'</span>';
+  return '<span class="badge b-draft">Aguardando</span>';
+}
+function viewPedidos(){
+  var lista = PEDIDOS_BANCO || pedidosLocais().map(function(p){
+    return {numero:p.numero, status:p.status, total_centavos:p.total_centavos,
+            nome:(p.dados||{}).nome, email:(p.dados||{}).email, metodo:p.metodo,
+            criado_em:p.criado_em, local:true,
+            itens:(p.itens||[]).map(function(i){return {nome:i.nome,quantidade:i.quantidade};})};
+  });
+  var fonte = PEDIDOS_BANCO ? 'do banco' : 'deste navegador';
+  var aguardando = lista.filter(function(p){return p.status!=='pago';}).length;
+  var faturado = lista.filter(function(p){return p.status==='pago';})
+                      .reduce(function(s,p){return s+(+p.total_centavos||0);},0);
+
+  var cab='<div class="sec-title">Pedidos <span class="t-sub" style="font-weight:400">· '+fonte+'</span>'
+    +'<button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="carregarPedidos()">Atualizar do banco</button></div>';
+
+  if(!lista.length)
+    return cab+'<p class="hint" style="margin-top:0">Nenhum pedido ainda. Quando alguém fechar uma compra no site, ela aparece aqui.</p>';
+
+  return cab
+    +'<div class="lts" style="margin:-4px 0 12px"><span class="chip">'+lista.length+' pedido(s)</span>'
+    +'<span class="chip">'+aguardando+' aguardando pagamento</span>'
+    +'<span class="chip">'+reais(faturado)+' confirmado</span></div>'
+    +'<div class="tblwrap"><table class="tbl"><thead><tr><th>Nº</th><th>Cliente</th><th>Itens</th><th>Valor</th><th>Forma</th><th>Status</th><th></th></tr></thead><tbody>'
+    +lista.map(function(p){
+      return '<tr><td class="mono t-sub">'+esc(p.numero)+'</td>'
+        +'<td class="t-title">'+esc(p.nome||'—')+'<div class="t-sub">'+esc(p.email||'')+'</div></td>'
+        +'<td style="white-space:normal">'+(p.itens||[]).map(function(i){
+            return '<span class="chip">'+esc(i.nome)+(i.quantidade>1?' ×'+i.quantidade:'')+'</span>';}).join(' ')+'</td>'
+        +'<td style="font-weight:600">'+reais(p.total_centavos)+'</td>'
+        +'<td class="t-sub">'+esc(p.metodo||'—')+'</td>'
+        +'<td>'+statusBadge(p.status)+'</td>'
+        +'<td>'+(p.status!=='pago'&&p.id
+            ? '<button class="btn btn-gold btn-sm" onclick="confirmarPagamento(\''+esc(p.id)+'\',\''+esc(p.metodo||'pix')+'\')">Confirmar pagamento</button>'
+            : (p.status!=='pago'&&p.local
+               ? '<span class="t-sub">só no banco</span>' : ''))+'</td></tr>';
+    }).join('')
+    +'</tbody></table></div>'
+    +(PEDIDOS_BANCO?'':'<p class="hint">Estes pedidos foram registrados neste navegador porque a ponte com o banco está desligada. Ligue a ponte para receber os pedidos de todos os clientes.</p>');
+}
+function repintaPedidos(){var el=$('#pedidoscard');if(el)el.innerHTML=viewPedidos();}
+function carregarPedidos(){
+  if(!window.EDApi||!EDApi.sessao()){toast('Entre no banco primeiro (Sistema → Publicar).','err');return;}
+  EDApi.rpc('pedidos_admin',{}).then(function(l){
+    PEDIDOS_BANCO=Array.isArray(l)?l:(l&&l.pedidos)||[];
+    toast(PEDIDOS_BANCO.length+' pedido(s) carregado(s).');
+    repintaPedidos();
+  }).catch(function(e){toast('Não deu para carregar: '+(e&&e.message||'erro'),'err');});
+}
+function confirmarPagamento(id,metodo){
+  if(!confirm('Confirmar o pagamento deste pedido? O acesso aos cursos é liberado na hora.'))return;
+  EDApi.rpc('confirmar_pagamento',{p_pedido:id,p_metodo:metodo||'pix'}).then(function(r){
+    if(r&&r.ok){toast('Pagamento confirmado · '+r.matriculas+' curso(s) liberados.');carregarPedidos();}
+    else toast('Não confirmou: '+((r&&r.motivo)||'erro'),'err');
+  }).catch(function(e){toast('Erro: '+(e&&e.message||''),'err');});
+}
+
 function viewVenda(){
   const trans=[
     {data:'20/07 15:40',nome:'Lucas Prado',plano:'Completo',valor:'R$ 197',metodo:'Cartão',status:'Pago'},
@@ -2285,7 +2355,8 @@ function viewVenda(){
     <div class="stat"><div class="k">Inadimplência</div><div class="v" style="color:var(--amber)">4,2%</div><div class="d">boletos vencidos</div></div>
     <div class="stat"><div class="k">Reembolsos</div><div class="v">2</div><div class="d">este mês</div></div>
   </div>
-  <div class="sec-title" style="margin-top:6px">Transações recentes</div>
+  <div class="card siteblock" id="pedidoscard">${viewPedidos()}</div>
+  <div class="sec-title" style="margin-top:6px">Transações recentes <span class="t-sub" style="font-weight:400">· dados de exemplo</span></div>
   <div class="tblwrap"><table class="tbl"><thead><tr><th>Data</th><th>Cliente</th><th>Plano</th><th>Valor</th><th>Método</th><th>Status</th></tr></thead><tbody>
     ${trans.map(t=>`<tr><td class="t-sub mono">${esc(t.data)}</td><td class="t-title">${esc(t.nome)}</td><td><span class="chip">${esc(t.plano)}</span></td><td style="font-weight:600">${esc(t.valor)}</td><td class="t-sub">${esc(t.metodo)}</td><td>${sb(t.status)}</td></tr>`).join('')}
   </tbody></table></div>
@@ -2387,6 +2458,119 @@ function lpTokens(v){
     +'<span class="chip">Simulado: '+cs+'</span><span class="chip">Aula: '+ca+'</span><span class="chip">IA: '+(+v.ia||0)+'</span></div>';
 }
 
+/* ===================== Publicar conteúdo no banco =========================
+   Tudo o que o painel edita mora no navegador. Enquanto não for publicado,
+   o aluno não vê. Este bloco manda o pacote inteiro para o Postgres.       */
+function viewPublicar(){
+  if(!window.EDPublicar)
+    return '<div class="sec-title">Publicar para os alunos</div>'
+      +'<p class="hint" style="margin-top:0">A ponte com o banco não carregou. Recarregue a página.</p>';
+  var r=EDPublicar.resumo(), quem=EDPublicar.conta();
+  var alerta = r.aulasSemVideo
+    ? '<p class="hint" style="margin-top:10px;color:var(--red)">'+r.aulasSemVideo+' aula(s) ainda sem vídeo. Elas vão subir mesmo assim, mas o aluno abre e não vê nada.</p>'
+    : '';
+  if(r.simuladosCurtos&&r.simuladosCurtos.length)
+    alerta += '<p class="hint" style="margin-top:6px;color:var(--red)">Simulado pedindo mais questões do que existem no banco: '
+      + r.simuladosCurtos.map(function(s){return esc(s.nome)+' (pede '+s.pede+', tem '+s.tem+')';}).join('; ')
+      + '. A prova cai para o que houver — cadastre mais questões nessas categorias.</p>';
+  if(r.planosSemCurso&&r.planosSemCurso.length)
+    alerta += '<p class="hint" style="margin-top:6px;color:var(--red)">Plano vendido que não libera curso nenhum: '
+      + r.planosSemCurso.map(esc).join('; ')
+      + '. Quem comprar paga e não recebe acesso.</p>';
+  return '<div class="sec-title">Publicar para os alunos</div>'
+    +'<p class="hint" style="margin-top:0;margin-bottom:12px">O que você edita aqui fica salvo neste navegador. Publicar envia tudo para o banco de dados — é a partir daí que o aluno enxerga. Pode publicar quantas vezes quiser: o que já existe é atualizado, nada duplica.</p>'
+    +'<div class="dfields">'
+    +'<div class="drow"><span class="dk">Cursos</span><span class="dv">'+r.cursos+'</span></div>'
+    +'<div class="drow"><span class="dk">Módulos</span><span class="dv">'+r.modulos+'</span></div>'
+    +'<div class="drow"><span class="dk">Videoaulas</span><span class="dv">'+r.aulas+' <span class="t-sub">('+r.aulasComLink+' por link ou incorporação)</span></span></div>'
+    +'<div class="drow"><span class="dk">Categorias de questão</span><span class="dv">'+r.categorias+'</span></div>'
+    +'<div class="drow"><span class="dk">Questões</span><span class="dv">'+r.questoes+' <span class="t-sub">('+r.alternativas+' alternativas)</span></span></div>'
+    +'<div class="drow"><span class="dk">Simulados</span><span class="dv">'+r.simulados+'</span></div>'
+    +'<div class="drow"><span class="dk">Planos à venda</span><span class="dv">'+r.planos+' <span class="t-sub">('+r.planosSemPreco+' sem preço)</span></span></div>'
+    +'<div class="drow"><span class="dk">Conta no banco</span><span class="dv">'+(quem?esc(quem):'não conectado')+'</span></div>'
+    +'</div>'+alerta
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
+    +'<button class="btn btn-gold btn-sm" id="btn-publicar" onclick="publicarTudo()">Publicar no banco</button>'
+    +(quem?'<button class="btn btn-ghost btn-sm" onclick="convidarAdmin()">Convidar administrador</button>':'')
+    +(quem?'<button class="btn btn-ghost btn-sm" onclick="sairDoBanco()">Trocar de conta</button>':'')
+    +'</div>';
+}
+function repintaPublicar(){var el=$('#pubcard');if(el)el.innerHTML=viewPublicar();}
+/* Entrar OU criar a conta de administrador do banco.
+   O "criar" precisa existir aqui: a tela de cadastro do site só fala com o
+   banco depois que a ponte for ligada, então sem isto não haveria como criar
+   o primeiro admin — e sem admin ninguém publica nada. O e-mail convidado
+   (admins_convidados) já nasce com o papel de admin. */
+function loginDoBanco(depois){
+  openDrawer('Conta de administrador no banco',[
+    {key:'acao',label:'O que você quer fazer',type:'select',
+     options:[['entrar','Já tenho conta · entrar'],['criar','Ainda não tenho · criar agora']]},
+    {key:'nome',label:'Seu nome (só ao criar a conta)',type:'text'},
+    {key:'email',label:'E-mail de administrador',type:'text',
+     hint:'Precisa ser um e-mail convidado como admin. Não é o login do protótipo.'},
+    {key:'senha',label:'Senha',type:'password',hint:'Mínimo de 6 caracteres.'}
+  ],{acao:'entrar',nome:'',email:'',senha:''},function(d){
+    var email=(d.email||'').trim(), senha=d.senha||'';
+    if(!email||!senha){toast('Informe e-mail e senha.','err');return;}
+
+    function pronto(){
+      closeDrawer(); toast('Conectado ao banco.');
+      if(typeof depois==='function')depois();
+    }
+    function falhou(e){
+      toast('Não deu certo: '+((e&&e.message)||'erro'),'err');
+    }
+
+    if(d.acao==='criar'){
+      if(senha.length<6){toast('A senha precisa ter pelo menos 6 caracteres.','err');return;}
+      EDApi.cadastrar({nome:(d.nome||'').trim(),email:email,telefone:'',senha:senha})
+        .then(function(r){
+          if(r&&r.precisaConfirmar){
+            closeDrawer();
+            toast('Conta criada. Confirme o e-mail e depois entre por aqui.');
+            return;
+          }
+          pronto();
+        }).catch(falhou);
+      return;
+    }
+    EDPublicar.entrar(email,senha).then(pronto).catch(falhou);
+  });
+}
+function sairDoBanco(){EDPublicar.sair().then(repintaPublicar);}
+/* Convida por e-mail. Se a pessoa já tem conta, vira admin na hora; se ainda
+   não tem, nasce admin quando criar a conta pelo site. Ninguém digita senha. */
+function convidarAdmin(){
+  openDrawer('Convidar administrador',[
+    {key:'email',label:'E-mail de quem vai administrar',type:'text',
+     hint:'Se essa pessoa ainda não tem conta, ela já entra como admin quando criar.'},
+    {key:'papel',label:'Papel',type:'select',options:[['admin','Administrador'],['editor','Editor']]}
+  ],{email:'',papel:'admin'},function(d){
+    if(!d.email){toast('Informe o e-mail.','err');return;}
+    EDApi.rpc('promover_admin',{p_email:d.email.trim(),p_papel:d.papel}).then(function(r){
+      closeDrawer();
+      toast(r&&r.ja_tinha_conta?'Pronto: a conta já existia e virou '+d.papel+'.'
+                               :'Convite salvo. Ao criar a conta, já entra como '+d.papel+'.');
+    }).catch(function(e){toast('Não deu para convidar: '+(e&&e.message||'erro'),'err');});
+  });
+}
+function publicarTudo(){
+  if(!EDPublicar.conta())return loginDoBanco(publicarTudo);
+  var b=$('#btn-publicar');
+  if(b){b.disabled=true;b.textContent='Publicando…';}
+  EDPublicar.publicar().then(function(r){
+    toast('Publicado: '+r.aulas+' aulas, '+r.questoes+' questões, '+r.simulados+' simulados.');
+    repintaPublicar();
+  }).catch(function(e){
+    var m=String(e&&e.message||'');
+    if(m==='sem-sessao'){repintaPublicar();return loginDoBanco(publicarTudo);}
+    if(e&&e.status===403||/administradores/.test(m))
+      m='essa conta não é administradora no banco.';
+    toast('Não deu para publicar: '+m,'err');
+    repintaPublicar();
+  });
+}
+
 function viewSistema(){
   var cfg=db.settings||defaultSettings();
   var integ=function(key,nome,desc){var on=cfg.integracoes&&cfg.integracoes[key];return '<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt">'+esc(nome)+'</div><div class="lts"><span>'+esc(desc)+'</span></div></div><button class="btn '+(on?'btn-ghost':'btn-gold')+' btn-sm" onclick="toggleInteg(\''+key+'\')">'+(on?'Conectado':'Ligar')+'</button></div>';};
@@ -2420,6 +2604,7 @@ function viewSistema(){
     </div>
     <button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="editTokens()">${EDIT_IC} Editar tokens</button>
   </div>
+  <div class="card siteblock" id="pubcard">${viewPublicar()}</div>
   <div class="card siteblock">
     <div class="sec-title">Integrações</div>
     <div style="display:flex;flex-direction:column;gap:2px">
@@ -3439,6 +3624,8 @@ function provaResult(s){const r=exam.result,cfg=exam.cfg,temas=Object.keys(r.por
 /* ============ boot ============ */
 if(authed()){showApp();}else{$('#login').style.display='flex';$('#shell').hidden=true;}
 </script>
+<script src="ed-api.js"></script>
+<script src="ed-publicar.js"></script>
 <script src="tokens.js"></script>
 </body>
 </html>
