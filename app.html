@@ -245,6 +245,10 @@ svg{display:block}
   background:radial-gradient(120% 120% at 50% 0%,#1a2536,#0b0f17 70%);display:flex;align-items:center;justify-content:center}
 .player-video .pbtn{width:74px;height:74px;border-radius:999px;background:rgba(212,164,55,.16);border:1px solid var(--gold-soft-bd);display:flex;align-items:center;justify-content:center;color:var(--gold-deep);cursor:pointer;transition:transform .2s}
 .player-video .pbtn:hover{transform:scale(1.06)}
+.player-video.tem-video{background:#000;display:block}
+.player-video.tem-video iframe,.player-video.tem-video video{width:100%;height:100%;border:0;display:block}
+.player-video .pv-aviso{position:absolute;inset:auto 0 0 0;padding:10px 14px;font-size:13px;
+  background:rgba(224,83,61,.9);color:#fff;text-align:center}
 .player-video .pctrl{position:absolute;left:0;right:0;bottom:0;padding:12px 16px;display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,transparent,rgba(6,8,11,.72))}
 .player-video .ptrack{flex:1;height:5px;border-radius:999px;background:rgba(255,255,255,.2);overflow:hidden}
 .player-video .ptrack > i{display:block;height:100%;background:var(--gold-grad)}
@@ -791,6 +795,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 <div class="modal" id="modal"><div class="modal-card" id="modal-card"></div></div>
 
 <script src="ed-api.js"></script>
+<script src="ed-conteudo.js"></script>
 <script src="tokens.js"></script>
 <script>
 /* =========================================================
@@ -822,7 +827,10 @@ const TRILHAS=[
 ];
 
 // lessons: [id,título,duração(min),progresso%]
-const COURSES=[
+/* Cursos de exemplo. Se o painel (adm.html) tiver conteúdo salvo, ou se a
+   ponte com o banco estiver ligada, EDConteudo troca isto pelo conteúdo de
+   verdade logo abaixo — o exemplo é só o último recurso. */
+const COURSES_EXEMPLO=[
   {id:'cb',code:'CNPI-CB',title:'Base do Mercado Financeiro',trilha:'cnpi',owned:true,color:'#D4A437',
    desc:'Fase comum a todos os analistas: sistema financeiro, renda fixa, derivativos, ética e regulação.',
    modules:[
@@ -878,6 +886,13 @@ const COURSES=[
    desc:'Converta e retenha clientes de investimento com um discurso técnico que gera confiança.',
    modules:[{title:'Comercial',lessons:[['l1','Discurso técnico que vende',26,0],['l2','Relacionamento de longo prazo',22,0]]}]}
 ];
+
+/* O que o aluno realmente vê: painel > banco > exemplo. Ver ed-conteudo.js. */
+let COURSES = (window.EDConteudo ? EDConteudo.cursos(COURSES_EXEMPLO) : COURSES_EXEMPLO);
+/* Quando o catálogo do banco chega (assíncrono), troca e redesenha a tela. */
+if(window.EDConteudo)EDConteudo.aoChegar(function(lista){
+  COURSES=lista; try{router()}catch(_){}
+});
 
 const SIMULADOS=[
   {id:'sim-cb',cert:'CNPI-CB',title:'Simulado CNPI-CB Completo',questions:60,dur:'2h00',score:84,
@@ -1281,7 +1296,7 @@ VIEWS.aula=(courseId,lessonId)=>{
   <div class="crumb"><a href="#/cursos">Cursos</a><span class="sep">/</span><a href="#/curso/${c.id}">${esc(c.title)}</a><span class="sep">/</span><span class="cur">${esc(l.title)}</span></div>
   <div class="player">
     <div>
-      <div class="player-video">
+      <div class="player-video" id="pv-${esc(l.id)}" data-aula="${esc(c.id)}|${esc(l.id)}">
         <span class="pbtn"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
         <div class="pctrl"><span style="color:#fff">▶</span><div class="ptrack"><i style="width:${l.p}%"></i></div><span class="ptime">${Math.round(l.dur*l.p/100)}:00 / ${l.dur}:00</span></div>
       </div>
@@ -1764,11 +1779,38 @@ function render(){
   if(name==='desempenho'){const heat=$('#heat');if(heat){let cells='';for(let i=0;i<44;i++){const a=[0,.12,.25,.45,.7,1][Math.floor((Math.sin(i*1.7)+1)/2*5)];cells+=`<span style="opacity:${(0.12+a*0.88).toFixed(2)}"></span>`;}heat.innerHTML=cells;}
   }
   if(name==='ia')renderIaPage();
+  if(name==='aula')montarVideo();
   // close mobile drawer + scroll top
   $('#app').classList.remove('nav-open');
   $('#view').scrollIntoView({block:'start'});window.scrollTo(0,0);
 }
 window.addEventListener('hashchange',render);
+
+/* Troca o play desenhado pelo vídeo de verdade. O vídeo vem por link, por
+   incorporação ou por upload — nesta ordem de preferência. Quem decide se o
+   aluno pode ver é o banco (ver_aula); sem banco, vale o que o painel salvou. */
+function montarVideo(){
+  const box=document.querySelector('.player-video[data-aula]');
+  if(!box||!window.EDConteudo)return;
+  const [cursoId,aulaId]=box.dataset.aula.split('|');
+  EDConteudo.aula(cursoId,aulaId).then(function(r){
+    if(!r||!r.ok){
+      if(r&&(r.motivo==='sem-acesso'||r.motivo==='precisa-entrar'))
+        box.insertAdjacentHTML('beforeend','<div class="pv-aviso">Esta aula ainda não está liberada para você.</div>');
+      return;
+    }
+    let html='';
+    if(r.video_embed)      html=r.video_embed;
+    else if(r.video_url){
+      const emb=EDConteudo.embutir(r.video_url);
+      html = emb ? '<iframe src="'+emb+'" allowfullscreen loading="lazy"></iframe>'
+                 : '<video controls preload="metadata" src="'+r.video_url+'"></video>';
+    }
+    if(!html)return;              // sem vídeo: mantém o cartaz, não erra a tela
+    box.innerHTML=html;
+    box.classList.add('tem-video');
+  }).catch(function(){});
+}
 
 /* =========================================================
    INTERAÇÕES GLOBAIS

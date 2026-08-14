@@ -2416,6 +2416,7 @@ function viewPublicar(){
     +'</div>'+alerta
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
     +'<button class="btn btn-gold btn-sm" id="btn-publicar" onclick="publicarTudo()">Publicar no banco</button>'
+    +(quem?'<button class="btn btn-ghost btn-sm" onclick="convidarAdmin()">Convidar administrador</button>':'')
     +(quem?'<button class="btn btn-ghost btn-sm" onclick="sairDoBanco()">Trocar de conta</button>':'')
     +'</div>';
 }
@@ -2435,6 +2436,22 @@ function loginDoBanco(depois){
   });
 }
 function sairDoBanco(){EDPublicar.sair().then(repintaPublicar);}
+/* Convida por e-mail. Se a pessoa já tem conta, vira admin na hora; se ainda
+   não tem, nasce admin quando criar a conta pelo site. Ninguém digita senha. */
+function convidarAdmin(){
+  openDrawer('Convidar administrador',[
+    {key:'email',label:'E-mail de quem vai administrar',type:'text',
+     hint:'Se essa pessoa ainda não tem conta, ela já entra como admin quando criar.'},
+    {key:'papel',label:'Papel',type:'select',options:[['admin','Administrador'],['editor','Editor']]}
+  ],{email:'',papel:'admin'},function(d){
+    if(!d.email){toast('Informe o e-mail.','err');return;}
+    EDApi.rpc('promover_admin',{p_email:d.email.trim(),p_papel:d.papel}).then(function(r){
+      closeDrawer();
+      toast(r&&r.ja_tinha_conta?'Pronto: a conta já existia e virou '+d.papel+'.'
+                               :'Convite salvo. Ao criar a conta, já entra como '+d.papel+'.');
+    }).catch(function(e){toast('Não deu para convidar: '+(e&&e.message||'erro'),'err');});
+  });
+}
 function publicarTudo(){
   if(!EDPublicar.conta())return loginDoBanco(publicarTudo);
   var b=$('#btn-publicar');
