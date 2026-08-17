@@ -19,11 +19,43 @@
   var CFG={
     url:   'https://ernqeokvkytwdlmjupwm.supabase.co',
     chave: 'sb_publishable_btQ4val3FSdMv0UbjUtfXw_zUsFjqOL',
-    /* CHAVE DE LIGA/DESLIGA. false = protótipo em localStorage (comportamento
-       atual, publicado). true = banco de verdade. */
-    ativo: false
+    /* CHAVE DE LIGA/DESLIGA. true = banco de verdade. */
+    ativo: true
   };
   var SKEY='ed-sessao';
+
+  /* ------------------------------------------------------------- SAUDE -----
+     Ligar a ponte nao pode quebrar o site. Se o Supabase nao responder — rede
+     do visitante, projeto pausado, chave trocada —, o certo e voltar ao
+     comportamento antigo (localStorage) em vez de deixar a pessoa sem login.
+
+     Por isso existe este cheque: uma leitura barata no arranque. Enquanto a
+     resposta nao chega, a ponte se considera boa (otimista); se falhar, todo o
+     site volta sozinho para o modo local, sem ninguem precisar mexer em nada.
+     A troca de mensagens de erro por queda silenciosa e de proposito: quem
+     esta comprando ou entrando nao pode ver tela de erro por causa disso.   */
+  var SAUDE=null;              /* null = ainda nao sei · true/false = sei */
+  var VERIFICANDO=null;
+
+  function verificar(){
+    if(SAUDE!==null)   return Promise.resolve(SAUDE);
+    if(VERIFICANDO)    return VERIFICANDO;
+    if(!CFG.ativo){SAUDE=false;return Promise.resolve(false);}
+    VERIFICANDO=fetch(CFG.url+'/rest/v1/config_tokens?select=ativo&limit=1',
+      {headers:{'apikey':CFG.chave}})
+      .then(function(r){SAUDE=!!r.ok;return SAUDE;})
+      .catch(function(){SAUDE=false;return false;})
+      .then(function(v){VERIFICANDO=null;return v;});
+    return VERIFICANDO;
+  }
+  /* dispara no arranque para a resposta estar pronta quando alguem precisar */
+  try{verificar();}catch(_){}
+
+  /* Erro de rede (nao chegou no servidor) e diferente de erro de credencial
+     (chegou e foi recusado). Só o primeiro justifica cair para o modo local. */
+  function ehFalhaDeRede(e){
+    return !!(e&&e.rede);
+  }
 
   function sessao(){try{return JSON.parse(localStorage.getItem(SKEY))||null}catch(_){return null}}
   function guardaSessao(s){try{localStorage.setItem(SKEY,JSON.stringify(s))}catch(_){}}
@@ -42,6 +74,10 @@
       method:opcoes.metodo||'GET',
       headers:Object.assign(cabecalhos(opcoes.auth!==false),opcoes.headers||{}),
       body:opcoes.corpo?JSON.stringify(opcoes.corpo):undefined
+    }).catch(function(err){
+      /* nao chegou no servidor: marca a ponte como fora e avisa quem chamou */
+      SAUDE=false;
+      var e=new Error('sem-conexao-com-o-banco');e.rede=true;e.original=err;throw e;
     }).then(function(r){
       return r.text().then(function(t){
         var d=null;try{d=t?JSON.parse(t):null}catch(_){d=t;}
@@ -157,7 +193,11 @@
   }
 
   window.EDApi={
-    ativo:function(){return !!CFG.ativo;},
+    /* otimista enquanto o cheque nao volta; falso assim que se sabe que o
+       banco nao responde. Assim o site inteiro cai para o modo local sozinho. */
+    ativo:function(){return !!CFG.ativo && SAUDE!==false;},
+    saude:verificar,
+    ehFalhaDeRede:ehFalhaDeRede,
     url:CFG.url,
     sessao:sessao, cadastrar:cadastrar, entrar:entrar, sair:sair,
     saldo:saldo, gastar:gastar, config:config, rpc:rpc,
