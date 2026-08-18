@@ -344,3 +344,20 @@ $FN$;
 
 revoke execute on function public.catalogo() from public;
 grant  execute on function public.catalogo() to anon, authenticated;
+
+-- ===========================================================================
+-- ADENDO (aplicado depois): questao sem gabarito nao entra em prova
+-- ---------------------------------------------------------------------------
+-- A extracao do sistema antigo (5.105 questoes) revelou casos reais: questoes
+-- sem alternativa nenhuma, com alternativa unica, e uma com quatro
+-- alternativas e NENHUMA marcada como correta. Essa ultima e a pior: entra no
+-- sorteio normalmente e o aluno erra sempre, porque nao existe resposta certa.
+--
+-- Regra: para valer numa prova a questao precisa de pelo menos duas
+-- alternativas e EXATAMENTE UMA correta. Quem nao cumprir entra no banco (para
+-- nao perder o cadastro) mas com ativo=false, fora do sorteio. publicar_conteudo
+-- passa a devolver 'questoes_sem_gabarito' e 'refs_sem_gabarito'.
+--
+-- A definicao completa e atual da funcao esta em
+-- 0006_questao_sem_gabarito_fora_da_prova.sql.
+-- ===========================================================================

@@ -199,10 +199,51 @@
       return Promise.reject(new Error('A ponte com o banco (ed-api.js) nao carregou.'));
     if(!EDApi.sessao())
       return Promise.reject(new Error('sem-sessao'));
-    var pacote=montarPacote();
-    /* conteudo primeiro: o plano so consegue apontar para um curso que ja
-       existe no banco */
-    return EDApi.rpc('publicar_conteudo',{p_dados:pacote}).then(function(r){
+    return publicarEmLotes(montarPacote(), arguments[0]);
+  }
+
+  /* Quantas questoes por chamada. O papel "authenticated" do Postgres tem
+     statement_timeout de 8 segundos, e medindo no banco: 5.105 questoes numa
+     chamada unica levam ~9s — ou seja, estouraria. Em lotes de 300 cada
+     chamada fica na casa de meio segundo, com folga.
+     Republicar e seguro (upsert por ref), entao um lote que falhe pode ser
+     repetido sem duplicar nada. */
+  var LOTE=300;
+
+  function publicarEmLotes(pacote, aoProgredir){
+    function avisar(feito,total){
+      if(typeof aoProgredir==='function')try{aoProgredir(feito,total)}catch(_){}
+    }
+    var questoes=pacote.questoes||[];
+    var total=questoes.length;
+
+    /* 1a chamada: tudo menos as questoes. Cursos e categorias precisam existir
+       antes, senao a composicao do simulado nao acha a categoria. */
+    var primeiro=Object.assign({},pacote,{questoes:[]});
+
+    return EDApi.rpc('publicar_conteudo',{p_dados:primeiro}).then(function(r){
+      r.questoes=0; r.alternativas=0; r.questoes_sem_gabarito=0;
+      r.refs_sem_gabarito=[];
+      avisar(0,total);
+
+      /* 2a em diante: as questoes, em lotes, uma chamada por vez */
+      var i=0;
+      function proximo(){
+        if(i>=total)return r;
+        var fatia=questoes.slice(i,i+LOTE);
+        return EDApi.rpc('publicar_conteudo',{p_dados:{questoes:fatia}})
+          .then(function(p){
+            r.questoes      += (p.questoes||0);
+            r.alternativas  += (p.alternativas||0);
+            r.questoes_sem_gabarito += (p.questoes_sem_gabarito||0);
+            if(p.refs_sem_gabarito&&p.refs_sem_gabarito.length)
+              r.refs_sem_gabarito=r.refs_sem_gabarito.concat(p.refs_sem_gabarito);
+            i+=LOTE; avisar(Math.min(i,total),total);
+            return proximo();
+          });
+      }
+      return proximo();
+    }).then(function(r){
       return EDApi.rpc('publicar_planos',{p_planos:pacote.planos})
         .then(function(pl){r.planos=(pl&&pl.planos)||0;return r;})
         .catch(function(){return r;});

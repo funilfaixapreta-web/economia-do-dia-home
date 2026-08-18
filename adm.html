@@ -2553,6 +2553,26 @@ function loginDoBanco(depois){
   });
 }
 function sairDoBanco(){EDPublicar.sair().then(repintaPublicar);}
+/* Questão sem exatamente uma alternativa correta não pode entrar em prova: o
+   aluno erraria sempre. O banco publica mas deixa inativa — aqui o admin vê
+   quais são para corrigir. */
+function avisarSemGabarito(r){
+  var refs=(r.refs_sem_gabarito||[]);
+  openDrawer('Questões sem gabarito',[],{},function(){closeDrawer();});
+  var corpo=$('#dr-body');
+  if(!corpo)return;
+  corpo.innerHTML='<p class="hint" style="margin-top:0">'
+    +'<b>'+r.questoes_sem_gabarito+' questão(ões)</b> subiram para o banco mas ficaram '
+    +'<b>fora do sorteio</b>. Motivo: para valer numa prova a questão precisa de pelo menos '
+    +'duas alternativas e exatamente uma marcada como correta. Sem isso o aluno erraria sempre.</p>'
+    +'<p class="hint">Corrija no painel e publique de novo — elas voltam a valer sozinhas.</p>'
+    +(refs.length
+      ? '<div class="tblwrap" style="margin-top:12px"><table class="tbl"><thead><tr><th>Identificação</th></tr></thead><tbody>'
+        + refs.map(function(x){return '<tr><td class="mono">'+esc(x)+'</td></tr>';}).join('')
+        + '</tbody></table></div>'
+        + (refs.length>=50?'<p class="hint">Mostrando as 50 primeiras.</p>':'')
+      : '');
+}
 /* Convida por e-mail. Se a pessoa já tem conta, vira admin na hora; se ainda
    não tem, nasce admin quando criar a conta pelo site. Ninguém digita senha. */
 function convidarAdmin(){
@@ -2573,8 +2593,17 @@ function publicarTudo(){
   if(!EDPublicar.conta())return loginDoBanco(publicarTudo);
   var b=$('#btn-publicar');
   if(b){b.disabled=true;b.textContent='Publicando…';}
-  EDPublicar.publicar().then(function(r){
-    toast('Publicado: '+r.aulas+' aulas, '+r.questoes+' questões, '+r.simulados+' simulados.');
+  /* vai em lotes: com milhares de questões, uma chamada só estoura o limite
+     de 8s do banco. O contador mostra que não travou. */
+  EDPublicar.publicar(function(feito,total){
+    var el=$('#btn-publicar');
+    if(el&&total)el.textContent='Publicando… '+feito+'/'+total+' questões';
+  }).then(function(r){
+    var msg='Publicado: '+r.aulas+' aulas, '+r.questoes+' questões, '+r.simulados+' simulados.';
+    if(r.questoes_sem_gabarito)
+      msg+=' '+r.questoes_sem_gabarito+' questão(ões) sem gabarito ficaram fora do sorteio.';
+    toast(msg);
+    if(r.questoes_sem_gabarito)avisarSemGabarito(r);
     repintaPublicar();
   }).catch(function(e){
     var m=String(e&&e.message||'');
