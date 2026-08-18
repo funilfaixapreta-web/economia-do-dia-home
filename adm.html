@@ -2488,6 +2488,7 @@ function viewPublicar(){
     +'<div class="drow"><span class="dk">Simulados</span><span class="dv">'+r.simulados+'</span></div>'
     +'<div class="drow"><span class="dk">Planos à venda</span><span class="dv">'+r.planos+' <span class="t-sub">('+r.planosSemPreco+' sem preço)</span></span></div>'
     +'<div class="drow"><span class="dk">Conta no banco</span><span class="dv">'+(quem?esc(quem):'não conectado')+'</span></div>'
+    +'<div class="drow"><span class="dk">Conexão com o banco</span><span class="dv" id="pub-saude">verificando…</span></div>'
     +'</div>'+alerta
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
     +'<button class="btn btn-gold btn-sm" id="btn-publicar" onclick="publicarTudo()">Publicar no banco</button>'
@@ -2495,7 +2496,21 @@ function viewPublicar(){
     +(quem?'<button class="btn btn-ghost btn-sm" onclick="sairDoBanco()">Trocar de conta</button>':'')
     +'</div>';
 }
-function repintaPublicar(){var el=$('#pubcard');if(el)el.innerHTML=viewPublicar();}
+function repintaPublicar(){var el=$('#pubcard');if(el){el.innerHTML=viewPublicar();pintarSaude();}}
+/* O site cai para o modo local sozinho quando o banco nao responde. Isso é
+   bom para quem está usando, mas esconde a falha de quem precisa consertar.
+   Esta linha mostra o estado real da conexão. */
+function pintarSaude(){
+  var el=$('#pub-saude'); if(!el||!window.EDApi||!EDApi.saude)return;
+  EDApi.saude(true).then(function(ok){
+    var e=$('#pub-saude'); if(!e)return;
+    e.innerHTML = ok
+      ? '<span style="color:var(--green)">● conectado</span>'
+      : '<span style="color:var(--red)">● sem conexão</span> <span class="t-sub">— o site está usando o modo local; nada sobe para o banco</span>';
+  }).catch(function(){
+    var e=$('#pub-saude'); if(e)e.innerHTML='<span style="color:var(--red)">● sem conexão</span>';
+  });
+}
 /* Entrar OU criar a conta de administrador do banco.
    O "criar" precisa existir aqui: a tela de cadastro do site só fala com o
    banco depois que a ponte for ligada, então sem isto não haveria como criar
@@ -2604,7 +2619,7 @@ function viewSistema(){
     </div>
     <button class="btn btn-gold btn-sm" style="margin-top:12px" onclick="editTokens()">${EDIT_IC} Editar tokens</button>
   </div>
-  <div class="card siteblock" id="pubcard">${viewPublicar()}</div>
+  <div class="card siteblock" id="pubcard">${viewPublicar()}${(setTimeout(pintarSaude,0),'')}</div>
   <div class="card siteblock">
     <div class="sec-title">Integrações</div>
     <div style="display:flex;flex-direction:column;gap:2px">

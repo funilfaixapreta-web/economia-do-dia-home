@@ -37,7 +37,10 @@
   var SAUDE=null;              /* null = ainda nao sei · true/false = sei */
   var VERIFICANDO=null;
 
-  function verificar(){
+  /* forcar=true refaz o teste. Sem isso, uma falha momentanea no arranque
+     deixaria o site em modo local ate alguem recarregar a pagina. */
+  function verificar(forcar){
+    if(forcar)         SAUDE=null;
     if(SAUDE!==null)   return Promise.resolve(SAUDE);
     if(VERIFICANDO)    return VERIFICANDO;
     if(!CFG.ativo){SAUDE=false;return Promise.resolve(false);}
