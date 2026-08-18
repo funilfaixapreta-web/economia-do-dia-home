@@ -55,7 +55,9 @@
 
     lista.forEach(function(q){
       var nomeCat = q.categoria || q.categoria_nome || q.category || '';
-      var idCat   = slug(nomeCat);
+      /* alguns exports ja trazem o slug pronto; usar o de la mantem o mesmo
+         identificador que o resto da migracao usou */
+      var idCat   = q.slug_categoria || q.categoria_slug || slug(nomeCat);
       if(!cats[idCat]) cats[idCat]={id:idCat, name:nomeCat||'Sem categoria', desc:'', active:true};
 
       var alts=(q.alternativas||q.answers||q.opcoes||[])
@@ -66,11 +68,16 @@
         })
         .filter(function(a){return a.text;});
 
-      var enun=texto(q.enunciado||q.text||q.pergunta||'');
+      /* o export mais completo traz enunciado_texto e enunciado_html; os mais
+         simples trazem so "enunciado". Preferimos o texto ja limpo. */
+      var enun=texto(q.enunciado_texto||q.enunciado||q.enunciado_html
+                     ||q.text||q.pergunta||'');
       if(!enun)semEnunciado++;
 
       var corretas=alts.filter(function(a){return a.correct;}).length;
-      var ref='legacy-'+(q.id!=null?q.id:(questoes.length+1));
+      /* se o arquivo ja traz o ref, respeita: e ele que casa com o que
+         porventura ja foi carregado antes */
+      var ref=q.ref||('legacy-'+(q.id!=null?q.id:(questoes.length+1)));
       if(alts.length<2||corretas!==1)semGabarito.push(ref);
 
       questoes.push({
@@ -79,9 +86,9 @@
         text:enun||'(sem enunciado)',
         comment:texto(q.comentario||q.explicacao||q.comment||''),
         /* o audio do gabarito comentado do site antigo */
-        audioUrl:(q.audio_src||q.audio||q.audio_url||'')||'',
-        audioEmbed:'',
-        accessRule:'livre',
+        audioUrl:(q.audio_url||q.audio_src||q.audio||'')||'',
+        audioEmbed:(q.audio_embed||'')||'',
+        accessRule:/assinante/i.test(q.audio_regra||q.regra_acesso||'')?'assinantes':'livre',
         active:verdade(q.ativo==null?true:q.ativo),
         answers:alts.map(function(a,i){
           return {id:'a'+(i+1), text:a.text, correct:a.correct, active:true};
