@@ -1554,7 +1554,7 @@ VIEWS.perfil=()=>{
         <div class="f"><label>Telefone</label><div class="val">${USER.phone}</div></div>
         <div class="f"><label>Objetivo</label><div class="val">${USER.goal}</div></div>
       </div>
-      <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap"><span class="btn btn-ghost btn-sm" data-toast="Edição de dados em breve nesta versão.">Editar dados</span><a class="btn btn-ghost btn-sm" href="senha.html">Trocar minha senha</a></div>
+      <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap"><span class="btn btn-gold btn-sm" onclick="abrirEditarDados()">Editar dados</span><span class="btn btn-ghost btn-sm" onclick="abrirTrocarEmail()">Trocar e-mail</span><a class="btn btn-ghost btn-sm" href="senha.html">Trocar minha senha</a></div>
     </div>
 
     <div class="card">
@@ -1936,6 +1936,79 @@ function openManage(){
   <div class="macts"><span class="btn btn-gold" data-close-modal>Concluído</span></div>`);
   $('#mng-plans')?.addEventListener('click',()=>{closeModal();openPlans();});
 }
+/* ---------------------------------------------------------------- perfil --
+   "Editar dados" e "Trocar e-mail" existiam como botao que so mostrava um
+   aviso de "em breve". Agora gravam de verdade, pelas mesmas funcoes que o
+   painel do admin usa -- e a mesma tabela, entao nao ha dois caminhos com
+   duas regras diferentes.
+
+   Nome e telefone gravam na hora. E-mail nao: o Supabase manda confirmacao
+   para o endereco novo e so troca quando a pessoa clicar. Enquanto isso o
+   antigo continua valendo -- que e o que impede alguem de tomar uma conta
+   deixada aberta.
+
+   USER e lido uma vez, quando a pagina carrega. Depois de gravar, a forma
+   honesta de mostrar o dado novo em toda a tela e recarregar.              */
+function campoModal(id,rot,valor,dica,tipo){
+  return '<label style="display:block;margin-top:14px">'
+    +'<span style="display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">'+esc(rot)+'</span>'
+    +'<input id="'+id+'" type="'+(tipo||'text')+'" value="'+esc(valor||'')+'" '
+    +'style="width:100%;background:var(--overlay-soft);border:1px solid var(--border);border-radius:10px;'
+    +'padding:11px 12px;color:var(--text);font-family:inherit;font-size:14px" />'
+    +(dica?'<span style="display:block;font-size:12px;color:var(--muted);margin-top:6px">'+esc(dica)+'</span>':'')
+    +'</label>';
+}
+
+function abrirEditarDados(){
+  showModal('<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">✎</div>'
+    +'<h3>Editar meus dados</h3><p>Seu nome aparece nos certificados e no seu desempenho.</p>'
+    +campoModal('ed-nome','Nome completo',USER.name)
+    +campoModal('ed-tel','Telefone',USER.phone,'Opcional.')
+    +'<div class="macts"><span class="btn btn-ghost" data-close-modal>Cancelar</span>'
+    +'<span class="btn btn-gold" id="ed-salvar">Salvar</span></div>');
+  var b=document.getElementById('ed-salvar'); if(!b)return;
+  b.addEventListener('click',function(){
+    var nome=(document.getElementById('ed-nome').value||'').trim();
+    var tel =(document.getElementById('ed-tel').value||'').trim();
+    if(nome.length<2){toast('Escreva seu nome.');return;}
+    b.textContent='Salvando…';
+
+    function local(){
+      try{var u=JSON.parse(localStorage.getItem('ed-user')||'{}');
+          u.nome=nome;u.telefone=tel;localStorage.setItem('ed-user',JSON.stringify(u));}catch(_){}
+      closeModal();toast('Dados atualizados.','ok');setTimeout(function(){location.reload();},600);
+    }
+    if(window.EDApi&&EDApi.ativo&&EDApi.ativo()&&EDApi.sessao&&EDApi.sessao()){
+      EDApi.salvarPerfil(nome,tel).then(local).catch(function(e){
+        b.textContent='Salvar';toast('Não deu para salvar: '+((e&&e.message)||'erro'));
+      });
+    } else local();   /* sem banco, o site segue no modo local como sempre */
+  });
+}
+
+function abrirTrocarEmail(){
+  if(!(window.EDApi&&EDApi.ativo&&EDApi.ativo()&&EDApi.sessao&&EDApi.sessao())){
+    toast('Entre na sua conta para trocar o e-mail.');return;
+  }
+  showModal('<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">✉</div>'
+    +'<h3>Trocar meu e-mail</h3><p>Hoje sua conta é <b>'+esc(USER.email)+'</b>. É por esse endereço que você entra e recupera a senha.</p>'
+    +campoModal('ed-mail','E-mail novo','','Vamos mandar um link de confirmação para ele. Até você clicar, o e-mail atual continua valendo.','email')
+    +'<div class="macts"><span class="btn btn-ghost" data-close-modal>Cancelar</span>'
+    +'<span class="btn btn-gold" id="ed-mail-ok">Pedir a troca</span></div>');
+  var b=document.getElementById('ed-mail-ok'); if(!b)return;
+  b.addEventListener('click',function(){
+    var novo=(document.getElementById('ed-mail').value||'').trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(novo)){toast('E-mail inválido.');return;}
+    if(novo.toLowerCase()===String(USER.email||'').toLowerCase()){toast('Esse já é o seu e-mail.');return;}
+    b.textContent='Enviando…';
+    EDApi.trocarEmail(novo).then(function(){
+      closeModal();toast('Confirme no e-mail novo para a troca valer.','ok');
+    }).catch(function(e){
+      b.textContent='Pedir a troca';toast('Não deu certo: '+((e&&e.message)||'erro'));
+    });
+  });
+}
+
 function openCancel(){
   showModal(`<div class="mic" style="background:rgba(224,83,61,.12);border:1px solid rgba(224,83,61,.34);color:#E0533D"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.6L2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/></svg></div>
   <h3>Cancelar assinatura?</h3>

@@ -242,6 +242,53 @@
     return rpc('gabarito_tentativa',{p_tentativa:tentativaId});
   }
 
+  /* --------------------------------------------------------------- perfil --
+     Cadastro de quem esta logado. Vale para aluno e para admin: e a mesma
+     tabela e as mesmas regras. O que muda e so a tela que chama.
+
+     Tres coisas separadas de proposito, porque tem tres riscos diferentes:
+
+       perfil()       le nome, e-mail, telefone, papel e plano vigente
+       salvarPerfil() grava nome e telefone -- e so isso
+       trocarEmail()  pede a troca ao Auth, que confirma por e-mail
+
+     Nome e telefone o proprio dono muda na hora. E-mail nao: e ele que
+     identifica a conta e recupera a senha, entao quem decide e o Auth, depois
+     de confirmar no endereco novo. Papel nao aparece aqui em lugar nenhum --
+     desde a 0009 o banco recusa qualquer tentativa de mexer nele pelo
+     navegador (era assim que um aluno virava admin sozinho).                */
+  function perfil(){
+    return rpc('meu_perfil',{});
+  }
+
+  function salvarPerfil(nome,telefone){
+    return rpc('atualizar_meu_perfil',{p_nome:nome,p_telefone:telefone||null})
+      .then(function(p){
+        /* o resto do site le o nome do localStorage; mantem em dia */
+        try{
+          var s=sessao();
+          if(s&&s.user){s.user.nome=p.nome||s.user.nome;
+                        s.user.telefone=p.telefone||'';guardaSessao(s);}
+          var u=JSON.parse(localStorage.getItem('ed-user')||'null');
+          if(u){u.nome=p.nome||u.nome;u.telefone=p.telefone||'';
+                localStorage.setItem('ed-user',JSON.stringify(u));}
+        }catch(_){}
+        return p;
+      });
+  }
+
+  /* Nao troca nada na hora: o Supabase manda um link de confirmacao. Enquanto
+     ninguem clicar nele, o e-mail antigo continua valendo -- que e justamente
+     o que impede alguem de sequestrar uma conta aberta num computador alheio.
+     Quando a confirmacao chega, um gatilho no banco (ao_trocar_email) copia o
+     endereco novo para a tabela de cadastro sozinho. */
+  function trocarEmail(novo){
+    if(!sessao())return Promise.reject(new Error('sem-sessao'));
+    return chamar('/auth/v1/user?redirect_to='+encodeURIComponent(location.origin+'/login.html'),
+      {metodo:'PUT',corpo:{email:novo}})
+      .then(function(){return {ok:true, precisaConfirmar:true};});
+  }
+
   function config(){
     return chamar('/rest/v1/config_tokens?select=*').then(function(l){
       var c=(l&&l[0])||{};
@@ -260,6 +307,7 @@
     sessao:sessao, cadastrar:cadastrar, entrar:entrar, sair:sair,
     saldo:saldo, gastar:gastar, config:config, rpc:rpc,
     recuperar:recuperar, sessaoDoLink:sessaoDoLink, trocarSenha:trocarSenha,
+    perfil:perfil, salvarPerfil:salvarPerfil, trocarEmail:trocarEmail,
     montarProva:montarProva, enviarProva:enviarProva, gabarito:gabarito
   };
 })();

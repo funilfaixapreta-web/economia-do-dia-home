@@ -644,6 +644,7 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 
       <a class="nav-item" href="#/relatorio" data-r="relatorio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 3 4-6"/></svg><span>Relatório</span></a>
       <a class="nav-item" href="#/sistema" data-r="sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg><span>Sistema</span></a>
+      <a class="nav-item" href="#/perfil" data-r="perfil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg><span>Minha conta</span></a>
       <div class="nav-lbl">Atalhos</div>
       <a class="nav-item" href="https://mail.hostinger.com/?clearSession=true" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg><span>Webmail</span><span style="margin-left:auto;color:var(--faint)">↗</span></a>
       <a class="nav-item" href="index.html" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg><span>Site</span><span style="margin-left:auto;color:var(--faint)">↗</span></a>
@@ -966,7 +967,7 @@ function applySideState(){try{if(localStorage.getItem('eda-side')==='1')$('#shel
 function toggleSide(){var sh=$('#shell');var on=sh.classList.toggle('collapsed');try{localStorage.setItem('eda-side',on?'1':'0');}catch(_){}}
 
 /* ============ router ============ */
-const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',verpergunta:'Visualizar pergunta','importar-perguntas':'Importar perguntas',migrar:'Migrar do sistema antigo',form:'Editar',tags:'Tags',artigos:'Artigos',paginas:'Páginas',popups:'Popups',imagens:'Imagens',modulos:'Módulos',editorfotos:'Editor de Fotos',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',verpergunta:'Visualizar pergunta','importar-perguntas':'Importar perguntas',migrar:'Migrar do sistema antigo',form:'Editar',tags:'Tags',artigos:'Artigos',paginas:'Páginas',popups:'Popups',imagens:'Imagens',modulos:'Módulos',editorfotos:'Editor de Fotos',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos',perfil:'Minha conta'};
 const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',perguntas:'conteudo',pergunta:'conteudo',verpergunta:'conteudo','importar-perguntas':'conteudo',migrar:'conteudo',form:'conteudo',tags:'conteudo',artigos:'conteudo',paginas:'conteudo',popups:'conteudo',imagens:'conteudo',modulos:'conteudo',editorfotos:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
 const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios',pergunta:'perguntas'};
 function toggleGroup(g){
@@ -1033,10 +1034,12 @@ function router(){
     else if(r==='alunos'){html=viewAlunos();}
     else if(r==='aluno'){html=viewAluno(parts[1]);}
     else if(r==='planos'){html=viewPlanos();}
+    else if(r==='perfil'){html=viewPerfil();}
     else {html=viewDashboard();}
   }catch(err){html=notFound('Erro ao abrir');console.error(err);}
   $('#view').innerHTML=html;window.scrollTo(0,0);
   if(r==='importar')impRender();
+  if(r==='perfil')perfilCarregar();
   if(r==='editorfotos')peInit();
   if(aiOpened)aiUpdateCtx();
   $('#side').classList.remove('open');
@@ -2571,6 +2574,129 @@ function trocarMinhaSenha(){
     });
   });
 }
+/* ============ MINHA CONTA (perfil do admin) ============
+   O aluno sempre teve tela de perfil; o admin nao tinha. Quem administra
+   mexia na propria senha por um botao escondido dentro do card de publicar, e
+   nome e e-mail nao dava para mudar de jeito nenhum.
+
+   Sao os mesmos dados e as mesmas regras do aluno -- e a mesma tabela. O que
+   muda e so onde a tela mora. Por isso tudo aqui passa pelas funcoes do
+   ed-api.js (perfil / salvarPerfil / trocarEmail / trocarSenha), as mesmas
+   que a area do aluno usa.
+
+   Tres campos, tres tratamentos diferentes, de proposito:
+
+     nome e telefone  o dono muda na hora
+     e-mail           o Auth confirma antes; ate la o antigo continua valendo
+     senha            troca na hora, mas exige a sessao viva
+
+   O papel (admin/editor/aluno) aparece so para leitura. Ele nao e editavel
+   por aqui nem por acidente: desde a migracao 0009 o banco recusa qualquer
+   UPDATE em "papel" vindo do navegador. Quem promove alguem e promover_admin(),
+   pelo botao "Convidar administrador", e so um admin consegue chamar.        */
+var PERFIL=null;
+
+function viewPerfil(){
+  var conectado = !!(window.EDApi && EDApi.sessao && EDApi.sessao());
+  if(!conectado){
+    return '<div class="listhead"><div><div class="le">Conta</div><h1>Minha conta</h1>'
+      +'<p>Seus dados de administrador no banco de dados.</p></div></div>'
+      +'<div class="card siteblock">'
+      +'<div class="sec-title">Você não está conectado ao banco</div>'
+      +'<p class="hint" style="margin-top:0">O login do painel é só deste navegador. Os dados de'
+      +' verdade — nome, e-mail e senha — ficam no banco. Entre com a conta de administrador'
+      +' para ver e alterar.</p>'
+      +'<button class="btn btn-gold btn-sm" style="margin-top:12px"'
+      +' onclick="loginDoBanco(function(){router();})">Entrar no banco</button>'
+      +'</div>';
+  }
+  return '<div class="listhead"><div><div class="le">Conta</div><h1>Minha conta</h1>'
+    +'<p>Nome, e-mail e senha da sua conta de administrador.</p></div>'
+    +'<div class="ph-actions"><button class="btn btn-ghost" onclick="sairDoBanco();router();">Sair da conta</button></div></div>'
+    +'<div class="card siteblock">'
+    +'<div class="sec-title">Meus dados</div>'
+    +'<div id="perfil-dados"><p class="hint" style="margin-top:0">carregando…</p></div>'
+    +'<div id="perfil-acoes" style="display:none;gap:8px;flex-wrap:wrap;margin-top:14px">'
+    +'<button class="btn btn-gold btn-sm" onclick="editarMeuPerfil()">Editar nome e telefone</button>'
+    +'<button class="btn btn-ghost btn-sm" onclick="trocarMeuEmail()">Trocar e-mail</button>'
+    +'<button class="btn btn-ghost btn-sm" onclick="trocarMinhaSenha()">Trocar senha</button>'
+    +'</div></div>'
+    +'<div class="card siteblock">'
+    +'<div class="sec-title">Quem mais administra</div>'
+    +'<p class="hint" style="margin-top:0">Administrador não se cria digitando senha: você convida'
+    +' por e-mail. Se a pessoa já tem conta, ela vira admin na hora; se não tem, já nasce admin'
+    +' quando criar a conta pelo site. Ninguém consegue se promover sozinho.</p>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
+    +'<button class="btn btn-gold btn-sm" onclick="convidarAdmin()">Convidar administrador</button>'
+    +'<button class="btn btn-ghost btn-sm" onclick="location.hash=\'#/usuarios\'">Ver usuários →</button>'
+    +'</div></div>';
+}
+
+/* A tela e desenhada de uma vez (o roteador e sincrono) e so depois recebe os
+   dados. Se o banco nao responder, diz isso em vez de ficar em "carregando"
+   para sempre. */
+function perfilCarregar(){
+  var alvo=$('#perfil-dados'); if(!alvo)return;
+  if(!(window.EDApi&&EDApi.perfil)){alvo.innerHTML='<p class="hint" style="margin-top:0;color:var(--red)">ed-api.js não carregou.</p>';return;}
+  EDApi.perfil().then(function(p){
+    PERFIL=p||{};
+    var el=$('#perfil-dados'); if(!el)return;
+    var papeis={admin:'Administrador',editor:'Editor',professor:'Professor',aluno:'Aluno'};
+    var desde=''; try{desde=p.criado_em?new Date(p.criado_em).toLocaleDateString('pt-BR'):'';}catch(_){}
+    el.innerHTML='<div class="dfields">'
+      +'<div class="drow"><span class="dk">Nome</span><span class="dv">'+esc(p.nome||'—')+'</span></div>'
+      +'<div class="drow"><span class="dk">E-mail</span><span class="dv">'+esc(p.email||'—')+'</span></div>'
+      +'<div class="drow"><span class="dk">Telefone</span><span class="dv">'+esc(p.telefone||'—')+'</span></div>'
+      +'<div class="drow"><span class="dk">Papel</span><span class="dv">'+esc(papeis[p.papel]||p.papel||'—')
+        +' <span class="t-sub">(só outro administrador pode mudar)</span></span></div>'
+      +(desde?'<div class="drow"><span class="dk">Conta criada em</span><span class="dv">'+esc(desde)+'</span></div>':'')
+      +(p.plano?'<div class="drow"><span class="dk">Plano</span><span class="dv">'+esc(p.plano.nome||'')+'</span></div>':'')
+      +'</div>';
+    var ac=$('#perfil-acoes'); if(ac)ac.style.display='flex';
+  }).catch(function(e){
+    var el=$('#perfil-dados'); if(!el)return;
+    el.innerHTML='<p class="hint" style="margin-top:0;color:var(--red)">Não deu para ler seus dados: '
+      +esc((e&&e.message)||'erro')+'</p>';
+  });
+}
+
+function editarMeuPerfil(){
+  var p=PERFIL||{};
+  openDrawer('Editar meus dados',[
+    {key:'nome',label:'Nome',type:'text'},
+    {key:'telefone',label:'Telefone',type:'text',hint:'Opcional.'}
+  ],{nome:p.nome||'',telefone:p.telefone||''},function(d){
+    var nome=(d.nome||'').trim();
+    if(nome.length<2){toast('Escreva seu nome.','err');return;}
+    EDApi.salvarPerfil(nome,(d.telefone||'').trim()).then(function(){
+      closeDrawer();toast('Dados atualizados.');perfilCarregar();
+    }).catch(function(e){
+      toast('Não deu para salvar: '+((e&&e.message)||'erro'),'err');
+    });
+  });
+}
+
+/* Nao muda nada na hora, e isso e o certo: o e-mail e o que recupera a senha.
+   Se trocasse direto, bastava alguem sentar num computador com o painel aberto
+   para tomar a conta. O Supabase manda link de confirmacao antes. */
+function trocarMeuEmail(){
+  var p=PERFIL||{};
+  openDrawer('Trocar meu e-mail',[
+    {key:'email',label:'E-mail novo',type:'text',
+     hint:'Você vai receber um link de confirmação neste endereço. Até clicar nele, o e-mail antigo continua valendo.'}
+  ],{email:''},function(d){
+    var novo=(d.email||'').trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(novo)){toast('E-mail inválido.','err');return;}
+    if(novo.toLowerCase()===String(p.email||'').toLowerCase()){toast('Esse já é o seu e-mail.','err');return;}
+    EDApi.trocarEmail(novo).then(function(){
+      closeDrawer();
+      toast('Confirme no e-mail novo para a troca valer.');
+    }).catch(function(e){
+      toast('Não deu para pedir a troca: '+((e&&e.message)||'erro'),'err');
+    });
+  });
+}
+
 /* Questão sem exatamente uma alternativa correta não pode entrar em prova: o
    aluno erraria sempre. O banco publica mas deixa inativa — aqui o admin vê
    quais são para corrigir. */
