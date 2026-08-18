@@ -3066,6 +3066,12 @@ function viewMigrar(){
     ? '<p class="hint" style="color:var(--red);margin-top:12px"><b>'+r.semGabarito+' questão(ões)</b> não têm exatamente uma alternativa correta. '
       +'Elas entram no painel e no banco, mas ficam <b>fora do sorteio</b> até serem corrigidas — senão o aluno erraria sempre.</p>'
     : '';
+  /* Um arquivo sem áudio nenhum quase sempre é o export errado — foi o que
+     aconteceu na primeira migração. Melhor gritar do que subir mudo. */
+  if(!r.comAudio)
+    alerta += '<p class="hint" style="color:var(--red);margin-top:10px"><b>Este arquivo não traz áudio nenhum.</b> '
+      +'Se as suas questões têm gabarito comentado em áudio, este é o export errado — procure o que tem os campos '
+      +'<code>audio_url</code> ou <code>audio_src</code>. Importar assim sobe as questões <b>sem o áudio</b>.</p>';
   return cab
     +'<div class="card siteblock"><div class="sec-title">O que veio no arquivo</div>'
     +'<div class="dfields">'

@@ -88,7 +88,10 @@
         /* o audio do gabarito comentado do site antigo */
         audioUrl:(q.audio_url||q.audio_src||q.audio||'')||'',
         audioEmbed:(q.audio_embed||'')||'',
-        accessRule:/assinante/i.test(q.audio_regra||q.regra_acesso||'')?'assinantes':'livre',
+        /* a regra do audio governa o gabarito comentado, NAO quem pode
+           responder a questao: sao coisas diferentes */
+        audioRegra:(q.audio_regra||'')||'',
+        accessRule:/assinante/i.test(q.regra_acesso||'')?'assinantes':'livre',
         active:verdade(q.ativo==null?true:q.ativo),
         answers:alts.map(function(a,i){
           return {id:'a'+(i+1), text:a.text, correct:a.correct, active:true};
