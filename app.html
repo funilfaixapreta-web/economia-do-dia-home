@@ -1540,7 +1540,9 @@ VIEWS.favoritos=()=>{
 };
 
 VIEWS.perfil=()=>{
-  const plan=PLANS.find(p=>p.id===USER.planId);
+  /* Quem ainda nao comprou nao tem planId. Antes isto virava undefined e a
+     tela INTEIRA de perfil quebrava — em branco para todo lead. */
+  const plan=PLANS.find(p=>p.id===USER.planId)||null;
   return `
   <div class="cfg">
     <div class="card">
@@ -1557,8 +1559,10 @@ VIEWS.perfil=()=>{
 
     <div class="card">
       <h3>Assinatura</h3>
-      <div class="plan"><span class="av" style="width:44px;height:44px;border-radius:12px;font-size:14px">ED</span><div><div style="font-weight:600;color:var(--head)">Plano atual · ${plan.name}</div><div style="font-size:13px;color:var(--muted)">Acesso até 12/2027 · analista pleno</div></div><span class="badge">Ativo</span></div>
-      <div style="margin-top:16px"><div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Benefícios do seu plano</div>
+      ${plan
+        ? `<div class="plan"><span class="av" style="width:44px;height:44px;border-radius:12px;font-size:14px">ED</span><div><div style="font-weight:600;color:var(--head)">Plano atual · ${plan.name}</div><div style="font-size:13px;color:var(--muted)">Acesso até 12/2027 · analista pleno</div></div><span class="badge">Ativo</span></div>`
+        : `<div class="plan"><span class="av" style="width:44px;height:44px;border-radius:12px;font-size:14px">ED</span><div><div style="font-weight:600;color:var(--head)">Você ainda não tem plano</div><div style="font-size:13px;color:var(--muted)">Está usando seus tokens gratuitos. Com um plano, o acesso aos cursos é liberado por inteiro.</div></div><a class="btn btn-gold btn-sm" href="index.html#cursos" style="margin-left:auto">Ver os cursos</a></div>`}
+      ${!plan?'':`<div style="margin-top:16px"><div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Benefícios do seu plano</div>
         <div class="benefits">
           <div><span class="bk">✓</span> 3 cursos CNPI (CB · CG1 · CT1)</div>
           <div><span class="bk">✓</span> Todas as trilhas de formação</div>
@@ -1573,12 +1577,14 @@ VIEWS.perfil=()=>{
         <div class="billrow"><span class="bl">Forma de pagamento</span><span class="bv">Cartão •••• 4821</span></div>
         <div class="billrow"><span class="bl">Próxima renovação</span><span class="bv">12/12/2027</span></div>
         <div class="billrow"><span class="bl">Notas fiscais</span><span class="bv" style="color:var(--gold-deep);cursor:pointer" data-toast="Abrindo suas notas fiscais…">Ver histórico →</span></div>
-      </div>
+      </div>`}
       <div class="sub-actions">
-        <span class="btn btn-gold btn-sm" id="btn-upgrade">↑ Fazer upgrade</span>
-        <span class="btn btn-ghost btn-sm" id="btn-contract">Contratar novo plano</span>
-        <span class="btn btn-ghost btn-sm" id="btn-manage">Gerenciar assinatura</span>
-        <span class="btn btn-ghost btn-sm" id="btn-cancel" style="color:var(--red)">Cancelar assinatura</span>
+        ${plan
+          ? `<span class="btn btn-gold btn-sm" id="btn-upgrade">↑ Fazer upgrade</span>
+             <span class="btn btn-ghost btn-sm" id="btn-contract">Contratar novo plano</span>
+             <span class="btn btn-ghost btn-sm" id="btn-manage">Gerenciar assinatura</span>
+             <span class="btn btn-ghost btn-sm" id="btn-cancel" style="color:var(--red)">Cancelar assinatura</span>`
+          : `<a class="btn btn-gold btn-sm" href="index.html#cursos">Conhecer os planos</a>`}
       </div>
     </div>
 
@@ -1591,6 +1597,7 @@ VIEWS.perfil=()=>{
       <div class="pref"><span class="pl">Recomendações da IA</span><button class="switch on" data-toggle></button></div>
     </div>
 
+    <div class="card"><h3>Senha</h3><p style="font-size:13px;color:var(--muted);margin-bottom:14px">Troque quando quiser. Se você veio do site antigo, é aqui que define a sua senha nova.</p><a class="btn btn-gold btn-sm" href="senha.html">Alterar minha senha</a></div>
     <div class="card danger"><h3>Sair da conta</h3><p style="font-size:13px;color:var(--muted);margin-bottom:14px">Você precisará entrar novamente para acessar suas aulas.</p><span class="btn btn-sm" onclick="sairDaConta()">Sair</span></div>
   </div>
   `;

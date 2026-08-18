@@ -2494,6 +2494,7 @@ function viewPublicar(){
     +'</div>'+alerta
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
     +'<button class="btn btn-gold btn-sm" id="btn-publicar" onclick="publicarTudo()">Publicar no banco</button>'
+    +(quem?'<button class="btn btn-ghost btn-sm" onclick="trocarMinhaSenha()">Trocar minha senha</button>':'')
     +(quem?'<button class="btn btn-ghost btn-sm" onclick="convidarAdmin()">Convidar administrador</button>':'')
     +(quem?'<button class="btn btn-ghost btn-sm" onclick="sairDoBanco()">Trocar de conta</button>':'')
     +'</div>';
@@ -2555,6 +2556,21 @@ function loginDoBanco(depois){
   });
 }
 function sairDoBanco(){EDPublicar.sair().then(repintaPublicar);}
+/* Troca a senha da conta do banco sem sair do painel. */
+function trocarMinhaSenha(){
+  openDrawer('Trocar minha senha',[
+    {key:'s1',label:'Senha nova',type:'password',hint:'Mínimo de 6 caracteres.'},
+    {key:'s2',label:'Repita a senha nova',type:'password'}
+  ],{s1:'',s2:''},function(d){
+    if((d.s1||'').length<6){toast('A senha precisa ter pelo menos 6 caracteres.','err');return;}
+    if(d.s1!==d.s2){toast('As duas senhas não são iguais.','err');return;}
+    EDApi.trocarSenha(d.s1).then(function(){
+      closeDrawer();toast('Senha trocada.');
+    }).catch(function(e){
+      toast('Não deu para trocar: '+((e&&e.message)||'erro'),'err');
+    });
+  });
+}
 /* Questão sem exatamente uma alternativa correta não pode entrar em prova: o
    aluno erraria sempre. O banco publica mas deixa inativa — aqui o admin vê
    quais são para corrigir. */

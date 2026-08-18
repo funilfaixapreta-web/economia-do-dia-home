@@ -236,6 +236,7 @@
       +'<div class="acts">'
       +(naAreaDoAluno()?'<button class="b g" data-tk-close>Continuar estudando</button>'
                        :'<a class="b g" href="app.html">Ir para a área do aluno</a>')
+      +'<a class="b o" href="senha.html">Trocar minha senha</a>'
       +'<button class="b o" data-tk-sair>Sair da conta</button></div>');
     var fechaBtn=scrim.querySelector('[data-tk-close]');
     if(fechaBtn)fechaBtn.addEventListener('click',fechar);
