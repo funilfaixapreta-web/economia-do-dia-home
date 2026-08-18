@@ -133,6 +133,61 @@
     }).then(function(r){aplicarSessao(r);return {ok:true};});
   }
 
+  /* ------------------------------------------------------------- senha ----
+     Tres coisas que faltavam por completo no site:
+
+       recuperar()  manda o e-mail de redefinicao
+       sessaoDoLink() le o token que volta no endereco do e-mail
+       trocarSenha() grava a senha nova
+
+     ATENCAO: o e-mail so leva a pessoa de volta se o "Site URL" estiver certo
+     no painel do Supabase (Authentication > URL Configuration). Com o padrao
+     de fabrica (localhost) o link confirma mas nao abre pagina nenhuma.      */
+  function recuperar(email){
+    return chamar('/auth/v1/recover',{metodo:'POST',auth:false,corpo:{
+      email:email,
+      /* volta para a nossa pagina de senha, no mesmo dominio de onde saiu */
+      gotrue_meta_security:{},
+      redirect_to:location.origin+'/senha.html'
+    }}).then(function(){return {ok:true};});
+  }
+
+  /* O Supabase devolve o token no fragmento (#access_token=...&type=recovery).
+     Fragmento nao vai para servidor nenhum — fica so no navegador. */
+  function sessaoDoLink(){
+    var h=String(location.hash||'').replace(/^#/,'');
+    if(!h)return null;
+    var p={}; h.split('&').forEach(function(par){
+      var i=par.indexOf('='); if(i>0)p[par.slice(0,i)]=decodeURIComponent(par.slice(i+1));
+    });
+    if(p.error_description)return {erro:p.error_description};
+    if(!p.access_token)return null;
+    guardaSessao({
+      access_token:p.access_token, refresh_token:p.refresh_token||'',
+      expira_em:Date.now()+((+p.expires_in||3600)*1000),
+      user:{id:'',email:'',nome:'',telefone:''}
+    });
+    /* limpa o endereco para o token nao ficar visivel nem no historico */
+    try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
+    return {ok:true, tipo:p.type||'recovery'};
+  }
+
+  function trocarSenha(nova){
+    if(!sessao())return Promise.reject(new Error('sem-sessao'));
+    return chamar('/auth/v1/user',{metodo:'PUT',corpo:{password:nova}})
+      .then(function(u){
+        /* o retorno traz o usuario; aproveita para atualizar o nome/e-mail */
+        try{
+          var s=sessao();
+          if(s&&u&&u.id){s.user={id:u.id,email:u.email,
+            nome:(u.user_metadata&&u.user_metadata.nome)||s.user.nome||'',
+            telefone:(u.user_metadata&&u.user_metadata.telefone)||u.phone||''};
+            guardaSessao(s);}
+        }catch(_){}
+        return {ok:true};
+      });
+  }
+
   function sair(){
     var s=sessao();
     limpaSessao();
@@ -204,6 +259,7 @@
     url:CFG.url,
     sessao:sessao, cadastrar:cadastrar, entrar:entrar, sair:sair,
     saldo:saldo, gastar:gastar, config:config, rpc:rpc,
+    recuperar:recuperar, sessaoDoLink:sessaoDoLink, trocarSenha:trocarSenha,
     montarProva:montarProva, enviarProva:enviarProva, gabarito:gabarito
   };
 })();
