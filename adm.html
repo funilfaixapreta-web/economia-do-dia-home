@@ -707,6 +707,7 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 <input type="file" id="img-input" accept="image/*" multiple hidden />
 <input type="file" id="img-replace" accept="image/*" hidden />
 <input type="file" id="impq-input" accept=".csv,text/csv,text/plain" hidden />
+<input type="file" id="mig-input" accept=".json,application/json" hidden />
 <input type="file" id="pe-input" accept="image/*" hidden />
 <input type="file" id="prof-input" accept="image/*" hidden />
 <div class="toast-wrap" id="toast-wrap"></div>
@@ -965,8 +966,8 @@ function applySideState(){try{if(localStorage.getItem('eda-side')==='1')$('#shel
 function toggleSide(){var sh=$('#shell');var on=sh.classList.toggle('collapsed');try{localStorage.setItem('eda-side',on?'1':'0');}catch(_){}}
 
 /* ============ router ============ */
-const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',verpergunta:'Visualizar pergunta','importar-perguntas':'Importar perguntas',form:'Editar',tags:'Tags',artigos:'Artigos',paginas:'Páginas',popups:'Popups',imagens:'Imagens',modulos:'Módulos',editorfotos:'Editor de Fotos',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
-const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',perguntas:'conteudo',pergunta:'conteudo',verpergunta:'conteudo','importar-perguntas':'conteudo',form:'conteudo',tags:'conteudo',artigos:'conteudo',paginas:'conteudo',popups:'conteudo',imagens:'conteudo',modulos:'conteudo',editorfotos:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',verpergunta:'Visualizar pergunta','importar-perguntas':'Importar perguntas',migrar:'Migrar do sistema antigo',form:'Editar',tags:'Tags',artigos:'Artigos',paginas:'Páginas',popups:'Popups',imagens:'Imagens',modulos:'Módulos',editorfotos:'Editor de Fotos',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos'};
+const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',perguntas:'conteudo',pergunta:'conteudo',verpergunta:'conteudo','importar-perguntas':'conteudo',migrar:'conteudo',form:'conteudo',tags:'conteudo',artigos:'conteudo',paginas:'conteudo',popups:'conteudo',imagens:'conteudo',modulos:'conteudo',editorfotos:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
 const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios',pergunta:'perguntas'};
 function toggleGroup(g){
   var sh=$('#shell');
@@ -1016,6 +1017,7 @@ function router(){
     else if(r==='pergunta'){html=viewPergunta(parts[1]);}
     else if(r==='verpergunta'){html=viewPerguntaPreview(parts[1]);}
     else if(r==='importar-perguntas'){html=viewImportQuestions();}
+    else if(r==='migrar'){html=viewMigrar();}
     else if(r==='form'){html=renderForm();}
     else if(r==='tags'){html=viewTags();}
     else if(r==='artigos'){html=viewArtigos();}
@@ -2950,7 +2952,7 @@ function viewQuestions(){
   if(ensureNids(db.questions))save();
   const cats=(db.qCategories||[]);
   const header=`<div class="listhead"><div><div class="le">Conteúdo</div><h1>Perguntas</h1><p>Questões de múltipla escolha, organizadas por categoria. Suba muitas de uma vez por CSV e filtre por categoria.</p></div>
-    <div class="ph-actions" style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="location.hash='#/importar-perguntas'">↑ Importar CSV</button><button class="btn btn-gold" onclick="novaPergunta()">+ Nova pergunta</button></div></div>`;
+    <div class="ph-actions" style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="location.hash='#/importar-perguntas'">↑ Importar CSV</button><button class="btn btn-ghost" onclick="location.hash='#/migrar'">↑ Migrar do sistema antigo</button><button class="btn btn-gold" onclick="novaPergunta()">+ Nova pergunta</button></div></div>`;
   if(!(db.questions||[]).length)return `<div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Perguntas</span></div>${header}${emptyState('?','Nenhuma pergunta','Crie a primeira pergunta ou importe um CSV com várias.','↑ Importar CSV',"location.hash='#/importar-perguntas'")}`;
   const st=_lst.questions, q=st.q;
   const all=(db.questions||[]).filter(x=>{
@@ -3038,6 +3040,75 @@ function impqModel(){
     'Qual o principal órgão regulador do mercado de capitais no Brasil?;CVM;Bacen;Susep;CMN;A;A CVM regula o mercado de valores mobiliários.;\r\n';
   var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='modelo-perguntas.csv';document.body.appendChild(a);a.click();a.remove();
 }
+/* ============ Migrar o banco de questões do sistema antigo ================
+   O site velho exporta tudo em JSON: 5.105 questões em 83 categorias. O
+   importador de CSV daqui joga tudo numa categoria só, então teria que ser
+   repetido 83 vezes. Esta tela lê o JSON como ele sai de lá.              */
+var _MIG=null;
+function viewMigrar(){
+  var cab='<div class="crumb"><a href="#/perguntas">Perguntas</a> <span class="sep">›</span> <span>Migrar do sistema antigo</span></div>'
+    +'<div class="listhead"><div><div class="le">Conteúdo</div><h1>Migrar do sistema antigo</h1>'
+    +'<p>Traga o banco de questões exportado do economiadodia.com.br. Ele entra aqui no painel; depois é só publicar no banco.</p></div></div>';
+
+  if(!_MIG||_MIG.erro){
+    return cab
+      +(_MIG&&_MIG.erro?'<div class="card siteblock"><p class="hint" style="margin-top:0;color:var(--red)">'+esc(_MIG.erro)+'</p></div>':'')
+      +'<div class="card siteblock">'
+      +'<div class="sec-title">Arquivo de exportação (.json)</div>'
+      +'<p class="hint" style="margin-top:0">Escolha o JSON que o sistema antigo gerou. Nada é enviado para lugar nenhum ainda: primeiro você confere o que veio.</p>'
+      +'<button class="btn btn-gold" style="margin-top:12px" onclick="migArquivo()">Escolher arquivo…</button>'
+      +'<p class="hint" style="margin-top:14px">Reimportar o mesmo arquivo é seguro: cada questão guarda o número dela lá de origem, então ela é atualizada no lugar em vez de duplicar.</p>'
+      +'</div>';
+  }
+
+  var r=_MIG.resumo;
+  var alerta = r.semGabarito
+    ? '<p class="hint" style="color:var(--red);margin-top:12px"><b>'+r.semGabarito+' questão(ões)</b> não têm exatamente uma alternativa correta. '
+      +'Elas entram no painel e no banco, mas ficam <b>fora do sorteio</b> até serem corrigidas — senão o aluno erraria sempre.</p>'
+    : '';
+  return cab
+    +'<div class="card siteblock"><div class="sec-title">O que veio no arquivo</div>'
+    +'<div class="dfields">'
+    +'<div class="drow"><span class="dk">Questões</span><span class="dv">'+r.questoes+'</span></div>'
+    +'<div class="drow"><span class="dk">Categorias</span><span class="dv">'+r.categorias+'</span></div>'
+    +'<div class="drow"><span class="dk">Alternativas</span><span class="dv">'+r.alternativas+'</span></div>'
+    +'<div class="drow"><span class="dk">Com áudio do gabarito</span><span class="dv">'+r.comAudio+'</span></div>'
+    +'<div class="drow"><span class="dk">Sem enunciado</span><span class="dv">'+r.semEnunciado+'</span></div>'
+    +'<div class="drow"><span class="dk">Entram em prova</span><span class="dv">'+(r.questoes-r.semGabarito)+'</span></div>'
+    +'</div>'+alerta
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'
+    +'<button class="btn btn-gold" onclick="migAplicar()">Importar para o painel</button>'
+    +'<button class="btn btn-ghost" onclick="migArquivo()">Trocar arquivo</button>'
+    +'<button class="btn btn-ghost" onclick="_MIG=null;router()">Cancelar</button>'
+    +'</div></div>'
+    +'<div class="card siteblock"><div class="sec-title">Amostra (5 primeiras)</div>'
+    +_MIG.questoes.slice(0,5).map(function(q){
+        return '<div class="lrow" style="border-radius:10px;display:block">'
+          +'<div class="ltt" style="white-space:normal">'+esc(q.text.slice(0,150))+'</div>'
+          +'<div class="lts"><span class="chip">'+esc(qCatNomeMig(q.categoryId))+'</span>'
+          +'<span>'+q.answers.length+' alternativas · certa: '
+          +esc((q.answers.filter(function(a){return a.correct})[0]||{}).text||'—').slice(0,60)+'</span></div></div>';
+      }).join('')
+    +'</div>';
+}
+function qCatNomeMig(id){
+  var c=(_MIG&&_MIG.categorias||[]).filter(function(x){return x.id===id})[0];
+  return c?c.name:id;
+}
+function migArquivo(){
+  var inp=document.getElementById('mig-input');
+  inp.value=''; inp.click();
+}
+function migAplicar(){
+  if(!window.EDMigrar||!_MIG)return;
+  var r=EDMigrar.aplicar(_MIG);
+  if(!r.ok){toast('Não deu para importar: '+r.motivo,'err');return;}
+  _MIG=null;
+  toast(r.novas+' questão(ões) nova(s), '+r.atualizadas+' atualizada(s), '+r.novasCategorias+' categoria(s).');
+  location.hash='#/sistema';
+  router();
+}
+
 function viewImportQuestions(){
   var cats=(db.qCategories||[]);
   if(!cats.length)return `<div class="crumb"><a href="#/perguntas">Perguntas</a> <span class="sep">›</span> <span>Importar</span></div><div class="listhead"><div><div class="le">Conteúdo</div><h1>Importar perguntas</h1></div></div>${emptyState('◔','Sem categorias','Crie uma categoria de pergunta antes de importar.','+ Nova categoria','editQCategory()')}`;
@@ -3064,6 +3135,20 @@ function viewImportQuestions(){
   </div>
   ${prev}`;
 }
+document.getElementById('mig-input').addEventListener('change',function(e){
+  var f=e.target.files&&e.target.files[0]; if(!f)return;
+  toast('Lendo '+f.name+'…');
+  var rd=new FileReader();
+  rd.onload=function(){
+    if(!window.EDMigrar){toast('ed-migrar.js não carregou.','err');return;}
+    _MIG=EDMigrar.analisar(rd.result);
+    if(_MIG&&_MIG.erro)toast(_MIG.erro,'err');
+    location.hash='#/migrar'; router();
+  };
+  rd.onerror=function(){toast('Não consegui ler o arquivo.','err');};
+  rd.readAsText(f);
+  e.target.value='';
+});
 document.getElementById('impq-input').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var ta=document.getElementById('impq-text');if(ta)ta.value=rd.result;impqAnalyze();};rd.readAsText(f);e.target.value='';});
 function filterQuestions(){
   const q=($('#q-search input')?$('#q-search input').value:'').toLowerCase().trim();
@@ -3670,6 +3755,7 @@ if(authed()){showApp();}else{$('#login').style.display='flex';$('#shell').hidden
 </script>
 <script src="ed-api.js"></script>
 <script src="ed-publicar.js"></script>
+<script src="ed-migrar.js"></script>
 <script src="tokens.js"></script>
 </body>
 </html>

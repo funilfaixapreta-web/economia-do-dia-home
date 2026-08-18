@@ -81,7 +81,8 @@
       return {
         ref:q.id, categoria_id:txt(q.categoryId),
         enunciado:q.text||'(sem enunciado)', comentario:txt(q.comment),
-        audio_embed:txt(q.audioEmbed), regra_acesso:txt(q.accessRule)||'livre',
+        audio_url:txt(q.audioUrl), audio_embed:txt(q.audioEmbed),
+        regra_acesso:txt(q.accessRule)||'livre',
         ativo:bool(q.active),
         alternativas:(q.answers||[]).map(function(a){
           return {texto:a.text||'', correta:!!a.correct, ativo:bool(a.active)};
