@@ -3427,6 +3427,19 @@ function viewMigrar(){
     alerta += '<p class="hint" style="color:var(--red);margin-top:10px"><b>Este arquivo não traz áudio nenhum.</b> '
       +'Se as suas questões têm gabarito comentado em áudio, este é o export errado — procure o que tem os campos '
       +'<code>audio_url</code> ou <code>audio_src</code>. Importar assim sobe as questões <b>sem o áudio</b>.</p>';
+  /* O export so de questoes e o mais comum, e foi o que aconteceu ate agora:
+     as 5.110 questoes subiram e a aba Simulados continuou com os exemplos.
+     Dizer isso aqui evita a pessoa importar e ficar procurando as provas. */
+  if(!r.simulados)
+    alerta += '<p class="hint" style="color:var(--amber);margin-top:10px">Este arquivo traz <b>só as questões</b>. '
+      +'Os simulados do site antigo (quais categorias cada prova sorteia e quantas questões de cada) '
+      +'ficam num export separado — sem ele, a aba Simulados continua só com o que você criar aqui.</p>';
+  if(r.provasQuebradas&&r.provasQuebradas.length)
+    alerta += '<p class="hint" style="color:var(--red);margin-top:10px"><b>'+r.provasQuebradas.length+' simulado(s)</b> '
+      +'apontam para categoria que não veio no arquivo, ou vieram sem composição: '
+      +r.provasQuebradas.slice(0,8).map(esc).join('; ')
+      +'. Eles entram, mas não sorteiam questão nenhuma até serem arrumados.</p>';
+
   return cab
     +'<div class="card siteblock"><div class="sec-title">O que veio no arquivo</div>'
     +'<div class="dfields">'
@@ -3436,6 +3449,9 @@ function viewMigrar(){
     +'<div class="drow"><span class="dk">Com áudio do gabarito</span><span class="dv">'+r.comAudio+'</span></div>'
     +'<div class="drow"><span class="dk">Sem enunciado</span><span class="dv">'+r.semEnunciado+'</span></div>'
     +'<div class="drow"><span class="dk">Entram em prova</span><span class="dv">'+(r.questoes-r.semGabarito)+'</span></div>'
+    +'<div class="drow"><span class="dk">Simulados</span><span class="dv">'
+      +(r.simulados||0)+(r.simulados?' <span class="t-sub">(em '+r.categoriasSimulado+' categoria(s))</span>'
+                                    :' <span class="t-sub">— este arquivo não traz simulados</span>')+'</span></div>'
     +'</div>'+alerta
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'
     +'<button class="btn btn-gold" onclick="migAplicar()">Importar para o painel</button>'
@@ -3463,6 +3479,8 @@ function migArquivo(){
 function migAplicar(){
   if(!window.EDMigrar||!_MIG)return;
   var r=EDMigrar.aplicar(_MIG);
+  if(r&&r.ok&&(r.novosSimulados||r.simuladosAtualizados))
+    toast(r.novosSimulados+' simulado(s) novo(s) e '+r.simuladosAtualizados+' atualizado(s).');
   if(!r.ok){toast('Não deu para importar: '+r.motivo,'err');return;}
   _MIG=null;
   toast(r.novas+' questão(ões) nova(s), '+r.atualizadas+' atualizada(s), '+r.novasCategorias+' categoria(s).');

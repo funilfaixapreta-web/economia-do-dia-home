@@ -102,10 +102,81 @@
     var listaCats=Object.keys(cats).map(function(k){return cats[k];})
                         .sort(function(a,b){return a.name.localeCompare(b.name,'pt-BR');});
 
+    /* ------------------------------------------------------------ provas */
+    /* O export do site antigo pode trazer os simulados junto. Ate aqui eles
+       eram ignorados calados: o arquivo tinha 54 provas e so as questoes
+       entravam, entao a aba Simulados continuava com os exemplos.
+
+       Um simulado do sistema antigo e: os dados da prova + a composicao, que
+       diz de quais categorias sortear e quantas questoes de cada. Sem a
+       composicao a prova nao existe, entao ela e o que mais importa trazer. */
+    var provas=[], catsSim={};
+    (d.simulados||d.provas||d.quizzes||[]).forEach(function(p){
+      var nome=texto(p.nome||p.name||p.titulo||'');
+      var idSim=p.id!=null?('legacy-sim-'+p.id):(p.slug||p.friendly_url||slug(nome));
+
+      var nomeCat=texto(p.categoria||p.categoria_nome||p.quiz_categoria||'');
+      var idCat=p.slug_categoria||p.categoria_slug||p.quiz_category_id||(nomeCat?slug(nomeCat):'');
+      if(idCat&&!catsSim[idCat])catsSim[idCat]={id:idCat,name:nomeCat||idCat,desc:'',active:true};
+
+      var comp=(p.composicao||p.composition||p.categorias||p.modulos||[])
+        .map(function(x,i){
+          var cid=x.categoria_id||x.question_category_id||x.slug_categoria
+                 ||x.categoria_slug||(x.categoria?slug(x.categoria):'');
+          var qtd=+(x.quantidade!=null?x.quantidade:x.questions_quantity)||0;
+          if(!cid||qtd<1)return null;
+          return {id:'cc-'+cid, question_category_id:cid,
+                  questions_quantity:qtd,
+                  is_active:x.ativo==null&&x.is_active==null?true:verdade(x.ativo!=null?x.ativo:x.is_active)};
+        }).filter(Boolean);
+
+      /* categoria repetida na mesma prova: soma, nao duplica (a chave no
+         banco e simulado+categoria) */
+      var porCat={};
+      comp.forEach(function(x){
+        if(porCat[x.question_category_id])porCat[x.question_category_id].questions_quantity+=x.questions_quantity;
+        else porCat[x.question_category_id]=x;
+      });
+      comp=Object.keys(porCat).map(function(k){return porCat[k];});
+
+      var regra=String(p.regra_acesso||p.access_rule_id||p.acesso||'').toLowerCase();
+      provas.push({
+        id:idSim,
+        quiz_category_id:idCat||'',
+        name:nome||'(sem nome)',
+        friendly_url:slug(p.slug||p.friendly_url||p.url_amigavel||nome),
+        headline:texto(p.chamada||p.headline||p.subtitulo||''),
+        description:String(p.descricao||p.description||''),
+        keywords:texto(p.palavras_chave||p.keywords||''),
+        file_download_url:String(p.url_download||p.file_download_url||''),
+        time_limit:+(p.tempo_limite!=null?p.tempo_limite:p.time_limit)||0,
+        hit_percentage:+(p.percentual_acerto!=null?p.percentual_acerto:p.hit_percentage)||70,
+        access_rule_id:/assinante/.test(regra)?'assinantes':(/cadastr/.test(regra)?'cadastrados':'livre'),
+        is_active:verdade(p.ativo==null&&p.is_active==null?true:(p.ativo!=null?p.ativo:p.is_active)),
+        composition:comp
+      });
+    });
+
+    var listaCatsSim=Object.keys(catsSim).map(function(k){return catsSim[k];})
+                           .sort(function(a,b){return a.name.localeCompare(b.name,'pt-BR');});
+
+    /* Prova que aponta para categoria que nao veio no arquivo nao sorteia
+       nada. Melhor dizer isso agora do que o aluno descobrir na prova. */
+    var catsQueExistem={}; listaCats.forEach(function(c){catsQueExistem[c.id]=true;});
+    var provasQuebradas=provas.filter(function(p){
+      return !p.composition.length
+          || p.composition.some(function(x){return !catsQueExistem[x.question_category_id];});
+    }).map(function(p){return p.name;});
+
     return {
       categorias:listaCats,
       questoes:questoes,
+      simulados:provas,
+      categoriasSimulado:listaCatsSim,
       resumo:{
+        simulados:provas.length,
+        categoriasSimulado:listaCatsSim.length,
+        provasQuebradas:provasQuebradas,
         questoes:questoes.length,
         categorias:listaCats.length,
         alternativas:questoes.reduce(function(n,q){return n+q.answers.length;},0),
@@ -142,8 +213,28 @@
       else{db.questions.push(q);novas++;}
     });
 
+    /* Simulados: o ref e o id de la, entao reimportar atualiza no lugar.
+       A composicao vem inteira do arquivo -- ela e o simulado. */
+    db.simCategories = db.simCategories || [];
+    db.simulados     = db.simulados     || [];
+    var catSimPorId={}; db.simCategories.forEach(function(c){catSimPorId[c.id]=c;});
+    var novasCatsSim=0;
+    (r.categoriasSimulado||[]).forEach(function(c){
+      if(catSimPorId[c.id]){catSimPorId[c.id].name=c.name;}
+      else{db.simCategories.push(c);novasCatsSim++;}
+    });
+
+    var idxSim={}; db.simulados.forEach(function(x,i){idxSim[x.id]=i;});
+    var novosSims=0, simsAtualizados=0;
+    (r.simulados||[]).forEach(function(p){
+      if(idxSim[p.id]!=null){db.simulados[idxSim[p.id]]=p;simsAtualizados++;}
+      else{db.simulados.push(p);novosSims++;}
+    });
+
     save();
     return {ok:true, novasCategorias:novasCats, novas:novas, atualizadas:atualizadas,
+            novosSimulados:novosSims, simuladosAtualizados:simsAtualizados,
+            novasCategoriasSimulado:novasCatsSim,
             resumo:r.resumo};
   }
 
