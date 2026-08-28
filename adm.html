@@ -1078,6 +1078,7 @@ function router(){
   }catch(err){html=notFound('Erro ao abrir');console.error(err);}
   $('#view').innerHTML=html;window.scrollTo(0,0);
   if(r==='importar')impRender();
+  if(r==='simulados')sincronizarSimulados();
   if(r==='perfil')perfilCarregar();
   if(r==='editorfotos')peInit();
   if(aiOpened)aiUpdateCtx();
@@ -1444,6 +1445,51 @@ function drawSimulado(s){
   });return out;
 }
 function toggleSimActive(id){const s=db.simulados.find(x=>x.id===id);if(!s)return;s.is_active=!s.is_active;save();toast(s.is_active?'Simulado ativado.':'Simulado desativado.');router();}
+/* ---------------------------------------------- simulados que ja existem ---
+   A aba Simulados mostrava so o que este navegador tinha guardado. Simulado
+   publicado de outra maquina -- ou por outra pessoa -- nao aparecia, e quem
+   abrisse a tela acharia que ele nao existe e criaria de novo por cima.
+
+   Ao abrir a listagem, o painel pergunta ao banco o que existe e traz o que
+   estiver faltando. Nunca sobrescreve o que ja esta aqui: o painel e a copia
+   de trabalho, e um download nao pode jogar fora a edicao em andamento.
+
+   Roda uma vez por sessao (ou quando se clica em "Buscar no banco"), porque
+   sao quatro leituras e nao faz sentido repetir a cada clique no menu.      */
+var _SIMS_SINCRONIZADOS=false;
+
+function sincronizarSimulados(forcar){
+  var el=$('#sim-sinc');
+  if(!window.EDPublicar||!EDPublicar.baixar){if(el)el.innerHTML='';return;}
+
+  var logado=!!(window.EDApi&&EDApi.sessao&&EDApi.sessao());
+  if(!logado){
+    if(el)el.innerHTML='<span style="color:var(--muted)">Mostrando só os simulados deste navegador. '
+      +'<a href="#/sistema" style="color:var(--gold-deep)">Entre no banco</a> para ver todos.</span>';
+    return;
+  }
+  if(_SIMS_SINCRONIZADOS&&!forcar){
+    if(el)el.innerHTML=btnBuscarNoBanco('Mostrando todos os simulados do banco.');
+    return;
+  }
+  if(el)el.innerHTML='<span style="color:var(--muted)">Procurando no banco…</span>';
+
+  EDPublicar.baixar().then(function(r){
+    _SIMS_SINCRONIZADOS=true;
+    if(r.novos){ toast(r.novos+' simulado(s) que estavam só no banco entraram na lista.'); router(); return; }
+    var e=$('#sim-sinc');
+    if(e)e.innerHTML=btnBuscarNoBanco('Tudo em dia — os '+r.totalNoBanco+' simulados do banco já estão aqui.');
+  }).catch(function(err){
+    var e=$('#sim-sinc'); if(!e)return;
+    e.innerHTML='<span style="color:var(--red)">Não deu para ler o banco: '+esc((err&&err.message)||'erro')+'</span> '
+      +btnBuscarNoBanco('');
+  });
+}
+function btnBuscarNoBanco(texto){
+  return (texto?'<span style="color:var(--muted)">'+texto+'</span> ':'')
+    +'<button class="btn btn-ghost btn-sm" style="margin-left:6px" onclick="sincronizarSimulados(true)">Buscar no banco</button>';
+}
+
 function viewSimulados(){
   if(ensureNids(db.simulados))save();
   const head=listHead('simulados','Listagem','Simulados','Cada simulado pertence a uma categoria e é montado sorteando questões das categorias de pergunta configuradas.','editSimulado()','Novo simulado');
@@ -1461,12 +1507,13 @@ function viewSimulados(){
       <td class="mono">${s.time_limit}</td>
       <td class="mono">${s.hit_percentage}</td>
       <td><span class="chip">${esc(simCatName(s.quiz_category_id))}</span></td>
-      <td class="t-title">${esc(s.name)}${simTotalQ(s)?'':' <span class="badge b-draft" style="color:var(--red);border-color:var(--red)">sem questões</span>'}</td>
+      <td class="t-title">${esc(s.name)}${simTotalQ(s)?'':' <span class="badge b-draft" style="color:var(--red);border-color:var(--red)">sem questões</span>'}${s.doBanco?' <span class="badge b-draft" title="Veio do banco de dados">do banco</span>':''}</td>
     </tr>`).join(''):noResult(8);
   return `
   <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Simulados</span></div>
   ${head}
   ${kwBar('simulados','sim-kw',false)}
+  <div id="sim-sinc" class="hint" style="margin:0 0 10px"></div>
   ${listWrap(selHead()+'<th>Id</th><th>Ativo</th><th>Regra de Acesso</th><th>Tempo (m)</th><th>Acerto (%)</th><th>Categoria</th><th>Nome</th>',rows,selBar('simulados'),pagerHtml('simulados',pg))}`;
 }
 function viewSimulado(id){
@@ -4072,7 +4119,14 @@ if(authed()){showApp();}else{$('#login').style.display='flex';$('#shell').hidden
 /* ed-api.js so carrega depois deste bloco (as tags <script> vem abaixo), entao
    na primeira passada o painel ainda nao sabe quem esta logado no banco.
    Repinta quando tudo terminar de carregar. */
-window.addEventListener('load',function(){if(authed())pintarUsuarioDoBanco();});
+window.addEventListener('load',function(){
+  if(!authed())return;
+  pintarUsuarioDoBanco();
+  /* quem abre o painel direto num link de Simulados chegou aqui antes de
+     ed-publicar.js existir: a primeira passada nao teve como perguntar ao
+     banco. Pergunta agora. */
+  if(String(location.hash).indexOf('#/simulados')===0)sincronizarSimulados();
+});
 </script>
 <script src="ed-api.js"></script>
 <script src="ed-publicar.js"></script>

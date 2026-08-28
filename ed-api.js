@@ -289,6 +289,15 @@
       .then(function(){return {ok:true, precisaConfirmar:true};});
   }
 
+  /* Leitura direta de uma tabela pelo PostgREST. O RLS decide o que volta --
+     um aluno logado ve o que e dele, o admin ve tudo. Existe para o painel
+     conseguir enxergar o que ja esta no banco em vez de so o que este
+     navegador guardou. */
+  function listar(tabela,consulta){
+    return chamar('/rest/v1/'+tabela+'?'+(consulta||'select=*'))
+      .then(function(r){return Array.isArray(r)?r:[];});
+  }
+
   function config(){
     return chamar('/rest/v1/config_tokens?select=*').then(function(l){
       var c=(l&&l[0])||{};
@@ -305,7 +314,7 @@
     ehFalhaDeRede:ehFalhaDeRede,
     url:CFG.url,
     sessao:sessao, cadastrar:cadastrar, entrar:entrar, sair:sair,
-    saldo:saldo, gastar:gastar, config:config, rpc:rpc,
+    saldo:saldo, gastar:gastar, config:config, rpc:rpc, listar:listar,
     recuperar:recuperar, sessaoDoLink:sessaoDoLink, trocarSenha:trocarSenha,
     perfil:perfil, salvarPerfil:salvarPerfil, trocarEmail:trocarEmail,
     montarProva:montarProva, enviarProva:enviarProva, gabarito:gabarito

@@ -301,9 +301,100 @@
     return s&&s.user?(s.user.email||''):'';
   }
 
+  /* ------------------------------------------------------------- baixar ---
+     O painel sempre foi so deste navegador: o que ele mostra em Simulados e
+     o que esta no localStorage daqui. Simulado publicado de outra maquina, ou
+     por outra pessoa, simplesmente nao aparecia -- e a pessoa criava de novo,
+     por cima.
+
+     Isto traz do banco o que existe de verdade. A regra e uma so, e vale a
+     pena ser explicita:
+
+         o banco COMPLETA o que falta; nunca sobrescreve o que ja esta aqui.
+
+     O painel e a copia de trabalho -- e onde se edita antes de publicar. Se o
+     download apagasse a edicao em andamento, uma visita a tela de Simulados
+     jogaria fora o trabalho da manha. Entao simulado que ja existe localmente
+     fica como esta; so entra o que esta faltando.
+
+     Nem tudo que o painel guarda cabe no banco (chamada, palavras-chave, URL
+     de download nao tem coluna la). Nesses o que vem e vazio -- e melhor do
+     que o simulado nao aparecer.                                           */
+  function baixar(){
+    if(!window.EDApi||!EDApi.listar)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+
+    return Promise.all([
+      EDApi.listar('simulados','select=*'),
+      EDApi.listar('composicoes','select=*'),
+      EDApi.listar('categorias_simulado','select=*'),
+      EDApi.listar('categorias_questao','select=*')
+    ]).then(function(r){
+      var sims=r[0], comps=r[1], catsSim=r[2], catsQ=r[3];
+
+      db.simCategories = db.simCategories || [];
+      db.qCategories   = db.qCategories   || [];
+      db.simulados     = db.simulados     || [];
+
+      var temCatSim={}; db.simCategories.forEach(function(c){temCatSim[c.id]=true;});
+      var novasCatSim=0;
+      catsSim.forEach(function(c){
+        if(temCatSim[c.id])return;
+        db.simCategories.push({id:c.id,name:c.nome||c.id,desc:'',active:c.ativo!==false});
+        novasCatSim++;
+      });
+
+      var temCatQ={}; db.qCategories.forEach(function(c){temCatQ[c.id]=true;});
+      var novasCatQ=0;
+      catsQ.forEach(function(c){
+        if(temCatQ[c.id])return;
+        db.qCategories.push({id:c.id,name:c.nome||c.id,desc:'',active:c.ativo!==false});
+        novasCatQ++;
+      });
+
+      /* composicao agrupada por simulado. A chave la e (simulado, categoria),
+         nao ha coluna de id -- entao o id aqui e derivado dela. */
+      var porSim={};
+      comps.forEach(function(x){
+        (porSim[x.simulado_id]=porSim[x.simulado_id]||[]).push({
+          id:'cc-'+x.categoria_id,
+          question_category_id:x.categoria_id,
+          questions_quantity:+x.quantidade||0,
+          is_active:x.ativo!==false
+        });
+      });
+
+      var tem={}; db.simulados.forEach(function(s){tem[s.id]=true;});
+      var novos=0;
+      sims.forEach(function(s){
+        if(tem[s.id])return;                 /* o que ja esta aqui manda */
+        db.simulados.push({
+          id:s.id,
+          quiz_category_id:s.categoria_id||'',
+          name:s.nome||'(sem nome)',
+          friendly_url:s.slug||'',
+          headline:'', description:s.descricao||'', keywords:'', file_download_url:'',
+          time_limit:+s.tempo_limite||0,
+          hit_percentage:+s.corte||0,
+          access_rule_id:s.regra_acesso||'livre',
+          is_active:s.ativo!==false,
+          composition:porSim[s.id]||[],
+          doBanco:true                        /* so para a tela poder marcar */
+        });
+        novos++;
+      });
+
+      if(novos||novasCatSim||novasCatQ)save();
+      return {novos:novos, totalNoBanco:sims.length,
+              novasCategoriasSimulado:novasCatSim, novasCategoriasQuestao:novasCatQ};
+    });
+  }
+
   window.EDPublicar={
     resumo:resumo, pacote:montarPacote, publicar:publicar,
-    entrar:entrar, conta:conta,
+    entrar:entrar, conta:conta, baixar:baixar,
     sair:function(){return EDApi.sair();}
   };
 
