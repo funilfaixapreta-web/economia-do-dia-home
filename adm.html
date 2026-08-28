@@ -1535,10 +1535,25 @@ function simResultsCard(s){
    desta categoria". O sorteio acontece no banco, em montar_simulado(), a cada
    tentativa -- entao duas pessoas que abrem a mesma prova nao pegam as mesmas
    questoes, que e como a prova de verdade funciona.                        */
-function simCompBlock(sid, dentroDoForm){
+/* Enquanto o simulado nao foi salvo ele nao tem id, e a composicao nao tem
+   onde morar. Ela mora aqui, na memoria, ate o Salvar -- assim quem esta
+   criando monta a prova na mesma tela, sem ter que salvar, sair, voltar. */
+var _COMP_NOVA=[];
+
+/* sid vazio = simulado que ainda esta sendo criado */
+function compLista(sid){
+  if(!sid) return _COMP_NOVA;
   var s=(db.simulados||[]).find(function(x){return x.id===sid;});
-  if(!s) return '';
-  var comp=(s.composition||[]);
+  if(!s) return null;
+  s.composition=s.composition||[];
+  return s.composition;
+}
+function compGrava(sid){ if(sid) save(); }
+
+function simCompBlock(sid, dentroDoForm){
+  var comp=compLista(sid);
+  if(!comp) return '';
+  var novo=!sid;
   var total=comp.filter(function(c){return c.is_active;})
                 .reduce(function(n,c){return n+(+c.questions_quantity||0);},0);
 
@@ -1548,9 +1563,9 @@ function simCompBlock(sid, dentroDoForm){
     var faltando = c.is_active && (+c.questions_quantity||0) > disp;
     return '<tr class="urow">'
       +'<td style="width:1%"><div class="compact-act">'
-        +'<button class="btn btn-ghost btn-sm" onclick="compEditar(\''+s.id+'\','+ci+')">'+EDIT_IC+'</button>'
-        +'<button class="btn btn-ghost btn-sm" onclick="compAtivar(\''+s.id+'\','+ci+')">'+(c.is_active?'Desativar':'Ativar')+'</button>'
-        +'<button class="btn btn-danger btn-sm" onclick="compExcluir(\''+s.id+'\','+ci+')">'+DEL_IC+'</button>'
+        +'<button class="btn btn-ghost btn-sm" onclick="compEditar(\''+(sid||'')+'\','+ci+')">'+EDIT_IC+'</button>'
+        +'<button class="btn btn-ghost btn-sm" onclick="compAtivar(\''+(sid||'')+'\','+ci+')">'+(c.is_active?'Desativar':'Ativar')+'</button>'
+        +'<button class="btn btn-danger btn-sm" onclick="compExcluir(\''+(sid||'')+'\','+ci+')">'+DEL_IC+'</button>'
       +'</div></td>'
       +'<td class="mono t-sub">'+esc(c.id||'')+'</td>'
       +'<td>'+(c.is_active?'Sim':'Não')+'</td>'
@@ -1563,18 +1578,17 @@ function simCompBlock(sid, dentroDoForm){
 
   return '<div class="card" style="margin-top:'+(dentroDoForm?'22px':'0')+'">'
     +'<div class="sec-title">Listagem · Categorias De Pergunta'
-      +'<button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="compNova(\''+s.id+'\')">+ Categoria</button>'
+      +'<button class="btn btn-gold btn-sm" id="comp-add" style="margin-left:auto" onclick="compNova(\''+(sid||'')+'\')">+ Categoria</button>'
     +'</div>'
-    +'<p class="hint" style="margin:2px 0 14px">Ao iniciar a prova o sistema sorteia, de cada categoria, a quantidade indicada — questões diferentes a cada tentativa. Total: <b style="color:var(--head)">'+total+' questões</b>.</p>'
+    +'<p class="hint" style="margin:2px 0 14px">Ao iniciar a prova o sistema sorteia, de cada categoria, a quantidade indicada — questões diferentes a cada tentativa. Total: <b style="color:var(--head)">'+total+' questões</b>.'
+    +(novo?' <span class="t-sub">Monte aqui; entra junto quando você salvar o simulado.</span>':'')
+    +'</p>'
     +(comp.length
       ? '<div class="tblwrap" id="comp-simulado"><table class="tbl"><thead><tr><th>Ações</th><th>Id</th><th>Ativo</th><th>Quantidade</th><th>Categoria De Pergunta</th></tr></thead><tbody>'+linhas+'</tbody></table></div>'
       : '<div class="hint" style="color:var(--muted);padding:8px 0">Nenhuma categoria na composição. Clique em "+ Categoria" — sem isso o simulado não tem questão nenhuma.</div>')
     +'</div>';
 }
 
-/* Mexer na composicao redesenha a tela. Se isso acontece no meio do
-   formulario, o que a pessoa digitou e ainda nao salvou se perderia. Estas
-   quatro guardam os campos antes. */
 function guardaCamposDoForm(){
   if(!_FORM || String(location.hash).indexOf('#/form')!==0) return;
   var todos=[]; (_FORM.sections||[]).forEach(function(sec){
@@ -1587,8 +1601,8 @@ function compAtivar(sid,ci){guardaCamposDoForm();toggleComposition(sid,ci);}
 function compExcluir(sid,ci){guardaCamposDoForm();delComposition(sid,ci);}
 
 function editComposition(sid,ci){
-  const s=db.simulados.find(x=>x.id===sid);if(!s)return;
-  const c=(ci!=null&&!isNaN(ci))?s.composition[ci]:null;
+  const comp=compLista(sid); if(!comp)return;
+  const c=(ci!=null&&!isNaN(ci))?comp[ci]:null;
   const cats=(db.qCategories||[]).filter(x=>x.active);
   if(!cats.length){toast('Crie uma categoria de questão primeiro.','err');return;}
 
@@ -1597,7 +1611,7 @@ function editComposition(sid,ci){
      visivel, o segundo apenas sobrescreveria o primeiro na publicacao e as
      questoes do primeiro sumiriam da prova sem ninguem perceber. */
   const jaUsadas={};
-  (s.composition||[]).forEach(function(x,i){ if(i!==ci) jaUsadas[x.question_category_id]=true; });
+  comp.forEach(function(x,i){ if(i!==ci) jaUsadas[x.question_category_id]=true; });
   const livres=cats.filter(function(x){ return !jaUsadas[x.id] || (c&&c.question_category_id===x.id); });
   if(!livres.length){
     toast('Todas as categorias já estão na composição deste simulado.','err');return;
@@ -1624,8 +1638,8 @@ function editComposition(sid,ci){
     }
     const obj={id:c?c.id:uid('cc'),question_category_id:d.question_category_id,
                questions_quantity:qtd,is_active:d.is_active!=='nao'};
-    s.composition=s.composition||[];if(c)Object.assign(c,obj);else s.composition.push(obj);
-    save();closeDrawer();
+    if(c)Object.assign(c,obj);else comp.push(obj);
+    compGrava(sid);closeDrawer();
     var falta=qtd-disp(obj.question_category_id);
     toast(falta>0
       ? 'Salva — mas faltam '+falta+' questão(ões) nessa categoria; a prova sai mais curta.'
@@ -1633,8 +1647,8 @@ function editComposition(sid,ci){
     router();
   });
 }
-function toggleComposition(sid,ci){const s=db.simulados.find(x=>x.id===sid);const c=s&&s.composition[ci];if(!c)return;c.is_active=!c.is_active;save();router();}
-function delComposition(sid,ci){if(!confirm('Remover esta categoria da composição?'))return;const s=db.simulados.find(x=>x.id===sid);if(!s)return;s.composition.splice(ci,1);save();toast('Removida da composição.');router();}
+function toggleComposition(sid,ci){var comp=compLista(sid);var c=comp&&comp[ci];if(!c)return;c.is_active=!c.is_active;compGrava(sid);router();}
+function delComposition(sid,ci){if(!confirm('Remover esta categoria da composição?'))return;var comp=compLista(sid);if(!comp)return;comp.splice(ci,1);compGrava(sid);toast('Removida da composição.');router();}
 
 /* ============ TRILHAS ============ */
 function viewTrilhas(){
@@ -2243,6 +2257,7 @@ function editLesson(cid,mi,li){
 function delLesson(cid,mi,li,back){if(!confirm('Excluir esta aula?'))return;const c=db.courses.find(c=>c.id===cid);c.modules[mi].lessons.splice(li,1);save();toast('Aula excluída.');if(back)location.hash='#/curso/'+cid;else router();}
 function editSimulado(id){
   const s=id?db.simulados.find(x=>x.id===id):null;
+  if(!s)_COMP_NOVA=[];        /* comeca limpo a cada simulado novo */
   const cats=(db.simCategories||[]);
   if(!cats.length){toast('Crie uma categoria de simulado primeiro.','err');location.hash='#/simcategs';return;}
   openForm({
@@ -2270,13 +2285,7 @@ function editSimulado(id){
        cai na prova. Ficava numa tela separada, e quem criava um simulado saia
        achando que tinha terminado com um simulado sem questao nenhuma.
        Simulado novo ainda nao tem id: primeiro salva, depois monta. */
-    extra:function(){
-      if(s) return simCompBlock(s.id,true);
-      return '<div class="card" style="margin-top:22px">'
-        +'<div class="sec-title">Listagem · Categorias De Pergunta</div>'
-        +'<p class="hint" style="margin:0">Salve o simulado primeiro. Depois você escolhe de quais categorias ele sorteia e quantas questões de cada uma.</p>'
-        +'</div>';
-    }}],
+    extra:function(){ return simCompBlock(s?s.id:'',true); }}],
     onSave:function(d){
       /* A URL amigavel e o endereco publico do simulado. Duas iguais e um
          link que leva para o simulado errado -- por isso desempata aqui. */
@@ -2289,7 +2298,16 @@ function editSimulado(id){
       const obj={quiz_category_id:d.quiz_category_id,name:d.name,friendly_url:url,headline:d.headline,description:d.description,keywords:d.keywords,file_download_url:d.file_download_url,time_limit:+d.time_limit||0,hit_percentage:+d.hit_percentage||0,access_rule_id:d.access_rule_id,is_active:d.is_active!=='nao'};
       _FORM=null;
       if(s){Object.assign(s,obj);save();toast('Simulado salvo.');location.hash='#/simulado/'+s.id;}
-      else{const ns={id:uid('sim'),composition:[],...obj};db.simulados.push(ns);save();toast('Simulado criado. Configure a composição.');location.hash='#/simulado/'+ns.id;}
+      else{
+        /* a composicao foi montada antes de existir simulado: vai junto agora */
+        const ns={id:uid('sim'),composition:_COMP_NOVA.slice(),...obj};
+        db.simulados.push(ns);_COMP_NOVA=[];save();
+        toast(ns.composition.length
+          ? 'Simulado criado com '+simTotalQ(ns)+' questões na composição.'
+          : 'Simulado criado — falta montar a composição, senão ele não tem prova.',
+          ns.composition.length?'':'err');
+        location.hash='#/simulado/'+ns.id;
+      }
       router();
     }
   });
