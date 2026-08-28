@@ -216,6 +216,7 @@ textarea.fld{resize:vertical;min-height:78px;line-height:1.5}
 .tbl .t-sub{font-size:12.5px;color:var(--muted)}
 .rowend{text-align:right;white-space:nowrap}
 .rowact{display:inline-flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}
+.compact-act{display:flex;gap:6px;flex-wrap:nowrap;align-items:center}
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .searchbox{display:flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;flex:1;min-width:220px;max-width:380px}
 .searchbox input{background:none;border:none;color:var(--text);font-family:inherit;font-size:13.5px;width:100%}
@@ -1472,18 +1473,7 @@ function viewSimulado(id){
   const s=db.simulados.find(x=>x.id===id);if(!s)return notFound('Simulado não encontrado');
   const comp=(s.composition||[]);
   const totalQ=comp.filter(c=>c.is_active).reduce((n,c)=>n+(+c.questions_quantity||0),0);
-  const compRows=comp.map((c,ci)=>`
-    <tr class="urow">
-      <td class="mono t-sub">${ci+1}</td>
-      <td>${catBadge(c.is_active)}</td>
-      <td class="mono">${c.questions_quantity}</td>
-      <td class="t-title" style="white-space:normal">${esc(qCatName(c.question_category_id))} <span class="t-sub">(${(db.questions||[]).filter(q=>q.active&&q.categoryId===c.question_category_id).length} disponíveis)</span></td>
-      <td class="rowend"><div class="rowact">
-        <button class="btn btn-ghost btn-sm" onclick="toggleComposition('${s.id}',${ci})">${c.is_active?'Desativar':'Ativar'}</button>
-        <button class="btn btn-ghost btn-sm" onclick="editComposition('${s.id}',${ci})">${EDIT_IC}</button>
-        <button class="btn btn-danger btn-sm" onclick="delComposition('${s.id}',${ci})">${DEL_IC}</button>
-      </div></td>
-    </tr>`).join('');
+
   return `
   <div class="crumb"><a href="#/simulados">Simulados</a> <span class="sep">›</span> <span>${esc(s.name)}</span></div>
   <div class="page-head"><div class="ph-l"><div class="eyebrow">${esc(simCatName(s.quiz_category_id))} ${catBadge(s.is_active)}</div><h1>${esc(s.name)}</h1><p>${esc(stripHtml(s.headline||''))}</p>
@@ -1503,10 +1493,7 @@ function viewSimulado(id){
     </div>
     ${s.description?`<div class="hint" style="margin-top:12px"><b>Descrição:</b> ${esc(stripHtml(s.description))}</div>`:''}
   </div>
-  <div class="card"><div class="sec-title">Categorias De Pergunta (composição) <button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="editComposition('${s.id}')">+ Categoria</button></div>
-    <p class="hint" style="margin:2px 0 14px;color:var(--muted)">Ao iniciar, o sistema sorteia a quantidade indicada de questões ativas de cada categoria. Total: <b style="color:var(--head)">${totalQ} questões</b>.</p>
-    ${comp.length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Id</th><th>Ativo</th><th>Quantidade</th><th>Categoria De Pergunta</th><th></th></tr></thead><tbody>${compRows}</tbody></table></div>`:'<div class="hint" style="color:var(--muted);padding:8px 0">Nenhuma categoria na composição. Clique em "+ Categoria".</div>'}
-  </div>
+  ${simCompBlock(s.id,false)}
   ${simResultsCard(s)}`;
 }
 function simTotalQ(s){return (s.composition||[]).filter(function(c){return c.is_active;}).reduce(function(n,c){return n+(+c.questions_quantity||0);},0);}
@@ -1538,6 +1525,67 @@ function simResultsCard(s){
     '<div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Nota</th><th>Acertos</th><th>Data</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table></div>'+
   '</div>';
 }
+/* ---------------------------------------------- composicao do simulado ----
+   A "Listagem · Categorias De Pergunta" e a mesma coisa nas duas telas: no
+   formulario de criar/editar (embaixo dos campos, como era no sistema antigo)
+   e na tela de ver o simulado. Um lugar so para nao existirem duas versoes
+   que discordam entre si.
+
+   Ela e o que faz o simulado ser simulado: cada linha diz "sorteie N questoes
+   desta categoria". O sorteio acontece no banco, em montar_simulado(), a cada
+   tentativa -- entao duas pessoas que abrem a mesma prova nao pegam as mesmas
+   questoes, que e como a prova de verdade funciona.                        */
+function simCompBlock(sid, dentroDoForm){
+  var s=(db.simulados||[]).find(function(x){return x.id===sid;});
+  if(!s) return '';
+  var comp=(s.composition||[]);
+  var total=comp.filter(function(c){return c.is_active;})
+                .reduce(function(n,c){return n+(+c.questions_quantity||0);},0);
+
+  var linhas=comp.map(function(c,ci){
+    var disp=(db.questions||[]).filter(function(q){
+      return q.active && q.categoryId===c.question_category_id;}).length;
+    var faltando = c.is_active && (+c.questions_quantity||0) > disp;
+    return '<tr class="urow">'
+      +'<td style="width:1%"><div class="compact-act">'
+        +'<button class="btn btn-ghost btn-sm" onclick="compEditar(\''+s.id+'\','+ci+')">'+EDIT_IC+'</button>'
+        +'<button class="btn btn-ghost btn-sm" onclick="compAtivar(\''+s.id+'\','+ci+')">'+(c.is_active?'Desativar':'Ativar')+'</button>'
+        +'<button class="btn btn-danger btn-sm" onclick="compExcluir(\''+s.id+'\','+ci+')">'+DEL_IC+'</button>'
+      +'</div></td>'
+      +'<td class="mono t-sub">'+esc(c.id||'')+'</td>'
+      +'<td>'+(c.is_active?'Sim':'Não')+'</td>'
+      +'<td class="mono">'+(+c.questions_quantity||0)+'</td>'
+      +'<td class="t-title" style="white-space:normal">'+esc(qCatName(c.question_category_id))
+        +' <span class="t-sub">('+disp+' disponíveis'
+        +(faltando?' — <b style="color:var(--red)">falta questão</b>':'')+')</span></td>'
+      +'</tr>';
+  }).join('');
+
+  return '<div class="card" style="margin-top:'+(dentroDoForm?'22px':'0')+'">'
+    +'<div class="sec-title">Listagem · Categorias De Pergunta'
+      +'<button class="btn btn-gold btn-sm" style="margin-left:auto" onclick="compNova(\''+s.id+'\')">+ Categoria</button>'
+    +'</div>'
+    +'<p class="hint" style="margin:2px 0 14px">Ao iniciar a prova o sistema sorteia, de cada categoria, a quantidade indicada — questões diferentes a cada tentativa. Total: <b style="color:var(--head)">'+total+' questões</b>.</p>'
+    +(comp.length
+      ? '<div class="tblwrap" id="comp-simulado"><table class="tbl"><thead><tr><th>Ações</th><th>Id</th><th>Ativo</th><th>Quantidade</th><th>Categoria De Pergunta</th></tr></thead><tbody>'+linhas+'</tbody></table></div>'
+      : '<div class="hint" style="color:var(--muted);padding:8px 0">Nenhuma categoria na composição. Clique em "+ Categoria" — sem isso o simulado não tem questão nenhuma.</div>')
+    +'</div>';
+}
+
+/* Mexer na composicao redesenha a tela. Se isso acontece no meio do
+   formulario, o que a pessoa digitou e ainda nao salvou se perderia. Estas
+   quatro guardam os campos antes. */
+function guardaCamposDoForm(){
+  if(!_FORM || String(location.hash).indexOf('#/form')!==0) return;
+  var todos=[]; (_FORM.sections||[]).forEach(function(sec){
+    (sec.fields||[]).forEach(function(f){todos.push(f);}); });
+  try{ _FORM.values=Object.assign({}, _FORM.values||{}, collectLive(todos)); }catch(_){}
+}
+function compNova(sid){guardaCamposDoForm();editComposition(sid);}
+function compEditar(sid,ci){guardaCamposDoForm();editComposition(sid,ci);}
+function compAtivar(sid,ci){guardaCamposDoForm();toggleComposition(sid,ci);}
+function compExcluir(sid,ci){guardaCamposDoForm();delComposition(sid,ci);}
+
 function editComposition(sid,ci){
   const s=db.simulados.find(x=>x.id===sid);if(!s)return;
   const c=(ci!=null&&!isNaN(ci))?s.composition[ci]:null;
@@ -2171,19 +2219,32 @@ function editSimulado(id){
     cancel:s?('#/simulado/'+s.id):'#/simulados',del:s?("formDelete('simulados','"+s.id+"')"):null,
     values:s?{quiz_category_id:s.quiz_category_id,name:s.name,friendly_url:s.friendly_url,headline:s.headline,description:s.description,keywords:s.keywords,file_download_url:s.file_download_url,time_limit:s.time_limit,hit_percentage:s.hit_percentage,access_rule_id:s.access_rule_id,is_active:s.is_active?'sim':'nao'}
       :{quiz_category_id:cats[0].id,name:'',friendly_url:'',headline:'',description:'',keywords:'',file_download_url:'',time_limit:60,hit_percentage:70,access_rule_id:'livre',is_active:'sim'},
+    /* Os rotulos sao os mesmos do sistema antigo de proposito: quem cadastra
+       simulado ha anos nao deveria ter que reaprender nome de campo. */
     sections:[{fields:[
-      {key:'quiz_category_id',label:'Categoria de simulado',type:'select',options:cats.map(c=>[c.id,c.name])},
+      {key:'quiz_category_id',label:'Categoria',type:'select',options:cats.map(c=>[c.id,c.name])},
       {key:'name',label:'Nome',type:'text',req:true},
-      {key:'friendly_url',label:'URL amigável',type:'text',hint:'Deixe em branco para gerar a partir do nome.'},
-      {key:'headline',label:'Subtítulo (headline)',type:'text'},
+      {key:'friendly_url',label:'URL Amigável',type:'text',hint:'Deixe em branco para gerar a partir do nome.'},
       {key:'description',label:'Descrição',type:'rich'},
-      {key:'keywords',label:'Palavras-chave (SEO)',type:'text'},
-      {key:'file_download_url',label:'URL de material para download',type:'text'},
-      {key:'time_limit',label:'Tempo limite (minutos)',type:'number'},
-      {key:'hit_percentage',label:'Percentual de acerto p/ aprovação (%)',type:'number'},
-      {key:'access_rule_id',label:'Regra de acesso',type:'select',options:ACCESS_OPTS},
+      {key:'headline',label:'Chamada',type:'text'},
+      {key:'keywords',label:'Palavras-chave',type:'text',hint:'Separado por vírgula.'},
+      {key:'file_download_url',label:'URL De Download',type:'text'},
+      {key:'time_limit',label:'Tempo Limite (Em minutos)',type:'number'},
+      {key:'hit_percentage',label:'Percentual De Acerto',type:'number'},
+      {key:'access_rule_id',label:'Regra de Acesso',type:'select',options:ACCESS_OPTS},
       {key:'is_active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
-    ]}],
+    ],
+    /* A composicao mora aqui embaixo, na mesma tela -- e ela que define o que
+       cai na prova. Ficava numa tela separada, e quem criava um simulado saia
+       achando que tinha terminado com um simulado sem questao nenhuma.
+       Simulado novo ainda nao tem id: primeiro salva, depois monta. */
+    extra:function(){
+      if(s) return simCompBlock(s.id,true);
+      return '<div class="card" style="margin-top:22px">'
+        +'<div class="sec-title">Listagem · Categorias De Pergunta</div>'
+        +'<p class="hint" style="margin:0">Salve o simulado primeiro. Depois você escolhe de quais categorias ele sorteia e quantas questões de cada uma.</p>'
+        +'</div>';
+    }}],
     onSave:function(d){
       const obj={quiz_category_id:d.quiz_category_id,name:d.name,friendly_url:(d.friendly_url&&d.friendly_url.trim())?slugify(d.friendly_url):slugify(d.name),headline:d.headline,description:d.description,keywords:d.keywords,file_download_url:d.file_download_url,time_limit:+d.time_limit||0,hit_percentage:+d.hit_percentage||0,access_rule_id:d.access_rule_id,is_active:d.is_active!=='nao'};
       _FORM=null;
@@ -3359,7 +3420,10 @@ function renderForm(){
   var body=(c.sections||[]).map(function(sec){
     var flds=(sec.fields||[]).map(function(f){return buildField(f,c.values?c.values[f.key]:undefined);}).join('');
     var hd=sec.title?('<div class="fpsec"><div class="le">'+esc(sec.eyebrow||'Editar')+'</div><h2>'+esc(sec.title)+'</h2></div>'):'';
-    return hd+flds+(sec.extra||'');
+    /* extra pode ser funcao: assim o bloco redesenha com o dado novo
+       (a composicao muda sem sair da tela) */
+    var ex=sec.extra; if(typeof ex==='function'){try{ex=ex();}catch(_){ex='';}}
+    return hd+flds+(ex||'');
   }).join('');
   var menu='<div class="dd"><button class="btn btn-ghost" onclick="event.stopPropagation();ddToggle(this)">Ações <span style="font-size:10px;margin-left:3px">▾</span></button><div class="dd-menu"><button onclick="closeDD();formSave()">'+PLUS_IC+' Salvar</button>'+(c.del?('<div class="dd-sep"></div><button class="danger" onclick="closeDD();'+c.del+'">Excluir</button>'):'')+'</div></div>';
   return (c.crumb||'')+
