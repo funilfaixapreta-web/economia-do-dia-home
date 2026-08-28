@@ -91,17 +91,36 @@
       };
     });
 
+    /* A categoria do simulado ("CFG", "CNPI-CB") existia so no painel: era
+       preenchida na tela de criar e morria ali. Sem ela no banco nao da para
+       o aluno escolher o simulado pelo curso. */
+    var categoriasSimulado=(db.simCategories||[]).map(function(k){
+      return {id:k.id, nome:k.name||'(sem nome)', ativo:k.active!==false};
+    });
+
     var simulados=(db.simulados||[]).map(function(s){
       return {
         id:s.id, nome:s.name||'(sem nome)', slug:txt(s.friendly_url),
+        categoria_id:s.quiz_category_id||null,
         descricao:txt(s.description), tempo_limite:num(s.time_limit),
         corte:num(s.hit_percentage), regra_acesso:txt(s.access_rule_id)||'livre',
         ativo:bool(s.is_active),
-        composicao:(s.composition||[]).map(function(x){
-          return {categoria_id:x.question_category_id,
-                  quantidade:num(x.questions_quantity)||0,
-                  ativo:bool(x.is_active)};
-        })
+        /* A chave no banco e (simulado, categoria). Se por qualquer motivo
+           houver duas linhas da mesma categoria, o upsert faria a segunda
+           sobrescrever a primeira e as questoes da primeira sumiriam da prova
+           sem aviso. Some as duas -- que e o que a pessoa quis dizer -- e
+           deixa o painel barrar a repeticao na entrada. */
+        composicao:(function(){
+          var porCat={}, fora=[];
+          (s.composition||[]).forEach(function(x){
+            var q=num(x.questions_quantity)||0;
+            if(q<1){fora.push(x);return;}          /* banco exige quantidade > 0 */
+            var k=x.question_category_id;
+            if(porCat[k]) porCat[k].quantidade += q;
+            else porCat[k]={categoria_id:k, quantidade:q, ativo:bool(x.is_active)};
+          });
+          return Object.keys(porCat).map(function(k){return porCat[k];});
+        })()
       };
     });
 
@@ -119,6 +138,7 @@
     });
 
     return {cursos:cursos, categorias:categorias, questoes:questoes,
+            categorias_simulado:categoriasSimulado,
             simulados:simulados, planos:planos};
   }
 
@@ -184,11 +204,28 @@
       if(pede>tem)faltando.push({nome:s.nome, pede:pede, tem:tem});
     });
 
+    /* Simulado sem composicao nao e "curto": ele nao tem prova nenhuma. Sobe,
+       aparece para o aluno, e quando ele clica recebe "sem questoes". Como
+       pede=0 e tem=0, a conta acima nunca pegaria esse caso. */
+    var vazios=p.simulados.filter(function(s){
+      return !(s.composicao||[]).some(function(x){return x.ativo && x.quantidade>0;});
+    }).map(function(s){return s.nome;});
+
+    /* Duas URLs iguais = um link que leva para o simulado errado. */
+    var vistos={}, urlsRepetidas=[];
+    p.simulados.forEach(function(s){
+      var u=s.slug; if(!u)return;
+      if(vistos[u]&&urlsRepetidas.indexOf(u)<0)urlsRepetidas.push(u);
+      vistos[u]=true;
+    });
+
     return {cursos:p.cursos.length, modulos:mods, aulas:aulas,
             aulasComLink:comLink, aulasSemVideo:semVideo,
             categorias:p.categorias.length, questoes:p.questoes.length,
             alternativas:alts, simulados:p.simulados.length,
             simuladosCurtos:faltando,
+            simuladosVazios:vazios,
+            urlsRepetidas:urlsRepetidas,
             planos:p.planos.length,
             planosSemPreco:p.planos.filter(function(x){return !x.preco_centavos;}).length,
             planosSemCurso:p.planos.filter(function(x){return !x.cursos.length;})

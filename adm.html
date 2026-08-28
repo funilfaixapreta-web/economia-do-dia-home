@@ -1461,7 +1461,7 @@ function viewSimulados(){
       <td class="mono">${s.time_limit}</td>
       <td class="mono">${s.hit_percentage}</td>
       <td><span class="chip">${esc(simCatName(s.quiz_category_id))}</span></td>
-      <td class="t-title">${esc(s.name)}</td>
+      <td class="t-title">${esc(s.name)}${simTotalQ(s)?'':' <span class="badge b-draft" style="color:var(--red);border-color:var(--red)">sem questões</span>'}</td>
     </tr>`).join(''):noResult(8);
   return `
   <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Simulados</span></div>
@@ -1591,14 +1591,46 @@ function editComposition(sid,ci){
   const c=(ci!=null&&!isNaN(ci))?s.composition[ci]:null;
   const cats=(db.qCategories||[]).filter(x=>x.active);
   if(!cats.length){toast('Crie uma categoria de questão primeiro.','err');return;}
+
+  /* Categoria que ja esta na composicao nao aparece de novo na lista. A chave
+     da tabela no banco e (simulado, categoria): repetir nao daria erro
+     visivel, o segundo apenas sobrescreveria o primeiro na publicacao e as
+     questoes do primeiro sumiriam da prova sem ninguem perceber. */
+  const jaUsadas={};
+  (s.composition||[]).forEach(function(x,i){ if(i!==ci) jaUsadas[x.question_category_id]=true; });
+  const livres=cats.filter(function(x){ return !jaUsadas[x.id] || (c&&c.question_category_id===x.id); });
+  if(!livres.length){
+    toast('Todas as categorias já estão na composição deste simulado.','err');return;
+  }
+
+  const disp=function(catId){
+    return (db.questions||[]).filter(function(q){return q.active&&q.categoryId===catId;}).length;
+  };
+
   openDrawer(c?'Editar composição':'Adicionar categoria à composição',[
-    {key:'question_category_id',label:'Categoria de pergunta',type:'select',options:cats.map(x=>[x.id,x.name])},
-    {key:'questions_quantity',label:'Quantidade a sortear',type:'number'},
+    {key:'question_category_id',label:'Categoria de pergunta',type:'select',
+     options:livres.map(function(x){return [x.id, x.name+' ('+disp(x.id)+' questões)'];})},
+    {key:'questions_quantity',label:'Quantidade a sortear',type:'number',
+     hint:'De 1 em diante. O sorteio é refeito a cada tentativa.'},
     {key:'is_active',label:'Ativo',type:'select',options:[['sim','Ativo'],['nao','Inativo']]}
-  ],c?{question_category_id:c.question_category_id,questions_quantity:c.questions_quantity,is_active:c.is_active?'sim':'nao'}:{question_category_id:cats[0].id,questions_quantity:5,is_active:'sim'},d=>{
-    const obj={id:c?c.id:uid('cc'),question_category_id:d.question_category_id,questions_quantity:+d.questions_quantity||0,is_active:d.is_active!=='nao'};
+  ],c?{question_category_id:c.question_category_id,questions_quantity:c.questions_quantity,is_active:c.is_active?'sim':'nao'}
+    :{question_category_id:livres[0].id,questions_quantity:5,is_active:'sim'},d=>{
+    var qtd=+d.questions_quantity||0;
+    /* o banco recusa quantidade <= 0 (check constraint). Barrar aqui e melhor
+       do que a linha sumir calada na hora de publicar. */
+    if(qtd<1){toast('A quantidade precisa ser pelo menos 1.','err');return;}
+    if(jaUsadas[d.question_category_id]){
+      toast('Essa categoria já está na composição. Edite a linha que existe.','err');return;
+    }
+    const obj={id:c?c.id:uid('cc'),question_category_id:d.question_category_id,
+               questions_quantity:qtd,is_active:d.is_active!=='nao'};
     s.composition=s.composition||[];if(c)Object.assign(c,obj);else s.composition.push(obj);
-    save();closeDrawer();toast('Composição salva.');router();
+    save();closeDrawer();
+    var falta=qtd-disp(obj.question_category_id);
+    toast(falta>0
+      ? 'Salva — mas faltam '+falta+' questão(ões) nessa categoria; a prova sai mais curta.'
+      : 'Composição salva.', falta>0?'err':'');
+    router();
   });
 }
 function toggleComposition(sid,ci){const s=db.simulados.find(x=>x.id===sid);const c=s&&s.composition[ci];if(!c)return;c.is_active=!c.is_active;save();router();}
@@ -2246,7 +2278,15 @@ function editSimulado(id){
         +'</div>';
     }}],
     onSave:function(d){
-      const obj={quiz_category_id:d.quiz_category_id,name:d.name,friendly_url:(d.friendly_url&&d.friendly_url.trim())?slugify(d.friendly_url):slugify(d.name),headline:d.headline,description:d.description,keywords:d.keywords,file_download_url:d.file_download_url,time_limit:+d.time_limit||0,hit_percentage:+d.hit_percentage||0,access_rule_id:d.access_rule_id,is_active:d.is_active!=='nao'};
+      /* A URL amigavel e o endereco publico do simulado. Duas iguais e um
+         link que leva para o simulado errado -- por isso desempata aqui. */
+      var base=(d.friendly_url&&d.friendly_url.trim())?slugify(d.friendly_url):slugify(d.name);
+      var url=base, n=2;
+      while((db.simulados||[]).some(function(x){return x.friendly_url===url && (!s||x.id!==s.id);})){
+        url=base+'-'+(n++);
+      }
+      if(url!==base)toast('Já existia um simulado com essa URL. Usei "'+url+'".');
+      const obj={quiz_category_id:d.quiz_category_id,name:d.name,friendly_url:url,headline:d.headline,description:d.description,keywords:d.keywords,file_download_url:d.file_download_url,time_limit:+d.time_limit||0,hit_percentage:+d.hit_percentage||0,access_rule_id:d.access_rule_id,is_active:d.is_active!=='nao'};
       _FORM=null;
       if(s){Object.assign(s,obj);save();toast('Simulado salvo.');location.hash='#/simulado/'+s.id;}
       else{const ns={id:uid('sim'),composition:[],...obj};db.simulados.push(ns);save();toast('Simulado criado. Configure a composição.');location.hash='#/simulado/'+ns.id;}
@@ -2577,6 +2617,14 @@ function viewPublicar(){
     alerta += '<p class="hint" style="margin-top:6px;color:var(--red)">Simulado pedindo mais questões do que existem no banco: '
       + r.simuladosCurtos.map(function(s){return esc(s.nome)+' (pede '+s.pede+', tem '+s.tem+')';}).join('; ')
       + '. A prova cai para o que houver — cadastre mais questões nessas categorias.</p>';
+  if(r.simuladosVazios&&r.simuladosVazios.length)
+    alerta += '<p class="hint" style="margin-top:6px;color:var(--red)">Simulado sem nenhuma categoria de pergunta: '
+      + r.simuladosVazios.map(esc).join('; ')
+      + '. Ele aparece para o aluno, mas quando abre não tem prova. Monte a composição ou desative.</p>';
+  if(r.urlsRepetidas&&r.urlsRepetidas.length)
+    alerta += '<p class="hint" style="margin-top:6px;color:var(--red)">URL amigável repetida entre simulados: '
+      + r.urlsRepetidas.map(esc).join('; ')
+      + '. O link leva sempre para o mesmo — troque a URL de um deles.</p>';
   if(r.planosSemCurso&&r.planosSemCurso.length)
     alerta += '<p class="hint" style="margin-top:6px;color:var(--red)">Plano vendido que não libera curso nenhum: '
       + r.planosSemCurso.map(esc).join('; ')
