@@ -574,10 +574,11 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
     </div>
     <h1>Área do administrador</h1>
     <p class="sub">Entre para gerenciar cursos, aulas, simulados e alunos.</p>
-    <div class="fldwrap"><label>E-mail</label><input class="fld" id="lg-email" type="email" value="admin@economiadodia.com.br" /></div>
-    <div class="fldwrap"><label>Senha</label><input class="fld" id="lg-pass" type="password" value="demo1234" /></div>
-    <button class="btn btn-gold" type="submit" style="width:100%;margin-top:6px">Entrar no painel</button>
-    <p class="login-note">Protótipo, sem senha real. Clique em <b>Entrar</b> para acessar.</p>
+    <div class="fldwrap"><label>E-mail</label><input class="fld" id="lg-email" type="email" autocomplete="username" placeholder="seu e-mail" /></div>
+    <div class="fldwrap"><label>Senha</label><input class="fld" id="lg-pass" type="password" autocomplete="current-password" placeholder="sua senha" /></div>
+    <button class="btn btn-gold" id="lg-btn" type="submit" style="width:100%;margin-top:6px">Entrar no painel</button>
+    <p class="login-note" id="lg-msg">Só contas de administrador ou editor entram aqui.
+      <a href="senha.html" style="color:var(--gold-deep)">Esqueci minha senha</a></p>
     <a class="login-back" href="index.html">← Voltar ao site</a>
   </form>
 </div>
@@ -965,10 +966,92 @@ function simAttempts(s){const base=simStats(s);return db.students.slice(0,5).map
 function allTemas(){const set={};(db.questionBank||[]).forEach(q=>{if(q.theme)set[q.theme]=(set[q.theme]||0)+1;});db.simulados.forEach(s=>(s.questions||[]).forEach(q=>{if(q.theme)set[q.theme]=(set[q.theme]||0)+1;}));return set;}
 
 /* ============ auth ============ */
+/* ============ ENTRAR NO PAINEL ============
+   Este login era de mentira. O formulario ignorava o que se digitava: no
+   submit ele gravava sessionStorage['eda-auth']='1' e abria o painel. Os
+   campos vinham preenchidos com admin@economiadodia.com.br / demo1234 e a
+   propria tela dizia "protótipo, sem senha real". Ou seja: qualquer pessoa
+   que abrisse /adm.html e apertasse Enter entrava.
+
+   O banco nunca deixou essa pessoa publicar nada (as funcoes exigem
+   eh_admin()), mas ela via o painel inteiro: cursos, simulados, questoes,
+   nomes de alunos e o que mais estivesse guardado neste navegador.
+
+   Agora entra quem o Supabase reconhece E tem papel de admin ou editor.
+   Aluno com conta valida e recusado e a sessao dele e derrubada na hora.
+
+   Uma consequencia de propósito: se o banco nao responder, ninguem entra.
+   Area de administracao falha fechada -- e melhor ficar de fora por dez
+   minutos do que ficar aberta para qualquer um.                            */
+var PAPEL_ENTRA={admin:true, editor:true};
+
 function authed(){try{return sessionStorage.getItem('eda-auth')==='1'}catch(_){return false}}
-$('#login-form').addEventListener('submit',e=>{e.preventDefault();try{sessionStorage.setItem('eda-auth','1')}catch(_){}
-  if(!location.hash)location.hash='#/';showApp();toast('Bem-vindo ao painel.');});
-function logout(){try{sessionStorage.removeItem('eda-auth')}catch(_){}$('#shell').hidden=true;$('#login').style.display='flex';}
+
+function msgLogin(txt,erro){
+  var el=$('#lg-msg'); if(!el)return;
+  el.innerHTML=erro?'<span style="color:var(--red)">'+esc(txt)+'</span>':esc(txt);
+}
+
+$('#login-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var email=($('#lg-email').value||'').trim(), senha=$('#lg-pass').value||'';
+  var btn=$('#lg-btn');
+  if(!email||!senha){msgLogin('Informe e-mail e senha.',true);return;}
+  if(!(window.EDApi&&EDApi.entrar)){msgLogin('Ainda carregando. Tente de novo em um instante.',true);return;}
+
+  btn.disabled=true; btn.textContent='Entrando…'; msgLogin('');
+
+  EDApi.entrar({email:email,senha:senha})
+    .then(function(){ return EDApi.perfil(); })
+    .then(function(p){
+      if(!p||!PAPEL_ENTRA[p.papel]){
+        /* conta existe, mas nao e de administrador: derruba a sessao para nao
+           deixar credencial viva num navegador que nao deveria ter acesso */
+        return EDApi.sair().then(function(){ throw new Error('nao-e-admin'); });
+      }
+      try{sessionStorage.setItem('eda-auth','1')}catch(_){}
+      if(!location.hash)location.hash='#/';
+      showApp();
+      toast('Bem-vinda, '+(String(p.nome||'').split(/\s+/)[0]||'')+'.');
+    })
+    .catch(function(err){
+      var m=String((err&&err.message)||'');
+      msgLogin(
+        m==='nao-e-admin'      ? 'Essa conta não é de administrador. Fale com quem administra para ser convidada.' :
+        /invalid login|credential/i.test(m) ? 'E-mail ou senha não conferem.' :
+        /email not confirmed/i.test(m)      ? 'Confirme o e-mail no link que o Supabase enviou e tente de novo.' :
+        (err&&err.rede)        ? 'Sem conexão com o banco. Sem ele não dá para conferir quem é administrador.' :
+        ('Não deu para entrar: '+m), true);
+    })
+    .then(function(){ btn.disabled=false; btn.textContent='Entrar no painel'; });
+});
+
+function logout(){
+  try{sessionStorage.removeItem('eda-auth')}catch(_){}
+  $('#shell').hidden=true;$('#login').style.display='flex';
+  if(window.EDApi&&EDApi.sair)EDApi.sair();
+  msgLogin('Só contas de administrador ou editor entram aqui.');
+}
+
+/* O sinal no sessionStorage e so para nao piscar a tela de login a cada
+   recarga. Ele nao vale como permissao: quem escrever eda-auth=1 na mao cai
+   aqui e e mandado de volta, porque sem sessao no Supabase (e sem papel de
+   admin) nao ha o que ver. */
+function conferirAcesso(){
+  if(!authed())return;
+  if(!(window.EDApi&&EDApi.sessao)){logout();return;}
+  if(!EDApi.sessao()){logout();msgLogin('Sua sessão expirou. Entre de novo.',true);return;}
+  EDApi.perfil().then(function(p){
+    if(!p||!PAPEL_ENTRA[p.papel]){
+      logout();msgLogin('Essa conta não é de administrador.',true);
+    }
+  }).catch(function(err){
+    /* erro de credencial derruba; queda de rede nao expulsa quem ja estava
+       trabalhando -- ela so nao deixa ninguem novo entrar */
+    if(err&&err.rede)return;
+    logout();msgLogin('Não deu para confirmar seu acesso. Entre de novo.',true);
+  });
+}
 function showApp(){$('#login').style.display='none';$('#shell').hidden=false;applySideState();router();pintarUsuarioDoBanco();}
 
 /* ---------------------------------------------------- menu da foto -------
@@ -2771,7 +2854,9 @@ function loginDoBanco(depois){
     EDPublicar.entrar(email,senha).then(pronto).catch(falhou);
   });
 }
-function sairDoBanco(){EDPublicar.sair().then(function(){repintaPublicar();pintarUsuarioDoBanco();});}
+/* Entrar no painel e entrar no banco viraram a mesma coisa. Sair de um sem
+   sair do outro deixaria o painel aberto sem conta nenhuma por tras. */
+function sairDoBanco(){logout();}
 /* Troca a senha da conta do banco sem sair do painel. */
 function trocarMinhaSenha(){
   openDrawer('Trocar minha senha',[
@@ -4144,6 +4229,7 @@ window.addEventListener('load',function(){
      ed-publicar.js existir: a primeira passada nao teve como perguntar ao
      banco. Pergunta agora. */
   if(String(location.hash).indexOf('#/simulados')===0)sincronizarSimulados();
+  conferirAcesso();
 });
 </script>
 <script src="ed-api.js"></script>
