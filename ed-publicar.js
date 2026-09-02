@@ -98,7 +98,14 @@
       return {id:k.id, nome:k.name||'(sem nome)', ativo:k.active!==false};
     });
 
-    var simulados=(db.simulados||[]).map(function(s){
+    /* Simulado sem nome E sem composicao nao vai para o banco. Foi assim que
+       nasceram tres linhas "(sem nome)" la, ativas, que o aluno via e que nao
+       tinham prova nenhuma. */
+    var simulados=(db.simulados||[]).filter(function(s){
+      var nome=String(s.name||'').trim();
+      var temComp=(s.composition||[]).some(function(x){return x.is_active&&(+x.questions_quantity||0)>0;});
+      return temComp || (nome && nome!=='(sem nome)');
+    }).map(function(s){
       return {
         id:s.id, nome:s.name||'(sem nome)', slug:txt(s.friendly_url),
         categoria_id:s.quiz_category_id||null,
@@ -370,6 +377,11 @@
       var novos=0;
       sims.forEach(function(s){
         if(tem[s.id])return;                 /* o que ja esta aqui manda */
+        /* Residuo de publicacao antiga: sem nome e sem composicao nao e
+           simulado, e uma linha vazia. Trazer isso de volta para o painel so
+           faria a pessoa apagar de novo -- e, pior, republicar sem querer. */
+        if(!(porSim[s.id]||[]).length
+           && (!s.nome || s.nome==='(sem nome)')) return;
         db.simulados.push({
           id:s.id,
           quiz_category_id:s.categoria_id||'',
