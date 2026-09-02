@@ -1162,6 +1162,7 @@ function router(){
   $('#view').innerHTML=html;window.scrollTo(0,0);
   if(r==='importar')impRender();
   if(r==='simulados')sincronizarSimulados();
+  if(r==='usuarios'||r==='alunos')sincronizarUsuarios();
   if(r==='perfil')perfilCarregar();
   if(r==='editorfotos')peInit();
   if(aiOpened)aiUpdateCtx();
@@ -1813,6 +1814,53 @@ function viewTrilha(id){
 }
 
 /* ============ ALUNOS ============ */
+/* ------------------------------------------------ usuarios que ja existem ---
+   A aba Usuarios listava gente inventada -- "Felipe Nunes", "Mariana Alves" --
+   que veio junto com o prototipo. Depois de criar cinco administradores de
+   verdade, nenhum deles aparecia ali.
+
+   Diferente dos simulados, aqui o banco nao completa: ele substitui. Usuario
+   nao se edita no painel (quem cria conta e a propria pessoa, pelo site),
+   entao nao ha trabalho local a preservar -- e manter nome de exemplo ao lado
+   de cliente de verdade e pior do que inutil: alguem acabaria "editando" a
+   Mariana Alves, que nunca existiu.                                        */
+var _USRS_SINCRONIZADOS=false;
+
+function sincronizarUsuarios(forcar){
+  var el=$('#usr-sinc');
+  if(!window.EDPublicar||!EDPublicar.baixarAlunos){if(el)el.innerHTML='';return;}
+  if(!(window.EDApi&&EDApi.sessao&&EDApi.sessao())){
+    if(el)el.innerHTML='<span style="color:var(--red)">Sem conexão com o banco — esta lista é de exemplo, não são pessoas de verdade.</span>';
+    return;
+  }
+  if(_USRS_SINCRONIZADOS&&!forcar){
+    if(el)el.innerHTML=btnUsuarios('Mostrando os usuários do banco.');
+    return;
+  }
+  if(el)el.innerHTML='<span style="color:var(--muted)">Buscando os usuários no banco…</span>';
+
+  EDPublicar.baixarAlunos().then(function(r){
+    _USRS_SINCRONIZADOS=true;
+    router();
+    var e=$('#usr-sinc');
+    if(e)e.innerHTML=btnUsuarios(r.total+' usuário(s) no banco · '+r.admins+' com acesso ao painel.');
+  }).catch(function(err){
+    var e=$('#usr-sinc'); if(!e)return;
+    e.innerHTML='<span style="color:var(--red)">Não deu para ler os usuários: '+esc((err&&err.message)||'erro')
+      +'</span> '+btnUsuarios('');
+  });
+}
+function btnUsuarios(texto){
+  return (texto?'<span style="color:var(--muted)">'+texto+'</span> ':'')
+    +'<button class="btn btn-ghost btn-sm" style="margin-left:6px" onclick="sincronizarUsuarios(true)">Atualizar do banco</button>';
+}
+
+/* Era o numero 6, escrito na mao no HTML: nao mudava nunca, nem quando o dia
+   virava nem quando nao entrava ninguem. */
+function novosHoje(){
+  var hoje=new Date().toLocaleDateString('pt-BR');
+  return (db.students||[]).filter(function(s){return s.joined===hoje;}).length;
+}
 function viewAlunos(){
   const total=db.students.length,ativos=db.students.filter(s=>s.status==='ativo').length,admins=db.students.filter(s=>s.role==='admin').length;
   const sc=col=>usersSort.col===col?(usersSort.dir>0?' ▲':' ▼'):'';
@@ -1841,8 +1889,9 @@ function viewAlunos(){
     <div class="stat"><div class="k">Total</div><div class="v">${total}</div><div class="d">usuários</div></div>
     <div class="stat"><div class="k">Administradores</div><div class="v" style="color:var(--gold-deep)">${admins}</div><div class="d">com acesso total</div></div>
     <div class="stat"><div class="k">Ativos</div><div class="v">${ativos}</div><div class="d">assinaturas</div></div>
-    <div class="stat"><div class="k">Novos hoje</div><div class="v">6</div><div class="d">cadastros</div></div>
+    <div class="stat"><div class="k">Novos hoje</div><div class="v">${novosHoje()}</div><div class="d">cadastros</div></div>
   </div>
+  <div id="usr-sinc" class="hint" style="margin:0 0 10px"></div>
   <div class="toolbar">
     <div class="searchbox" id="user-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar por nome, e-mail ou plano…" oninput="filterUsers()"></div>
     <select class="fld" id="user-role" style="max-width:190px" onchange="filterUsers()"><option value="">Todos os papéis</option><option value="admin">Administradores</option><option value="editor">Editores</option><option value="aluno">Alunos</option></select>
@@ -2491,8 +2540,38 @@ function editStudent(id){
     save();closeDrawer();toast('Usuário salvo.');router();
   });
 }
-function delStudent(id,back){if(!confirm('Excluir este usuário?'))return;db.students=db.students.filter(s=>s.id!==id);save();toast('Usuário excluído.');if(back)location.hash='#/alunos';else router();}
-function toggleAdmin(id){const s=db.students.find(x=>x.id===id);if(!s)return;s.role=(s.role==='admin')?'aluno':'admin';save();toast(s.role==='admin'?s.name+' agora é administrador.':'Acesso admin removido de '+s.name+'.');router();}
+function delStudent(id,back){
+  var s=(db.students||[]).find(function(x){return x.id===id;});
+  /* usuario do banco nao se apaga daqui: a conta vive no Auth, e apagar so na
+     lista daria a impressao de ter excluido alguem que continua entrando */
+  if(s&&s.doBanco){
+    toast('Este usuário existe no banco. Tirar o acesso é remover o papel de administrador; excluir a conta é feito no Supabase.','err');
+    return;
+  }
+  if(!confirm('Excluir este usuário?'))return;
+  db.students=db.students.filter(function(x){return x.id!==id;});save();toast('Usuário excluído.');
+  if(back)location.hash='#/alunos';else router();
+}
+/* Antes isto so trocava uma letra no localStorage: a pessoa "virava admin"
+   no painel e continuava sem acesso nenhum. Quem promove de verdade e
+   promover_admin(), no banco -- e so admin consegue chamar. */
+function toggleAdmin(id){
+  const s=db.students.find(x=>x.id===id);if(!s)return;
+  const virar=(s.role==='admin')?'aluno':'admin';
+  if(!s.doBanco){
+    s.role=virar;save();
+    toast(virar==='admin'?s.name+' agora é administrador.':'Acesso admin removido de '+s.name+'.');
+    router();return;
+  }
+  if(!(window.EDApi&&EDApi.rpc)){toast('Sem conexão com o banco.','err');return;}
+  EDApi.rpc('promover_admin',{p_email:s.email,p_papel:virar}).then(function(){
+    s.role=virar;save();
+    toast(virar==='admin'?s.name+' agora é administrador.':'Acesso de administrador removido de '+s.name+'.');
+    router();
+  }).catch(function(e){
+    toast('Não deu para mudar o papel: '+((e&&e.message)||'erro'),'err');
+  });
+}
 /* ---- publicar / reordenar (interativo) ---- */
 function flipStatus(o){o.status=(o.status==='publicado')?'rascunho':'publicado';return o.status;}
 function togglePubCourse(id){const c=db.courses.find(x=>x.id===id);if(!c)return;toast(flipStatus(c)==='publicado'?'Curso publicado.':'Curso em rascunho.');save();router();}
@@ -4229,6 +4308,7 @@ window.addEventListener('load',function(){
      ed-publicar.js existir: a primeira passada nao teve como perguntar ao
      banco. Pergunta agora. */
   if(String(location.hash).indexOf('#/simulados')===0)sincronizarSimulados();
+  if(/^#\/(usuarios|alunos)/.test(String(location.hash)))sincronizarUsuarios();
   conferirAcesso();
 });
 </script>

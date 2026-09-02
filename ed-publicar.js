@@ -404,9 +404,44 @@
     });
   }
 
+  /* ---------------------------------------------------- usuarios do banco --
+     A aba Usuarios mostrava gente inventada: "Felipe Nunes", "Mariana Alves",
+     "Rafael Antunes" -- nomes de exemplo que vieram junto com o prototipo e
+     nunca existiram. Quem entrasse la depois de criar cinco administradores
+     de verdade nao encontrava nenhum deles.
+
+     Aqui e diferente da regra dos simulados. Naquele caso o painel e a copia
+     de trabalho e o banco so completa. Usuario nao se edita no painel: quem
+     cria conta e a propria pessoa, pelo site. Entao, com o banco conectado, a
+     lista do banco E a lista -- e os nomes de exemplo saem de cena.        */
+  function baixarAlunos(){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    return EDApi.rpc('usuarios_admin',{p_limite:500}).then(function(lista){
+      lista=Array.isArray(lista)?lista:[];
+      db.students=lista.map(function(u){
+        var quando=function(d){try{return d?new Date(d).toLocaleDateString('pt-BR'):'-';}catch(_){return '-';}};
+        return {
+          id:u.id, name:u.nome||'(sem nome)', email:u.email||'',
+          role:u.papel||'aluno',
+          plan:u.plano||'', phone:u.telefone||'', cpf:'',
+          progress:0, sims:+u.simulados||0,
+          /* quem administra nao tem plano, e nem por isso esta inativo.
+             "inativo" aqui e aluno sem assinatura -- nao membro da equipe. */
+          status:(u.plano || u.papel==='admin' || u.papel==='editor')?'ativo':'inativo',
+          joined:quando(u.criado_em), last:quando(u.ultima_prova),
+          origem:u.origem||'', doBanco:true
+        };
+      });
+      save();
+      return {total:db.students.length,
+              admins:db.students.filter(function(s){return s.role==='admin'||s.role==='editor';}).length};
+    });
+  }
+
   window.EDPublicar={
     resumo:resumo, pacote:montarPacote, publicar:publicar,
-    entrar:entrar, conta:conta, baixar:baixar,
+    entrar:entrar, conta:conta, baixar:baixar, baixarAlunos:baixarAlunos,
     sair:function(){return EDApi.sair();}
   };
 
