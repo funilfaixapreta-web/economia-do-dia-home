@@ -28,7 +28,11 @@
     +'.edcur-item .nm{font-family:"Sora",sans-serif;font-weight:600;font-size:15px;color:var(--head,#fff);line-height:1.3}'
     +'.edcur-item .dc{font-size:12.5px;color:var(--muted,#8A94A2);line-height:1.45;margin-top:3px}'
     +'.edcur-item .go{flex:none;color:var(--gold-deep,#E6BE54);font-size:18px}'
-    +'@media(max-width:520px){.edcur{padding:26px 20px}.edcur-item{align-items:flex-start}.edcur-item .tag{min-width:0}}';
+    /* No celular a etiqueta (CNPI · CB, CFG...) come a largura do cartao e
+       espreme o nome do curso em tres linhas. O nome ja diz o que e; a
+       sigla so repete o que aparece na pagina do curso. */
+    +'@media(max-width:760px){.edcur-item .tag{display:none}.edcur-item{gap:10px}}'
+    +'@media(max-width:520px){.edcur{padding:26px 20px}.edcur-item{align-items:flex-start}}';
 
   var scrim=null;
 

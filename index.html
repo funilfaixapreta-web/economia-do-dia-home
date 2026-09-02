@@ -322,6 +322,10 @@ html.touch .fred-stage:not(.revealed) .fred-hint{opacity:1}
 html.touch .fred-stage:not(.revealed) .badge{opacity:0;transform:translateX(38px)}
 /* ---- mobile geral ---- */
 @media(max-width:760px){
+  /* No celular as quatro pilulas de curso empurravam o titulo para baixo da
+     dobra: a pessoa abria o site e via botao, sem saber do que se trata. Os
+     mesmos quatro cursos estao logo abaixo, em "Conheça nossos cursos". */
+  .hero-eyebrow{display:none}
   .wrap{padding:0 18px}
   .section{padding:56px 0}
   .nav-inner{padding:0 16px;gap:10px}
