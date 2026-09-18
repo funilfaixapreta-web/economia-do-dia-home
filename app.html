@@ -1788,6 +1788,7 @@ function render(){
   if(name==='ia')renderIaPage();
   if(name==='aula')montarVideo();
   // close mobile drawer + scroll top
+  if(autoMenu)$('#app').classList.toggle('collapsed', !!RECOLHE_SOZINHO[name]);
   $('#app').classList.remove('nav-open');
   $('#view').scrollIntoView({block:'start'});window.scrollTo(0,0);
 }
@@ -1831,18 +1832,58 @@ function bindThemeSegs(){$$('#theme-seg button,#theme-seg2 button').forEach(b=>{
 try{applyTheme(localStorage.getItem('ed-theme')||'dark')}catch(_){applyTheme('dark')}
 
 // sidebar
-$('#collapse').addEventListener('click',()=>$('#app').classList.toggle('collapsed'));
+/* ---------------------------------------------- menu que recolhe sozinho ---
+   Aula e prova sao as duas telas que precisam da largura toda: video de um
+   lado, enunciado do outro. O menu de 260px ficava ali ocupando espaco em
+   pagina que ninguem abre para navegar -- quem entra numa aula quer assistir.
+
+   Entao ele recolhe sozinho ao entrar nessas duas, e volta ao sair.
+
+   No celular isso nao muda nada: la o menu ja e uma gaveta (.collapsed e
+   neutralizado abaixo de 760px), e ela ja fechava ao navegar.
+
+   A regra do botao: no instante em que a pessoa recolhe ou abre na mao, o
+   automatico se cala pelo resto da visita. Quem decidiu foi ela.          */
+var RECOLHE_SOZINHO={aula:true, simulado:true};
+var autoMenu=true;
+
+$('#collapse').addEventListener('click',()=>{
+  $('#app').classList.toggle('collapsed');
+  autoMenu=false;
+});
 const _app=$('#app');
 $('#hamb').addEventListener('click',()=>_app.classList.toggle('nav-open'));
 $('#scrim').addEventListener('click',()=>_app.classList.remove('nav-open'));
+
+/* Abrir um modulo (ou um simulado) fecha os outros. Antes todos ficavam
+   abertos ao mesmo tempo e a pagina virava uma rolagem de varias telas para
+   achar a aula seguinte -- justo onde a lista e mais longa.
+
+   Clicar no que ja esta aberto fecha: continua dando para ver tudo fechado.
+   A revisao de questoes (.qrev-h) fica de fora de proposito: ali a pessoa
+   compara uma questao com a outra, e fechar a anterior atrapalharia.       */
+function soUmAberto(caixa){
+  var abrindo=!caixa.classList.contains('open');
+  if(abrindo && caixa.parentElement){
+    Array.prototype.forEach.call(caixa.parentElement.children,function(irma){
+      if(irma!==caixa)irma.classList.remove('open');
+    });
+  }
+  caixa.classList.toggle('open',abrindo);
+  /* se o que abriu ficou acima da area visivel, traz de volta */
+  if(abrindo)setTimeout(function(){
+    var r=caixa.getBoundingClientRect();
+    if(r.top<70)caixa.scrollIntoView({block:'start',behavior:'smooth'});
+  },60);
+}
 
 // delegação de cliques (acordeões, upgrade, toggles, filtros, IA-ask)
 document.addEventListener('click',e=>{
   const dt=e.target.closest('[data-toast]');if(dt)toast(dt.dataset.toast,dt.dataset.toastType||'');
   const done=e.target.closest('[data-done]');if(done){markDone(done.dataset.done);return;}
-  const modH=e.target.closest('.mod-h');if(modH){modH.parentElement.classList.toggle('open');return;}
+  const modH=e.target.closest('.mod-h');if(modH){soUmAberto(modH.parentElement);return;}
   const qrevH=e.target.closest('.qrev-h');if(qrevH){qrevH.parentElement.classList.toggle('open');return;}
-  const simH=e.target.closest('[data-sim-toggle]');if(simH){simH.parentElement.classList.toggle('open');return;}
+  const simH=e.target.closest('[data-sim-toggle]');if(simH){soUmAberto(simH.parentElement);return;}
   const up=e.target.closest('[data-upgrade]');if(up){openUpgrade(up.dataset.upgrade);return;}
   const openSim=e.target.closest('[data-open-sim]');if(openSim){location.hash='#/simulado/'+encodeURIComponent(openSim.dataset.openSim);return;}
   const tog=e.target.closest('[data-toggle]');if(tog){tog.classList.toggle('on');toast(tog.classList.contains('on')?'Preferência ativada':'Preferência desativada','ok');return;}
