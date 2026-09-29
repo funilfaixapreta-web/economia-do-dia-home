@@ -1162,6 +1162,7 @@ function router(){
   $('#view').innerHTML=html;window.scrollTo(0,0);
   if(r==='importar')impRender();
   if(r==='simulados')sincronizarSimulados();
+  if(r==='perguntas')sincronizarPerguntas();
   if(r==='usuarios'||r==='alunos')sincronizarUsuarios();
   if(r==='perfil')perfilCarregar();
   if(r==='editorfotos')peInit();
@@ -1568,6 +1569,42 @@ function sincronizarSimulados(forcar){
     e.innerHTML='<span style="color:var(--red)">Não deu para ler o banco: '+esc((err&&err.message)||'erro')+'</span> '
       +btnBuscarNoBanco('');
   });
+}
+/* Perguntas: mesma ideia dos simulados. Em maquina nova o painel so tinha as
+   5 de exemplo; as 5 mil do banco nao apareciam. Traz o que falta. */
+var _PERGS_SINCRONIZADAS=false;
+function sincronizarPerguntas(forcar){
+  var el=$('#perg-sinc');
+  if(!window.EDPublicar||!EDPublicar.baixarQuestoes){if(el)el.innerHTML='';return;}
+  var logado=!!(window.EDApi&&EDApi.sessao&&EDApi.sessao());
+  if(!logado){
+    if(el)el.innerHTML='<span style="color:var(--muted)">Mostrando só as perguntas deste navegador. '
+      +'<a href="#/sistema" style="color:var(--gold-deep)">Entre no banco</a> para ver todas.</span>';
+    return;
+  }
+  if(_PERGS_SINCRONIZADAS&&!forcar){
+    if(el)el.innerHTML=btnBuscarPerguntas('Mostrando todas as perguntas do banco.');
+    return;
+  }
+  if(el)el.innerHTML='<span style="color:var(--muted)">Procurando perguntas no banco…</span>';
+  EDPublicar.baixarQuestoes().then(function(r){
+    _PERGS_SINCRONIZADAS=true;
+    if(r.novas||r.completadas){
+      toast((r.novas?r.novas+' pergunta(s) do banco entraram na lista. ':'')
+           +(r.completadas?r.completadas+' completada(s) com áudio/comentário do banco.':''));
+      router(); return;
+    }
+    var e=$('#perg-sinc');
+    if(e)e.innerHTML=btnBuscarPerguntas('Tudo em dia — as '+r.totalNoBanco+' perguntas do banco já estão aqui.');
+  }).catch(function(err){
+    var e=$('#perg-sinc'); if(!e)return;
+    e.innerHTML='<span style="color:var(--red)">Não deu para ler o banco: '+esc((err&&err.message)||'erro')+'</span> '
+      +btnBuscarPerguntas('');
+  });
+}
+function btnBuscarPerguntas(texto){
+  return (texto?'<span style="color:var(--muted)">'+texto+'</span> ':'')
+    +'<button class="btn btn-ghost btn-sm" style="margin-left:6px" onclick="sincronizarPerguntas(true)">Buscar no banco</button>';
 }
 function btnBuscarNoBanco(texto){
   return (texto?'<span style="color:var(--muted)">'+texto+'</span> ':'')
@@ -3471,7 +3508,7 @@ function viewQuestions(){
   if(ensureNids(db.questions))save();
   const cats=(db.qCategories||[]);
   const header=`<div class="listhead"><div><div class="le">Conteúdo</div><h1>Perguntas</h1><p>Questões de múltipla escolha, organizadas por categoria. Suba muitas de uma vez por CSV e filtre por categoria.</p></div>
-    <div class="ph-actions" style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="location.hash='#/importar-perguntas'">↑ Importar CSV</button><button class="btn btn-ghost" onclick="location.hash='#/migrar'">↑ Migrar do sistema antigo</button><button class="btn btn-gold" onclick="novaPergunta()">+ Nova pergunta</button></div></div>`;
+    <div class="ph-actions" style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn btn-ghost" onclick="location.hash='#/importar-perguntas'">↑ Importar CSV</button><button class="btn btn-ghost" onclick="location.hash='#/migrar'">↑ Migrar do sistema antigo</button><button class="btn btn-gold" onclick="novaPergunta()">+ Nova pergunta</button></div></div><div id="perg-sinc" class="hint" style="margin:0 0 10px"></div>`;
   if(!(db.questions||[]).length)return `<div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Perguntas</span></div>${header}${emptyState('?','Nenhuma pergunta','Crie a primeira pergunta ou importe um CSV com várias.','↑ Importar CSV',"location.hash='#/importar-perguntas'")}`;
   const st=_lst.questions, q=st.q;
   const all=(db.questions||[]).filter(x=>{
@@ -4308,6 +4345,7 @@ window.addEventListener('load',function(){
      ed-publicar.js existir: a primeira passada nao teve como perguntar ao
      banco. Pergunta agora. */
   if(String(location.hash).indexOf('#/simulados')===0)sincronizarSimulados();
+  if(String(location.hash).indexOf('#/perguntas')===0)sincronizarPerguntas();
   if(/^#\/(usuarios|alunos)/.test(String(location.hash)))sincronizarUsuarios();
   conferirAcesso();
 });
