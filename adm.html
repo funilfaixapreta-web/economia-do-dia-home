@@ -788,20 +788,16 @@ function seed(){return {
       ]}
     ]}
   ],
-  simulados:[
-    {id:'sim-cfg-m1',quiz_category_id:'cfg',name:'CFG - M1 - Métodos Quantitativos',friendly_url:'cfg-m1-metodos-quantitativos',description:'<p>Teste seus conhecimentos sobre o Módulo I da prova do CFG, Métodos Quantitativos.</p>',headline:'CFG Módulo I - Simulado Gratuito.',keywords:'cfg, metodos quantitativos, estatistica',file_download_url:'',time_limit:30,hit_percentage:70,access_rule_id:'livre',is_active:true,composition:[
-      {id:'cc1',question_category_id:'cfg-m1',questions_quantity:10,is_active:true}
-    ]},
-    {id:'sim-cfg-full',quiz_category_id:'cfg',name:'CFG - Simulado Completo',friendly_url:'cfg-simulado-completo',description:'<p>Simulado completo do CFG com questões de vários módulos.</p>',headline:'Resultado detalhado por módulo e gabarito comentado em áudio.',keywords:'cfg, simulado completo, gestao',file_download_url:'',time_limit:180,hit_percentage:70,access_rule_id:'assinantes',is_active:true,composition:[
-      {id:'cc1',question_category_id:'cfg-m1',questions_quantity:6,is_active:true},
-      {id:'cc2',question_category_id:'cfg-m2',questions_quantity:7,is_active:true},
-      {id:'cc3',question_category_id:'cfg-m3',questions_quantity:3,is_active:true},
-      {id:'cc4',question_category_id:'cfg-m4',questions_quantity:4,is_active:true}
-    ]},
-    {id:'sim-cb-m1',quiz_category_id:'cnpi-cb',name:'CNPI - CB - Módulo I',friendly_url:'cnpi-cb-modulo-i',description:'<p>Sistema Financeiro Nacional (Conteúdo Brasileiro do CNPI).</p>',headline:'CNPI Conteúdo Brasileiro - Simulado Gratuito.',keywords:'cnpi, sistema financeiro nacional',file_download_url:'',time_limit:20,hit_percentage:70,access_rule_id:'livre',is_active:false,composition:[
-      {id:'cc1',question_category_id:'cnpi-cb-m1',questions_quantity:10,is_active:true}
-    ]}
-  ],
+  /* Os simulados de exemplo sairam daqui. Eram tres -- "CFG - M1", "CFG -
+     Simulado Completo" e "CNPI - CB - Modulo I" -- e enquanto o banco estava
+     vazio eles faziam o painel parecer vivo. Depois que os 54 simulados de
+     verdade subiram, viraram problema: dois tinham o mesmo nome de um
+     simulado real e apareciam duplicados na lista, e todos sorteavam 10
+     questoes de categorias de exemplo com 1, 2 ou 3 questoes -- uma prova de
+     duas questoes para quem clicasse.
+
+     Ficam vazios: a aba Simulados busca no banco o que existe de verdade. */
+  simulados:[],
   questionBank:[
     {id:uid('q'),stmt:'O que é o CDI?',options:['Um imposto federal','Taxa de empréstimos entre bancos','Um tipo de ação','Índice da bolsa'],correct:1,comment:'CDI = Certificado de Depósito Interbancário, referência de juros entre bancos.',theme:'Renda fixa',difficulty:'fácil',audio:null},
     {id:uid('q'),stmt:'Selic é definida por qual órgão?',options:['CVM','Copom (Bacen)','Anbima','Tesouro'],correct:1,comment:'A meta Selic é definida pelo Copom, do Banco Central.',theme:'Sistema financeiro',difficulty:'fácil',audio:null},
