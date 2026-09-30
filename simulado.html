@@ -603,6 +603,13 @@ function startSim(){
       if(b){b.disabled=false;if(b.dataset.txt)b.textContent=b.dataset.txt;}
       if(!r||!r.ok)throw new Error(r&&r.motivo||'sem-prova');
       TENTATIVA=r.tentativa;
+      /* o nome vem do banco: sem isso a tabela "acertos por tópico" repetia o
+         título do simulado de demonstração, dizendo CFG numa prova de CNPI */
+      if(r.nome){
+        SIM_TITLE=r.nome;
+        var elT=document.getElementById('sim-title'); if(elT)elT.textContent=r.nome;
+        var elC=document.getElementById('ct-topic'); if(elC)elC.textContent=r.nome;
+      }
       Q=(r.questoes||[]).map(function(q){
         return {id:q.id, stmt:q.enunciado||'', theme:SIM_TITLE, comment:'',
                 opts:(q.alternativas||[]).map(function(a){return a.texto;}),
