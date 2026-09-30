@@ -439,9 +439,91 @@
     });
   }
 
+  /* ---------------------------------------------------- questoes do banco --
+     O banco tem as 5 mil e tantas questoes migradas do sistema antigo, mas o
+     painel so mostrava o que estava no navegador de quem abriu (em maquina
+     nova: as 5 de exemplo). E um "Publicar" dessa maquina podia apagar o
+     audio do gabarito de quem ja tinha.
+
+     Mesma regra dos simulados: o painel e a copia de trabalho, o banco
+     COMPLETA. Questao que nao esta aqui entra; questao que ja esta aqui fica
+     como esta, so ganha o audio/comentario se aqui estiver vazio.
+
+     As colunas de gabarito e audio sao fechadas para authenticated (0011),
+     entao a leitura vai pela questoes_admin(), que so responde para admin.
+     Vem em paginas de 1000 por causa do statement_timeout de 8s.            */
+  function baixarQuestoes(){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+
+    var PAG=1000, todas=[];
+    function pagina(off){
+      return EDApi.rpc('questoes_admin',{p_offset:off,p_limite:PAG}).then(function(l){
+        l=Array.isArray(l)?l:[];
+        todas=todas.concat(l);
+        return l.length===PAG?pagina(off+PAG):todas;
+      });
+    }
+
+    return Promise.all([
+      pagina(0),
+      EDApi.listar('categorias_questao','select=*')
+    ]).then(function(r){
+      var qs=r[0], catsQ=r[1];
+      db.qCategories = db.qCategories || [];
+      db.questions   = db.questions   || [];
+
+      var temCat={}; db.qCategories.forEach(function(c){temCat[c.id]=true;});
+      var novasCats=0;
+      catsQ.forEach(function(c){
+        if(temCat[c.id])return;
+        db.qCategories.push({id:c.id,name:c.nome||c.id,desc:'',active:c.ativo!==false});
+        novasCats++;
+      });
+
+      var idx={}; db.questions.forEach(function(q,i){idx[q.id]=i;});
+      var novas=0, completadas=0;
+      qs.forEach(function(x){
+        var i=idx[x.ref];
+        if(i!=null){
+          var q=db.questions[i], mexeu=false;
+          if(!q.audioUrl&&x.audio_url){q.audioUrl=x.audio_url;mexeu=true;}
+          if(!q.audioEmbed&&x.audio_embed){q.audioEmbed=x.audio_embed;mexeu=true;}
+          if(!q.audioRegra&&x.audio_regra){q.audioRegra=x.audio_regra;mexeu=true;}
+          if(!q.comment&&x.comentario){q.comment=x.comentario;mexeu=true;}
+          if(mexeu)completadas++;
+          return;
+        }
+        db.questions.push({
+          id:x.ref,
+          categoryId:x.categoria_id||'',
+          text:x.enunciado||'(sem enunciado)',
+          comment:x.comentario||'',
+          audioUrl:x.audio_url||'',
+          audioEmbed:x.audio_embed||'',
+          audioRegra:x.audio_regra||'',
+          accessRule:x.regra_acesso||'livre',
+          active:x.ativo!==false,
+          answers:(x.alternativas||[]).map(function(a,k){
+            return {id:'a'+(k+1), text:a.texto||'', correct:!!a.correta, active:a.ativo!==false};
+          }),
+          doBanco:true
+        });
+        novas++;
+      });
+
+      if(novas||completadas||novasCats)save();
+      return {novas:novas, completadas:completadas, totalNoBanco:qs.length,
+              novasCategorias:novasCats};
+    });
+  }
+
   window.EDPublicar={
     resumo:resumo, pacote:montarPacote, publicar:publicar,
     entrar:entrar, conta:conta, baixar:baixar, baixarAlunos:baixarAlunos,
+    baixarQuestoes:baixarQuestoes,
     sair:function(){return EDApi.sair();}
   };
 
