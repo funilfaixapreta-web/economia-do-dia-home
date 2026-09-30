@@ -247,7 +247,7 @@ a{color:inherit;text-decoration:none}
     </div>
 
     <div class="start-bar">
-      <button class="btn btn-gold" onclick="startSim()"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Iniciar simulado</button>
+      <button class="btn btn-gold" id="btn-start" onclick="startSim()"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Iniciar simulado</button>
       <span class="note" id="start-note">10 questões · 30 minutos · você pode revisar antes de enviar.</span>
     </div>
   </div>
@@ -450,6 +450,25 @@ var Q=[
     comment:'Uma carteira ótima maximiza o retorno esperado para um dado nível de risco (ou minimiza o risco para um dado retorno), ficando sobre a fronteira eficiente.'}
 ];
 var LETTERS=['A','B','C','D','E'];
+/* ---------------------------------------------------------------- banco ---
+   Esta pagina montava a prova sozinha, no navegador, lendo o localStorage do
+   painel. Funcionava para demonstrar, mas nao era a prova de verdade:
+
+     - so tinha questao quem tivesse o painel aberto naquele navegador; para o
+       aluno, nunca chegavam as 5.105 questoes
+     - o sorteio acontecia aqui, entao quem soubesse ler o codigo via o
+       gabarito inteiro antes de responder
+     - e o "gabarito comentado em audio" nao tocava audio nenhum: ouvirGabarito
+       usava a voz sintetica do navegador para ler "Questao 3, resposta correta
+       letra C" e mais nada. Como o comentario escrito veio vazio no export,
+       era isso que o aluno ouvia. As 4.406 explicacoes gravadas nunca tocaram.
+
+   Agora, com o banco no ar, quem monta a prova e montar_simulado(), quem
+   corrige e enviar_tentativa() e quem devolve a explicacao e
+   gabarito_tentativa() -- que so entrega a resposta certa depois da entrega.
+   O caminho antigo fica de reserva: se o banco nao responder, a pagina volta
+   a funcionar como antes em vez de ficar em branco.                        */
+var TENTATIVA=null;
 var answers={}, tLeft=30*60, tUsed=0, timerId=null;
 
 /* ---------- carrega um simulado real por ?sim=<id> (eda-db); senão usa o demo CFG ---------- */
@@ -577,6 +596,35 @@ function show(id){['intro','prova','result'].forEach(function(s){document.getEle
 function startSim(){
   /* portão: exige login e desconta os tokens (reunião de 05/08) */
   if(window.EDTokens&&!EDTokens.liberar('simulado',SIM_ID))return;
+  if(window.EDApi&&EDApi.ativo&&EDApi.ativo()&&EDApi.sessao&&EDApi.sessao()&&SIM_ID!=='demo'){
+    var b=document.getElementById('btn-start');
+    if(b){b.disabled=true;b.dataset.txt=b.textContent;b.textContent='Montando a prova…';}
+    EDApi.montarProva(SIM_ID).then(function(r){
+      if(b){b.disabled=false;if(b.dataset.txt)b.textContent=b.dataset.txt;}
+      if(!r||!r.ok)throw new Error(r&&r.motivo||'sem-prova');
+      TENTATIVA=r.tentativa;
+      Q=(r.questoes||[]).map(function(q){
+        return {id:q.id, stmt:q.enunciado||'', theme:SIM_TITLE, comment:'',
+                opts:(q.alternativas||[]).map(function(a){return a.texto;}),
+                altIds:(q.alternativas||[]).map(function(a){return a.id;}),
+                correct:null};
+      });
+      if(r.tempo_limite>0){SIM_TIME=+r.tempo_limite;}
+      if(r.corte>0){PASS_PCT=+r.corte;}
+      comecar();
+    }).catch(function(e){
+      if(b){b.disabled=false;if(b.dataset.txt)b.textContent=b.dataset.txt;}
+      var m=String(e&&e.message||'');
+      alert(m==='so-assinantes' ? 'Este simulado é só para assinantes.'
+          : m==='precisa-entrar' ? 'Entre na sua conta para fazer este simulado.'
+          : m==='sem-questoes'   ? 'Este simulado ainda não tem questões cadastradas.'
+          : 'Não deu para montar a prova agora. Tente de novo.');
+    });
+    return;
+  }
+  comecar();
+}
+function comecar(){
   answers={};tLeft=SIM_TIME*60;tUsed=0;cur=0;
   renderQuestions();
   document.getElementById('timer').textContent=fmt(tLeft);
@@ -588,6 +636,44 @@ function backToIntro(){clearInterval(timerId);show('intro');}
 var PASS_PCT=SIM_PASS;
 function submitSim(){
   clearInterval(timerId);
+  /* Com o banco no ar quem corrige e o servidor: e la que estao as respostas
+     certas, e e de la que vem a explicacao gravada. */
+  if(TENTATIVA&&window.EDApi&&EDApi.enviarProva){
+    var envio=Q.map(function(q,qi){
+      var oi=answers[qi];
+      return {questao_id:q.id,
+              alternativa_id:(oi!=null&&q.altIds&&q.altIds[oi])?q.altIds[oi]:null};
+    });
+    EDApi.enviarProva(TENTATIVA,envio)
+      .then(function(){return EDApi.gabarito(TENTATIVA);})
+      .then(function(g){
+        if(g&&g.ok!==false&&g.questoes)aplicarGabarito(g);
+        mostrarResultado();
+      })
+      .catch(function(){mostrarResultado();});
+    return;
+  }
+  mostrarResultado();
+}
+
+/* Encaixa o que o banco devolveu em cada questao da tela, casando pelo id --
+   a ordem que volta nao e a mesma em que a prova foi feita. */
+function aplicarGabarito(g){
+  var porId={}; (g.questoes||[]).forEach(function(x){porId[x.id]=x;});
+  Q.forEach(function(q){
+    var x=porId[q.id]; if(!x)return;
+    var alts=x.alternativas||[];
+    var ci=-1; alts.forEach(function(a,ai){if(a.correta&&ci<0)ci=ai;});
+    q.correct=ci>=0?ci:null;
+    q.comment=x.comentario||'';
+    q.audioEmbed=x.audio_embed||'';
+    q.audioUrl=x.audio_url||'';
+    q.audioIndisponivel=!!x.audio_indisponivel;
+    q.audioBloqueado=!!x.audio_bloqueado;
+  });
+}
+
+function mostrarResultado(){
   var gradable=Q.filter(function(q){return typeof q.correct==='number';}).length;
   var hits=0;Q.forEach(function(q,qi){if(typeof q.correct==='number'&&answers[qi]===q.correct)hits++;});
   var pctScore=gradable?Math.round(hits/gradable*100):0;
@@ -608,7 +694,6 @@ function submitSim(){
   document.getElementById('res-pct').innerHTML=gradable?('Percentual de acerto: <b>'+pctScore+'%</b> ('+PASS_PCT+'% necessários)'):'';
   buildTopicTable();
   resTab('respostas');
-  try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(_){}
   show('result');
 }
 function buildTopicTable(){
@@ -656,9 +741,11 @@ function renderReview(correction){
     var unans=(chosen===undefined)?'<div class="unans">Você não respondeu esta questão.</div>':'';
     var gab='';
     if(correction&&hasGab){
-      var why=q.comment?('<b style="color:var(--head)">Por que '+LETTERS[q.correct]+':</b> '+esc(q.comment)):('<b style="color:var(--head)">Resposta correta: '+LETTERS[q.correct]+')</b>');
-      gab='<div style="margin-top:10px;font-size:13px;color:var(--muted);background:var(--overlay-soft);border-radius:9px;padding:10px 12px">'+why+'</div>'+
-        '<div class="gab-audio"><button class="pb" onclick="ouvirGabarito('+qi+')" title="Ouvir explicação"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div style="flex:1"><div class="gt">Gabarito comentado em áudio</div><div class="gs">Toque para ouvir a explicação da resposta.</div></div></div>';
+      var why=q.comment
+        ? '<b style="color:var(--head)">Por que '+LETTERS[q.correct]+':</b> '+esc(q.comment)
+        : '<b style="color:var(--head)">Resposta correta: '+LETTERS[q.correct]+'</b>';
+      gab='<div style="margin-top:10px;font-size:13px;color:var(--muted);background:var(--overlay-soft);border-radius:9px;padding:10px 12px">'+why+'</div>'
+        + blocoAudio(q,qi);
     }
     var dots=Q.map(function(_,i){
       var acertou=(typeof Q[i].correct==='number'&&answers[i]===Q[i].correct);
@@ -674,14 +761,34 @@ function renderReview(correction){
       '</div>';
   })();
 }
-function ouvirGabarito(qi){
-  try{
-    var q=Q[qi];if(!q||typeof q.correct!=='number')return;
-    var ss=window.speechSynthesis;if(!ss)return;
-    ss.cancel();
-    var u=new SpeechSynthesisUtterance('Questão '+(qi+1)+'. Resposta correta, letra '+LETTERS[q.correct]+'. '+(q.comment||''));
-    u.lang='pt-BR';u.rate=1;ss.speak(u);
-  }catch(_){}
+/* O gabarito comentado e uma gravacao do professor, hospedada no SoundCloud:
+   e ela que explica a questao. Ate agora nunca tocou -- este botao chamava a
+   voz sintetica do navegador para ler "Questao 3, resposta correta letra C",
+   e como o comentario escrito veio vazio no export, parava por ai.
+
+   Tres estados que nao sao a mesma coisa, e por isso tem texto diferente:
+     gravacao existe .......... toca o player de verdade
+     gravacao sumiu do ar ..... 104 faixas foram apagadas no SoundCloud
+     e so de assinante ........ existe, mas nao para quem nao assina         */
+function blocoAudio(q,qi){
+  if(q.audioEmbed||q.audioUrl){
+    var player = q.audioEmbed
+      ? q.audioEmbed
+      : '<iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" '
+        +'src="'+esc(q.audioUrl)+'"></iframe>';
+    return '<div style="margin-top:12px"><div class="gt" style="margin-bottom:8px">Gabarito comentado em áudio</div>'
+      + player + '</div>';
+  }
+  if(q.audioBloqueado)
+    return '<div class="gab-audio"><span class="pb" style="cursor:default">★</span><div style="flex:1">'
+      +'<div class="gt">Gabarito comentado em áudio</div>'
+      +'<div class="gs">A explicação gravada faz parte do curso. Assine para ouvir.</div></div></div>';
+  if(q.audioIndisponivel)
+    return '<div class="gab-audio" style="background:var(--overlay-soft);border-color:var(--border)">'
+      +'<span class="pb" style="background:none;border:1px solid var(--border);color:var(--muted);cursor:default">!</span>'
+      +'<div style="flex:1"><div class="gt">Áudio indisponível</div>'
+      +'<div class="gs">A gravação desta questão saiu do ar e está sendo refeita.</div></div></div>';
+  return '';
 }
 </script>
 <script src="social.js"></script>

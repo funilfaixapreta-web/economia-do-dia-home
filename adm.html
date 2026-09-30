@@ -916,7 +916,52 @@ function load(){try{const r=JSON.parse(localStorage.getItem(DB_KEY));if(r&&r.cou
   /* catálogo mudou no código: renova os planos e marca a versão */
   if(r.v!==SEED_V){r.plans=sd.plans;r.v=SEED_V;try{localStorage.setItem(DB_KEY,JSON.stringify(r));}catch(_){}}
   return r;}}catch(_){}return seed();}
-function save(){try{localStorage.setItem(DB_KEY,JSON.stringify(db));}catch(_){toast('Não foi possível salvar (armazenamento cheio).','err');}}
+/* ------------------------------------------------ salvar sem estourar -----
+   O navegador da ~5 MB por site para o localStorage, e o painel guardava
+   tudo la dentro. Enquanto eram 5 questoes de exemplo, sobrava espaco. Com as
+   5.105 questoes do banco baixadas para a tela de Perguntas, nao sobra:
+
+     enunciados ....... 740 kB
+     alternativas ..... 887 kB
+     audio (embed) .. 1.394 kB
+     audio (url) ...... 346 kB
+     + estrutura do JSON
+     ------------------------
+     total ~5,8 MB   contra um limite de ~5 MB
+
+   Dai o "armazenamento cheio": setItem lanca QuotaExceededError e, antes,
+   este save() apenas engolia o erro num toast -- o painel seguia parecendo
+   que tinha salvado.
+
+   Agora ele tenta guardar tudo; se nao couber, guarda o painel sem as duas
+   listas que sao copia do banco (questoes e usuarios) e diz o que fez. Nada
+   se perde: as duas sao buscadas no banco toda vez que a tela abre. O que
+   NAO pode sumir -- cursos, simulados, planos, configuracao -- continua
+   gravado, e como e pequeno cabe sempre.                                   */
+function save(){
+  try{ localStorage.setItem(DB_KEY, JSON.stringify(db)); return true; }
+  catch(e1){
+    try{
+      var leve={}; for(var k in db)if(db.hasOwnProperty(k))leve[k]=db[k];
+      leve.questions=[]; leve.students=[];
+      localStorage.setItem(DB_KEY, JSON.stringify(leve));
+      avisarEspaco();
+      return true;
+    }catch(e2){
+      try{ localStorage.removeItem(DB_KEY); localStorage.setItem(DB_KEY, JSON.stringify(db)); return true; }
+      catch(e3){
+        toast('O navegador não tem espaço para salvar. Publique no banco antes de fechar a aba.','err');
+        return false;
+      }
+    }
+  }
+}
+/* uma vez por sessao: repetir a cada clique viraria ruido */
+var _AVISOU_ESPACO=false;
+function avisarEspaco(){
+  if(_AVISOU_ESPACO)return; _AVISOU_ESPACO=true;
+  toast('As questões e os usuários são grandes demais para o navegador guardar — ficam no banco e são buscados a cada visita. O resto foi salvo normalmente.');
+}
 function resetData(){if(!confirm('Restaurar os dados de exemplo? Suas alterações neste navegador serão perdidas.'))return;db=seed();save();toast('Dados de exemplo restaurados.');router();}
 db=load();
 

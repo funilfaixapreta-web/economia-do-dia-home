@@ -490,7 +490,11 @@
         if(i!=null){
           var q=db.questions[i], mexeu=false;
           if(!q.audioUrl&&x.audio_url){q.audioUrl=x.audio_url;mexeu=true;}
-          if(!q.audioEmbed&&x.audio_embed){q.audioEmbed=x.audio_embed;mexeu=true;}
+          /* o embed e o <iframe> inteiro: 1,4 MB somados nas 4.406 questoes,
+             e reconstruivel a partir da url. So guardamos quando e a unica
+             pista do audio. Publicar sem ele nao apaga nada: o banco faz
+             coalesce e mantem o que ja tinha. */
+          if(!q.audioEmbed&&x.audio_embed&&!(q.audioUrl||x.audio_url)){q.audioEmbed=x.audio_embed;mexeu=true;}
           if(!q.audioRegra&&x.audio_regra){q.audioRegra=x.audio_regra;mexeu=true;}
           if(!q.comment&&x.comentario){q.comment=x.comentario;mexeu=true;}
           if(mexeu)completadas++;
@@ -502,7 +506,7 @@
           text:x.enunciado||'(sem enunciado)',
           comment:x.comentario||'',
           audioUrl:x.audio_url||'',
-          audioEmbed:x.audio_embed||'',
+          audioEmbed:(x.audio_url?'':x.audio_embed)||'',
           audioRegra:x.audio_regra||'',
           accessRule:x.regra_acesso||'livre',
           active:x.ativo!==false,
