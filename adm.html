@@ -753,10 +753,13 @@ function seed(){return {
     formacao:{eyebrow:'A formação',title:'Uma formação prática de análise e gestão, com cursos e simulados. Você domina o mercado em três frentes e chega pronto para as certificações de análise e gestão.',text:'Você estuda na ordem certa de aprendizado, treina com simulados que se renovam e sai sabendo aplicar de verdade. A aprovação nas certificações vem como consequência.'},
     metodo:{eyebrow:'Por que funciona',title:'Um banco de questões que não se repete até você esgotar a base.',lead:'A maioria dos preparatórios faz você decorar respostas. Aqui, uma questão só reaparece quando todas as outras já foram vistas. Isso força entendimento.'},
     professor:{name:'Frederico Nobre, CFA',bio:'Carioca, economista pela UFRJ, no mercado desde 2013. CFA Charterholder, CNPI e CGA/CGE. Gestor de recursos na Warren Investimentos, sócio responsável por asset allocation e renda variável.',creds:['CFA Charterholder','Gestor de recursos','Warren Investimentos','CNPI','CGA/CGE']},
-    depoimentos:[
-      {nome:'Rafael Antunes',cargo:'Aprovado CGA/CGE · BTG Pactual',texto:'Conteúdo denso, mas explicado como gente. Método sério, sem enrolação e sem promessa mágica.'},
-      {nome:'Mariana Alves',cargo:'Analista · XP Investimentos',texto:'Os simulados que se renovam fizeram toda a diferença na minha reta final.'}
-    ],
+    /* Vazio de proposito. Aqui havia dois depoimentos inventados que nomeavam
+       pessoas e instituicoes financeiras reais. Nao estao no site, que tem
+       outros depoimentos, mas um
+       Publicar a partir do painel substituiria os de verdade por eles. E ha
+       alunos reais com esses dois nomes na base. Depoimento entra aqui so com
+       autorizacao de quem falou. */
+    depoimentos:[],
     footer:{text:'Formação prática em análise e gestão do mercado financeiro, com cursos e simulados para o CNPI e o CGA/CGE.',whatsapp:'(21) 90000-0000',email:'contato@economiadodia.com.br'}
   },
   app:{
@@ -894,15 +897,11 @@ function seed(){return {
     {id:'valuation',eye:'Reta final',name:'Trilha Valuation',color:'#3D8BE0',ico:'◎',desc:'Preparação intensiva por simulados e diagnóstico.',courses:['cg1']},
     {id:'mercado',eye:'Fundamentos → avançado',name:'Trilha Mercado Financeiro',color:'#2BB673',ico:'◈',desc:'A base sólida de quem quer atuar no mercado.',courses:['cb']}
   ],
-  students:[
-    {id:uid('s'),name:'Frederico Nobre',email:'admin@economiadodia.com.br',role:'admin',plan:'completo',progress:100,status:'ativo',sims:0,joined:'01/01/2026',last:'agora (você)',phone:'(21) 99999-0000',cpf:'000.000.000-00',origem:'Equipe'},
-    {id:uid('s'),name:'Felipe Nunes',email:'felipe@economiadodia.com.br',role:'aluno',plan:'completo',progress:62,status:'ativo',sims:18,joined:'12/06/2026',last:'hoje, 10:20',phone:'(21) 99876-5432',cpf:'123.456.789-00',origem:'Instagram Ads'},
-    {id:uid('s'),name:'Mariana Alves',email:'mariana@gmail.com',role:'aluno',plan:'tecnico',progress:34,status:'ativo',sims:7,joined:'28/06/2026',last:'hoje, 14:32',phone:'(11) 98765-4321',cpf:'234.567.890-11',origem:'Google'},
-    {id:uid('s'),name:'Rafael Antunes',email:'rafael@btg.com',role:'admin',plan:'completo',progress:88,status:'ativo',sims:41,joined:'03/05/2026',last:'ontem, 19:05',phone:'(21) 99911-2233',cpf:'345.678.901-22',origem:'Indicação'},
-    {id:uid('s'),name:'Bruna Costa',email:'bruna@outlook.com',role:'aluno',plan:'completo',progress:12,status:'inativo',sims:2,joined:'15/07/2026',last:'15/07/2026',phone:'(31) 98800-1122',cpf:'456.789.012-33',origem:'YouTube'},
-    {id:uid('s'),name:'João Prado',email:'joao.prado@gmail.com',role:'editor',plan:'fundamentalista',progress:45,status:'ativo',sims:11,joined:'01/07/2026',last:'hoje, 09:12',phone:'(21) 99700-3344',cpf:'567.890.123-44',origem:'Instagram Ads'},
-    {id:uid('s'),name:'Patrícia Lima',email:'patricia.lima@gmail.com',role:'aluno',plan:'completo',progress:73,status:'ativo',sims:24,joined:'20/06/2026',last:'ontem, 21:40',phone:'(85) 98600-5566',cpf:'678.901.234-55',origem:'Google'}
-  ],
+  /* Vazio de proposito. Aqui havia 7 alunos de demonstracao com CPF e
+     telefone inventados, um deles com papel de admin. A aba Usuarios busca
+     gente de verdade pelo sincronizarUsuarios, entao isto era peso morto que
+     podia passar por cadastro real. */
+  students:[],
   plans:[
     {id:'completo',name:'CNPI · Curso Completo',price:'R$ 2.997',benefits:['CB + CG1 + CT1 · analista pleno','As três provas, do zero ao credenciamento','Acesso por 2 anos','Videoaulas + simulados premium + suporte no WhatsApp']},
     {id:'fundamentalista',name:'CNPI · Fundamentalista',price:'R$ 2.197',benefits:['CB + CG1 · research e valuation','Conteúdo Brasileiro + Global','Acesso por 1 ano','Videoaulas + simulados premium + suporte no WhatsApp']},
@@ -992,18 +991,37 @@ function defaultSettings(){return {
 function roleBadge(r){r=r||'aluno';if(r==='admin')return '<span class="badge" style="color:var(--gold-deep);background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd)">Admin</span>';if(r==='editor')return '<span class="badge" style="color:var(--blue);background:rgba(61,139,224,.13);border:1px solid rgba(61,139,224,.3)">Editor</span>';return '<span class="chip">Aluno</span>';}
 /* ---- analytics mock (protótipo, determinístico) ---- */
 function hashStr(s){let h=5381;s=String(s||'');for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return h;}
-function courseStats(c){const h=hashStr(c.id);return {alunos:60+h%420,conclusao:35+h%55,avaliacao:(4+(h%10)/10).toFixed(1)};}
-function simStats(s){const h=hashStr(s.id),qs=s.questions||[];return {feitos:80+h%620,media:52+h%42,pior:qs.length?qs[h%qs.length]:null};}
-function lessonStats(l){const h=hashStr(l.id||l.title);return {views:120+h%900,conclusao:40+h%55};}
+/* courseStats, lessonStats, studentSims e studentCoursesProg sorteavam
+   audiencia, conclusao, avaliacao e historico de prova por hash do id. Alunos
+   por curso vem de alunos_por_curso(); conclusao, avaliacao e visualizacao de
+   aula nao existem no banco (ninguem registra isso ainda), entao aparecem como
+   travessao em vez de numero inventado. */
+var PORCURSO=undefined;
+function carregarPorCurso(){
+  if(PORCURSO!==undefined)return;
+  PORCURSO=null;
+  esperaPublicar('alunosPorCurso', function(){ pedePorCurso(); }, function(){PORCURSO={};});
+}
+function pedePorCurso(){
+  EDPublicar.alunosPorCurso().then(function(l){
+    PORCURSO={};(Array.isArray(l)?l:[]).forEach(function(x){PORCURSO[x.curso_id]=x.alunos;});
+    router();
+  }).catch(function(){PORCURSO={};});
+}
+function courseStats(c){
+  carregarPorCurso();
+  var n=(PORCURSO&&PORCURSO[c.id]);
+  return {alunos:(n==null?null:n), conclusao:null, avaliacao:null};
+}
+/* simStats e simAttempts sorteavam "realizacoes" e nota por hash do id. Quem
+   quer esse numero chama EDPublicar.desempenho(), que le tentativas de verdade. */
+function lessonStats(l){return {views:null, conclusao:null};}
 const SIM_NAMES=['Simulado CB Completo','Simulado CG1 · Fundamentalista','Simulado CGA/CGE','Simulado CT1 · Técnico'];
-function studentSims(s){const h=hashStr(s.id||s.name),base=s.progress||50,n=Math.max(1,Math.min(s.sims||3,6)),out=[];for(let i=0;i<n;i++){const nota=Math.max(42,Math.min(98,base+((h+i*17)%46)-20));out.push({sim:SIM_NAMES[(h+i)%SIM_NAMES.length],nota:Math.round(nota),acertos:Math.round(nota*0.6),data:String(((h+i*3)%27)+1).padStart(2,'0')+'/07/2026'});}return out;}
-function studentCoursesProg(s){const h=hashStr(s.id||s.name);return db.courses.slice(0,3).map((c,i)=>({title:c.title,prog:Math.max(0,Math.min(100,(s.progress||50)+((h+i*23)%50)-25))}));}
 function studentPayments(s){const pl=db.plans.find(p=>p.id===s.plan)||{name:'Completo',price:'R$ 197'};const val=String(pl.price).replace(/\/(mês|ano)/,'');const out=[];for(let i=0;i<3;i++)out.push({data:'05/0'+(7-i)+'/2026',plano:pl.name,valor:val,status:'Pago'});return out;}
 function barChart(data,fmt){const max=Math.max.apply(null,data.map(x=>x[1]).concat([1]));return `<div style="display:flex;flex-direction:column;gap:11px">${data.map(x=>`<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;font-size:13px"><span style="color:var(--text)">${esc(x[0])}</span><span class="mono" style="color:var(--muted)">${fmt?fmt(x[1]):x[1]}</span></div><div class="progbar" style="height:8px"><i style="width:${Math.round(x[1]/max*100)}%"></i></div></div>`).join('')}</div>`;}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function mmss(s){s=Math.max(0,s|0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function simCfg(s){return {duracao:+s.duracao||60,notaCorte:+s.notaCorte||70,numQuestoes:+s.numQuestoes||0,tentativas:+s.tentativas||0,mostrarGabarito:s.mostrarGabarito||'depois',embaralhar:(s.embaralhar||'sim')==='sim',embaralharAlt:(s.embaralharAlt||'nao')==='sim'};}
-function simAttempts(s){const base=simStats(s);return db.students.slice(0,5).map((st,i)=>{const h=hashStr(s.id+st.id);const nota=Math.max(38,Math.min(98,base.media+((h+i*13)%40)-18));return {nome:st.name,id:st.id,nota:Math.round(nota),acertos:Math.round(nota*(s.questions||[]).length/100),data:String(((h+i)%27)+1).padStart(2,'0')+'/07/2026',tempo:mmss(1200+((h+i*97)%1600))};});}
 function allTemas(){const set={};(db.questionBank||[]).forEach(q=>{if(q.theme)set[q.theme]=(set[q.theme]||0)+1;});db.simulados.forEach(s=>(s.questions||[]).forEach(q=>{if(q.theme)set[q.theme]=(set[q.theme]||0)+1;}));return set;}
 
 /* ============ auth ============ */
@@ -1215,27 +1233,34 @@ window.addEventListener('hashchange',router);
 /* ============ DASHBOARD ============ */
 function notaColor(n){return n>=70?'var(--green)':(n>=50?'var(--amber)':'var(--red)');}
 function fmtToday(){try{return new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});}catch(_){return 'hoje';}}
-function dailyStats(){return {
-  sims:14,users:6,revenue:'R$ 1.182',approval:79,
-  simFeed:[
-    {aluno:'Rafael Antunes',sim:'Simulado CG1 · Fundamentalista',nota:91,hora:'15:20'},
-    {aluno:'Mariana Alves',sim:'Simulado CB Completo',nota:82,hora:'14:32'},
-    {aluno:'Felipe Nunes',sim:'Simulado CB Completo',nota:74,hora:'11:47'},
-    {aluno:'João Prado',sim:'Simulado CGA/CGE',nota:66,hora:'10:20'},
-    {aluno:'Bruna Costa',sim:'Simulado CB Completo',nota:58,hora:'09:12'}
-  ],
-  userFeed:[
-    {nome:'Lucas Prado',email:'lucas.prado@gmail.com',plano:'Completo',hora:'15:40'},
-    {nome:'Ana Beatriz',email:'ana.b@outlook.com',plano:'Essencial',hora:'12:18'},
-    {nome:'Carlos Menezes',email:'carlos@uol.com.br',plano:'Anual',hora:'10:05'},
-    {nome:'Patrícia Lima',email:'patricia.lima@gmail.com',plano:'Completo',hora:'08:33'}
-  ]
-};}
+/* dailyStats() devolvia receita, provas do dia, aprovacao e duas listas de
+   alunos fixas no codigo -- "R$ 1.182", 79%, "Rafael Antunes tirou 91". O
+   painel mostrava isso como se fosse hoje. Agora vem de atividade_do_dia(). */
+var ATIV=undefined;
+function carregarAtividade(){
+  if(ATIV!==undefined)return;
+  ATIV=null;
+  esperaPublicar('atividadeDoDia', function(){ pedeAtividade(); },
+    function(m){ATIV={erro:m};router();});
+}
+function pedeAtividade(){
+  EDPublicar.atividadeDoDia().then(function(r){
+    ATIV=(r&&r.ok)?r:{erro:(r&&r.motivo)||'sem resposta'};
+    if((location.hash||'#/').replace('#/','')==='')router();
+  }).catch(function(e){
+    ATIV={erro:(e&&e.message)||'erro'};
+    if((location.hash||'#/').replace('#/','')==='')router();
+  });
+}
+function semBanco(msg){
+  return '<div class="hint" style="color:var(--muted)">'+esc(msg)+'</div>';
+}
 function viewDashboard(){
-  const d=dailyStats();
-  const semana=[['Seg',9],['Ter',12],['Qua',7],['Qui',14],['Sex',18],['Sáb',22],['Dom',14]];
-  const topCursos=db.courses.map(c=>[c.title,courseStats(c).alunos]).sort((a,b)=>b[1]-a[1]).slice(0,4);
-  const topSims=db.simulados.map(s=>[s.name,simResults(s).feitos]).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  carregarAtividade();
+  const d=(ATIV&&!ATIV.erro)?ATIV:null;
+  const semana=d?(d.semana||[]).map(x=>[x.dia,x.provas]):[];
+  const topCursos=db.courses.map(c=>[c.title,courseStats(c).alunos]).filter(x=>x[1]!=null).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const topSims=d?(d.top_simulados||[]).map(x=>[x.nome,x.feitos]):[];
   const draftC=db.courses.filter(c=>c.status!=='publicado'),draftS=db.simulados.filter(s=>!s.is_active),draftL=[];
   db.courses.forEach(c=>(c.modules||[]).forEach((m,mi)=>(m.lessons||[]).forEach((l,li)=>{if(l.status!=='publicado')draftL.push({c,mi,li,l});})));
   const nDraft=draftC.length+draftS.length+draftL.length;
@@ -1243,8 +1268,7 @@ function viewDashboard(){
   const kSims=db.simulados.length, kPerg=(db.questions||[]).length;
   const kAulas=db.courses.reduce((n,c)=>n+(c.modules||[]).reduce((a,m)=>a+(m.lessons||[]).length,0),0);
   const kReceita=db.students.filter(s=>s.status==='ativo').reduce(function(sum,s){var p=db.plans.find(pl=>pl.id===s.plan);if(!p)return sum;var v=parseFloat(String(p.price).replace(/\./g,'').replace(/[^\d,]/g,'').replace(',','.'))||0;return sum+v;},0);
-  const allR=db.simulados.filter(s=>s.is_active).map(s=>simResults(s));
-  const kAprov=allR.length?Math.round(allR.reduce((n,r)=>n+r.aprov,0)/allR.length):0;
+  const kAprov=d?(d.aprovacao_media||0):null;
   const fmtBRL=v=>'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
   const dl=v=>`<span style="color:${v>=0?'var(--green)':'var(--red)'}">${v>=0?'▲':'▼'} ${Math.abs(v)}%</span> vs. semana`;
   return `
@@ -1255,27 +1279,27 @@ function viewDashboard(){
     <div class="stat"><div class="k">Receita estimada</div><div class="v" style="font-size:22px">${fmtBRL(kReceita)}</div><div class="d">base ativa</div></div>
     <div class="stat"><div class="k">Simulados</div><div class="v">${kSims}</div><div class="d">${kPerg} perguntas no banco</div></div>
     <div class="stat"><div class="k">Aulas</div><div class="v">${kAulas}</div><div class="d">em ${db.courses.length} cursos</div></div>
-    <div class="stat"><div class="k">Aprovação média</div><div class="v" style="color:${notaColor(kAprov)}">${kAprov}%</div><div class="d">nos simulados</div></div>
+    <div class="stat"><div class="k">Aprovação média</div><div class="v" style="${kAprov==null?'font-size:15px;color:var(--muted)':'color:'+notaColor(kAprov)}">${kAprov==null?'—':kAprov+'%'}</div><div class="d">${kAprov==null?'precisa do banco':'nas provas entregues'}</div></div>
   </div>
   <div class="grid2">
-    <div class="card"><div class="sec-title">Simulados na semana</div>${barChart(semana)}</div>
-    <div class="card"><div class="sec-title">Funil de conversão (mês)</div>${barChart([['Visitantes',5200],['Cadastros',480],['Assinantes',132]],v=>v.toLocaleString('pt-BR'))}<p class="hint">Conversão visitante → assinante: 2,5%</p></div>
+    <div class="card"><div class="sec-title">Provas na semana</div>${semana.length?barChart(semana):semBanco(d?'Nenhuma prova entregue nos últimos 7 dias.':'Entre no banco (Sistema → Publicar) para ver os números reais.')}</div>
+    <div class="card"><div class="sec-title">Top simulados (provas entregues)</div>${topSims.length?barChart(topSims,v=>v+' provas'):semBanco(d?'Nenhuma prova entregue ainda.':'Precisa do banco.')}</div>
   </div>
   <div class="grid2" style="margin-top:18px">
-    <div><div class="sec-title">Simulados do dia <span class="chip" style="margin-left:auto">${d.simFeed.length} recentes</span></div>
-      <div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Simulado</th><th>Nota</th><th>Hora</th></tr></thead><tbody>
-      ${d.simFeed.map(x=>`<tr><td><div class="t-title">${esc(x.aluno)}</div></td><td class="t-sub">${esc(x.sim)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(x.nota)}">${x.nota}%</span></td><td class="t-sub mono">${esc(x.hora)}</td></tr>`).join('')}
-      </tbody></table></div>
+    <div><div class="sec-title">Últimas provas entregues <span class="chip" style="margin-left:auto">${d?(d.provas||[]).length:0}</span></div>
+      ${(d&&(d.provas||[]).length)?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Simulado</th><th>Nota</th><th>Quando</th></tr></thead><tbody>
+      ${d.provas.map(x=>`<tr class="clk" onclick="location.hash='#/aluno/${x.aluno_id}'"><td><div class="t-title">${esc(x.nome||'(sem nome)')}</div></td><td class="t-sub">${esc(x.simulado)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(x.nota)}">${x.nota}%</span></td><td class="t-sub mono">${esc(quandoCurto(x.quando))}</td></tr>`).join('')}
+      </tbody></table></div>`:semBanco(d?'Nenhuma prova entregue ainda.':'Entre no banco para ver as provas.')}
     </div>
-    <div><div class="sec-title">Usuários do dia <span class="chip" style="margin-left:auto">${d.userFeed.length} novos</span></div>
+    <div><div class="sec-title">Últimos cadastros <span class="chip" style="margin-left:auto">${d?(d.novos||[]).length:0}</span></div>
       <div class="card" style="padding:8px">
-      ${d.userFeed.map(u=>`<div class="lrow" style="border-radius:10px"><span class="avatar" style="width:34px;height:34px;font-size:12px">${esc((u.nome||'?').split(' ').map(p=>p[0]).slice(0,2).join(''))}</span><div class="lt" style="cursor:default"><div class="ltt">${esc(u.nome)}</div><div class="lts"><span>${esc(u.email)}</span></div></div><div style="text-align:right"><span class="chip">${esc(u.plano)}</span><div class="t-sub mono" style="margin-top:4px">${esc(u.hora)}</div></div></div>`).join('')}
+      ${(d&&(d.novos||[]).length)?d.novos.map(u=>`<div class="lrow" style="border-radius:10px"><span class="avatar" style="width:34px;height:34px;font-size:12px">${esc((u.nome||'?').split(' ').map(p=>p[0]).slice(0,2).join(''))}</span><div class="lt" style="cursor:default"><div class="ltt">${esc(u.nome)}</div><div class="lts"><span>${esc(u.email)}</span></div></div><div style="text-align:right">${u.plano?`<span class="chip">${esc(u.plano)}</span>`:''}<div class="t-sub mono" style="margin-top:4px">${esc(quandoCurto(u.quando))}</div></div></div>`).join(''):semBanco(d?'Nenhum cadastro ainda.':'Entre no banco para ver os cadastros.')}
       </div>
       <button class="btn btn-ghost btn-sm" style="margin-top:12px;width:100%" onclick="location.hash='#/usuarios'">Ver todos os usuários →</button>
     </div>
   </div>
   <div class="grid2" style="margin-top:18px">
-    <div class="card"><div class="sec-title">Top cursos (por alunos)</div>${barChart(topCursos,v=>v+' alunos')}</div>
+    <div class="card"><div class="sec-title">Top cursos (alunos com acesso)</div>${topCursos.length?barChart(topCursos,v=>v+' alunos'):semBanco('Entre no banco (Sistema → Publicar) para ver os alunos por curso.')}</div>
     <div class="card"><div class="sec-title">Top simulados (por realizações)</div>${barChart(topSims,v=>v+'×')}</div>
   </div>
   <div class="card" style="margin-top:18px">
@@ -1520,8 +1544,8 @@ function viewCurso(id){
     </div></div>
   <div class="stat-grid" style="margin-bottom:20px">
     <div class="stat"><div class="k">Alunos matriculados</div><div class="v">${st.alunos}</div><div class="d">no curso</div></div>
-    <div class="stat"><div class="k">Conclusão média</div><div class="v">${st.conclusao}%</div><div class="d">dos alunos</div></div>
-    <div class="stat"><div class="k">Avaliação</div><div class="v">${st.avaliacao}<span style="font-size:15px;color:var(--muted)"> /5</span></div><div class="d">média dos alunos</div></div>
+    <div class="stat"><div class="k">Conclusão média</div><div class="v" style="font-size:15px;color:var(--muted)">—</div><div class="d">sem registro de progresso</div></div>
+    <div class="stat"><div class="k">Avaliação</div><div class="v" style="font-size:15px;color:var(--muted)">—</div><div class="d">sem avaliação coletada</div></div>
     <div class="stat"><div class="k">Aulas</div><div class="v">${countLessons(c)}</div><div class="d">${courseMinutes(c)} min no total</div></div>
   </div>
   ${mods||emptyState('▤','Sem módulos','Adicione um módulo para começar a inserir aulas.','+ Módulo',`addModule('${c.id}')`)}`;
@@ -1711,34 +1735,114 @@ function viewSimulado(id){
   ${simResultsCard(s)}`;
 }
 function simTotalQ(s){return (s.composition||[]).filter(function(c){return c.is_active;}).reduce(function(n,c){return n+(+c.questions_quantity||0);},0);}
-function simResults(s){
-  var totalQ=simTotalQ(s)||10, pass=+s.hit_percentage||70;
-  var studs=(db.students||[]).filter(function(st){return st.role!=='admin';});
-  var attempts=studs.map(function(st){var h=hashStr(s.id+st.id);var nota=38+(h%60);return {name:st.name,id:st.id,nota:nota,acertos:Math.round(nota*totalQ/100),total:totalQ,data:String((h%27)+1).padStart(2,'0')+'/07/2026',passed:nota>=pass};}).sort(function(a,b){return b.nota-a.nota;});
-  var media=attempts.length?Math.round(attempts.reduce(function(n,a){return n+a.nota;},0)/attempts.length):0;
-  var aprov=attempts.length?Math.round(attempts.filter(function(a){return a.passed;}).length/attempts.length*100):0;
-  var feitos=attempts.length?attempts.length*2+(hashStr(s.id)%40):0;
-  var byCat=(s.composition||[]).filter(function(c){return c.is_active;}).map(function(c){var h=hashStr(s.id+c.question_category_id);return {cat:qCatName(c.question_category_id),qtd:+c.questions_quantity||0,err:15+(h%55)};}).sort(function(a,b){return b.err-a.err;});
-  return {totalQ:totalQ,pass:pass,media:media,aprov:aprov,feitos:feitos,attempts:attempts,byCat:byCat};
+/* ---------------------------------------------------- desempenho real -----
+   simResults() sorteava, para CADA aluno sincronizado do banco, uma nota por
+   hash do id, uma data em julho de 2026 e um "Aprovado/Reprovado" -- e a tela
+   mostrava isso com o nome verdadeiro da pessoa e link para o perfil dela.
+   Enquanto eram 7 alunos de exemplo, era so enfeite. Com os 66 mil
+   sincronizados, passava a dizer que gente real foi reprovada numa prova que
+   nunca fez. Agora vem de desempenho_simulado(), que le tentativas e
+   respostas; sem banco ou sem tentativa, a tela diz isso em vez de preencher.
+   Como a leitura e assincrona, o cartao desenha vazio e se completa depois. */
+/* ed-publicar.js carrega depois deste arquivo. Quando uma tela pede dado do
+   banco no primeiro desenho, EDPublicar pode ainda nao existir -- e isso e
+   passageiro, nao erro. esperaPublicar() tenta de novo por um tempo curto e
+   so desiste se o arquivo realmente nao vier. */
+function esperaPublicar(metodo, aoVir, aoDesistir, tentativa){
+  tentativa=tentativa||0;
+  if(window.EDPublicar&&EDPublicar[metodo])return aoVir();
+  if(tentativa>=15)return aoDesistir('ed-publicar.js não carregou');
+  setTimeout(function(){esperaPublicar(metodo,aoVir,aoDesistir,tentativa+1);},200);
 }
+var DESEMP={};                         /* simulado_id -> resposta do banco */
+var ALUNOD={};                         /* aluno_id    -> resposta do banco */
+function carregarAluno(id){
+  if(ALUNOD[id]!==undefined)return;
+  ALUNOD[id]=null;
+  esperaPublicar('desempenhoAluno', function(){ pedeAluno(id); },
+    function(m){ALUNOD[id]={erro:m};if((location.hash||'').indexOf('#/aluno/'+id)===0)router();});
+}
+function pedeAluno(id){
+  EDPublicar.desempenhoAluno(id).then(function(r){
+    ALUNOD[id]=(r&&r.ok)?r:{erro:(r&&r.motivo)||'sem resposta'};
+    if((location.hash||'').indexOf('#/aluno/'+id)===0)router();
+  }).catch(function(e){
+    ALUNOD[id]={erro:(e&&e.message)||'erro'};
+    if((location.hash||'').indexOf('#/aluno/'+id)===0)router();
+  });
+}
+
 function simResultsCard(s){
-  var r=simResults(s);
-  if(!r.attempts.length)return '<div class="card" style="margin-top:16px"><div class="sec-title">Desempenho dos alunos</div><div class="hint" style="color:var(--muted)">Ainda sem tentativas registradas para este simulado.</div></div>';
-  var catRows=r.byCat.map(function(c){return '<tr><td class="t-title">'+esc(c.cat)+'</td><td class="mono">'+c.qtd+'</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;max-width:200px;height:7px;border-radius:999px;background:var(--overlay-soft);overflow:hidden"><i style="display:block;height:100%;width:'+c.err+'%;background:'+notaColor(100-c.err)+'"></i></div><span class="mono t-sub">'+c.err+'% erro</span></div></td></tr>';}).join('');
-  var attRows=r.attempts.slice(0,8).map(function(a){return '<tr class="clk" onclick="location.hash=\'#/aluno/'+a.id+'\'"><td class="t-title">'+esc(a.name)+'</td><td><span class="mono" style="font-weight:700;color:'+notaColor(a.nota)+'">'+a.nota+'%</span></td><td class="mono t-sub">'+a.acertos+'/'+a.total+'</td><td class="t-sub">'+esc(a.data)+'</td><td>'+(a.passed?'<span class="yn y">Aprovado</span>':'<span class="yn n">Reprovado</span>')+'</td></tr>';}).join('');
-  return '<div class="card" style="margin-top:16px"><div class="sec-title">Desempenho dos alunos</div>'+
-    '<div class="stat-grid" style="margin-bottom:18px">'+
-      '<div class="stat"><div class="k">Realizações</div><div class="v">'+r.feitos+'</div><div class="d">provas feitas</div></div>'+
-      '<div class="stat"><div class="k">Média de acertos</div><div class="v" style="color:'+notaColor(r.media)+'">'+r.media+'%</div><div class="d">desempenho médio</div></div>'+
-      '<div class="stat"><div class="k">Taxa de aprovação</div><div class="v" style="color:'+notaColor(r.aprov)+'">'+r.aprov+'%</div><div class="d">corte '+r.pass+'%</div></div>'+
-      '<div class="stat"><div class="k">Categoria mais errada</div><div class="v" style="font-size:14px;line-height:1.3">'+esc(r.byCat[0]?r.byCat[0].cat:'-')+'</div><div class="d">'+(r.byCat[0]?r.byCat[0].err+'% de erro':'')+'</div></div>'+
-    '</div>'+
-    '<div class="sec-title" style="font-size:14px">Erros por categoria</div>'+
-    '<div class="tblwrap" style="margin-bottom:18px"><table class="tbl"><thead><tr><th>Categoria</th><th>Qtd</th><th>Taxa de erro</th></tr></thead><tbody>'+catRows+'</tbody></table></div>'+
-    '<div class="sec-title" style="font-size:14px">Últimas tentativas <span class="chip" style="margin-left:auto">'+r.attempts.length+' alunos</span></div>'+
-    '<div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Nota</th><th>Acertos</th><th>Data</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table></div>'+
-  '</div>';
+  var d=DESEMP[s.id];
+  if(d===undefined){
+    carregarDesempenho(s.id);
+    return '<div class="card" id="desemp" style="margin-top:16px"><div class="sec-title">Desempenho dos alunos</div>'
+         + '<div class="hint" style="color:var(--muted)">Lendo as tentativas no banco…</div></div>';
+  }
+  return '<div class="card" id="desemp" style="margin-top:16px">'+desempenhoHtml(s,d)+'</div>';
 }
+
+function carregarDesempenho(simId){
+  if(DESEMP[simId]!==undefined)return;
+  DESEMP[simId]=null;
+  esperaPublicar('desempenho', function(){ pedeDesempenho(simId); },
+    function(m){DESEMP[simId]={erro:m};repintaDesempenho(simId);});
+}
+function pedeDesempenho(simId){
+  EDPublicar.desempenho(simId).then(function(r){
+    DESEMP[simId]=(r&&r.ok)?r:{erro:(r&&r.motivo)||'sem resposta'};
+    repintaDesempenho(simId);
+  }).catch(function(e){
+    DESEMP[simId]={erro:(e&&e.message)||'erro'};
+    repintaDesempenho(simId);
+  });
+}
+function repintaDesempenho(simId){
+  var box=document.getElementById('desemp');
+  var s=(db.simulados||[]).find(function(x){return x.id===simId;});
+  if(box&&s)box.innerHTML=desempenhoHtml(s,DESEMP[simId]);
+}
+
+function desempenhoHtml(s,d){
+  var cab='<div class="sec-title">Desempenho dos alunos</div>';
+  if(!d)      return cab+'<div class="hint" style="color:var(--muted)">Lendo as tentativas no banco…</div>';
+  if(d.erro)  return cab+'<div class="hint" style="color:var(--muted)">Não deu para ler as tentativas: '+esc(d.erro)+'</div>';
+  if(!d.feitos)return cab+'<div class="hint" style="color:var(--muted)">Ainda sem tentativas entregues para este simulado.</div>';
+
+  var catRows=(d.por_categoria||[]).map(function(c){
+    return '<tr><td class="t-title">'+esc(c.categoria)+'</td><td class="mono">'+c.respondidas+'</td>'
+         + '<td><div style="display:flex;align-items:center;gap:8px">'
+         + '<div style="flex:1;max-width:200px;height:7px;border-radius:999px;background:var(--overlay-soft);overflow:hidden">'
+         + '<i style="display:block;height:100%;width:'+c.erro+'%;background:'+notaColor(100-c.erro)+'"></i></div>'
+         + '<span class="mono t-sub">'+c.erro+'% erro</span></div></td></tr>';}).join('');
+
+  var attRows=(d.tentativas||[]).map(function(a){
+    return '<tr class="clk" onclick="location.hash=\'#/aluno/'+a.aluno_id+'\'"><td class="t-title">'+esc(a.nome||'(sem nome)')+'</td>'
+         + '<td><span class="mono" style="font-weight:700;color:'+notaColor(a.nota)+'">'+a.nota+'%</span></td>'
+         + '<td class="mono t-sub">'+a.acertos+'/'+a.total+'</td>'
+         + '<td class="t-sub">'+esc(quandoCurto(a.quando))+'</td>'
+         + '<td>'+(a.passou?'<span class="yn y">Aprovado</span>':'<span class="yn n">Reprovado</span>')+'</td></tr>';}).join('');
+
+  var pior=(d.por_categoria||[])[0];
+  return cab
+    + '<div class="stat-grid" style="margin-bottom:18px">'
+    +   '<div class="stat"><div class="k">Realizações</div><div class="v">'+d.feitos+'</div><div class="d">provas entregues</div></div>'
+    +   '<div class="stat"><div class="k">Média de acertos</div><div class="v" style="color:'+notaColor(d.media)+'">'+d.media+'%</div><div class="d">desempenho médio</div></div>'
+    +   '<div class="stat"><div class="k">Taxa de aprovação</div><div class="v" style="color:'+notaColor(d.aprov)+'">'+d.aprov+'%</div><div class="d">corte '+d.corte+'%</div></div>'
+    +   '<div class="stat"><div class="k">Categoria mais errada</div><div class="v" style="font-size:14px;line-height:1.3">'+esc(pior?pior.categoria:'-')+'</div><div class="d">'+(pior?pior.erro+'% de erro':'')+'</div></div>'
+    + '</div>'
+    + (catRows?'<div class="sec-title" style="font-size:14px">Erros por categoria</div>'
+      + '<div class="tblwrap" style="margin-bottom:18px"><table class="tbl"><thead><tr><th>Categoria</th><th>Respondidas</th><th>Taxa de erro</th></tr></thead><tbody>'+catRows+'</tbody></table></div>':'')
+    + (attRows?'<div class="sec-title" style="font-size:14px">Últimas tentativas <span class="chip" style="margin-left:auto">'+(d.tentativas||[]).length+'</span></div>'
+      + '<div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Nota</th><th>Acertos</th><th>Quando</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table></div>':'');
+}
+function quandoCurto(iso){
+  if(!iso)return '-';
+  try{var d=new Date(iso);
+    return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  }catch(_){return String(iso).slice(0,16).replace('T',' ');}
+}
+
 /* ---------------------------------------------- composicao do simulado ----
    A "Listagem · Categorias De Pergunta" e a mesma coisa nas duas telas: no
    formulario de criar/editar (embaixo dos campos, como era no sistema antigo)
@@ -2024,17 +2128,21 @@ function accessRow(s,kind,refId,label){var on=hasAccess(s,kind,refId);return '<l
 function viewAluno(id){
   const s=db.students.find(s=>s.id===id);if(!s)return notFound('Usuário não encontrado');
   const pl=db.plans.find(p=>p.id===s.plan);
-  const courses=studentCoursesProg(s),pays=studentPayments(s);
-  const desemp=(db.simulados||[]).filter(x=>x.is_active).map(function(x){var h=hashStr(x.id+s.id);var totalQ=simTotalQ(x)||10;var nota=38+(h%60);return {sim:x.name,nota:nota,acertos:Math.round(nota*totalQ/100),total:totalQ,data:String((h%27)+1).padStart(2,'0')+'/07/2026',passed:nota>=(+x.hit_percentage||70)};});
-  const media=desemp.length?Math.round(desemp.reduce((a,x)=>a+x.nota,0)/desemp.length):0;
+  const pays=studentPayments(s);
+  /* Aqui se inventava uma prova por simulado ativo, com nota por hash do id do
+     aluno e data em julho de 2026 -- com o nome real da pessoa em cima e
+     "Aprovado/Reprovado" ao lado. Agora vem de desempenho_aluno(). */
+  carregarAluno(id);
+  const da=(ALUNOD[id]&&!ALUNOD[id].erro)?ALUNOD[id]:null;
+  const desemp=da?(da.provas||[]):[];
+  const media=da?(da.media||0):null;
   return `
   <div class="crumb"><a href="#/usuarios">Usuários</a> <span class="sep">›</span> <span style="color:var(--text)">${esc(s.name)}</span></div>
   <div class="page-head"><div class="ph-l"><div class="eyebrow">Usuário ${roleBadge(s.role)} ${s.status==='ativo'?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</div><h1>${esc(s.name)}</h1><p>${esc(s.email)} · ${esc(s.phone||'-')}</p></div>
     <div class="ph-actions"><button class="btn ${s.role==='admin'?'btn-ghost':'btn-gold'}" onclick="toggleAdmin('${s.id}')">${s.role==='admin'?'Remover admin':'Tornar admin'}</button><button class="btn btn-ghost" onclick="editStudent('${s.id}')">${EDIT_IC} Editar</button><button class="btn btn-danger" onclick="delStudent('${s.id}',true)">${DEL_IC} Excluir</button></div></div>
   <div class="stat-grid" style="margin-bottom:18px">
-    <div class="stat"><div class="k">Progresso</div><div class="v">${s.progress||0}%</div><div class="d">do conteúdo</div></div>
-    <div class="stat"><div class="k">Simulados feitos</div><div class="v">${s.sims||0}</div><div class="d">total</div></div>
-    <div class="stat"><div class="k">Média nos simulados</div><div class="v" style="color:${notaColor(media)}">${media}%</div><div class="d">acerto médio</div></div>
+    <div class="stat"><div class="k">Provas entregues</div><div class="v">${da?da.feitos:'—'}</div><div class="d">${da?'no banco':'precisa do banco'}</div></div>
+    <div class="stat"><div class="k">Média nas provas</div><div class="v" style="${media==null?'font-size:15px;color:var(--muted)':'color:'+notaColor(media)}">${media==null?'—':media+'%'}</div><div class="d">${media==null?'precisa do banco':'acerto médio'}</div></div>
     <div class="stat"><div class="k">Plano</div><div class="v" style="font-size:19px">${esc(planName(s.plan))}</div><div class="d">${pl?esc(pl.price):''}</div></div>
   </div>
   <div class="card" style="margin-bottom:18px">
@@ -2064,7 +2172,7 @@ function viewAluno(id){
     </div>
     <div class="card">
       <div class="sec-title">Progresso nos cursos</div>
-      ${courses.map(c=>`<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span style="color:var(--text)">${esc(c.title)}</span><span class="mono" style="color:var(--muted)">${c.prog}%</span></div><div class="progbar" style="height:7px"><i style="width:${c.prog}%"></i></div></div>`).join('')}
+      <div class="hint" style="color:var(--muted)">O progresso por curso ainda não é registrado no banco. Aqui havia barras com porcentagem sorteada por aluno.</div>
     </div>
   </div>
   <div class="card" style="margin:20px 0">
@@ -2078,7 +2186,7 @@ function viewAluno(id){
   </div>
   <div class="sec-title" style="margin:22px 0 14px">Desempenho nos simulados</div>
   <div class="tblwrap"><table class="tbl"><thead><tr><th>Simulado</th><th>Nota</th><th>Acertos</th><th>Data</th><th>Status</th></tr></thead><tbody>
-    ${desemp.length?desemp.map(x=>`<tr class="clk" onclick="location.hash='#/simulado/${(db.simulados.find(z=>z.name===x.sim)||{}).id||''}'"><td class="t-title">${esc(x.sim)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(x.nota)}">${x.nota}%</span></td><td class="mono">${x.acertos}/${x.total}</td><td class="t-sub mono">${esc(x.data)}</td><td>${x.passed?'<span class="yn y">Aprovado</span>':'<span class="yn n">Reprovado</span>'}</td></tr>`).join(''):'<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">Nenhum simulado ativo.</td></tr>'}
+    ${desemp.length?desemp.map(x=>`<tr class="clk" onclick="location.hash='#/simulado/${esc(x.simulado_id||'')}'"><td class="t-title">${esc(x.simulado)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(x.nota)}">${x.nota}%</span></td><td class="mono">${x.acertos}/${x.total}</td><td class="t-sub mono">${esc(quandoCurto(x.quando))}</td><td>${x.passou?'<span class="yn y">Aprovado</span>':'<span class="yn n">Reprovado</span>'}</td></tr>`).join(''):`<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">${da?'Este aluno ainda não entregou nenhuma prova.':'Entre no banco (Sistema → Publicar) para ver as provas deste aluno.'}</td></tr>`}
   </tbody></table></div>
   <div class="sec-title" style="margin:22px 0 14px">Pagamentos</div>
   <div class="tblwrap"><table class="tbl"><thead><tr><th>Data</th><th>Plano</th><th>Valor</th><th>Status</th></tr></thead><tbody>

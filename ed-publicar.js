@@ -545,10 +545,40 @@
     });
   }
 
+  /* Desempenho e atividade vem do banco, sempre. O painel inventava os dois:
+     simResults() sorteava nota por hash para cada aluno sincronizado e a tela
+     mostrava "Aprovado/Reprovado" com o nome real da pessoa, e dailyStats()
+     trazia receita e provas do dia fixas no codigo. */
+  function desempenho(simId){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+    return EDApi.rpc('desempenho_simulado',{p_sim:simId});
+  }
+  function atividadeDoDia(){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+    return EDApi.rpc('atividade_do_dia',{});
+  }
+
   window.EDPublicar={
     resumo:resumo, pacote:montarPacote, publicar:publicar,
     entrar:entrar, conta:conta, baixar:baixar, baixarAlunos:baixarAlunos,
     baixarQuestoes:baixarQuestoes,
+    desempenho:desempenho, atividadeDoDia:atividadeDoDia,
+    desempenhoAluno:function(id){
+      if(!window.EDApi||!EDApi.sessao())
+        return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+      return EDApi.rpc('desempenho_aluno',{p_aluno:id});
+    },
+    alunosPorCurso:function(){
+      if(!window.EDApi||!EDApi.sessao())
+        return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+      return EDApi.rpc('alunos_por_curso',{});
+    },
     sair:function(){return EDApi.sair();}
   };
 
