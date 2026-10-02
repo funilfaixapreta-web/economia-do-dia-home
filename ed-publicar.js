@@ -373,10 +373,31 @@
         });
       });
 
-      var tem={}; db.simulados.forEach(function(s){tem[s.id]=true;});
-      var novos=0;
+      var tem={}; db.simulados.forEach(function(s,i){tem[s.id]=i;});
+      var novos=0, recompostos=0;
       sims.forEach(function(s){
-        if(tem[s.id])return;                 /* o que ja esta aqui manda */
+        if(tem[s.id]!=null){
+          /* Ja existe aqui. Se e copia do banco (doBanco), a composicao dele
+             tambem e -- ninguem monta prova do sistema antigo no painel. E a
+             publicacao apaga e regrava a composicao inteira a partir daqui,
+             entao uma copia desatualizada no navegador de alguem desfaz, sem
+             avisar, qualquer conserto feito no banco.
+
+             Aconteceu de verdade: o "CNPI - CG1 - Simulado Completo Gratuito"
+             perdeu tres categorias (M1, M2 e M3) e virou uma prova de 47
+             questoes em vez de 60. Simulado criado aqui no painel nao e
+             tocado: aquilo sim e trabalho local. */
+          var atual=db.simulados[tem[s.id]];
+          if(atual && atual.doBanco){
+            var nova=porSim[s.id]||[];
+            var antes=JSON.stringify((atual.composition||[]).map(function(x){
+              return [x.question_category_id,x.questions_quantity,x.is_active];}).sort());
+            var depois=JSON.stringify(nova.map(function(x){
+              return [x.question_category_id,x.questions_quantity,x.is_active];}).sort());
+            if(antes!==depois){atual.composition=nova;recompostos++;}
+          }
+          return;
+        }
         /* Residuo de publicacao antiga: sem nome e sem composicao nao e
            simulado, e uma linha vazia. Trazer isso de volta para o painel so
            faria a pessoa apagar de novo -- e, pior, republicar sem querer. */
@@ -398,8 +419,8 @@
         novos++;
       });
 
-      if(novos||novasCatSim||novasCatQ)save();
-      return {novos:novos, totalNoBanco:sims.length,
+      if(novos||recompostos||novasCatSim||novasCatQ)save();
+      return {novos:novos, recompostos:recompostos, totalNoBanco:sims.length,
               novasCategoriasSimulado:novasCatSim, novasCategoriasQuestao:novasCatQ};
     });
   }

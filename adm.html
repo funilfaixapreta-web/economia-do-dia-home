@@ -1602,7 +1602,12 @@ function sincronizarSimulados(forcar){
 
   EDPublicar.baixar().then(function(r){
     _SIMS_SINCRONIZADOS=true;
-    if(r.novos){ toast(r.novos+' simulado(s) que estavam só no banco entraram na lista.'); router(); return; }
+    if(r.novos||r.recompostos){
+      toast([r.novos?r.novos+' simulado(s) que estavam só no banco entraram na lista.':'',
+             r.recompostos?r.recompostos+' tiveram a composição atualizada pelo banco.':'']
+            .filter(Boolean).join(' '));
+      router(); return;
+    }
     var e=$('#sim-sinc');
     if(e)e.innerHTML=btnBuscarNoBanco('Tudo em dia — os '+r.totalNoBanco+' simulados do banco já estão aqui.');
   }).catch(function(err){
