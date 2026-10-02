@@ -36,6 +36,9 @@ create trigger audio_com_regra
   for each row execute function public.audio_sempre_com_regra();
 
 revoke execute on function public.audio_sempre_com_regra() from public, anon, authenticated;
+-- search_path fixo, como a 0011 fez com track_do_audio: funcao de gatilho sem
+-- isso resolve nome de tabela pelo search_path de quem dispara.
+alter function public.audio_sempre_com_regra() set search_path = public;
 
 -- 3 ---------------------------------------------------------------------
 -- os tres planos legados de CNPI dizem no nome quais cursos compraram.

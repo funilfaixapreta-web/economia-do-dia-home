@@ -32,3 +32,22 @@ revoke all on public._legacy_raw  from anon, authenticated;
 -- que veio do sistema antigo: foi ele que mostrou que os 3 alunos faltantes
 -- se perderam na exportacao, nao na importacao. Guardar o arquivo fora do
 -- banco antes de apagar e uma boa ideia.
+
+-- Conferido junto, a partir dos avisos do linter do Supabase:
+--
+-- · blocos_site (7), paginas (133) e tags (17) tambem estao com RLS ligada e
+--   zero politicas. Aqui isso esta CERTO, nao e defeito: nada no site nem no
+--   painel le essas tabelas pelo PostgREST — o painel trabalha com a copia
+--   local (db.paginas, db.tags). Sao deposito da importacao. Abrir politica
+--   de leitura publicaria 133 paginas do site antigo sem ninguem pedir.
+--
+-- · As 8 funcoes SECURITY DEFINER de administrador — promover_admin,
+--   dar_tokens, publicar_conteudo, publicar_planos, questoes_admin,
+--   usuarios_admin, pedidos_admin e confirmar_pagamento — todas chamam
+--   eh_admin() por dentro. O linter avisa que estao expostas em /rpc/, e
+--   estao: e assim que o painel fala com o banco. A porta esta trancada por
+--   dentro, nao por ninguem saber o endereco.
+--
+-- · catalogo(), eh_admin() e tem_acesso_curso() respondem a anon de proposito:
+--   a primeira e o catalogo aberto, e as outras duas devolvem false para
+--   quem nao entrou.
