@@ -67,6 +67,8 @@ input:focus{outline:none;border-color:var(--gold)}
   color:#0B0D10;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:13px}
 input.cod{font-family:'IBM Plex Mono',monospace;font-size:24px;letter-spacing:.42em;text-align:center}
 .erro{font-size:12.5px;color:var(--red,#E0533D);font-weight:600;margin:-6px 0 14px}
+.comolink{background:none;border:0;padding:0;font:inherit;color:inherit;
+  text-decoration:underline;cursor:pointer}
 .proto{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);font-size:11.5px;color:var(--faint);text-align:center;line-height:1.5}
 .proto b{font-family:'IBM Plex Mono',monospace;color:var(--gold-deep)}
 </style>
@@ -117,12 +119,13 @@ input.cod{font-family:'IBM Plex Mono',monospace;font-size:24px;letter-spacing:.4
   </div>
   <div class="field">
     <label for="c-email">E-mail</label>
-    <input id="c-email" type="email" placeholder="voce@email.com" autocomplete="email" required />
+    <input id="c-email" type="email" placeholder="voce@email.com" autocomplete="email" required onblur="conferirEmail()" />
   </div>
   <div class="field">
     <label for="c-tel">Celular com DDD</label>
     <input id="c-tel" type="tel" placeholder="(21) 99999-9999" autocomplete="tel" required />
   </div>
+  <div class="erro hidden" id="cad-dica"></div>
   <div class="field">
     <label for="c-senha">Senha</label>
     <input id="c-senha" type="password" placeholder="Pelo menos 8 caracteres" autocomplete="new-password" minlength="8" required />
@@ -169,6 +172,59 @@ input.cod{font-family:'IBM Plex Mono',monospace;font-size:24px;letter-spacing:.4
      mentira: a tela mostrava o codigo que a destravava. Quem soubesse o
      celular de alguem entrava na conta dessa pessoa. Validar o celular de
      verdade depende de um provedor de WhatsApp/SMS, que ainda nao existe. */
+  /* 94 contas do sistema antigo tem e-mail que nao recebe: @gmail sem ponto,
+     @gmailcom, @gmail.cm, @hotmail.con. Como a senha agora so se redefine por
+     e-mail, quem erra o dominio fica preso do lado de fora. Aqui o erro e
+     apanhado na porta, antes de virar conta. A dica NAO bloqueia: dominio
+     incomum e legitimo existe (live.de, yahoo.fr estao na base), e recusar
+     cadastro por palpite nosso seria pior do que a dica. */
+  const DOMINIOS=['gmail.com','hotmail.com','outlook.com','yahoo.com','yahoo.com.br',
+    'icloud.com','live.com','hotmail.com.br','outlook.com.br','bol.com.br',
+    'uol.com.br','terra.com.br','me.com','msn.com','protonmail.com'];
+  function perto(a,b){
+    const m=a.length, n=b.length; if(Math.abs(m-n)>2)return 9;
+    let l=[]; for(let i=0;i<=m;i++)l[i]=[i];
+    for(let j=0;j<=n;j++)l[0][j]=j;
+    for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+      l[i][j]=Math.min(l[i-1][j]+1, l[i][j-1]+1, l[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+    return l[m][n];
+  }
+  function sugestaoDeEmail(email){
+    const p=String(email||'').toLowerCase().trim().split('@');
+    if(p.length!==2||!p[0]||!p[1])return null;
+    const dom=p[1];
+    if(DOMINIOS.indexOf(dom)>=0)return null;
+    /* sem ponto nenhum nao e dominio: tenta completar */
+    if(dom.indexOf('.')<0){
+      const achou=DOMINIOS.filter(function(d){return d.split('.')[0].indexOf(dom)===0
+                                                   || dom.indexOf(d.split('.')[0])===0;})[0];
+      return achou?p[0]+'@'+achou:null;
+    }
+    let melhor=null, dist=3;
+    DOMINIOS.forEach(function(d){const k=perto(dom,d);if(k<dist){dist=k;melhor=d;}});
+    return (melhor&&dist<=2)?p[0]+'@'+melhor:null;
+  }
+  function conferirEmail(){
+    const dica=document.getElementById('cad-dica');
+    const s=sugestaoDeEmail(document.getElementById('c-email').value);
+    if(!s){dica.classList.add('hidden');dica.dataset.sug='';return;}
+    /* Sair sem mexer no DOM quando a sugestao e a mesma. Sem isto, o onblur do
+       campo de e-mail disparava no mousedown sobre o botao, o innerHTML era
+       reconstruido e o botao morria antes do clique chegar: a pessoa clicava
+       na sugestao e nada acontecia. Reconstruir so quando muda mantem o
+       elemento vivo entre o mousedown e o click.
+       Botao, e nao <a href="#">, porque o link faz a pagina saltar. */
+    if(dica.dataset.sug===s && !dica.classList.contains('hidden'))return;
+    dica.dataset.sug=s;
+    dica.innerHTML='Você quis dizer <button type="button" id="cad-aceita" class="comolink">'
+                 + s.replace(/</g,'&lt;')+'</button>?';
+    dica.classList.remove('hidden');
+    document.getElementById('cad-aceita').onclick=function(){
+      document.getElementById('c-email').value=s;
+      dica.classList.add('hidden');
+      dica.dataset.sug='';
+    };
+  }
   function criarConta(e){
     e.preventDefault();
     const erro=document.getElementById('cad-erro');
