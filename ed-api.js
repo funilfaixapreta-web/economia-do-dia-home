@@ -310,6 +310,12 @@
     /* otimista enquanto o cheque nao volta; falso assim que se sabe que o
        banco nao responde. Assim o site inteiro cai para o modo local sozinho. */
     ativo:function(){return !!CFG.ativo && SAUDE!==false;},
+    /* ativo() cai para false quando o banco nao responde, e e isso que faz o
+       site inteiro voltar ao modo local sem travar ninguem. Para LOGIN isso
+       nao serve: quem derruba a chamada de saude passaria a entrar sem senha.
+       configurado() diz apenas "existe banco neste site", sem olhar a saude,
+       e e por ele que login.html decide — autenticacao falha fechada. */
+    configurado:function(){return !!CFG.ativo;},
     saude:verificar,
     ehFalhaDeRede:ehFalhaDeRede,
     url:CFG.url,
