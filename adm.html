@@ -3825,7 +3825,31 @@ function novaPergunta(){
 }
 function editPergunta(id){location.hash='#/pergunta/'+id;router();}
 function toggleQuestion(id){const q=(db.questions||[]).find(x=>x.id===id);if(!q)return;q.active=!q.active;save();toast(q.active?'Pergunta ativada.':'Pergunta desativada.');router();}
-function delQuestion2(id){if(!confirm('Excluir esta pergunta?'))return;db.questions=(db.questions||[]).filter(x=>x.id!==id);save();toast('Pergunta excluída.');location.hash='#/perguntas';router();}
+/* Pergunta que ja esta no banco nao se apaga: ela pode ter resposta de aluno
+   pendurada, e apagar seria apagar o historico de prova de quem respondeu.
+   Alem disso, publicar_conteudo nunca exclui questao -- so faz upsert. Tirar
+   da lista local deixava a pergunta viva no banco, continuando a cair nas
+   provas, enquanto o painel mostrava que ela tinha sido excluida.
+   Desativar resolve as duas coisas: montar_simulado nao sorteia questao
+   inativa, o proximo publicar manda ativo=false, e a pergunta continua na
+   lista para ser reativada. Pergunta criada aqui e nunca publicada nao tem
+   nada a preservar, entao essa sai de vez. */
+function delQuestion2(id){
+  const q=(db.questions||[]).find(x=>x.id===id);
+  if(!q)return;
+  if(q.doBanco){
+    if(!q.active){toast('Esta pergunta já está inativa.');return;}
+    if(!confirm('Esta pergunta está no banco e pode ter respostas de alunos.\n\n'
+               +'Ela será desativada: sai dos simulados e para de aparecer nas provas, '
+               +'sem apagar o histórico de quem já respondeu. Continuar?'))return;
+    q.active=false;save();
+    toast('Pergunta desativada. Publique para valer no banco.');
+    location.hash='#/perguntas';router();return;
+  }
+  if(!confirm('Excluir esta pergunta?'))return;
+  db.questions=(db.questions||[]).filter(x=>x.id!==id);
+  save();toast('Pergunta excluída.');location.hash='#/perguntas';router();
+}
 function altRowHtml(text,correct){return '<div class="altrow"><input type="radio" name="alt-correct" class="alt-c" title="Marcar como correta"'+(correct?' checked':'')+'><input type="text" class="alt-t" value="'+esc(text||'')+'" placeholder="Texto da alternativa"><button type="button" class="btn-icon" title="Remover alternativa" onclick="altDel(this)">'+DEL_IC+'</button></div>';}
 function altAdd(){var box=document.getElementById('alt-list');if(!box)return;var d=document.createElement('div');d.className='altrow';d.innerHTML='<input type="radio" name="alt-correct" class="alt-c" title="Marcar como correta"><input type="text" class="alt-t" placeholder="Texto da alternativa"><button type="button" class="btn-icon" title="Remover alternativa" onclick="altDel(this)">'+DEL_IC+'</button>';box.appendChild(d);var t=d.querySelector('.alt-t');if(t)t.focus();}
 function altDel(btn){var r=btn.closest('.altrow');if(r)r.remove();}
