@@ -224,5 +224,15 @@ update public.matriculas m
    and exists (select 1 from unicos u
                 where u.plano_id = m.plano_id and u.venc = m.expira_em);
 
--- depois disto: 74 matriculas validas (73 quando a ambigua for resolvida),
--- o mesmo numero do sistema antigo.
+-- A ambigua, resolvida depois: o par legacy-14 / 2026-12-12 tem CINCO
+-- matriculas, nao duas, e o antigo tinha desligado so a mais antiga
+-- (matricula 992, criada em 2022-12-17). inicia_em sobreviveu a importacao
+-- com hora e tudo, e as cinco datas de criacao batem uma a uma com o antigo,
+-- entao deu para identificar sem e-mail nenhum.
+update public.matriculas
+   set ativa = false
+ where plano_id = 'legacy-14'
+   and expira_em = ('2026-12-12 00:00:00'::timestamp at time zone 'America/Sao_Paulo')
+   and inicia_em = '2022-12-17 13:04:03+00';
+
+-- depois disto: 73 matriculas validas, o mesmo numero do sistema antigo.
