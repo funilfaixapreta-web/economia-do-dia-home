@@ -140,3 +140,53 @@ select distinct m.aluno_id, z.novo, 'legado'
        ) as z(antigo, novo) on z.antigo = public._vazio(i.quiz_category_id)
  where public._vazio(i.deleted_at) is null
 on conflict (aluno_id, categoria_simulado_id) do nothing;
+
+-- ===========================================================================
+-- PASSO 2 — CONFERENCIA DEPOIS DA TRANSFORMACAO
+--
+-- Numeros medidos no sistema antigo, no momento do export. Se algum nao
+-- bater, o motivo esta na coluna "onde olhar".
+-- ===========================================================================
+select 'provas importadas'              as item,
+       (select count(*) from public.tentativas where origem='legado')::text as achado,
+       'ate 91.242'                     as esperado,
+       'menos as de aluno sem id mapeado e as de simulado inexistente' as onde_olhar
+union all
+select 'provas sem tempo (era 0 no antigo)',
+       (select count(*) from public.tentativas where origem='legado' and duracao_seg is null)::text,
+       '1.605',
+       'se der 1.604 ou 1.606, suspeite de elapsed_time alterado no antigo depois do export, antes de suspeitar da conversao'
+union all
+select 'alunos distintos com historico',
+       (select count(distinct aluno_id) from public.tentativas where origem='legado')::text,
+       '~3.718',
+       'e quantos tem has_quiz=1 no user_csv. Muito acima disso = id casado errado'
+union all
+select 'log de assinatura',
+       (select count(*) from public.matriculas_historico)::text,
+       '2.625',
+       'id_antigo e a chave primaria, entao nao ha duplicata possivel'
+union all
+select 'log sem aluno conhecido',
+       (select count(*) from public.matriculas_historico where aluno_id is null)::text,
+       'poucas',
+       'sao os 125 alunos que faltavam no user_list; id_aluno_antigo guarda a referencia'
+union all
+select 'trilhas',
+       (select count(*) from public.trilhas_do_aluno)::text,
+       'ate 50.433',
+       'menos as de aluno sem id mapeado; a chave primaria tambem dedup aluno+trilha repetida'
+union all
+select 'trilhas por categoria',
+       (select string_agg(categoria_simulado_id||'='||n, ' ' order by n desc)
+          from (select categoria_simulado_id, count(*) as n
+                  from public.trilhas_do_aluno group by 1) t)::text,
+       'cpa-10 17.960 cpa-20 17.213 cea 5.195 ancord 3.239 cnpi-cb 2.303 cnpi-cg1 2.009 cnpi-ct1 1.872 cfg 633',
+       'desvio grande numa categoria = mapa de quiz_category_id errado';
+
+-- Depois que isto fechar, estas podem ser apagadas pelo SQL Editor do painel:
+--   truncate public._imp_quiz_user;
+--   truncate public._imp_subscription_log;
+--   truncate public._imp_user_quiz_category;
+--   drop table public._imp_quiz_user, public._imp_subscription_log, public._imp_user_quiz_category;
+-- e, so depois, as da migracao 0015 (_legacy_raw, _legacy_map, _legacy_urls).
