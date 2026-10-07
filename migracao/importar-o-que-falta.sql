@@ -244,27 +244,27 @@ select 'trilhas por categoria',
 -- ===========================================================================
 -- RESULTADO — rodado em 07/10/2026
 -- ===========================================================================
---   provas importadas ............ 91.229 de 91.242   (13 de fora, abaixo)
+-- Primeira passada, antes das pontes de aluno:
+--
+--   provas importadas ............ 91.229 de 91.242   (13 de fora)
 --   provas sem tempo ............. 1.605              = exato
 --   alunos distintos com historico 3.718              = exato (has_quiz=1)
 --   log de assinatura ............ 2.625              = exato
 --   log sem aluno conhecido ...... 12
---   trilhas ...................... 50.420 de 50.433   (13 de fora, abaixo)
+--   trilhas ...................... 50.420 de 50.433   (13 de fora)
 --   nota fora de 0-100 ........... 0
 --   duracao acima de 3h .......... 0
 --
--- Por categoria, cpa-10, cpa-20, cea e ancord bateram EXATAS. As 13 que
--- faltam estao todas em cnpi-cb (-5), cnpi-cg1 (-3), cnpi-ct1 (-4) e cfg (-1).
+-- As 26 linhas de fora (13 provas + 13 trilhas) eram de 9 alunos sem ponte:
+--   11338, que existe no banco novo mas cujo id antigo nao estava no
+--   user_list, e 66036 a 66043, que cadastraram no antigo depois do export.
 --
--- AS 26 LINHAS DE FORA (13 provas + 13 trilhas) SAO DE 9 ALUNOS:
+-- FECHADO pela 0023_delta_dos_nove_alunos.sql, no mesmo dia: os 9 ganharam
+-- ponte (os 8 novos ganharam cadastro) e as tres transformacoes rodaram de
+-- novo. Nao sobrou nenhuma linha dos tres arquivos:
 --
---   11338  -> 2 provas. Este aluno EXISTE no banco novo (veio pelo e-mail no
---             user_csv), mas o id antigo dele nao estava no user_list, entao
---             nao tem ponte. Recuperavel: basta o e-mail desse id.
---   66036 a 66043 -> 11 provas e 13 trilhas. Estes OITO alunos cadastraram no
---             sistema antigo depois do export de alunos e nao existem no novo.
---             Nao ha onde pendurar o historico. Entram no delta da virada,
---             junto com o cadastro deles.
+--   provas ....... 91.242 de 91.242   EXATO
+--   trilhas ...... 50.433 de 50.433   EXATO, e exatas nas oito categorias
 --
 -- Confirmacao independente da conversao de tempo: simulado de modulo deu ~6
 -- minutos de media e o Simulado Completo Gratuito deu 43,2. Se elapsed_time
