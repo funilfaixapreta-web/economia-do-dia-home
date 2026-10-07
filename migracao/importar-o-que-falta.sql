@@ -6,22 +6,43 @@
 -- Table Editor do Supabase (Import data from CSV).
 --
 -- As tabelas de recepcao tem TODAS as colunas em text de proposito: CSV do
--- MySQL traz data como 'YYYY-MM-DD HH:MM:SS', NULL as vezes vazio e as vezes
--- como a palavra NULL, e elapsed_time pode ser segundos ou HH:MM:SS. A
--- conversao acontece aqui, onde da para conferir, e nao na carga.
+-- MySQL traz data como 'YYYY-MM-DD HH:MM:SS', o export veio com "Replace NULL
+-- with: NULL" (campo vazio chega como a PALAVRA NULL) e elapsed_time pode ser
+-- segundos ou HH:MM:SS. A conversao acontece aqui, onde da para conferir.
+--
+-- Cada _imp_ tem id como chave primaria. Isso e proposital: um reenvio do
+-- mesmo arquivo FALHA em vez de duplicar silenciosamente. Se uma carga parar
+-- no meio, limpe antes de tentar de novo, pelo SQL Editor do painel:
+--   truncate public._imp_quiz_user;
+-- (eu nao consigo rodar truncate nem delete nesta sessao.)
 --
 -- Tudo aqui pode ser rodado de novo sem duplicar:
 --   tentativas             -> ref_antigo com indice unico
 --   matriculas_historico   -> id_antigo e a chave primaria
 --   trilhas_do_aluno       -> chave primaria (aluno_id, categoria)
--- Isso importa porque DELETE esta barrado nesta sessao: nao daria para
--- limpar uma importacao duplicada.
 -- ===========================================================================
 
--- helper: o CSV pode trazer vazio ou a palavra NULL
+-- ---------------------------------------------------------------------------
+-- PASSO 0 — CONFERIR A CARGA ANTES DE TRANSFORMAR.
+-- Pega upload que parou no meio e upload duplicado. Nao siga se algum
+-- "confere" vier false.
+-- ---------------------------------------------------------------------------
+select 'quiz_user' as tabela, count(*) as carregadas, 91242 as esperado,
+       count(*) = 91242 as confere from public._imp_quiz_user
+union all
+select 'subscription_log', count(*), 2625, count(*) = 2625 from public._imp_subscription_log
+union all
+select 'user_quiz_category', count(*), 50433, count(*) = 50433 from public._imp_user_quiz_category;
+
+-- helper: o CSV traz nulo como a palavra NULL, em qualquer caixa, e \N
 create or replace function public._vazio(t text) returns text
 language sql immutable as $fn$
-  select nullif(nullif(btrim(coalesce(t,'')), ''), 'NULL');
+  select case
+    when t is null then null
+    when btrim(t) = '' then null
+    when upper(btrim(t)) in ('NULL','\N','NIL','\\N') then null
+    else btrim(t)
+  end;
 $fn$;
 
 -- ---------------------------------------------------------------------------
