@@ -30,6 +30,11 @@
 -- ===========================================================================
 
 -- ---------------------------------------------------------------------------
+-- Nota para quem for rodar consultas no phpMyAdmin: nao cole duas de uma vez.
+-- Depois de uma consulta no information_schema, ele executa a seguinte NESSE
+-- banco, e a segunda falha com "#1109 Unknown table 'x' in information_schema".
+-- Rode uma por vez.
+--
 -- PASSO 0 — CONFERIR A CARGA ANTES DE TRANSFORMAR.
 -- Pega upload que parou no meio e upload duplicado. Nao siga se algum
 -- "confere" vier false.
@@ -62,6 +67,22 @@ $fn$;
 -- iniciada_em recebe o created_at junto com enviada_em: o antigo registra um
 -- instante so, e nao da para saber se era o inicio ou a entrega. O tempo real
 -- fica em duracao_seg.
+--
+-- elapsed_time ESTA EM MINUTOS, nao em segundos. Conferido no MySQL: int(4),
+-- minimo 0, maximo 180, media 15,6, zero nulos. Media de 15,6 segundos seria
+-- impossivel para um simulado de 10 a 60 questoes, e um maximo cravado em 180
+-- e teto de cronometro de 3 horas. Dai o *60.
+--
+-- Sem isso, a conversao gravaria 180 SEGUNDOS numa prova que durou 3 HORAS --
+-- e seria um erro silencioso, porque segundos e minutos tem a mesma aparencia
+-- numa coluna inteira. Nenhuma validacao de formato pegaria.
+--
+-- elapsed_time = 0 virou nulo, e nao zero. O valor e arredondado para minuto
+-- inteiro, entao 0 significa "menos de um minuto", o que mistura prova aberta
+-- e fechada na hora com prova respondida em 45 segundos. Gravar 0 segundos
+-- afirmaria uma duracao que nao aconteceu. E nada se perde: como a origem nao
+-- tem nenhum nulo, toda linha com origem='legado' e duracao_seg nulo e
+-- exatamente uma linha que tinha 0 la.
 -- ---------------------------------------------------------------------------
 insert into public.tentativas
   (aluno_id, simulado_id, iniciada_em, enviada_em, nota, duracao_seg, origem, ref_antigo)
@@ -70,12 +91,8 @@ select m.aluno_id,
        public._vazio(i.created_at)::timestamptz,
        public._vazio(i.created_at)::timestamptz,
        round(public._vazio(i.hit_percentage)::numeric)::int,
-       case
-         when public._vazio(i.elapsed_time) ~ '^[0-9]+$'
-           then public._vazio(i.elapsed_time)::int
-         when public._vazio(i.elapsed_time) ~ '^[0-9]+:[0-9]{2}:[0-9]{2}$'
-           then extract(epoch from public._vazio(i.elapsed_time)::interval)::int
-         else null
+       case when public._vazio(i.elapsed_time) ~ '^[0-9]+$'
+            then nullif(public._vazio(i.elapsed_time)::int, 0) * 60
        end,
        'legado',
        i.id
