@@ -181,8 +181,8 @@ select 'trilhas por categoria',
        (select string_agg(categoria_simulado_id||'='||n, ' ' order by n desc)
           from (select categoria_simulado_id, count(*) as n
                   from public.trilhas_do_aluno group by 1) t)::text,
-       'cada categoria >= o numero de 02/10, e a soma das diferencas = quantos vinculos entraram depois',
-       'a REGRA acima, nao o numero exato: o antigo continua recebendo dado. Desvio grande em UMA categoria = mapa de quiz_category_id errado';
+       'cpa-10 17.960 cpa-20 17.213 cea 5.195 ancord 3.239 cnpi-cb 2.306 cnpi-cg1 2.011 cnpi-ct1 1.876 cfg 633',
+       'exato para ESTE arquivo (soma 50.433). Numa reimportacao futura vale a regra: cada categoria >= o numero de 02/10, soma das diferencas = vinculos criados depois. Desvio grande em UMA categoria = mapa de quiz_category_id errado';
 
 -- ---------------------------------------------------------------------------
 -- Referencia por categoria, e por que ela e uma REGRA e nao uma lista fixa.
@@ -192,10 +192,20 @@ select 'trilhas por categoria',
 -- conferencia sai ATE 9 linhas acima, espalhadas pelas trilhas onde esses 9
 -- cairam -- e isso e esperado, nao defeito.
 --
---   cpa-10    17.960        ancord     3.239
---   cpa-20    17.213        cnpi-cb    2.303
---   cea        5.195        cnpi-cg1   2.009
---   cnpi-ct1   1.872        cfg          633
+--   trilha      id antigo   em 02/10   novas   ESPERADO NO ARQUIVO
+--   cpa-10          5         17.960       0        17.960
+--   cpa-20          1         17.213       0        17.213
+--   cea             2          5.195       0         5.195
+--   ancord          6          3.239       0         3.239
+--   cnpi-cb         8          2.303       3         2.306
+--   cnpi-cg1        9          2.009       2         2.011
+--   cnpi-ct1       10          1.872       4         1.876
+--   cfg            11            633       0           633
+--                                                   -------
+--                                                    50.433  = linhas do arquivo
+--
+-- Os 9 vinculos novos caíram todos em CNPI (cb 3, cg1 2, ct1 4). A coluna
+-- ESPERADO e exata para este arquivo: use-a para conferir linha a linha.
 --
 -- Como ler: cada categoria tem de ficar MAIOR OU IGUAL ao numero acima, e a
 -- soma de todas as diferencas tem de ser igual ao numero de vinculos criados
