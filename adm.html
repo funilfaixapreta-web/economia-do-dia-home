@@ -1819,8 +1819,9 @@ function desempenhoHtml(s,d){
   var attRows=(d.tentativas||[]).map(function(a){
     return '<tr class="clk" onclick="location.hash=\'#/aluno/'+a.aluno_id+'\'"><td class="t-title">'+esc(a.nome||'(sem nome)')+'</td>'
          + '<td><span class="mono" style="font-weight:700;color:'+notaColor(a.nota)+'">'+a.nota+'%</span></td>'
-         + '<td class="mono t-sub">'+a.acertos+'/'+a.total+'</td>'
-         + '<td class="t-sub">'+esc(quandoCurto(a.quando))+'</td>'
+         + '<td class="mono t-sub">'+(a.acertos!=null&&a.total!=null?a.acertos+'/'+a.total:'<span style="color:var(--muted)">—</span>')+'</td>'
+         + '<td class="mono t-sub">'+(a.minutos!=null?a.minutos+' min':'—')+'</td>'
+         + '<td class="t-sub">'+esc(quandoCurto(a.quando))+(a.origem==='legado'?' <span class="badge b-draft" title="Veio do sistema antigo">antigo</span>':'')+'</td>'
          + '<td>'+(a.passou?'<span class="yn y">Aprovado</span>':'<span class="yn n">Reprovado</span>')+'</td></tr>';}).join('');
 
   var pior=(d.por_categoria||[])[0];
@@ -1829,12 +1830,15 @@ function desempenhoHtml(s,d){
     +   '<div class="stat"><div class="k">Realizações</div><div class="v">'+d.feitos+'</div><div class="d">provas entregues</div></div>'
     +   '<div class="stat"><div class="k">Média de acertos</div><div class="v" style="color:'+notaColor(d.media)+'">'+d.media+'%</div><div class="d">desempenho médio</div></div>'
     +   '<div class="stat"><div class="k">Taxa de aprovação</div><div class="v" style="color:'+notaColor(d.aprov)+'">'+d.aprov+'%</div><div class="d">corte '+d.corte+'%</div></div>'
+    +   '<div class="stat"><div class="k">Tempo médio</div><div class="v">'
+    +     (d.minutos_medios!=null?d.minutos_medios+'<span style="font-size:15px;color:var(--muted)"> min</span>':'<span style="font-size:15px;color:var(--muted)">—</span>')
+    +     '</div><div class="d">'+(d.minutos_medios!=null?'por prova':'sem tempo registrado')+'</div></div>'
     +   '<div class="stat"><div class="k">Categoria mais errada</div><div class="v" style="font-size:14px;line-height:1.3">'+esc(pior?pior.categoria:'-')+'</div><div class="d">'+(pior?pior.erro+'% de erro':'')+'</div></div>'
     + '</div>'
     + (catRows?'<div class="sec-title" style="font-size:14px">Erros por categoria</div>'
       + '<div class="tblwrap" style="margin-bottom:18px"><table class="tbl"><thead><tr><th>Categoria</th><th>Respondidas</th><th>Taxa de erro</th></tr></thead><tbody>'+catRows+'</tbody></table></div>':'')
     + (attRows?'<div class="sec-title" style="font-size:14px">Últimas tentativas <span class="chip" style="margin-left:auto">'+(d.tentativas||[]).length+'</span></div>'
-      + '<div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Nota</th><th>Acertos</th><th>Quando</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table></div>':'');
+      + '<div class="tblwrap"><table class="tbl"><thead><tr><th>Aluno</th><th>Nota</th><th>Acertos</th><th>Tempo</th><th>Quando</th><th>Status</th></tr></thead><tbody>'+attRows+'</tbody></table></div>':'');
 }
 function quandoCurto(iso){
   if(!iso)return '-';
@@ -2143,6 +2147,7 @@ function viewAluno(id){
   <div class="stat-grid" style="margin-bottom:18px">
     <div class="stat"><div class="k">Provas entregues</div><div class="v">${da?da.feitos:'—'}</div><div class="d">${da?'no banco':'precisa do banco'}</div></div>
     <div class="stat"><div class="k">Média nas provas</div><div class="v" style="${media==null?'font-size:15px;color:var(--muted)':'color:'+notaColor(media)}">${media==null?'—':media+'%'}</div><div class="d">${media==null?'precisa do banco':'acerto médio'}</div></div>
+    <div class="stat"><div class="k">Tempo médio</div><div class="v"${(da&&da.minutos_medios!=null)?'':' style="font-size:15px;color:var(--muted)"'}>${(da&&da.minutos_medios!=null)?da.minutos_medios+'<span style="font-size:15px;color:var(--muted)"> min</span>':'—'}</div><div class="d">por prova</div></div>
     <div class="stat"><div class="k">Plano</div><div class="v" style="font-size:19px">${esc(planName(s.plan))}</div><div class="d">${pl?esc(pl.price):''}</div></div>
   </div>
   <div class="card" style="margin-bottom:18px">
@@ -2172,7 +2177,13 @@ function viewAluno(id){
     </div>
     <div class="card">
       <div class="sec-title">Progresso nos cursos</div>
-      <div class="hint" style="color:var(--muted)">O progresso por curso ainda não é registrado no banco. Aqui havia barras com porcentagem sorteada por aluno.</div>
+      ${(da&&(da.trilhas||[]).length)?`<div class="sec-title" style="font-size:13px;margin-bottom:8px">Trilhas que acompanha</div>
+       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${da.trilhas.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>`:''}
+      ${(da&&(da.historico_assinatura||[]).length)?`<div class="sec-title" style="font-size:13px;margin-bottom:8px">Histórico de assinatura <span class="chip" style="margin-left:auto">${da.historico_assinatura.length}</span></div>
+       <div class="tblwrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th>Plano</th><th>Vencia em</th><th>No sistema antigo</th><th>Registrado</th></tr></thead><tbody>
+       ${da.historico_assinatura.map(h=>`<tr><td class="t-title">${esc(h.plano||'-')}</td><td class="t-sub mono">${h.expira_em?esc(quandoCurto(h.expira_em).slice(0,10)):'—'}</td><td>${h.ativa_no_antigo?'<span class="yn y">ativa</span>':'<span class="yn n">desligada</span>'}</td><td class="t-sub mono">${esc(quandoCurto(h.quando))}</td></tr>`).join('')}
+       </tbody></table></div>`:''}
+      <div class="hint" style="color:var(--muted)">O progresso por curso ainda não é registrado no banco — ninguém marca aula vista. Aqui havia barras com porcentagem sorteada por aluno.</div>
     </div>
   </div>
   <div class="card" style="margin:20px 0">
@@ -2185,8 +2196,8 @@ function viewAluno(id){
     </div>
   </div>
   <div class="sec-title" style="margin:22px 0 14px">Desempenho nos simulados</div>
-  <div class="tblwrap"><table class="tbl"><thead><tr><th>Simulado</th><th>Nota</th><th>Acertos</th><th>Data</th><th>Status</th></tr></thead><tbody>
-    ${desemp.length?desemp.map(x=>`<tr class="clk" onclick="location.hash='#/simulado/${esc(x.simulado_id||'')}'"><td class="t-title">${esc(x.simulado)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(x.nota)}">${x.nota}%</span></td><td class="mono">${x.acertos}/${x.total}</td><td class="t-sub mono">${esc(quandoCurto(x.quando))}</td><td>${x.passou?'<span class="yn y">Aprovado</span>':'<span class="yn n">Reprovado</span>'}</td></tr>`).join(''):`<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:20px">${da?'Este aluno ainda não entregou nenhuma prova.':'Entre no banco (Sistema → Publicar) para ver as provas deste aluno.'}</td></tr>`}
+  <div class="tblwrap"><table class="tbl"><thead><tr><th>Simulado</th><th>Nota</th><th>Acertos</th><th>Tempo</th><th>Quando</th><th>Status</th></tr></thead><tbody>
+    ${desemp.length?desemp.map(x=>`<tr class="clk" onclick="location.hash='#/simulado/${esc(x.simulado_id||'')}'"><td class="t-title">${esc(x.simulado)}</td><td><span style="font-family:'Sora';font-weight:700;color:${notaColor(x.nota)}">${x.nota}%</span></td><td class="mono">${(x.acertos!=null&&x.total!=null)?x.acertos+'/'+x.total:'<span style="color:var(--muted)">—</span>'}</td><td class="mono t-sub">${x.minutos!=null?x.minutos+' min':'—'}</td><td class="t-sub mono">${esc(quandoCurto(x.quando))}${x.origem==='legado'?' <span class="badge b-draft" title="Veio do sistema antigo">antigo</span>':''}</td><td>${x.passou?'<span class="yn y">Aprovado</span>':'<span class="yn n">Reprovado</span>'}</td></tr>`).join(''):`<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:20px">${da?'Este aluno ainda não entregou nenhuma prova.':'Entre no banco (Sistema → Publicar) para ver as provas deste aluno.'}</td></tr>`}
   </tbody></table></div>
   <div class="sec-title" style="margin:22px 0 14px">Pagamentos</div>
   <div class="tblwrap"><table class="tbl"><thead><tr><th>Data</th><th>Plano</th><th>Valor</th><th>Status</th></tr></thead><tbody>
