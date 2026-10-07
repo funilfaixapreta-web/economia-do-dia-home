@@ -1224,6 +1224,7 @@ function router(){
   if(r==='perguntas')sincronizarPerguntas();
   if(r==='usuarios'||r==='alunos')sincronizarUsuarios();
   if(r==='imagens'||r==='paginas'||r==='artigos')sincronizarSite();
+  if(r==='venda')carregarAssinaturas();
   if(r==='perfil')perfilCarregar();
   if(r==='editorfotos')peInit();
   if(aiOpened)aiUpdateCtx();
@@ -2950,41 +2951,99 @@ function confirmarPagamento(id,metodo){
   }).catch(function(e){toast('Erro: '+(e&&e.message||''),'err');});
 }
 
+/* ------------------------------------------------- Assinaturas (real) -----
+   Esta tela inteira era inventada: "Receita recorrente", "Vendas hoje R$
+   2.264", "Ticket médio R$ 231", "Inadimplência 4", "Reembolsos 2", cinco
+   transacoes com nome e metodo de pagamento, tres cupons e um grafico de
+   receita por plano. Nada disso existia no banco.
+
+   Agora vem de painel_assinaturas(). E preciso dizer o que o dado NAO
+   sustenta, senao a tela mente de outro jeito:
+
+   - O sistema antigo nao tem registro de pagamento: nao ha valor pago, nem
+     metodo, nem fatura, nem status de cobranca. Logo nao existe
+     "inadimplencia" no sentido de divida. O que existe e assinatura vencida e
+     nao renovada, que e rotatividade, nao debito. Chamar essas pessoas de
+     inadimplentes seria acusa-las de algo que o dado nao diz -- e se a lista
+     virar cobranca, cobraria quem nao deve.
+   - subscription_log e log de MUDANCA DE ESTADO, nao de venda: 2.625 eventos
+     em 1.410 assinaturas, e uma delas tem 56 eventos. Por isso cada linha vem
+     marcada como "nova" (primeiro evento da assinatura) ou "renovação".
+   - Valor e sempre o preco de TABELA do plano, nunca o pago. Somar plano de 24
+     meses com plano mensal da ordem de grandeza, nao faturamento -- e esta
+     escrito na tela. */
+var ASSIN=undefined;
+function carregarAssinaturas(){
+  if(ASSIN!==undefined)return;
+  ASSIN=null;
+  esperaPublicar('painelAssinaturas', function(){
+    EDPublicar.painelAssinaturas().then(function(r){
+      ASSIN=(r&&r.ok)?r:{erro:(r&&r.motivo)||'sem resposta'};
+      if((location.hash||'').indexOf('#/venda')===0)router();
+    }).catch(function(e){
+      ASSIN={erro:(e&&e.message)||'erro'};
+      if((location.hash||'').indexOf('#/venda')===0)router();
+    });
+  }, function(m){ ASSIN={erro:m}; router(); });
+}
+function brl(c){
+  if(c==null)return '—';
+  return 'R$ '+(c/100).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
 function viewVenda(){
-  const trans=[
-    {data:'20/07 15:40',nome:'Lucas Prado',plano:'Completo',valor:'R$ 197',metodo:'Cartão',status:'Pago'},
-    {data:'20/07 12:18',nome:'Ana Beatriz',plano:'Essencial',valor:'R$ 97',metodo:'Pix',status:'Pago'},
-    {data:'20/07 10:05',nome:'Carlos Menezes',plano:'Anual',valor:'R$ 1.970',metodo:'Cartão',status:'Pago'},
-    {data:'19/07 18:22',nome:'Diego Ramos',plano:'Completo',valor:'R$ 197',metodo:'Boleto',status:'Pendente'},
-    {data:'19/07 09:10',nome:'Renata Souza',plano:'Completo',valor:'R$ 197',metodo:'Cartão',status:'Reembolsado'}
-  ];
-  const cupons=[
-    {code:'BEMVINDO10',desc:'10% na primeira compra',usos:142,status:'ativo'},
-    {code:'RETAFINAL',desc:'R$ 50 no plano anual',usos:38,status:'ativo'},
-    {code:'BLACK2025',desc:'30% Black Friday',usos:0,status:'inativo'}
-  ];
-  const receita=[['Essencial',3200],['Completo',7800],['Anual',5900]];
-  const sb=st=>st==='Pago'?'<span class="badge b-on">Pago</span>':(st==='Pendente'?'<span class="badge b-draft">Pendente</span>':'<span class="badge b-off">Reembolsado</span>');
-  return `
-  <div class="page-head"><div class="ph-l"><div class="eyebrow">Venda · Financeiro</div><h1>Venda</h1><p>Assinaturas, transações, receita, cupons e inadimplência.</p></div>
-    <div class="ph-actions"><button class="btn btn-ghost" onclick="toast('Exportação completa disponível com backend.')">Exportar</button><button class="btn btn-gold" onclick="location.hash='#/planos'">Gerenciar planos</button></div></div>
+  carregarAssinaturas();
+  const d=(ASSIN&&!ASSIN.erro)?ASSIN:null;
+  const r=d?d.resumo:null;
+  const cab=`
+  <div class="page-head"><div class="ph-l"><div class="eyebrow">Venda · Assinaturas</div><h1>Assinaturas</h1>
+    <p>Quem tem acesso válido, quem está prestes a vencer, quem venceu e não renovou, e o histórico de assinaturas vindo do sistema antigo.</p></div>
+    <div class="ph-actions"><button class="btn btn-ghost btn-sm" onclick="ASSIN=undefined;carregarAssinaturas();toast('Buscando no banco…')">Atualizar</button></div></div>`;
+
+  if(!d) return cab + `<div class="card">${semBanco(
+    (ASSIN&&ASSIN.erro)?('Não deu para ler as assinaturas: '+ASSIN.erro)
+                       :'Lendo as assinaturas no banco…')}</div>`;
+
+  const vencendo=(d.vencendo||[]), vencidos=(d.vencidos||[]),
+        trans=(d.transacoes||[]), porPlano=(d.por_plano||[]),
+        meses=(d.assinaturas_por_mes||[]).slice(-12);
+
+  return cab + `
   <div class="stat-grid">
-    <div class="stat"><div class="k">Receita recorrente</div><div class="v" style="font-size:22px">R$ 12.4k</div><div class="d">MRR estimado</div></div>
-    <div class="stat"><div class="k">Assinantes ativos</div><div class="v">${db.students.filter(s=>s.status==='ativo').length}</div><div class="d">pagantes</div></div>
-    <div class="stat"><div class="k">Vendas hoje</div><div class="v">3</div><div class="d">R$ 2.264</div></div>
-    <div class="stat"><div class="k">Ticket médio</div><div class="v" style="font-size:22px">R$ 231</div><div class="d">por assinatura</div></div>
-    <div class="stat"><div class="k">Inadimplência</div><div class="v" style="color:var(--amber)">4,2%</div><div class="d">boletos vencidos</div></div>
-    <div class="stat"><div class="k">Reembolsos</div><div class="v">2</div><div class="d">este mês</div></div>
+    <div class="stat"><div class="k">Assinaturas válidas</div><div class="v">${r.ativas}</div><div class="d">${r.alunos_com_acesso} aluno(s) com acesso</div></div>
+    <div class="stat"><div class="k">Vencem em 30 dias</div><div class="v" style="color:${r.vence_em_30>0?'var(--amber,#E8A33D)':'var(--text)'}">${r.vence_em_30}</div><div class="d">renovação a puxar</div></div>
+    <div class="stat"><div class="k">Venceram e não renovaram</div><div class="v">${r.vencidas_sem_renovar}</div><div class="d">alunos, desde 2019</div></div>
+    <div class="stat"><div class="k">Valor de tabela vigente</div><div class="v" style="font-size:20px">${brl(r.valor_tabela_vigente_centavos)}</div><div class="d">preço de lista, não faturamento</div></div>
+    <div class="stat"><div class="k">Assinaturas no histórico</div><div class="v">${r.assinaturas_no_historico}</div><div class="d">${r.eventos_no_historico} eventos</div></div>
+    <div class="stat"><div class="k">Pagamentos no sistema novo</div><div class="v">${r.pagamentos_no_sistema_novo}</div><div class="d">${r.pedidos_no_sistema_novo} pedido(s) no carrinho</div></div>
   </div>
+
+  <div class="infobox" style="margin-bottom:18px">O sistema antigo <b>não guardava registro de pagamento</b> — não há valor pago, método, fatura nem status de cobrança. Por isso não existe aqui uma lista de inadimplência: o que existe é <b>assinatura vencida e não renovada</b>, que é rotatividade e não dívida. Todo valor mostrado é o <b>preço de tabela</b> do plano, nunca o que foi pago.</div>
+
   <div class="card siteblock" id="pedidoscard">${viewPedidos()}</div>
-  <div class="sec-title" style="margin-top:6px">Transações recentes <span class="t-sub" style="font-weight:400">· dados de exemplo</span></div>
-  <div class="tblwrap"><table class="tbl"><thead><tr><th>Data</th><th>Cliente</th><th>Plano</th><th>Valor</th><th>Método</th><th>Status</th></tr></thead><tbody>
-    ${trans.map(t=>`<tr><td class="t-sub mono">${esc(t.data)}</td><td class="t-title">${esc(t.nome)}</td><td><span class="chip">${esc(t.plano)}</span></td><td style="font-weight:600">${esc(t.valor)}</td><td class="t-sub">${esc(t.metodo)}</td><td>${sb(t.status)}</td></tr>`).join('')}
-  </tbody></table></div>
-  <div class="grid2" style="margin-top:22px">
-    <div class="card"><div class="sec-title">Receita por plano (mês)</div>${barChart(receita,v=>'R$ '+v.toLocaleString('pt-BR'))}</div>
-    <div class="card"><div class="sec-title">Cupons de desconto <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="toast('Criação de cupom disponível com backend.')">+ Cupom</button></div>
-      ${cupons.map(c=>`<div class="lrow" style="border-radius:10px"><div class="lt" style="cursor:default"><div class="ltt mono">${esc(c.code)}</div><div class="lts"><span>${esc(c.desc)} · ${c.usos} usos</span></div></div>${c.status==='ativo'?'<span class="badge b-on">Ativo</span>':'<span class="badge b-off">Inativo</span>'}</div>`).join('')}
+
+  <div class="sec-title" style="margin-top:6px">Vencem nos próximos 60 dias <span class="chip" style="margin-left:auto">${vencendo.length}</span></div>
+  ${vencendo.length?`<div class="tblwrap" style="margin-bottom:22px"><table class="tbl"><thead><tr><th>Aluno</th><th>E-mail</th><th>Plano</th><th>Vence em</th><th>Faltam</th></tr></thead><tbody>
+    ${vencendo.map(x=>`<tr class="clk" onclick="location.hash='#/aluno/${x.aluno_id}'"><td class="t-title">${esc(x.nome||'(sem nome)')}</td><td class="t-sub mono">${esc(x.email||'')}</td><td class="t-sub">${esc(x.plano)}</td><td class="t-sub mono">${esc(quandoCurto(x.expira_em).slice(0,10))}</td><td><span class="badge ${x.dias<=15?'b-draft':''}" style="${x.dias<=15?'color:var(--red);border-color:var(--red)':''}">${x.dias} dia(s)</span></td></tr>`).join('')}
+  </tbody></table></div>`:`<div class="card" style="margin-bottom:22px">${semBanco('Nenhuma assinatura vence nos próximos 60 dias.')}</div>`}
+
+  <div class="sec-title">Venceram e não renovaram <span class="t-sub" style="font-weight:400;margin-left:8px">as ${vencidos.length} mais recentes de ${r.vencidas_sem_renovar}</span></div>
+  ${vencidos.length?`<div class="tblwrap" style="margin-bottom:22px"><table class="tbl"><thead><tr><th>Aluno</th><th>E-mail</th><th>Último plano</th><th>Venceu em</th><th>Há</th><th>Valor de tabela</th></tr></thead><tbody>
+    ${vencidos.map(x=>`<tr class="clk" onclick="location.hash='#/aluno/${x.aluno_id}'"><td class="t-title">${esc(x.nome||'(sem nome)')}</td><td class="t-sub mono">${esc(x.email||'')}</td><td class="t-sub">${esc(x.plano)}</td><td class="t-sub mono">${esc(quandoCurto(x.expirou_em).slice(0,10))}</td><td class="t-sub">${x.dias} dia(s)</td><td class="mono t-sub">${brl(x.valor_centavos)}</td></tr>`).join('')}
+  </tbody></table></div>`:`<div class="card" style="margin-bottom:22px">${semBanco('Ninguém com assinatura vencida sem renovação.')}</div>`}
+
+  <div class="sec-title">Transações recentes <span class="t-sub" style="font-weight:400;margin-left:8px">eventos de assinatura do sistema antigo</span></div>
+  ${trans.length?`<div class="tblwrap" style="margin-bottom:22px"><table class="tbl"><thead><tr><th>Quando</th><th>Aluno</th><th>Plano</th><th>Tipo</th><th>Vale até</th><th>Valor de tabela</th></tr></thead><tbody>
+    ${trans.map(t=>`<tr${t.aluno_id?` class="clk" onclick="location.hash='#/aluno/${t.aluno_id}'"`:''}><td class="t-sub mono">${esc(quandoCurto(t.quando))}</td><td class="t-title">${esc(t.nome)}</td><td class="t-sub">${esc(t.plano)}</td><td>${t.primeira?'<span class="badge b-on">nova</span>':'<span class="badge">renovação</span>'}${t.ativa?'':' <span class="badge b-draft" title="Estava desligada no sistema antigo">desligada</span>'}</td><td class="t-sub mono">${t.expira_em?esc(quandoCurto(t.expira_em).slice(0,10)):'—'}</td><td class="mono t-sub">${brl(t.preco_centavos)}</td></tr>`).join('')}
+  </tbody></table></div>`:`<div class="card" style="margin-bottom:22px">${semBanco('Nenhum evento de assinatura no histórico.')}</div>`}
+
+  <div class="grid2" style="margin-top:4px">
+    <div class="card"><div class="sec-title">Assinaturas válidas por plano</div>
+      ${porPlano.length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Plano</th><th>Válidas</th><th>Preço</th><th>Validade</th></tr></thead><tbody>
+        ${porPlano.map(x=>`<tr><td class="t-title">${esc(x.plano)}</td><td class="mono">${x.ativas}</td><td class="mono t-sub">${brl(x.preco_centavos)}</td><td class="t-sub">${x.validade_meses?x.validade_meses+' mês(es)':'—'}</td></tr>`).join('')}
+      </tbody></table></div>`:semBanco('Nenhuma assinatura válida.')}
+    </div>
+    <div class="card"><div class="sec-title">Assinaturas novas por mês <span class="t-sub" style="font-weight:400;margin-left:8px">últimos 12</span></div>
+      ${meses.length?barChart(meses.map(m=>[m.mes.slice(2),m.novas]),v=>v+' nova(s)'):semBanco('Sem histórico.')}
     </div>
   </div>`;
 }

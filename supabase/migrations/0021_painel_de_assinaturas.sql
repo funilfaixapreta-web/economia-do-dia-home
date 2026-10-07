@@ -1,0 +1,35 @@
+-- 0021 — a aba Assinaturas passa a mostrar dado real
+--
+-- A tela inteira era inventada: "Receita recorrente", "Vendas hoje R$ 2.264",
+-- "Ticket médio R$ 231", "Inadimplência 4", "Reembolsos 2", cinco transacoes
+-- com nome e metodo de pagamento, tres cupons de desconto e um grafico de
+-- receita por plano. Nada existia no banco. Perguntaram "quem sao os
+-- inadimplentes?" -- e o numero 4 na tela era fixo no codigo.
+--
+-- painel_assinaturas() devolve o que existe, e a tela diz o que NAO existe:
+--
+-- 1. O sistema antigo nao guardava registro de pagamento. Nao ha valor pago,
+--    metodo, fatura nem status de cobranca. Logo nao existe inadimplencia no
+--    sentido de divida. O que existe e assinatura vencida e nao renovada, que
+--    e rotatividade. Chamar essas 1.096 pessoas de inadimplentes seria
+--    acusa-las de algo que o dado nao diz, e se a lista virasse cobranca
+--    cobraria quem nao deve.
+--
+-- 2. subscription_log e log de MUDANCA DE ESTADO, nao de venda: 2.625 eventos
+--    em 1.410 assinaturas, uma delas com 56 eventos. Por isso cada transacao
+--    vem marcada "nova" (primeiro evento da assinatura) ou "renovação".
+--
+-- 3. Todo valor e preco de TABELA do plano, nunca o pago. A soma mistura plano
+--    de 24 meses com plano mensal, entao serve de ordem de grandeza e esta
+--    rotulada assim na tela, nao como faturamento.
+--
+-- O que a tela mostra: validas e alunos com acesso, vencem em 30 dias, quem
+-- vence nos proximos 60 (com nome, e-mail e dias restantes -- a lista que da
+-- para agir), quem venceu e nao renovou, transacoes recentes, validas por
+-- plano e assinaturas novas por mes.
+--
+-- Conferido com JWT real: aluno comum barrado (42501), admin responde, e os
+-- limites de linha respeitados em todas as listas.
+--
+-- Corpo completo: ver o aplicado no banco. SECURITY DEFINER, search_path fixo,
+-- eh_admin() por dentro, grant so para authenticated.

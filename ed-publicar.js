@@ -629,8 +629,17 @@
       .then(function(l){ return (l&&l[0]&&l[0].conteudo)||''; });
   }
 
+  function painelAssinaturas(){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+    return EDApi.rpc('painel_assinaturas',{p_limite:60});
+  }
+
   window.EDPublicar={
     baixarSite:baixarSite, conteudoDaPagina:conteudoDaPagina,
+    painelAssinaturas:painelAssinaturas,
     resumo:resumo, pacote:montarPacote, publicar:publicar,
     entrar:entrar, conta:conta, baixar:baixar, baixarAlunos:baixarAlunos,
     baixarQuestoes:baixarQuestoes,
