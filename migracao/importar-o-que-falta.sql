@@ -217,12 +217,29 @@ select 'trilhas por categoria',
 -- confiar nos numeros acima, porque eles envelhecem a cada cadastro novo.
 -- ---------------------------------------------------------------------------
 
--- Depois que isto fechar, estas podem ser apagadas pelo SQL Editor do painel:
---   truncate public._imp_quiz_user;
---   truncate public._imp_subscription_log;
---   truncate public._imp_user_quiz_category;
---   drop table public._imp_quiz_user, public._imp_subscription_log, public._imp_user_quiz_category;
--- e, so depois, as da migracao 0015 (_legacy_raw, _legacy_map, _legacy_urls).
+-- ---------------------------------------------------------------------------
+-- ORDEM PARA APAGAR AS TABELAS DE TRABALHO
+--
+-- AGORA, assim que as conferencias fecharem. Sao descartaveis: na virada se
+-- recria a partir de um export novo.
+--   drop table public._imp_quiz_user;
+--   drop table public._imp_subscription_log;
+--   drop table public._imp_user_quiz_category;
+--
+-- DEPOIS DA VIRADA, com o delta importado e conferido:
+--   drop table public._legacy_raw;
+--   drop table public._legacy_map;
+--   drop table public._legacy_urls;
+--
+-- Por que esperar nestas tres: o delta ainda precisa do mapa de categoria, da
+-- ponte do aluno 11338 e do cadastro dos alunos 66036+. O conteudo do
+-- _legacy_map ja esta salvo em migracao/mapa-de-ids-do-sistema-antigo.sql,
+-- entao nada se perde se ela for apagada por acidente -- mas apagar de
+-- proposito antes da virada so cria trabalho.
+--
+-- NUNCA: tentativas, matriculas_historico, trilhas_do_aluno, _mapa_aluno,
+-- imagens. Nessas o dado nao tem de onde voltar.
+-- ---------------------------------------------------------------------------
 
 -- ===========================================================================
 -- RESULTADO — rodado em 07/10/2026
