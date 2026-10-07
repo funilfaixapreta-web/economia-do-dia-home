@@ -1606,14 +1606,25 @@ function toggleSimActive(id){const s=db.simulados.find(x=>x.id===id);if(!s)retur
    estiver faltando. Nunca sobrescreve o que ja esta aqui: o painel e a copia
    de trabalho, e um download nao pode jogar fora a edicao em andamento.
 
-   Roda uma vez por sessao (ou quando se clica em "Buscar no banco"), porque
-   sao quatro leituras e nao faz sentido repetir a cada clique no menu.      */
-var _SIMS_SINCRONIZADOS=false;
+   Atualiza sozinho. Antes rodava uma vez por sessao e deixava um botao
+   um botao de buscar na tela -- o que obrigava quem administra a desconfiar do
+   que estava vendo e clicar para ter certeza. Agora cada aba tem validade
+   curta: ao abrir, se a ultima leitura passou de VALIDADE_SINC segundos, le de
+   novo; se nao passou, mostra o que ja tem sem bater no banco de novo.
+
+   Nao e a cada clique no menu porque sao varias leituras por aba, e ir e
+   voltar entre duas telas em segundos nao muda nada no banco.               */
+var VALIDADE_SINC=45000;
+var _SINC={};
+function precisaSincronizar(chave){
+  var t=_SINC[chave];
+  return !t || (Date.now()-t) > VALIDADE_SINC;
+}
+function marcaSincronizado(chave){ _SINC[chave]=Date.now(); }
 
 /* Imagens, paginas e tags do site antigo vivem no banco e as tres abas liam
    so a copia local. Mesmo padrao dos outros sincronizadores: um aviso na
    propria aba, e um botao para buscar. */
-var _SITE_SINCRONIZADO=false;
 function sincronizarSite(forcar){
   /* ed-publicar.js carrega depois deste arquivo, entao na primeira passada
      EDPublicar ainda nao existe. Desistir ali deixava a aba em branco para
@@ -1629,14 +1640,13 @@ function sincronizarSite(forcar){
       +'<a href="#/sistema" style="color:var(--gold-deep)">Entre no banco</a> para ver o que veio do site antigo.</span>';
     return;
   }
-  if(_SITE_SINCRONIZADO&&!forcar){
-    if(el)el.innerHTML='<span style="color:var(--muted)">Mostrando o que está no banco. '
-      +'<button class="btn btn-ghost btn-sm" onclick="sincronizarSite(true)">Buscar de novo</button></span>';
+  if(!precisaSincronizar('site')&&!forcar){
+    if(el)el.innerHTML='';
     return;
   }
   if(el)el.innerHTML='<span style="color:var(--muted)">Procurando no banco…</span>';
   EDPublicar.baixarSite().then(function(n){
-    _SITE_SINCRONIZADO=true;
+    marcaSincronizado('site');
     toast(n.imagens+' imagem(ns), '+n.paginas+' página(s) e '+n.tags+' tag(s) vindas do banco.');
     router();
   }).catch(function(e){
@@ -1667,14 +1677,14 @@ function sincronizarSimulados(forcar){
       +'<a href="#/sistema" style="color:var(--gold-deep)">Entre no banco</a> para ver todos.</span>';
     return;
   }
-  if(_SIMS_SINCRONIZADOS&&!forcar){
-    if(el)el.innerHTML=btnBuscarNoBanco('Mostrando todos os simulados do banco.');
+  if(!precisaSincronizar('simulados')&&!forcar){
+    if(el)el.innerHTML='';
     return;
   }
   if(el)el.innerHTML='<span style="color:var(--muted)">Procurando no banco…</span>';
 
   EDPublicar.baixar().then(function(r){
-    _SIMS_SINCRONIZADOS=true;
+    marcaSincronizado('simulados');
     if(r.novos||r.recompostos){
       toast([r.novos?r.novos+' simulado(s) que estavam só no banco entraram na lista.':'',
              r.recompostos?r.recompostos+' tiveram a composição atualizada pelo banco.':'']
@@ -1682,16 +1692,15 @@ function sincronizarSimulados(forcar){
       router(); return;
     }
     var e=$('#sim-sinc');
-    if(e)e.innerHTML=btnBuscarNoBanco('Tudo em dia — os '+r.totalNoBanco+' simulados do banco já estão aqui.');
+    if(e)e.innerHTML='';
   }).catch(function(err){
     var e=$('#sim-sinc'); if(!e)return;
     e.innerHTML='<span style="color:var(--red)">Não deu para ler o banco: '+esc((err&&err.message)||'erro')+'</span> '
-      +btnBuscarNoBanco('');
+      +'. Tentando de novo ao reabrir a aba.</span>';
   });
 }
 /* Perguntas: mesma ideia dos simulados. Em maquina nova o painel so tinha as
    5 de exemplo; as 5 mil do banco nao apareciam. Traz o que falta. */
-var _PERGS_SINCRONIZADAS=false;
 function sincronizarPerguntas(forcar){
   var el=$('#perg-sinc');
   if(!window.EDPublicar||!EDPublicar.baixarQuestoes){if(el)el.innerHTML='';return;}
@@ -1701,34 +1710,28 @@ function sincronizarPerguntas(forcar){
       +'<a href="#/sistema" style="color:var(--gold-deep)">Entre no banco</a> para ver todas.</span>';
     return;
   }
-  if(_PERGS_SINCRONIZADAS&&!forcar){
-    if(el)el.innerHTML=btnBuscarPerguntas('Mostrando todas as perguntas do banco.');
+  if(!precisaSincronizar('perguntas')&&!forcar){
+    if(el)el.innerHTML='';
     return;
   }
   if(el)el.innerHTML='<span style="color:var(--muted)">Procurando perguntas no banco…</span>';
   EDPublicar.baixarQuestoes().then(function(r){
-    _PERGS_SINCRONIZADAS=true;
+    marcaSincronizado('perguntas');
     if(r.novas||r.completadas){
       toast((r.novas?r.novas+' pergunta(s) do banco entraram na lista. ':'')
            +(r.completadas?r.completadas+' completada(s) com áudio/comentário do banco.':''));
       router(); return;
     }
     var e=$('#perg-sinc');
-    if(e)e.innerHTML=btnBuscarPerguntas('Tudo em dia — as '+r.totalNoBanco+' perguntas do banco já estão aqui.');
+    if(e)e.innerHTML='';
   }).catch(function(err){
     var e=$('#perg-sinc'); if(!e)return;
-    e.innerHTML='<span style="color:var(--red)">Não deu para ler o banco: '+esc((err&&err.message)||'erro')+'</span> '
-      +btnBuscarPerguntas('');
+    e.innerHTML='<span style="color:var(--red)">Não deu para ler o banco: '+esc((err&&err.message)||'erro')
+      +'. Tentando de novo ao reabrir a aba.</span>';
   });
 }
-function btnBuscarPerguntas(texto){
-  return (texto?'<span style="color:var(--muted)">'+texto+'</span> ':'')
-    +'<button class="btn btn-ghost btn-sm" style="margin-left:6px" onclick="sincronizarPerguntas(true)">Buscar no banco</button>';
-}
-function btnBuscarNoBanco(texto){
-  return (texto?'<span style="color:var(--muted)">'+texto+'</span> ':'')
-    +'<button class="btn btn-ghost btn-sm" style="margin-left:6px" onclick="sincronizarSimulados(true)">Buscar no banco</button>';
-}
+
+
 
 function viewSimulados(){
   if(ensureNids(db.simulados))save();
@@ -2064,7 +2067,6 @@ function viewTrilha(id){
    entao nao ha trabalho local a preservar -- e manter nome de exemplo ao lado
    de cliente de verdade e pior do que inutil: alguem acabaria "editando" a
    Mariana Alves, que nunca existiu.                                        */
-var _USRS_SINCRONIZADOS=false;
 
 function sincronizarUsuarios(forcar){
   var el=$('#usr-sinc');
@@ -2073,27 +2075,23 @@ function sincronizarUsuarios(forcar){
     if(el)el.innerHTML='<span style="color:var(--red)">Sem conexão com o banco — esta lista é de exemplo, não são pessoas de verdade.</span>';
     return;
   }
-  if(_USRS_SINCRONIZADOS&&!forcar){
-    if(el)el.innerHTML=btnUsuarios('Mostrando os usuários do banco.');
+  if(!precisaSincronizar('usuarios')&&!forcar){
     return;
   }
   if(el)el.innerHTML='<span style="color:var(--muted)">Buscando os usuários no banco…</span>';
 
   EDPublicar.baixarAlunos().then(function(r){
-    _USRS_SINCRONIZADOS=true;
+    marcaSincronizado('usuarios');
     router();
     var e=$('#usr-sinc');
-    if(e)e.innerHTML=btnUsuarios(r.total+' usuário(s) no banco · '+r.admins+' com acesso ao painel.');
+    if(e)e.innerHTML='<span style="color:var(--muted)">'+r.total+' usuário(s) no banco · '+r.admins+' com acesso ao painel.</span>';
   }).catch(function(err){
     var e=$('#usr-sinc'); if(!e)return;
     e.innerHTML='<span style="color:var(--red)">Não deu para ler os usuários: '+esc((err&&err.message)||'erro')
-      +'</span> '+btnUsuarios('');
+      +'. Tentando de novo ao reabrir a aba.</span>';
   });
 }
-function btnUsuarios(texto){
-  return (texto?'<span style="color:var(--muted)">'+texto+'</span> ':'')
-    +'<button class="btn btn-ghost btn-sm" style="margin-left:6px" onclick="sincronizarUsuarios(true)">Atualizar do banco</button>';
-}
+
 
 /* Era o numero 6, escrito na mao no HTML: nao mudava nunca, nem quando o dia
    virava nem quando nao entrava ninguem. */
@@ -2907,8 +2905,8 @@ function viewPedidos(){
   var faturado = lista.filter(function(p){return p.status==='pago';})
                       .reduce(function(s,p){return s+(+p.total_centavos||0);},0);
 
-  var cab='<div class="sec-title">Pedidos <span class="t-sub" style="font-weight:400">· '+fonte+'</span>'
-    +'<button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="carregarPedidos()">Atualizar do banco</button></div>';
+  carregarPedidos();
+  var cab='<div class="sec-title">Pedidos <span class="t-sub" style="font-weight:400">· '+fonte+'</span></div>';
 
   if(!lista.length)
     return cab+'<p class="hint" style="margin-top:0">Nenhum pedido ainda. Quando alguém fechar uma compra no site, ela aparece aqui.</p>';
@@ -2935,13 +2933,17 @@ function viewPedidos(){
     +(PEDIDOS_BANCO?'':'<p class="hint">Estes pedidos foram registrados neste navegador porque a ponte com o banco está desligada. Ligue a ponte para receber os pedidos de todos os clientes.</p>');
 }
 function repintaPedidos(){var el=$('#pedidoscard');if(el)el.innerHTML=viewPedidos();}
-function carregarPedidos(){
-  if(!window.EDApi||!EDApi.sessao()){toast('Entre no banco primeiro (Sistema → Publicar).','err');return;}
+/* atualiza sozinho, com a mesma validade das outras abas. Antes dependia de um
+   botao "Atualizar do banco" e avisava com um toast a cada leitura -- barulho
+   para quem so queria ver a tela. */
+function carregarPedidos(forcar){
+  if(!window.EDApi||!EDApi.sessao())return;
+  if(!precisaSincronizar('pedidos')&&!forcar)return;
+  marcaSincronizado('pedidos');
   EDApi.rpc('pedidos_admin',{}).then(function(l){
     PEDIDOS_BANCO=Array.isArray(l)?l:(l&&l.pedidos)||[];
-    toast(PEDIDOS_BANCO.length+' pedido(s) carregado(s).');
     repintaPedidos();
-  }).catch(function(e){toast('Não deu para carregar: '+(e&&e.message||'erro'),'err');});
+  }).catch(function(){ /* a tela segue mostrando o que tem; tenta de novo ao reabrir */ });
 }
 function confirmarPagamento(id,metodo){
   if(!confirm('Confirmar o pagamento deste pedido? O acesso aos cursos é liberado na hora.'))return;
@@ -2974,8 +2976,11 @@ function confirmarPagamento(id,metodo){
      escrito na tela. */
 var ASSIN=undefined;
 function carregarAssinaturas(){
-  if(ASSIN!==undefined)return;
+  /* atualiza sozinho: se a ultima leitura passou da validade, le de novo */
+  if(ASSIN!==undefined && !precisaSincronizar('assinaturas'))return;
+  if(ASSIN===null)return;                       /* leitura em andamento */
   ASSIN=null;
+  marcaSincronizado('assinaturas');
   esperaPublicar('painelAssinaturas', function(){
     EDPublicar.painelAssinaturas().then(function(r){
       ASSIN=(r&&r.ok)?r:{erro:(r&&r.motivo)||'sem resposta'};
@@ -2997,7 +3002,7 @@ function viewVenda(){
   const cab=`
   <div class="page-head"><div class="ph-l"><div class="eyebrow">Venda · Assinaturas</div><h1>Assinaturas</h1>
     <p>Quem tem acesso válido, quem está prestes a vencer, quem venceu e não renovou, e o histórico de assinaturas vindo do sistema antigo.</p></div>
-    <div class="ph-actions"><button class="btn btn-ghost btn-sm" onclick="ASSIN=undefined;carregarAssinaturas();toast('Buscando no banco…')">Atualizar</button></div></div>`;
+    </div>`;
 
   if(!d) return cab + `<div class="card">${semBanco(
     (ASSIN&&ASSIN.erro)?('Não deu para ler as assinaturas: '+ASSIN.erro)
