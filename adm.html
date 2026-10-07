@@ -1108,7 +1108,13 @@ function conferirAcesso(){
     /* erro de credencial derruba; queda de rede nao expulsa quem ja estava
        trabalhando -- ela so nao deixa ninguem novo entrar */
     if(err&&err.rede)return;
-    logout();msgLogin('Não deu para confirmar seu acesso. Entre de novo.',true);
+    /* sessao expirada tem nome proprio: dizer "nao deu para confirmar seu
+       acesso" soa como problema de permissao e assusta sem motivo */
+    var expirou=(window.EDApi&&EDApi.ehSessaoExpirada&&EDApi.ehSessaoExpirada(err))
+             || ehErroDeSessao(err&&err.message);
+    logout();
+    msgLogin(expirou?'Sua sessão expirou. Entre de novo para continuar.'
+                    :'Não deu para confirmar seu acesso. Entre de novo.',true);
   });
 }
 function showApp(){$('#login').style.display='none';$('#shell').hidden=false;applySideState();router();pintarUsuarioDoBanco();}
@@ -1256,6 +1262,30 @@ function pedeAtividade(){
 }
 function semBanco(msg){
   return '<div class="hint" style="color:var(--muted)">'+esc(msg)+'</div>';
+}
+
+/* ---------------------------------------------------------------------------
+   SESSAO EXPIRADA x BANCO FORA
+   O token de acesso do Supabase dura 1 hora. Quem deixa o painel aberto
+   trabalhando passava a ver, de hora em hora, "Nao deu para ler as
+   assinaturas: JWT expired" -- uma mensagem que joga a culpa no banco e nao
+   diz o que fazer. O ed-api.js agora renova o token sozinho, mas quando o
+   refresh_token tambem morre a sessao acabou de verdade, e aí a resposta
+   certa e pedir login, nao mostrar o erro tecnico.
+   --------------------------------------------------------------------------- */
+function ehErroDeSessao(msg){
+  return /jwt expired|sessao-expirada|sessão expirou|invalid.*jwt|bad_jwt|sem-refresh-token/i.test(String(msg||''));
+}
+function avisoDeSessao(){
+  return '<div class="hint" style="color:var(--amber);line-height:1.6">Sua sessão expirou. '
+       + '<a href="login.html?next='+encodeURIComponent('adm.html'+location.hash)+'" '
+       + 'style="color:var(--gold-deep);text-decoration:underline">Entre de novo</a> '
+       + 'para continuar de onde parou — nada do que você salvou foi perdido.</div>';
+}
+/* usar em todo lugar que hoje imprime o erro cru */
+function erroDeLeitura(oque, msg){
+  if(ehErroDeSessao(msg))return avisoDeSessao();
+  return '<div class="hint" style="color:var(--red)">Não deu para ler '+esc(oque)+': '+esc(String(msg||'erro'))+'</div>';
 }
 function viewDashboard(){
   carregarAtividade();
@@ -1695,7 +1725,7 @@ function sincronizarSimulados(forcar){
     if(e)e.innerHTML='';
   }).catch(function(err){
     var e=$('#sim-sinc'); if(!e)return;
-    e.innerHTML='<span style="color:var(--red)">Não deu para ler o banco: '+esc((err&&err.message)||'erro')+'</span> '
+    e.innerHTML=erroDeLeitura('o banco',(err&&err.message))+' '
       +'. Tentando de novo ao reabrir a aba.</span>';
   });
 }
@@ -1726,7 +1756,7 @@ function sincronizarPerguntas(forcar){
     if(e)e.innerHTML='';
   }).catch(function(err){
     var e=$('#perg-sinc'); if(!e)return;
-    e.innerHTML='<span style="color:var(--red)">Não deu para ler o banco: '+esc((err&&err.message)||'erro')
+    e.innerHTML=erroDeLeitura('o banco',(err&&err.message))
       +'. Tentando de novo ao reabrir a aba.</span>';
   });
 }
@@ -1858,7 +1888,7 @@ function repintaDesempenho(simId){
 function desempenhoHtml(s,d){
   var cab='<div class="sec-title">Desempenho dos alunos</div>';
   if(!d)      return cab+'<div class="hint" style="color:var(--muted)">Lendo as tentativas no banco…</div>';
-  if(d.erro)  return cab+'<div class="hint" style="color:var(--muted)">Não deu para ler as tentativas: '+esc(d.erro)+'</div>';
+  if(d.erro)  return cab+erroDeLeitura('as tentativas',d.erro);
   if(!d.feitos)return cab+'<div class="hint" style="color:var(--muted)">Ainda sem tentativas entregues para este simulado.</div>';
 
   var catRows=(d.por_categoria||[]).map(function(c){
@@ -2087,7 +2117,7 @@ function sincronizarUsuarios(forcar){
     if(e)e.innerHTML='<span style="color:var(--muted)">'+r.total+' usuário(s) no banco · '+r.admins+' com acesso ao painel.</span>';
   }).catch(function(err){
     var e=$('#usr-sinc'); if(!e)return;
-    e.innerHTML='<span style="color:var(--red)">Não deu para ler os usuários: '+esc((err&&err.message)||'erro')
+    e.innerHTML=erroDeLeitura('os usuários',(err&&err.message))
       +'. Tentando de novo ao reabrir a aba.</span>';
   });
 }
@@ -2197,6 +2227,7 @@ function viewAluno(id){
   }
   if(!s){
     if(dd===null) return '<div class="card">'+semBanco('Buscando este aluno no banco…')+'</div>';
+    if(dd&&dd.erro&&ehErroDeSessao(dd.erro))return avisoDeSessao();
     return notFound(dd&&dd.erro ? 'Não deu para ler este aluno: '+esc(dd.erro)
                                 : 'Usuário não encontrado');
   }
@@ -3025,9 +3056,9 @@ function viewVenda(){
     <p>Quem tem acesso válido, quem está prestes a vencer, quem venceu e não renovou, e o histórico de assinaturas vindo do sistema antigo.</p></div>
     </div>`;
 
-  if(!d) return cab + `<div class="card">${semBanco(
-    (ASSIN&&ASSIN.erro)?('Não deu para ler as assinaturas: '+ASSIN.erro)
-                       :'Lendo as assinaturas no banco…')}</div>`;
+  if(!d) return cab + `<div class="card">${
+    (ASSIN&&ASSIN.erro) ? erroDeLeitura('as assinaturas', ASSIN.erro)
+                        : semBanco('Lendo as assinaturas no banco…')}</div>`;
 
   const vencendo=(d.vencendo||[]), vencidos=(d.vencidos||[]),
         trans=(d.transacoes||[]), porPlano=(d.por_plano||[]),
@@ -3367,6 +3398,7 @@ function perfilCarregar(){
     var ac=$('#perfil-acoes'); if(ac)ac.style.display='flex';
   }).catch(function(e){
     var el=$('#perfil-dados'); if(!el)return;
+    if(ehErroDeSessao(e&&e.message)){el.innerHTML=avisoDeSessao();return;}
     el.innerHTML='<p class="hint" style="margin-top:0;color:var(--red)">Não deu para ler seus dados: '
       +esc((e&&e.message)||'erro')+'</p>';
   });

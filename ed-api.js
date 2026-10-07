@@ -71,8 +71,95 @@
     return h;
   }
 
-  function chamar(caminho,opcoes){
-    opcoes=opcoes||{};
+  /* ------------------------------------------------------------- renovacao
+     O token de acesso do Supabase dura 1 hora. Nada aqui renovava, e a
+     sessao guardava refresh_token e expira_em sem usar: depois de uma hora
+     com a aba aberta, TODA chamada passava a voltar "JWT expired" e a tela
+     dizia "Nao deu para ler as assinaturas". Para quem fica com o painel
+     aberto trabalhando, isso acontecia uma vez por hora.
+
+     Duas defesas, porque uma so nao basta:
+       1. ANTES de chamar, se faltar menos de 2 minutos para vencer, renova.
+          Pega o caso normal e evita o erro acontecer.
+       2. DEPOIS, se a resposta vier 401 com "JWT expired", renova e repete a
+          chamada UMA vez. Pega o caso em que o relogio do navegador esta
+          errado ou o token foi revogado do outro lado -- aí o passo 1 nao
+          tem como saber.
+
+     Renovacao em andamento e compartilhada: o painel dispara varias RPC de
+     uma vez, e sem isso cada uma pediria um refresh, invalidando o token das
+     outras (o Supabase rotaciona o refresh_token a cada uso). Uma promessa
+     so, todas esperam a mesma. */
+  var RENOVANDO=null;
+
+  function renovar(){
+    if(RENOVANDO)return RENOVANDO;
+    var s=sessao();
+    if(!s||!s.refresh_token){
+      /* sem refresh_token nao ha como voltar: e sessao acabada, e a tela
+         precisa receber esse nome para pedir login em vez de culpar o banco */
+      var e0=new Error('sessao-expirada');e0.status=401;e0.sessaoExpirada=true;
+      return Promise.reject(e0);
+    }
+
+    RENOVANDO=fetch(CFG.url+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',
+      headers:{'apikey':CFG.chave,'Content-Type':'application/json'},
+      body:JSON.stringify({refresh_token:s.refresh_token})
+    }).then(function(r){
+      return r.text().then(function(t){
+        var d=null;try{d=t?JSON.parse(t):null}catch(_){}
+        if(!r.ok||!d||!d.access_token){
+          /* refresh_token invalido ou expirado: a sessao acabou de verdade.
+             Limpar e a atitude certa -- insistir com token morto faria o
+             site repetir o erro em cada clique. */
+          limpaSessao();
+          var e=new Error('sessao-expirada');e.status=401;e.sessaoExpirada=true;throw e;
+        }
+        /* mantem o nome e o telefone que ja estavam na sessao: a resposta do
+           refresh pode vir sem user_metadata, e perder o nome faria a tela
+           mostrar travessao onde antes mostrava a pessoa */
+        var ant=sessao()||{};
+        var u=d.user||{}, meta=u.user_metadata||{};
+        guardaSessao({
+          access_token:d.access_token,
+          refresh_token:d.refresh_token||s.refresh_token,
+          expira_em:Date.now()+((d.expires_in||3600)*1000),
+          user:{
+            id:u.id||(ant.user&&ant.user.id),
+            email:u.email||(ant.user&&ant.user.email),
+            nome:meta.nome||(ant.user&&ant.user.nome)||'',
+            telefone:meta.telefone||u.phone||(ant.user&&ant.user.telefone)||''
+          }
+        });
+        return sessao();
+      });
+    }).catch(function(err){
+      if(!err.sessaoExpirada&&!(err&&err.status)){
+        /* falha de rede no refresh nao e sessao expirada: nao apaga o login */
+        var e=new Error('sem-conexao-com-o-banco');e.rede=true;e.original=err;throw e;
+      }
+      throw err;
+    });
+
+    /* solta a trava em qualquer desfecho, senao um refresh que falhou uma vez
+       trancaria o site para sempre */
+    RENOVANDO.then(function(){RENOVANDO=null;},function(){RENOVANDO=null;});
+    return RENOVANDO;
+  }
+
+  function vaiVencer(){
+    var s=sessao();
+    return !!(s&&s.refresh_token&&s.expira_em&&(s.expira_em-Date.now())<120000);
+  }
+
+  function ehTokenVencido(e){
+    if(!e||e.status!==401)return false;
+    var m=(e.message||'')+' '+JSON.stringify(e.corpo||'');
+    return /jwt expired|token.*expired|invalid.*jwt|bad_jwt/i.test(m);
+  }
+
+  function disparar(caminho,opcoes){
     return fetch(CFG.url+caminho,{
       method:opcoes.metodo||'GET',
       headers:Object.assign(cabecalhos(opcoes.auth!==false),opcoes.headers||{}),
@@ -89,6 +176,33 @@
           e.status=r.status;e.corpo=d;throw e;
         }
         return d;
+      });
+    });
+  }
+
+  function chamar(caminho,opcoes){
+    opcoes=opcoes||{};
+    var comAuth=opcoes.auth!==false;
+
+    /* as proprias chamadas de autenticacao nao passam por aqui: renovar
+       dentro do login criaria recursao */
+    if(!comAuth||caminho.indexOf('/auth/v1/')===0)return disparar(caminho,opcoes);
+
+    var antes = vaiVencer() ? renovar().catch(function(e){
+      /* Falha de rede e sessao acabada sao coisas diferentes e as duas tem de
+         subir. Engolir aqui fazia a chamada seguir sem token, levar 401 e
+         tentar renovar DE NOVO -- aí a sessao ja estava limpa e a tela
+         recebia "sem-refresh-token" em vez de "sua sessao expirou". O erro
+         certo e o primeiro, nao o sintoma do segundo. */
+      throw e;
+    }) : Promise.resolve(null);
+
+    return antes.then(function(){
+      return disparar(caminho,opcoes).catch(function(e){
+        if(!ehTokenVencido(e)||opcoes._jaRenovou)throw e;
+        return renovar().then(function(){
+          return disparar(caminho,Object.assign({},opcoes,{_jaRenovou:true}));
+        });
       });
     });
   }
@@ -318,6 +432,9 @@
     configurado:function(){return !!CFG.ativo;},
     saude:verificar,
     ehFalhaDeRede:ehFalhaDeRede,
+    /* para a tela poder distinguir "banco fora" de "sua sessao acabou" */
+    ehSessaoExpirada:function(e){return !!(e&&(e.sessaoExpirada||e.message==='sessao-expirada'));},
+    renovar:renovar,
     url:CFG.url,
     sessao:sessao, cadastrar:cadastrar, entrar:entrar, sair:sair,
     saldo:saldo, gastar:gastar, config:config, rpc:rpc, listar:listar,

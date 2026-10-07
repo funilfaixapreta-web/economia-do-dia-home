@@ -796,6 +796,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 
 <script src="ed-api.js"></script>
 <script src="ed-conteudo.js"></script>
+<script src="ed-aluno.js"></script>
 <script src="tokens.js"></script>
 <script>
 /* =========================================================
@@ -806,159 +807,227 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
   var u=null;try{u=JSON.parse(localStorage.getItem('ed-user'))}catch(_){}
   if(!u){location.replace('login.html?next='+encodeURIComponent('app.html'+location.hash));}
 })();
-const USER=(function(){
-  var base={name:'Felipe Nunes',first:'Felipe',email:'aluno@economiadodia.com.br',phone:'(21) 99999-0000',initials:'FN',goal:'Analista pleno (CB + CG1 + CT1)',planId:'completo'};
+/* Quem esta logado. Antes havia um "Felipe Nunes" com e-mail, telefone e
+   objetivo escritos aqui, usados como base quando a sessao nao tinha nome --
+   e o aluno via o perfil de outra pessoa. Agora o que falta fica vazio, e a
+   tela mostra travessao em vez de um dado de mentira. O nome real chega pela
+   sessao e, quando o banco responde, pela meu_perfil(). */
+const USER={name:'',first:'',email:'',phone:'',initials:'',goal:'',planId:null};
+(function(){
   var u=null;try{u=JSON.parse(localStorage.getItem('ed-user'))}catch(_){}
-  if(!u||!u.nome)return base;
-  var nome=String(u.nome).trim();
-  return Object.assign({},base,{
-    name:nome, first:nome.split(/\s+/)[0],
-    email:u.email||base.email, phone:u.telefone||base.phone,
-    initials:nome.split(/\s+/).slice(0,2).map(function(w){return w[0]}).join('').toUpperCase(),
-    planId:u.plano||null
-  });
+  if(!u)return;
+  aplicarPerfil(u);
 })();
-
-const TRILHAS=[
-  {id:'cnpi',eye:'Certificação',name:'Trilha CNPI',color:'#D4A437',ico:'★',desc:'Do zero ao credenciamento de analista: Conteúdo Brasileiro, Global e Técnico, na ordem exata da prova.',courses:['cb','cg1','ct1'],progress:38},
-  {id:'evaluation',eye:'Reta final',name:'Trilha Valuation',color:'#3D8BE0',ico:'◎',desc:'Preparação intensiva por simulados e diagnóstico. Meça sua prontidão e ataque só o que ainda derruba você.',courses:['simrev','retafinal'],progress:54},
-  {id:'mercado',eye:'Fundamentos → avançado',name:'Trilha Mercado Financeiro',color:'#2BB673',ico:'◈',desc:'A base sólida de quem quer atuar: sistema financeiro, renda fixa, renda variável e valuation na prática.',courses:['fund','rendafixa','valuation','cfg'],progress:20},
-  {id:'comercial',eye:'Carreira',name:'Trilha Comercial',color:'#E8A33D',ico:'◆',desc:'Para assessores e o time comercial: relacionamento, suitability e a rotina de quem vive de investimentos.',courses:['assessoria','comercial'],progress:0}
-];
-
-// lessons: [id,título,duração(min),progresso%]
-/* Cursos de exemplo. Se o painel (adm.html) tiver conteúdo salvo, ou se a
-   ponte com o banco estiver ligada, EDConteudo troca isto pelo conteúdo de
-   verdade logo abaixo — o exemplo é só o último recurso. */
-const COURSES_EXEMPLO=[
-  {id:'cb',code:'CNPI-CB',title:'Base do Mercado Financeiro',trilha:'cnpi',owned:true,color:'#D4A437',
-   desc:'Fase comum a todos os analistas: sistema financeiro, renda fixa, derivativos, ética e regulação.',
-   modules:[
-     {title:'Ética e Regulação',lessons:[['l1','Ética e suitability',32,100],['l2','Regulação e órgãos do SFN',28,100]]},
-     {title:'Sistema Financeiro',lessons:[['l3','Sistema Financeiro Nacional',41,100],['l4','Política monetária e Copom',26,30]]},
-     {title:'Renda Fixa',lessons:[['l5','Renda fixa · conceitos',35,64],['l6','Marcação a mercado',22,64],['l7','Títulos públicos',30,0]]},
-     {title:'Derivativos',lessons:[['l8','Derivativos · introdução',38,0],['l9','Hedge e especulação',33,0]]}
-   ]},
-  {id:'cg1',code:'CNPI-CG1',title:'Análise Fundamentalista',trilha:'cnpi',owned:true,color:'#D4A437',
-   desc:'Valuation, contabilidade e finanças corporativas, com base na análise de demonstrações.',
-   modules:[
-     {title:'Valuation',lessons:[['l1','Introdução a valuation',22,12],['l2','Fluxo de caixa descontado',51,0]]},
-     {title:'Contabilidade',lessons:[['l3','Demonstrações financeiras',40,0],['l4','Análise de balanços',44,0]]},
-     {title:'Múltiplos',lessons:[['l5','Múltiplos de mercado',29,0]]}
-   ]},
-  {id:'ct1',code:'CNPI-CT1',title:'Análise Técnica (Gráfica)',trilha:'cnpi',owned:true,color:'#D4A437',
-   desc:'Análise gráfica e tomada de decisão com base em preço e volume.',
-   modules:[
-     {title:'Fundamentos',lessons:[['l1','Teoria de Dow',24,100],['l2','Tendências e suportes',30,35]]},
-     {title:'Padrões',lessons:[['l3','Candlestick',33,0],['l4','Figuras gráficas',28,0]]},
-     {title:'Indicadores',lessons:[['l5','Ondas de Elliott',44,0],['l6','Indicadores e osciladores',31,0]]}
-   ]},
-  {id:'simrev',code:'EVALUATION',title:'Simulados & Revisão CNPI',trilha:'evaluation',owned:true,color:'#3D8BE0',
-   desc:'Banco de simulados que se renova + revisão dirigida pelo seu diagnóstico. O jeito mais rápido de chegar pronto.',
-   modules:[
-     {title:'Revisão dirigida',lessons:[['l1','Como ler seu diagnóstico',14,100],['l2','Plano de revisão de 15 dias',18,40]]},
-     {title:'Simulados guiados',lessons:[['l3','Simulado comentado · CB',60,0],['l4','Simulado comentado · CG1',55,0]]}
-   ]},
-  {id:'retafinal',code:'EVALUATION',title:'Diagnóstico & Reta Final',trilha:'evaluation',owned:true,color:'#3D8BE0',
-   desc:'Os 7 dias antes da prova: o que revisar, o que ignorar e como não se queimar por ansiedade.',
-   modules:[
-     {title:'Reta final',lessons:[['l1','Checklist da véspera',12,0],['l2','Gestão de tempo na prova',16,0]]}
-   ]},
-  {id:'fund',code:'MERCADO',title:'Fundamentos do Mercado Financeiro',trilha:'mercado',owned:true,color:'#2BB673',
-   desc:'A porta de entrada: como o dinheiro circula, quem são os players e por que os juros mandam em tudo.',
-   modules:[
-     {title:'Como o mercado funciona',lessons:[['l1','Players e instituições',26,100],['l2','Juros, inflação e câmbio',30,20]]},
-     {title:'Produtos',lessons:[['l3','Panorama de produtos',28,0]]}
-   ]},
-  {id:'rendafixa',code:'MERCADO',title:'Renda Fixa na Prática',trilha:'mercado',owned:false,color:'#2BB673',price:'697',
-   desc:'Do CDB ao Tesouro IPCA+: monte uma carteira de renda fixa e entenda a marcação a mercado de verdade.',
-   modules:[{title:'Renda Fixa',lessons:[['l1','Tipos de título',30,0],['l2','Montando a carteira',36,0]]}]},
-  {id:'valuation',code:'MERCADO',title:'Valuation na Prática',trilha:'mercado',owned:false,color:'#2BB673',price:'997',
-   desc:'Avaliação de ações e FIIs, com planilhas e relatórios reais de análise. Saia sabendo montar uma tese.',
-   modules:[{title:'Valuation aplicado',lessons:[['l1','Modelo de FCD na planilha',48,0],['l2','Avaliando um FII',40,0]]}]},
-  {id:'cfg',code:'CFG',title:'CFG · Gestão de Recursos',trilha:'mercado',owned:false,color:'#2BB673',price:'1.497',
-   desc:'Certificação de Gestão: fundos, asset allocation e a régua de quem administra o dinheiro dos outros.',
-   modules:[{title:'Gestão',lessons:[['l1','Gestão de recursos e fundos',44,0],['l2','Asset allocation',38,0]]}]},
-  {id:'assessoria',code:'COMERCIAL',title:'Assessoria de Investimentos',trilha:'comercial',owned:false,color:'#E8A33D',price:'797',
-   desc:'A rotina do assessor: prospecção, suitability e como recomendar sem passar dos limites da regulação.',
-   modules:[{title:'Assessoria',lessons:[['l1','O papel do assessor',24,0],['l2','Suitability na prática',30,0]]}]},
-  {id:'comercial',code:'COMERCIAL',title:'Comercial & Relacionamento',trilha:'comercial',owned:false,color:'#E8A33D',price:'597',
-   desc:'Converta e retenha clientes de investimento com um discurso técnico que gera confiança.',
-   modules:[{title:'Comercial',lessons:[['l1','Discurso técnico que vende',26,0],['l2','Relacionamento de longo prazo',22,0]]}]}
-];
-
-/* O que o aluno realmente vê: painel > banco > exemplo. Ver ed-conteudo.js. */
-let COURSES = (window.EDConteudo ? EDConteudo.cursos(COURSES_EXEMPLO) : COURSES_EXEMPLO);
-/* Quando o catálogo do banco chega (assíncrono), troca e redesenha a tela. */
-if(window.EDConteudo)EDConteudo.aoChegar(function(lista){
-  COURSES=lista; try{router()}catch(_){}
-});
-
-const SIMULADOS=[
-  {id:'sim-cb',cert:'CNPI-CB',title:'Simulado CNPI-CB Completo',questions:60,dur:'2h00',score:84,
-   modules:[['Ética e Regulação',15,88],['Sistema Financeiro',15,82],['Renda Fixa',15,74],['Derivativos',15,69]]},
-  {id:'sim-cg1',cert:'CNPI-CG1',title:'Simulado CNPI-CG1 Completo',questions:60,dur:'1h50',score:58,
-   modules:[['Análise de Ações',15,66],['Finanças Corporativas',15,60],['Contabilidade',15,49],['Demonstrações',15,54]]},
-  {id:'sim-ct1',cert:'CNPI-CT1',title:'Simulado CNPI-CT1 Completo',questions:60,dur:'1h50',score:null,
-   modules:[['Teoria de Dow',15,null],['Tendências',15,null],['Candlestick',15,null],['Indicadores',15,null]]},
-  {id:'sim-cfg',cert:'CFG',title:'Simulado CFG Completo',questions:60,dur:'2h00',score:76,
-   modules:[['Economia e Finanças',15,80],['Instrumentos',15,78],['Fundos',15,72],['Ética e Regulação',15,74]]},
-  {id:'sim-merc',cert:'MERCADO',title:'Simulado Mercado Financeiro',questions:40,dur:'1h20',score:null,
-   modules:[['Fundamentos',10,null],['Renda Fixa',10,null],['Renda Variável',10,null],['Derivativos',10,null]]}
-];
-
-// banco de questões (mock) por tema, usado na revisão de erros do simulado
-// alts: 4 alternativas; correct: índice do gabarito; wrong: alternativa que o aluno costuma marcar
-const QBANK={
-  'Ética e Regulação':{sub:'Conflito de interesse',aula:'#/aula/cb/l1',q:'Um analista publica recomendação de compra de uma ação da qual detém posição relevante. Segundo o Código de Conduta, ele deve:',alts:['Omitir a posição, pois já constava em relatório anterior','Divulgar de forma clara e destacada o conflito de interesse','Vender a posição somente após a publicação','Repassar a recomendação para outro analista assinar'],correct:1,wrong:2,comment:'O conflito deve ser divulgado de forma clara e ostensiva no próprio relatório. Vender só depois de publicar configuraria uso indevido de informação.'},
-  'Sistema Financeiro':{sub:'Órgãos reguladores',aula:'#/aula/cb/l3',q:'A supervisão das bolsas e das companhias abertas no Brasil é competência principal de qual órgão?',alts:['Banco Central (Bacen)','CVM','Susep','CMN'],correct:1,wrong:0,comment:'A CVM regula o mercado de valores mobiliários (bolsas, companhias abertas, fundos). O Bacen cuida do sistema bancário e da política monetária.'},
-  'Renda Fixa':{sub:'Marcação a mercado',aula:'#/aula/cb/l6',q:'Quando a taxa de juros de mercado sobe, o preço de um título prefixado marcado a mercado tende a:',alts:['Subir, pois o cupom acompanha os juros','Cair, pela relação inversa entre preço e taxa','Permanecer igual até o vencimento','Cair apenas se o título for pós-fixado'],correct:1,wrong:0,comment:'Preço e taxa têm relação inversa: taxa exigida maior reduz o valor presente dos fluxos, derrubando o PU na marcação a mercado.'},
-  'Derivativos':{sub:'Hedge',aula:'#/aula/cb/l9',q:'Um produtor de soja que teme queda no preço da commodity faz hedge:',alts:['Comprando contratos futuros de soja','Vendendo contratos futuros de soja','Comprando opções de compra (call)','Ficando sem posição no mercado futuro'],correct:1,wrong:0,comment:'Quem já tem o ativo (posição física comprada) e teme queda protege-se VENDENDO futuros. Comprar futuros só aumentaria a exposição.'},
-  'Análise de Ações':{sub:'Valuation por FCD',aula:'#/aula/cg1/l1',q:'No fluxo de caixa descontado, um aumento do WACC, tudo mais constante, faz o valor da empresa:',alts:['Aumentar','Diminuir','Não se alterar','Aumentar apenas se o crescimento (g) subir'],correct:1,wrong:0,comment:'A taxa de desconto está no denominador: WACC maior reduz o valor presente dos fluxos e, portanto, o valuation.'},
-  'Finanças Corporativas':{sub:'Custo de capital',aula:'#/aula/cg1/l1',q:'O WACC representa:',alts:['O custo apenas do capital de terceiros','O custo médio ponderado de capital próprio e de terceiros','O retorno exigido só pelos acionistas','A taxa livre de risco somada à inflação'],correct:1,wrong:2,comment:'O WACC pondera o custo do capital próprio e da dívida pelas suas participações, já considerando o benefício fiscal da dívida.'},
-  'Contabilidade':{sub:'Análise de balanços',aula:'#/aula/cg1/l4',q:'O EBITDA difere do lucro operacional principalmente porque:',alts:['Inclui as receitas financeiras','Exclui a depreciação e a amortização','Já considera o imposto de renda','É apurado depois do resultado financeiro'],correct:1,wrong:3,comment:'EBITDA = lucro operacional + depreciação + amortização. Aproxima a geração de caixa operacional, ignorando itens não-caixa e a estrutura de capital.'},
-  'Demonstrações':{sub:'Fluxo de caixa (DFC)',aula:'#/aula/cg1/l3',q:'Na Demonstração dos Fluxos de Caixa, a compra de um imobilizado é classificada em atividades de:',alts:['Operação','Investimento','Financiamento','Não é registrada na DFC'],correct:1,wrong:0,comment:'A aquisição de ativos de longo prazo (imobilizado) é atividade de INVESTIMENTO. Operação são os fluxos do negócio; financiamento envolve capital e dívida.'},
-  'Economia e Finanças':{sub:'Política monetária',aula:'#/aula/cb/l4',q:'Para conter a inflação, o Copom geralmente:',alts:['Reduz a taxa Selic','Eleva a taxa Selic','Diminui o depósito compulsório','Compra títulos no open market'],correct:1,wrong:0,comment:'Elevar a Selic encarece o crédito e esfria a demanda, pressionando a inflação para baixo. Reduzir a Selic teria o efeito oposto.'},
-  'Instrumentos':{sub:'Produtos de renda fixa',aula:'#/aula/fund/l3',q:'Um CDB é um instrumento de:',alts:['Renda variável','Renda fixa emitido por bancos','Derivativo de balcão','Participação societária'],correct:1,wrong:0,comment:'O CDB é renda fixa, emitido por bancos para captar recursos, com cobertura do FGC até o limite vigente.'},
-  'Fundos':{sub:'Taxas',aula:'#/aula/cfg/l1',q:'A taxa de performance de um fundo é cobrada:',alts:['Sempre, independentemente do resultado','Sobre o que exceder o benchmark, respeitando a linha d’água','Apenas em fundos de renda fixa','No lugar da taxa de administração'],correct:1,wrong:0,comment:'A performance incide só sobre o retorno acima do benchmark, com marca d’água (high-water mark) para não cobrar duas vezes sobre o mesmo ganho.'}
-};
-// monta a revisão de questões de um simulado (1 por módulo; erra quando o módulo foi fraco)
-function reviewQuestions(sim){
-  const scores=sim.modules.filter(m=>m[2]!=null).map(m=>m[2]);const worst=scores.length?Math.min.apply(null,scores):0;
-  return sim.modules.filter(m=>m[2]!=null).map(m=>{
-    const b=QBANK[m[0]], errou=(m[2]<60)||(m[2]===worst);
-    if(!b)return {tema:m[0],sub:'',q:`Questão sobre ${m[0]}: assinale a alternativa correta.`,alts:['Alternativa A','Alternativa B','Alternativa C','Alternativa D'],correct:0,chosen:errou?1:0,comment:'Reveja o material deste tema no gabarito comentado em áudio.',aula:'#/desempenho',errou};
-    return {tema:m[0],sub:b.sub,q:b.q,alts:b.alts,correct:b.correct,chosen:errou?b.wrong:b.correct,comment:b.comment,aula:b.aula,errou};
-  });
+function aplicarPerfil(u){
+  var nome=String(u.nome||u.name||'').trim();
+  USER.name=nome;
+  USER.first=nome?nome.split(/\s+/)[0]:'';
+  USER.initials=nome?nome.split(/\s+/).slice(0,2).map(function(w){return w[0]}).join('').toUpperCase():'';
+  USER.email=u.email||USER.email||'';
+  USER.phone=u.telefone||u.phone||USER.phone||'';
+  USER.planId=u.plano||u.plano_id||USER.planId||null;
+}
+/* O cadastro de verdade vem do banco; a sessao local pode estar velha. */
+if(window.EDApi&&EDApi.ativo()&&EDApi.sessao()){
+  EDApi.perfil().then(function(p){
+    if(!p)return;
+    aplicarPerfil(p);
+    try{render&&render()}catch(_){}
+    try{pintarPerfil&&pintarPerfil()}catch(_){}
+  }).catch(function(){});
 }
 
-const THEMES=[['Ética e regulação',88],['Sistema financeiro',82],['Renda fixa',74],['Derivativos',69],['Contabilidade',54],['Renda variável',61]];
+/* ===========================================================================
+   DE ONDE VEM O QUE O ALUNO LE
+   ---------------------------------------------------------------------------
+   Aqui havia 141 linhas de dado inventado: 4 trilhas que nao existem no
+   banco (com progresso 38%, 54%, 20%), 11 cursos com preco e progresso por
+   aula, 5 simulados com nota 84%, 58% e 76%, um banco de questoes (QBANK)
+   com gabarito e comentario escritos a mao, 6 materias com percentual de
+   acerto e um historico com "Hoje" e "Ontem" fixos.
 
-const HISTORY=[
-  ['Hoje',[
-    ['play','#3D8BE0','Renda fixa · Marcação a mercado','Aula · CNPI-CB','Parou em 24:18','#/aula/cb/l6'],
-    ['star','#D4A437','Fluxo de caixa descontado','Favoritado · CG1','','#/curso/cg1']
-  ]],
-  ['Ontem',[
-    ['check','#2BB673','Simulado CNPI-CB Completo','Simulado · 60 questões','84% de acerto','#/desempenho?sim=sim-cb'],
-    ['check','#2BB673','Teoria de Dow','Aula · CNPI-CT1','Concluída','#/aula/ct1/l1'],
-    ['start','#D4A437','Análise Fundamentalista','Curso iniciado · CNPI-CG1','','#/curso/cg1']
-  ]],
-  ['12 jun',[
-    ['doc','#E8A33D','Panorama de produtos','Conteúdo · Mercado','Lido','#/curso/fund'],
-    ['check','#2BB673','Simulado CFG Completo','Simulado · 60 questões','76% de acerto','#/desempenho?sim=sim-cfg']
-  ]],
-  ['28 mai',[
-    ['check','#2BB673','Simulado CNPI-CG1 Completo','Simulado · 60 questões','58% de acerto','#/desempenho?sim=sim-cg1'],
-    ['play','#3D8BE0','Teoria de Dow','Aula · CNPI-CT1','Concluída','#/aula/ct1/l1']
-  ]]
-];
+   Nada disso era do aluno que estava lendo. Num produto de certificacao a
+   questao inventada e a pior parte: a pessoa estuda para uma prova real e
+   decora um gabarito que alguem digitou de memoria.
 
-const PLANS=[
-  {id:'tecnico',name:'CNPI · Técnico',d:'CB + CT1 · análise gráfica',price:'2.197',per:'à vista'},
-  {id:'fundamentalista',name:'CNPI · Fundamentalista',d:'CB + CG1 · research e valuation',price:'2.197',per:'à vista'},
-  {id:'completo',name:'CNPI · Curso Completo',d:'CB + CG1 + CT1 · analista pleno + trilhas',price:'2.997',per:'à vista'}
-];
+   O QUE EXISTE DE VERDADE NO BANCO, hoje:
+     54 simulados ativos, 5.098 questoes, 98 materias
+     8 certificacoes, e trilhas_do_aluno dizendo quais cada aluno acompanha
+     91.242 provas de historico, com NOTA e DURACAO
+     4 planos ativos
+     ZERO aulas ativas  <- nao e descuido: o sistema antigo nunca teve
+                           tabela de aula nem de video. Eram 31 tabelas e
+                           nenhuma delas guardava aula. "Cursos" e uma ideia
+                           nova, ainda sem conteudo.
+
+   Por isso as listas comecam VAZIAS e so enchem com o que o banco responde.
+   Vazio aparece como estado vazio honesto ("ainda nao ha..."), nunca como
+   exemplo que o aluno confunde com o dele.
+   =========================================================================== */
+
+/* As trilhas sao as certificacoes de verdade (categorias_simulado). Enchem
+   em aoChegarCatalogo(). 'progress' fica null enquanto nao houver base para
+   calcular -- null vira travessao na tela, 0 seria a afirmacao "voce nao
+   comecou", que pode ser falsa. */
+const TRILHAS=[];
+
+/* Cursos com aula em video. Zero hoje, e a tela diz isso. */
+const COURSES_EXEMPLO=[];
+
+const SIMULADOS=[];
+const PLANS=[];
+
+/* Materias ordenadas por acerto. So existe para quem fez prova no sistema
+   NOVO: o antigo guardava apenas o percentual total da prova, sem resposta
+   por questao. Fica vazio para quem so tem historico, e a tela explica. */
+const THEMES=[];
+
+/* Historico de verdade: as ultimas provas entregues pelo aluno. */
+const HISTORY=[];
+
+/* O que o aluno realmente ve: painel > banco > nada. Ver ed-conteudo.js. */
+let COURSES = (window.EDConteudo ? EDConteudo.cursos(COURSES_EXEMPLO) : COURSES_EXEMPLO);
+
+/* ------------------------------------------------------------------ catalogo
+   Enche TRILHAS, SIMULADOS e PLANS com o catalogo do banco, preservando os
+   formatos que as telas ja usavam.                                         */
+function aplicarCatalogo(cat){
+  if(!cat)return;
+  var CORES=['#D4A437','#3D8BE0','#2BB673','#E8A33D','#8E7CC3','#C0607A','#4FA8A0','#B07D3C'];
+  var nomeCert={};
+
+  if(cat.certificacoes&&cat.certificacoes.length){
+    TRILHAS.length=0;
+    cat.certificacoes.forEach(function(c,k){
+      nomeCert[c.id]=c.nome;
+      TRILHAS.push({id:c.id, eye:'Certificação', name:c.nome,
+        color:CORES[k%CORES.length], ico:'★',
+        desc:c.simulados?('Simulados por módulo da prova '+c.nome+'.')
+                        :('Ainda não há simulado de '+c.nome+' no ar.'),
+        courses:[], simulados:c.simulados||0, progress:null});
+    });
+  }
+
+  if(cat.simulados&&cat.simulados.length){
+    SIMULADOS.length=0;
+    cat.simulados.forEach(function(s){
+      var comp=(s.composicao&&s.composicao.length)?s.composicao:null;
+      SIMULADOS.push({
+        id:s.id,
+        cert:nomeCert[s.categoria_id]||s.categoria_id||'',
+        certId:s.categoria_id||null,
+        title:s.nome||'Simulado',
+        descricao:s.descricao||'',
+        questions:+s.questoes||0,
+        dur:fmtMin(s.tempo_limite),
+        corte:s.corte==null?null:+s.corte,
+        regra:s.regra_acesso||null,
+        score:null,            /* preenchido por aplicarDesempenho() */
+        feitoEm:null,
+        /* [nome da materia, quantidade, nota]. A nota por materia fica null
+           porque o banco nao tem resposta por questao das provas antigas --
+           ver semDetalhe abaixo. */
+        modules:comp?comp.map(function(c){return [c.nome||'Questões',+c.quantidade||0,null];})
+                    :[['Questões',+s.questoes||0,null]],
+        semDetalhe:false
+      });
+    });
+  }
+
+  if(cat.planos&&cat.planos.length){
+    PLANS.length=0;
+    cat.planos.forEach(function(p){
+      PLANS.push({id:p.id, name:p.nome||'Plano',
+        d:(p.validade_meses?('Acesso por '+p.validade_meses+' meses'):''),
+        price:fmtPreco(p.preco_centavos), per:'à vista'});
+    });
+  }
+}
+
+function fmtMin(min){
+  min=+min||0;
+  if(!min)return 'sem tempo limite';
+  if(min<60)return min+' min';
+  var h=Math.floor(min/60), m=min%60;
+  return h+'h'+(m<10?'0':'')+m;
+}
+function fmtPreco(centavos){
+  var v=Math.round((+centavos||0)/100);
+  return v.toLocaleString('pt-BR');
+}
+
+/* --------------------------------------------------------------- desempenho
+   Cola a nota REAL do aluno em cada simulado, o historico e as materias.  */
+function aplicarDesempenho(d){
+  if(!d)return;
+
+  SIMULADOS.forEach(function(s){
+    var n=window.EDAluno?EDAluno.notaDe(s.id):null;
+    if(!n)return;
+    s.score=n.nota;
+    s.feitoEm=n.enviada_em;
+    s.vezes=n.provas;
+    /* Fez a prova, mas o banco nao tem como abrir por materia. A tela precisa
+       mostrar travessao, nao "nao feito": ele fez. */
+    s.semDetalhe=!(window.EDAluno&&EDAluno.temDetalhe());
+  });
+
+  THEMES.length=0;
+  (d.por_categoria||[]).forEach(function(c){
+    if(!c.respondidas)return;
+    THEMES.push([c.nome||c.categoria_id||'Matéria', 100-(+c.erro_pct||0)]);
+  });
+
+  /* Progresso de cada certificacao: quantos dos simulados dela o aluno ja
+     entregou. E uma conta sobre dado real, nao uma estimativa. */
+  TRILHAS.forEach(function(t){
+    var deles=SIMULADOS.filter(function(s){return s.certId===t.id;});
+    if(!deles.length){t.progress=null;return;}
+    var feitos=deles.filter(function(s){return s.score!=null;}).length;
+    t.progress=Math.round(100*feitos/deles.length);
+    t.feitos=feitos; t.total=deles.length;
+  });
+
+  /* Historico: as provas que o aluno entregou, agrupadas por dia. */
+  HISTORY.length=0;
+  var porDia={}, ordem=[];
+  (d.ultimas||[]).forEach(function(t){
+    var rot=(window.EDAluno?EDAluno.quando(t.enviada_em):'')||'antes';
+    if(!porDia[rot]){porDia[rot]=[];ordem.push(rot);}
+    var sim=SIMULADOS.find(function(x){return x.id===t.simulado_id;});
+    var nome=sim?sim.title:(t.simulado_id||'Simulado');
+    var det=(t.nota!=null?t.nota+'% de acerto':'');
+    if(t.duracao_seg&&window.EDAluno){
+      var h=EDAluno.horas(t.duracao_seg); if(h)det+=(det?' · ':'')+'em '+h;
+    }
+    porDia[rot].push(['check','#2BB673',nome,
+      'Simulado'+(sim&&sim.questions?' · '+sim.questions+' questões':''),
+      det, '#/desempenho?t='+encodeURIComponent(t.id)]);
+  });
+  ordem.forEach(function(r){HISTORY.push([r,porDia[r]]);});
+}
+
+/* Liga as duas fontes. Cada uma chega quando chega, e as duas redesenham. */
+function expor(){try{window.COURSES=COURSES;window.SIMULADOS=SIMULADOS;window.PLANS=PLANS;window.TRILHAS=TRILHAS;}catch(_){}}
+if(window.EDConteudo){
+  /* COURSES e reatribuido (nao mutado), entao o preview "ao vivo" do painel
+     precisa da referencia nova -- senao ele mostra a lista de antes. */
+  EDConteudo.aoChegar(function(lista){COURSES=lista;expor();try{render()}catch(_){}});
+  /* o catalogo cru, para trilhas/simulados/planos */
+  (function esperarCatalogo(tentativa){
+    var cat=EDConteudo.doBanco&&EDConteudo.doBanco();
+    if(cat){aplicarCatalogo(cat);
+            if(window.EDAluno&&EDAluno.dados())aplicarDesempenho(EDAluno.dados());
+            expor();try{render()}catch(_){}
+            return;}
+    if((tentativa||0)>40)return;      /* ~20s e desiste, sem travar a tela */
+    setTimeout(function(){esperarCatalogo((tentativa||0)+1);},500);
+  })(0);
+}
+if(window.EDAluno){
+  EDAluno.buscar();
+  EDAluno.aoChegar(function(d){aplicarDesempenho(d);try{render()}catch(_){}});
+}
 
 /* =========================================================
    OVERLAY DO PAINEL ADM  (localStorage 'eda-db')
@@ -1101,13 +1170,20 @@ function railCard(o){
   const href=o.href||'#';
   return `<a class="lcard r16" href="${href}"><div class="cap tile">${o.mod?`<span class="modtag">Mód. ${o.mod}</span>`:''}<span class="roman">${o.roman||''}</span>${o.tag?`<span class="tag">${o.tag}</span>`:''}<span class="play"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><div class="pbar"><i style="width:${o.p||0}%"></i></div></div><div class="t">${esc(o.t)}</div><div class="d">${esc(o.d)}</div></a>`;
 }
+/* O cartao de certificacao. Antes contava "cursos liberados" numa trilha
+   cujos cursos nao existem -- dava "0 cursos · 0/0 liberados" em todas.
+   Agora conta simulados, que e o que a certificacao realmente tem. */
 function trilhaCard(t){
-  const owned=t.courses.filter(id=>{const c=courseById(id);return c&&c.owned}).length;
+  const p=t.progress==null?0:t.progress;
+  const rodape = t.simulados
+    ? (t.feitos!=null&&t.total ? t.feitos+' de '+t.total+' simulados entregues'
+                               : t.simulados+' simulado'+(t.simulados>1?'s':''))
+    : 'ainda sem simulado no ar';
   return `<a class="tcard" href="#/trilha/${t.id}" style="--tc:${t.color}">
-    ${t.progress>0?`<span class="tpill">${t.progress}% concluída</span>`:''}
-    <div><div class="thead"><span class="tico">${t.ico}</span><div><div class="teye">${t.eye}</div><h3>${t.name}</h3></div></div>
+    ${t.feitos>0?`<span class="tpill">${p}% dos simulados</span>`:''}
+    <div><div class="thead"><span class="tico">${t.ico}</span><div><div class="teye">${t.eye}</div><h3>${esc(t.name)}</h3></div></div>
     <p class="tdesc">${esc(t.desc)}</p></div>
-    <div class="tfoot"><span class="tprog"><i style="width:${t.progress}%"></i></span><span class="tstat">${t.courses.length} cursos · ${owned}/${t.courses.length} liberados</span></div>
+    <div class="tfoot"><span class="tprog"><i style="width:${p}%"></i></span><span class="tstat">${rodape}</span></div>
   </a>`;
 }
 function courseCard(c){
@@ -1135,162 +1211,250 @@ function courseCard(c){
    ========================================================= */
 const VIEWS={};
 
+/* ===========================================================================
+   INICIO
+   ---------------------------------------------------------------------------
+   O que esta tela afirmava para TODO aluno que entrava:
+     "Faltam N dias para o CNPI e voce esta 78% pronto"
+     Prontidao 78%  ·  Sequencia 14 dias  ·  Estudadas 42h
+     "Seu ponto mais fraco e Contabilidade (54%). Revise Analise de balancos"
+   Nenhum desses numeros existia em lugar nenhum. O de "sequencia" e o pior
+   tipo de numero inventado: parece medido, da orgulho, e e falso.
+
+   Agora cada cartao e uma conta sobre as provas do proprio aluno, e o que
+   nao da para medir nao aparece. Nao ha prontidao: o banco nao tem como
+   saber se alguem esta pronto para uma prova da APIMEC, e inventar um
+   percentual de prontidao para quem vai pagar inscricao e pior que nao dar
+   numero nenhum.
+   =========================================================================== */
 VIEWS.inicio=()=>{
-  // continue assistindo: aulas em progresso (owned)
+  const R=window.EDAluno?EDAluno.resumo():null;
+  const cats=window.EDAluno?EDAluno.porCategoria():[];
+  const nome=USER.first?esc(USER.first)+' ':'';
+
+  /* aulas em andamento: hoje nao existe aula no banco, entao isto fica vazio
+     sozinho -- sem precisar de exemplo para preencher a tela */
   const cont=[];
   COURSES.filter(c=>c.owned).forEach(c=>flatLessons(c).forEach(l=>{if(l.p>0&&l.p<100)cont.push({...l,code:c.code})}));
-  const contRail=cont.slice(0,6).map(l=>railCard({tag:l.code,roman:romans[l.mod-1],p:l.p,t:l.title,d:`${l.modTitle} · ${Math.round(l.dur*(1-l.p/100))} min restantes`,href:`#/aula/${l.courseId}/${l.id}`})).join('');
-  const trilhaAtual=TRILHAS.find(t=>t.id==='evaluation');
   const nextLesson=cont[0];
-  const trilhasRail=TRILHAS.filter(t=>t.id!==trilhaAtual.id).map(trilhaCard).join('');
+  const contRail=cont.slice(0,6).map(l=>railCard({tag:l.code,roman:romans[l.mod-1],p:l.p,t:l.title,d:`${l.modTitle} · ${Math.round(l.dur*(1-l.p/100))} min restantes`,href:`#/aula/${l.courseId}/${l.id}`})).join('');
+
+  /* a certificacao em que o aluno esta mais adiantado, entre as que ele
+     acompanha. Sem prova entregue nao ha "atual" -- e isso tambem e uma
+     informacao, nao um buraco para tapar. */
+  const minhas=window.EDAluno?EDAluno.trilhas():[];
+  const comProva=TRILHAS.filter(t=>t.feitos>0).sort((a,b)=>b.progress-a.progress);
+  const trilhaAtual=comProva[0]||null;
+  const outras=TRILHAS.filter(t=>t.simulados&&(!trilhaAtual||t.id!==trilhaAtual.id));
+  const acompanha=TRILHAS.filter(t=>minhas.indexOf(t.id)>=0);
+
   const cursosRail=COURSES.slice(0,8).map(courseCard).join('');
-  const histPreview=HISTORY[0][1].concat(HISTORY[1][1]).slice(0,4);
-  const NUDGE_MAP={'Contabilidade':['Análise de balanços','#/aula/cg1/l4'],'Renda variável':['Introdução a valuation','#/aula/cg1/l1'],'Renda fixa':['Marcação a mercado','#/aula/cb/l6'],'Derivativos':['Derivativos · introdução','#/aula/cb/l8'],'Sistema financeiro':['Sistema Financeiro Nacional','#/aula/cb/l3'],'Ética e regulação':['Ética e suitability','#/aula/cb/l1']};
-  const worst=THEMES.slice().sort((a,b)=>a[1]-b[1])[0];
-  const nm=NUDGE_MAP[worst[0]]||['o tema com mais erro','#/desempenho'];
-  // seções reordenáveis do início (arrastáveis no adm "ao vivo" → db.homeOrder)
+
+  /* preview do historico: as provas de verdade, se houver */
+  const hist=[];
+  HISTORY.forEach(g=>g[1].forEach(e=>{if(hist.length<4)hist.push(e);}));
+
+  /* a materia com mais erro, SO quando ha resposta por questao para medir */
+  const pior=cats.length?cats[0]:null;
+
+  const stats=[];
+  if(R){
+    stats.push([R.provas===1?'Prova entregue':'Provas entregues', R.provas!=null?String(R.provas):'—']);
+    stats.push(['Melhor nota', R.melhor!=null?R.melhor+'%':'—']);
+    stats.push(['Média', R.media!=null?R.media+'%':'—']);
+    const h=EDAluno.horas(R.tempo_seg);
+    if(h)stats.push(['Tempo de prova', h]);
+  }
+
+  const saudacao = R && R.provas>0
+    ? `Você já entregou <b>${R.provas}</b> ${R.provas>1?'simulados':'simulado'}${R.ultima_em?', o último <b>'+esc(EDAluno.quando(R.ultima_em))+'</b>':''}.`
+    : (R ? 'Você ainda não entregou nenhum simulado. Comece por uma das certificações abaixo.'
+         : 'Bem-vindo de volta.');
+
   const homeBlocks={
-    continuar:{label:'Continue de onde parou',html:`
+    continuar:{label:'Continue de onde parou',html: nextLesson?`
   <div class="banner" style="margin-top:20px">
-    <div class="thumb"><span class="roman">${romans[(nextLesson?.mod||1)-1]}</span>▶</div>
+    <div class="thumb"><span class="roman">${romans[(nextLesson.mod||1)-1]}</span>▶</div>
     <div>
       <div class="lbl">Continue de onde parou</div>
-      <h2>${esc(nextLesson?nextLesson.title:'Comece sua formação')}</h2>
-      <div class="meta">${nextLesson?`${esc(nextLesson.modTitle)} · ${nextLesson.code} · faltam ${Math.round(nextLesson.dur*(1-nextLesson.p/100))} min`:'Escolha uma trilha para começar'}</div>
-      <div class="bar"><i style="width:${nextLesson?nextLesson.p:0}%"></i></div>
-      <div class="btns"><a class="btn btn-gold" href="${nextLesson?`#/aula/${nextLesson.courseId}/${nextLesson.id}`:'#/trilhas'}">▶ Continuar</a><a class="btn btn-ghost" href="#/cursos">Ver todos os cursos</a></div>
+      <h2>${esc(nextLesson.title)}</h2>
+      <div class="meta">${esc(nextLesson.modTitle)} · ${nextLesson.code} · faltam ${Math.round(nextLesson.dur*(1-nextLesson.p/100))} min</div>
+      <div class="bar"><i style="width:${nextLesson.p}%"></i></div>
+      <div class="btns"><a class="btn btn-gold" href="#/aula/${nextLesson.courseId}/${nextLesson.id}">▶ Continuar</a></div>
     </div>
-  </div>`},
-    assistindo:{label:'Continue assistindo',html:`
+  </div>`:''},
+    assistindo:{label:'Continue assistindo',html: cont.length?`
   <div class="rowtitle"><h3>Continue assistindo</h3><a class="cnt" href="#/historico">Ver histórico →</a></div>
-  <div class="rail">${contRail||'<span style="color:var(--muted);font-size:14px">Nenhuma aula em andamento ainda.</span>'}</div>`},
-    trilhaAtual:{label:'Sua trilha atual',html:`
-  <div class="rowtitle"><h3>Sua trilha atual · ${trilhaAtual.name}</h3><a class="cnt" href="#/trilha/${trilhaAtual.id}">Abrir trilha →</a></div>
+  <div class="rail">${contRail}</div>`:''},
+    trilhaAtual:{label:'Sua certificação atual',html: trilhaAtual?`
+  <div class="rowtitle"><h3>Onde você está mais adiantado · ${esc(trilhaAtual.name)}</h3><a class="cnt" href="#/trilha/${trilhaAtual.id}">Abrir →</a></div>
   <a class="tcard" href="#/trilha/${trilhaAtual.id}" style="--tc:${trilhaAtual.color};display:flex">
-    <span class="tpill">${trilhaAtual.progress}% concluída</span>
-    <div><div class="thead"><span class="tico">${trilhaAtual.ico}</span><div><div class="teye">Você está aqui</div><h3>${trilhaAtual.name}</h3></div></div>
+    <span class="tpill">${trilhaAtual.feitos} de ${trilhaAtual.total} simulados</span>
+    <div><div class="thead"><span class="tico">${trilhaAtual.ico}</span><div><div class="teye">Você está aqui</div><h3>${esc(trilhaAtual.name)}</h3></div></div>
     <p class="tdesc">${esc(trilhaAtual.desc)}</p></div>
-    <div class="tfoot"><span class="tprog"><i style="width:${trilhaAtual.progress}%"></i></span><span class="tstat">próximo: Plano de revisão de 15 dias</span></div>
-  </a>`},
-    explorarTrilhas:{label:'Explore outras trilhas',html:`
-  <div class="rowtitle"><h3>Explore outras trilhas</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
-  <div class="tgrid">${trilhasRail}</div>`},
-    cursos:{label:'Cursos disponíveis',html:`
+    <div class="tfoot"><span class="tprog"><i style="width:${trilhaAtual.progress}%"></i></span><span class="tstat">${trilhaAtual.total-trilhaAtual.feitos>0?(trilhaAtual.total-trilhaAtual.feitos)+' ainda não feitos':'todos feitos'}</span></div>
+  </a>`:''},
+    minhas:{label:'As certificações que você acompanha',html: acompanha.length?`
+  <div class="rowtitle"><h3>As certificações que você acompanha</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
+  <div class="tgrid">${acompanha.map(trilhaCard).join('')}</div>`:''},
+    explorarTrilhas:{label:'Outras certificações',html: outras.length?`
+  <div class="rowtitle"><h3>Outras certificações</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
+  <div class="tgrid">${outras.map(trilhaCard).join('')}</div>`:''},
+    cursos:{label:'Cursos disponíveis',html: COURSES.length?`
   <div class="rowtitle"><h3>Cursos disponíveis</h3><a class="cnt" href="#/cursos">Ver catálogo →</a></div>
-  <div class="cgrid">${cursosRail}</div>`},
-    historico:{label:'Histórico recente',html:`
+  <div class="cgrid">${cursosRail}</div>`:''},
+    historico:{label:'Histórico recente',html: hist.length?`
   <div class="rowtitle"><h3>Seu histórico recente</h3><a class="cnt" href="#/historico">Ver tudo →</a></div>
-  <div class="card">${histPreview.map(e=>`<a class="up-next" href="${e[5]}"><span class="un-th">${({play:'▶',check:'✓',star:'★',doc:'❐'})[e[0]]}</span><div style="flex:1"><div class="un-t">${esc(e[2])}</div><div class="un-d">${esc(e[3])}${e[4]?' · '+esc(e[4]):''}</div></div></a>`).join('')}</div>`}
+  <div class="card">${hist.map(e=>`<a class="up-next" href="${e[5]}"><span class="un-th">${({play:'▶',check:'✓',star:'★',doc:'❐'})[e[0]]||'✓'}</span><div style="flex:1"><div class="un-t">${esc(e[2])}</div><div class="un-d">${esc(e[3])}${e[4]?' · '+esc(e[4]):''}</div></div></a>`).join('')}</div>`:''}
   };
-  const homeDef=['continuar','assistindo','trilhaAtual','explorarTrilhas','cursos','historico'];
+  const homeDef=['continuar','assistindo','trilhaAtual','minhas','explorarTrilhas','cursos','historico'];
   let homeOrder=homeDef;
   try{var _ho=(JSON.parse(localStorage.getItem('eda-db'))||{}).homeOrder;if(_ho&&_ho.length)homeOrder=_ho.filter(function(k){return homeBlocks[k];}).concat(homeDef.filter(function(k){return _ho.indexOf(k)<0;}));}catch(_){}
   try{window.HOME_SECTIONS=homeOrder.map(function(k){return {key:k,label:homeBlocks[k].label};});}catch(_){}
+
   return `
   <div class="home-head">
-    <div class="hh-greet"><h2>${greeting()}, ${USER.first} 👋</h2><p>Faltam <b>${examDaysLeft()} dias</b> para o CNPI e você está <b>78% pronto</b>. Bora manter o ritmo?</p></div>
-    <div class="hh-stats">
-      <div class="hh-stat"><span class="v">78%</span><span class="l">Prontidão</span></div>
-      <div class="hh-stat"><span class="v">14 🔥</span><span class="l">Sequência</span></div>
-      <div class="hh-stat"><span class="v">42h</span><span class="l">Estudadas</span></div>
-    </div>
+    <div class="hh-greet"><h2>${greeting()}${nome?', '+nome:''}👋</h2><p>${saudacao}</p></div>
+    ${stats.length?`<div class="hh-stats">${stats.map(s=>`<div class="hh-stat"><span class="v">${s[1]}</span><span class="l">${s[0]}</span></div>`).join('')}</div>`:''}
   </div>
-  <div class="nudge">
+  ${pior?`<div class="nudge">
     <span class="nudge-ic">◎</span>
-    <div><div class="nudge-t">Sua próxima melhor ação</div><div class="nudge-d">Seu ponto mais fraco é <b>${worst[0]} (${worst[1]}%)</b>. Revise <b>${nm[0]}</b> antes do próximo simulado.</div></div>
-    <a class="btn btn-gold btn-sm" href="${nm[1]}">Revisar agora</a>
-  </div>
-  <div class="home-search" id="home-search" style="margin-top:18px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="ph">O que você quer estudar hoje? Aulas, simulados, trilhas, conteúdos…</span><span class="kbd">⌘K</span></div>
-${homeOrder.map(function(k){return homeBlocks[k].html;}).join('\n')}
+    <div><div class="nudge-t">Onde você mais erra</div><div class="nudge-d">Entre as questões que você respondeu aqui, <b>${esc(pior.nome||pior.categoria_id)}</b> é a matéria com mais erro (${pior.erradas} de ${pior.respondidas}).</div></div>
+    <a class="btn btn-gold btn-sm" href="#/desempenho">Ver desempenho</a>
+  </div>`:''}
+  <div class="home-search" id="home-search" style="margin-top:18px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="ph">O que você quer estudar hoje? Simulados, certificações, conteúdos…</span><span class="kbd">⌘K</span></div>
+${homeOrder.map(function(k){return homeBlocks[k].html;}).filter(Boolean).join('\n')}
+  ${!TRILHAS.length?'<p style="color:var(--muted);font-size:14px;margin-top:20px">Carregando o catálogo…</p>':''}
   `;
 };
 
 VIEWS.trilhas=()=>`
-  <div class="goldstrip"><span class="gi">◎</span><div><h4>Trilhas de formação</h4><p>Cada trilha reúne cursos e aulas na ordem certa para você sair pronto, não só aprovado.</p></div></div>
+  <div class="goldstrip"><span class="gi">◎</span><div><h4>Certificações</h4><p>Cada certificação reúne os simulados por módulo da prova, com gabarito comentado em áudio.</p></div></div>
   <div class="tgrid">${TRILHAS.map(trilhaCard).join('')}</div>
 `;
 
+/* A pagina de uma certificacao. Antes montava uma "jornada" de cursos em
+   sequencia, com preco por aula e cadeado -- sobre t.courses, que hoje e
+   vazio para todas: nao existe aula no banco. Agora lista os simulados
+   daquela certificacao, que e o conteudo que existe, com a nota real do
+   aluno em cada um. */
 VIEWS.trilha=(id)=>{
   const t=trilhaById(id);if(!t)return VIEWS.trilhas();
-  const cs=t.courses.map(courseById).filter(Boolean);
+  const sims=SIMULADOS.filter(s=>s.certId===t.id);
+  const feitos=sims.filter(s=>s.score!=null).length;
+  const p=sims.length?Math.round(100*feitos/sims.length):0;
+  const questoes=sims.reduce((a,s)=>a+(s.questions||0),0);
   return `
-  <div class="crumb"><a href="#/trilhas">Trilhas</a><span class="sep">/</span><span class="cur">${t.name}</span></div>
+  <div class="crumb"><a href="#/trilhas">Certificações</a><span class="sep">/</span><span class="cur">${esc(t.name)}</span></div>
   <div class="course-hero" style="background:linear-gradient(120deg,color-mix(in srgb,${t.color} 26%,#0b0f17),#0b0f17 66%)">
     <div class="ctag" style="color:${t.color}">${t.eye}</div>
-    <h1>${t.name}</h1>
+    <h1>${esc(t.name)}</h1>
     <p>${esc(t.desc)}</p>
-    <div class="chstats"><span><b>${cs.length}</b> cursos</span><span><b>${cs.reduce((a,c)=>a+flatLessons(c).length,0)}</b> aulas</span><span><b>${t.progress}%</b> concluída</span></div>
-    <div class="chbar"><i style="width:${t.progress}%;background:${t.color}"></i></div>
+    <div class="chstats"><span><b>${sims.length}</b> simulado${sims.length===1?'':'s'}</span><span><b>${questoes}</b> questões</span>${feitos?`<span><b>${feitos}</b> entregue${feitos>1?'s':''}</span>`:''}</div>
+    ${sims.length?`<div class="chbar"><i style="width:${p}%;background:${t.color}"></i></div>`:''}
   </div>
-  <div class="rowtitle"><h3>Jornada da trilha</h3><span class="cnt">${cs.filter(c=>c.owned).length}/${cs.length} cursos liberados</span></div>
+  ${sims.length?`
+  <div class="rowtitle"><h3>Simulados desta certificação</h3><span class="cnt">${feitos}/${sims.length} entregues</span></div>
   <div class="journey">
-  ${cs.map((c,i)=>{
-    const pr=c.owned?courseProgress(c):0,cc=courseCounts(c),st=!c.owned?'locked':pr>=100?'done':'';
-    const inner=`<div class="jth tile"><span class="ctag">${c.code}</span></div>
-      <div style="flex:1;min-width:0"><div class="jstep-lbl">Curso ${i+1}</div><h4>${esc(c.title)}</h4><div class="jmeta">${cc.total} aulas${c.owned?' · '+cc.done+' concluídas':''}</div></div>
-      <div class="jright">${c.owned?`<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono'">${pr}%</div><div class="jprog"><i style="width:${pr}%"></i></div>`:`<span class="jlk">◉ ${(window.EDTokens&&EDTokens.cfg().ativo)?EDTokens.cfg().custo.aula+' tokens/aula':'R$ '+c.price}</span>`}</div>`;
-    const line=`<div class="jline"><span class="jnum">${st==='done'?'✓':i+1}</span>${i<cs.length-1?'<span class="jstick"></span>':''}</div>`;
-    /* todo curso da trilha é navegável para quem está logado */
-    return `<div class="jstep ${c.owned?st:''}">${line}<a class="jcard" href="#/curso/${c.id}">${inner}</a></div>`;
+  ${sims.map((s,i)=>{
+    const feito=s.score!=null;
+    const line=`<div class="jline"><span class="jnum">${feito?'✓':i+1}</span>${i<sims.length-1?'<span class="jstick"></span>':''}</div>`;
+    const inner=`<div class="jth tile"><span class="ctag">★</span></div>
+      <div style="flex:1;min-width:0"><div class="jstep-lbl">Simulado ${i+1}</div><h4>${esc(s.title)}</h4>
+        <div class="jmeta">${s.questions} questões · ${esc(s.dur)}${s.corte!=null?' · corte '+s.corte+'%':''}</div></div>
+      <div class="jright">${feito
+        ?`<div style="font-size:13px;font-weight:600;color:${scoreColor(s.score)};font-family:'IBM Plex Mono'">${s.score}%</div>
+          <div style="font-size:11px;color:var(--faint)">${esc(EDAluno&&s.feitoEm?EDAluno.quando(s.feitoEm):'')}</div>`
+        :`<span class="jlk">a fazer</span>`}</div>`;
+    return `<div class="jstep ${feito?'done':''}">${line}<a class="jcard" href="#/simulado/${s.id}">${inner}</a></div>`;
   }).join('')}
-  </div>
-  <p style="font-size:12.5px;color:var(--faint);margin-top:16px;line-height:1.5">Estrutura escalável: cada trilha reúne cursos em sequência, e cada curso reúne módulos e aulas. Novas trilhas, cursos e aulas entram sem mudar o layout.</p>
+  </div>`:`
+  <div class="card" style="margin-top:18px"><h3 style="font-size:15px;margin-bottom:8px">Ainda não há simulado desta certificação</h3>
+    <p style="font-size:13.5px;color:var(--muted);line-height:1.6">O banco tem ${SIMULADOS.length} simulados no ar, nenhum deles de ${esc(t.name)} ainda. Quando entrarem, aparecem aqui.</p>
+    <div style="margin-top:14px"><a class="btn btn-ghost btn-sm" href="#/trilhas">Ver as outras certificações</a></div></div>`}
   `;
 };
 
+/* ===========================================================================
+   CURSOS, CURSO e AULA
+   ---------------------------------------------------------------------------
+   Hoje nao ha aula em video no banco: o sistema antigo nunca teve tabela de
+   aula (eram 31 tabelas, nenhuma delas), e as 14 aulas de demonstracao foram
+   desativadas na 0020. Estas telas existem porque as rotas levam a elas, e
+   porque quando o conteudo entrar elas tem de funcionar -- mas nao inventam
+   mais o que nao veio:
+
+     - a descricao da aula era gerada: "Nesta aula, o professor Frederico
+       destrincha <titulo da aula> com exemplos reais de prova. Voce vai
+       entender o conceito, ver como a APIMEC costuma cobrar..." -- o mesmo
+       paragrafo para qualquer aula, atribuido a uma pessoa real.
+     - "Materiais da aula" listava tres arquivos para baixar com tamanho:
+       "Resumo (PDF, 1,2 MB)", "Exercicios resolvidos (Planilha, 320 KB)" e
+       "Audio comentado (MP3)". Nenhum existe, e a seta de download nao
+       baixava nada.
+   =========================================================================== */
 VIEWS.cursos=()=>{
+  if(!COURSES.length){
+    return `<div class="goldstrip"><span class="gi">▶</span><div><h4>Cursos</h4>
+      <p>Ainda não há curso com aula em vídeo publicado. O que está no ar são os simulados, com gabarito comentado em áudio.</p></div></div>
+      <div style="margin-top:16px"><a class="btn btn-gold" href="#/simulados">★ Ver os simulados</a>
+        <a class="btn btn-ghost" href="#/trilhas">Ver as certificações</a></div>`;
+  }
   const owned=COURSES.filter(c=>c.owned),locked=COURSES.filter(c=>!c.owned);
   return `
-  <div class="goldstrip"><span class="gi">▶</span><div><h4>Catálogo de cursos</h4><p>Seus cursos e os próximos passos da sua formação. Cursos bloqueados liberam com upgrade de plano.</p></div></div>
-  <div class="rowtitle"><h3>Meus cursos</h3><span class="cnt">${owned.length} liberados</span></div>
-  <div class="cgrid">${owned.map(courseCard).join('')}</div>
-  <div class="rowtitle"><h3>Amplie sua formação</h3><span class="cnt">${locked.length} bloqueados</span></div>
-  <div class="cgrid">${locked.map(courseCard).join('')}</div>
+  <div class="goldstrip"><span class="gi">▶</span><div><h4>Catálogo de cursos</h4><p>Seus cursos e os próximos passos da sua formação.</p></div></div>
+  ${owned.length?`<div class="rowtitle"><h3>Meus cursos</h3><span class="cnt">${owned.length} liberado${owned.length>1?'s':''}</span></div>
+  <div class="cgrid">${owned.map(courseCard).join('')}</div>`:''}
+  ${locked.length?`<div class="rowtitle"><h3>Amplie sua formação</h3><span class="cnt">${locked.length} bloqueado${locked.length>1?'s':''}</span></div>
+  <div class="cgrid">${locked.map(courseCard).join('')}</div>`:''}
   `;
 };
 
 VIEWS.curso=(id)=>{
   const c=courseById(id);if(!c)return VIEWS.cursos();
-  /* Quem esta logado navega a plataforma inteira: todo curso abre e mostra o
-     conteudo. Quem nao comprou paga a aula em tokens ao assistir. */
-  const pr=courseProgress(c),cc=courseCounts(c),t=trilhaById(c.trilha);
-  const next=flatLessons(c).find(l=>l.p<100)||flatLessons(c)[0];
+  const pr=courseProgress(c),cc=courseCounts(c);
+  /* c.trilha vem de ed-conteudo.js como 'cnpi' fixo, e TRILHAS agora sao as
+     8 certificacoes do banco -- entao pode nao haver trilha. Antes isto era
+     um acesso direto a t.id e derrubava a tela inteira. */
+  const t=trilhaById(c.trilha)||null;
+  const todas=flatLessons(c);
+  const next=todas.find(l=>l.p<100)||todas[0]||null;
   const mods=c.modules.map((m,mi)=>{
     const rows=m.lessons.map(l=>{
       const st=l[3]>=100?'done':l[3]>0?'prog':'todo';
-      const ic=st==='done'?'✓':st==='prog'?'▶':romans[0];
       return `<a class="lrow" href="#/aula/${c.id}/${l[0]}"><span class="li ${st}">${st==='done'?'✓':'▶'}</span><div style="flex:1"><div class="lt">${esc(l[1])}</div><div class="ld">${st==='done'?'Concluída':st==='prog'?'Em andamento · '+l[3]+'%':'A iniciar'}</div></div><span class="ldur">${l[2]} min</span></a>`;
     }).join('');
     const mdone=m.lessons.filter(l=>l[3]>=100).length;
     return `<div class="mod ${mi===0?'open':''}"><div class="mod-h"><span class="mn">${mi+1}</span><div style="flex:1"><div class="mt">${esc(m.title)}</div><div class="ms">${mdone}/${m.lessons.length} aulas concluídas</div></div><span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div><div class="mod-body">${rows}</div></div>`;
   }).join('');
   return `
-  <div class="crumb"><a href="#/cursos">Cursos</a><span class="sep">/</span><a href="#/trilha/${t.id}">${t.name}</a><span class="sep">/</span><span class="cur">${esc(c.title)}</span></div>
+  <div class="crumb"><a href="#/cursos">Cursos</a>${t?`<span class="sep">/</span><a href="#/trilha/${t.id}">${esc(t.name)}</a>`:''}<span class="sep">/</span><span class="cur">${esc(c.title)}</span></div>
   <div class="course-hero">
-    <div class="ctag">${c.code}</div>
+    <div class="ctag">${esc(c.code)}</div>
     <h1>${esc(c.title)}</h1>
     <p>${esc(c.desc)}</p>
     <div class="chstats"><span><b>${cc.total}</b> aulas</span><span><b>${cc.done}</b> concluídas</span><span><b>${pr}%</b> do curso</span></div>
     <div class="chbar"><i style="width:${pr}%"></i></div>
-    <div class="chbtns"><a class="btn btn-gold" href="#/aula/${c.id}/${next.id}">▶ ${pr>0?'Continuar curso':'Começar curso'}</a><span class="btn btn-ghost" data-fav="course:${c.id}">+ Favoritar</span></div>
+    ${next?`<div class="chbtns"><a class="btn btn-gold" href="#/aula/${c.id}/${next.id}">▶ ${pr>0?'Continuar curso':'Começar curso'}</a></div>`:''}
   </div>
-  <div class="rowtitle"><h3>Conteúdo do curso</h3><span class="cnt">${c.modules.length} módulos</span></div>
+  <div class="rowtitle"><h3>Conteúdo do curso</h3><span class="cnt">${c.modules.length} módulo${c.modules.length>1?'s':''}</span></div>
   ${mods}
   `;
 };
 
 VIEWS.aula=(courseId,lessonId)=>{
   const c=courseById(courseId);if(!c)return VIEWS.cursos();
-  /* Curso não comprado: o aluno pode assistir gastando tokens (reunião de 05/08,
-     Marco: "o aluno tem que ter acesso a tudo para explorar"). */
+  /* Curso nao comprado: o aluno assiste gastando tokens. */
   if(!c.owned){
     if(!window.EDTokens){setTimeout(()=>openUpgrade(c.id),0);return VIEWS.cursos();}
     const r=EDTokens.cobrar('aula',courseId+'/'+lessonId);
     if(!r.ok){setTimeout(()=>EDTokens.semSaldo(r),0);return VIEWS.cursos();}
     setTimeout(pintaSaldo,0);
   }
-  const ls=flatLessons(c);let idx=ls.findIndex(l=>l.id===lessonId);if(idx<0)idx=0;
-  const l=ls[idx],prev=ls[idx-1],next=ls[idx+1],t=trilhaById(c.trilha);
+  const ls=flatLessons(c);
+  if(!ls.length)return VIEWS.curso(courseId);
+  let idx=ls.findIndex(l=>l.id===lessonId);if(idx<0)idx=0;
+  const l=ls[idx],prev=ls[idx-1],next=ls[idx+1];
   const isDone=l.p>=100;
   return `
   <div class="crumb"><a href="#/cursos">Cursos</a><span class="sep">/</span><a href="#/curso/${c.id}">${esc(c.title)}</a><span class="sep">/</span><span class="cur">${esc(l.title)}</span></div>
@@ -1298,49 +1462,78 @@ VIEWS.aula=(courseId,lessonId)=>{
     <div>
       <div class="player-video" id="pv-${esc(l.id)}" data-aula="${esc(c.id)}|${esc(l.id)}">
         <span class="pbtn"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-        <div class="pctrl"><span style="color:#fff">▶</span><div class="ptrack"><i style="width:${l.p}%"></i></div><span class="ptime">${Math.round(l.dur*l.p/100)}:00 / ${l.dur}:00</span></div>
       </div>
       <h1>${esc(l.title)}</h1>
-      <div class="pmeta">${c.code} · Módulo ${l.mod} · ${esc(l.modTitle)} · Aula ${idx+1} de ${ls.length}</div>
+      <div class="pmeta">${esc(c.code)} · Módulo ${l.mod} · ${esc(l.modTitle)} · Aula ${idx+1} de ${ls.length}${l.dur?' · '+l.dur+' min':''}</div>
       <div class="ptools">
         ${isDone?'<span class="btn btn-ghost btn-sm" style="color:var(--green);border-color:rgba(43,182,115,.34)">✓ Aula concluída</span>':`<span class="btn btn-gold btn-sm" data-done="${c.id}/${l.id}">✓ Marcar como concluída</span>`}
-        <span class="btn btn-ghost btn-sm" data-fav="${c.id}/${l.id}"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9z"/></svg> Favoritar</span>
-        <span class="btn btn-ghost btn-sm" data-ask="${esc(l.title)}"><svg viewBox="0 0 24 24"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg> Perguntar à IA</span>
+        <span class="btn btn-ghost btn-sm" data-ask="${esc(l.title)}"><svg viewBox="0 0 24 24"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5l3.9-1.6z"/></svg> Perguntar ao ED</span>
       </div>
-      <p class="pdesc">Nesta aula, o professor Frederico destrincha <b>${esc(l.title.toLowerCase())}</b> com exemplos reais de prova. Você vai entender o conceito, ver como a APIMEC costuma cobrar e sair pronto para resolver as questões do simulado deste módulo.</p>
+      ${c.desc?`<p class="pdesc">${esc(c.desc)}</p>`:''}
       <div class="pnav">
         ${prev?`<a class="btn btn-ghost btn-sm" href="#/aula/${c.id}/${prev.id}">← ${esc(prev.title)}</a>`:'<span></span>'}
-        ${next?`<a class="btn btn-gold btn-sm" href="#/aula/${c.id}/${next.id}">${esc(next.title)} →</a>`:`<a class="btn btn-gold btn-sm" href="#/simulados">Fazer o simulado →</a>`}
+        ${next?`<a class="btn btn-gold btn-sm" href="#/aula/${c.id}/${next.id}">${esc(next.title)} →</a>`:`<a class="btn btn-gold btn-sm" href="#/simulados">Fazer um simulado →</a>`}
       </div>
     </div>
     <div class="player-side">
-      <div class="card"><div class="audio-cta"><span class="ai">♪</span><div><div class="at">Gabarito comentado em áudio</div><div class="as">Revise esta aula sem tela, no trânsito.</div></div></div></div>
-      <div class="card"><h4>Materiais da aula</h4>
-        <div class="mat"><span class="mi" style="background:rgba(224,83,61,.12);color:#E0533D">PDF</span><div style="flex:1"><div class="mnm">Resumo · ${esc(l.title)}</div><div class="msz">PDF · 1,2 MB</div></div><span class="dl">↓</span></div>
-        <div class="mat"><span class="mi" style="background:rgba(61,139,224,.12);color:#3D8BE0">XLS</span><div style="flex:1"><div class="mnm">Exercícios resolvidos</div><div class="msz">Planilha · 320 KB</div></div><span class="dl">↓</span></div>
-        <div class="mat"><span class="mi" style="background:rgba(212,164,55,.12);color:var(--gold-deep)">♪</span><div style="flex:1"><div class="mnm">Áudio comentado</div><div class="msz">MP3 · ${l.dur} min</div></div><span class="dl">↓</span></div>
-      </div>
       <div class="card"><h4>Próximas aulas</h4>
-        ${ls.slice(idx+1,idx+4).map(n=>`<a class="up-next" href="#/aula/${c.id}/${n.id}"><span class="un-th">▶</span><div style="flex:1"><div class="un-t">${esc(n.title)}</div><div class="un-d">${esc(n.modTitle)} · ${n.dur} min</div></div></a>`).join('')||'<div style="font-size:13px;color:var(--muted)">Você chegou ao fim do curso 🎉</div>'}
+        ${ls.slice(idx+1,idx+4).map(n=>`<a class="up-next" href="#/aula/${c.id}/${n.id}"><span class="un-th">▶</span><div style="flex:1"><div class="un-t">${esc(n.title)}</div><div class="un-d">${esc(n.modTitle)}${n.dur?' · '+n.dur+' min':''}</div></div></a>`).join('')||'<div style="font-size:13px;color:var(--muted)">Você chegou ao fim do curso 🎉</div>'}
       </div>
     </div>
   </div>
   `;
 };
 
-VIEWS.simulados=()=>`
-  <div class="goldstrip"><span class="gi">★</span><div><h4>Simulados por módulo</h4><p>Cada simulado completo se abre em 4 módulos. Faça por partes, veja o resultado por módulo e ouça o gabarito comentado em áudio.</p></div></div>
-  ${SIMULADOS.map(s=>{
-    const done=s.modules.filter(m=>m[2]!=null).length;
-    return `<div class="simfull"><div class="simfull-h" data-sim-toggle><span class="si">${s.score!=null?'✓':'▶'}</span>
-      <div style="flex:1"><div class="snm">${esc(s.title)}</div><div class="sds">${s.cert} · ${s.questions} questões · ${s.dur} · ${done}/4 módulos feitos</div></div>
-      <div class="sright"><span class="sscore" style="color:${scoreColor(s.score)}">${s.score!=null?s.score+'% de acerto':'a fazer'}</span><span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div></div>
+/* ===========================================================================
+   SIMULADOS
+   ---------------------------------------------------------------------------
+   Duas invencoes saíram daqui. A primeira: "Cada simulado completo se abre em
+   4 modulos" e "0/4 modulos feitos" -- o 4 era fixo, e os simulados de
+   verdade tem de 1 a 4 materias na composicao, varios com uma so.
+   A segunda: nota por modulo. Ela nao existe para nenhuma prova do
+   historico, porque o sistema antigo nao guardava resposta por questao;
+   mostrar "nao feito" ao lado de uma materia de uma prova que o aluno FEZ
+   dizia o contrario do que aconteceu. Agora essa coluna mostra travessao e
+   a tela explica uma vez por que.
+   =========================================================================== */
+VIEWS.simulados=()=>{
+  if(!SIMULADOS.length){
+    return `<div class="goldstrip"><span class="gi">★</span><div><h4>Simulados</h4>
+      <p>${window.EDConteudo&&EDConteudo.ligado()?'Carregando o catálogo…':'Entre na sua conta para ver os simulados.'}</p></div></div>`;
+  }
+  const semDetalhe=SIMULADOS.some(s=>s.score!=null&&s.semDetalhe);
+  /* agrupado por certificacao: 54 simulados numa lista plana nao se navega */
+  const grupos=[];
+  TRILHAS.forEach(t=>{
+    const l=SIMULADOS.filter(s=>s.certId===t.id);
+    if(l.length)grupos.push([t.name,l]);
+  });
+  const soltos=SIMULADOS.filter(s=>!TRILHAS.some(t=>t.id===s.certId));
+  if(soltos.length)grupos.push(['Outros',soltos]);
+
+  return `
+  <div class="goldstrip"><span class="gi">★</span><div><h4>Simulados por módulo</h4>
+    <p>${SIMULADOS.length} simulado${SIMULADOS.length===1?'':'s'} no ar, com gabarito comentado em áudio. Cada um cobre as matérias da sua composição.</p></div></div>
+  ${semDetalhe?`<p style="font-size:12.5px;color:var(--muted);margin:14px 0 0;line-height:1.55">Nas provas que vieram do sistema antigo existe a nota total, mas não a nota por matéria — ele não guardava qual questão você acertou. Por isso a coluna por matéria aparece como “—” nelas.</p>`:''}
+  ${grupos.map(([nome,lista])=>`
+  <div class="rowtitle" style="margin-top:22px"><h3>${esc(nome)}</h3><span class="cnt">${lista.filter(s=>s.score!=null).length}/${lista.length} entregues</span></div>
+  ${lista.map(s=>{
+    const feito=s.score!=null;
+    const mods=s.modules.filter(m=>m[1]>0);
+    return `<div class="simfull"><div class="simfull-h" data-sim-toggle><span class="si">${feito?'✓':'▶'}</span>
+      <div style="flex:1"><div class="snm">${esc(s.title)}</div><div class="sds">${esc(s.cert)} · ${s.questions} questões · ${esc(s.dur)}${s.corte!=null?' · corte '+s.corte+'%':''}${s.vezes>1?' · '+s.vezes+' tentativas':''}</div></div>
+      <div class="sright"><span class="sscore" style="color:${scoreColor(s.score)}">${feito?s.score+'% de acerto':'a fazer'}</span><span class="chev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></div></div>
       <div class="simfull-body">
-        ${s.modules.map((m,i)=>`<div class="simmod"><span class="mi ${m[2]!=null?'done':''}">${i+1}</span><div style="flex:1"><div class="mnm">Módulo ${i+1} · ${esc(m[0])}</div><div class="mds">${m[1]} questões</div></div><div class="mright"><span class="msc" style="color:${scoreColor(m[2])}">${m[2]!=null?m[2]+'%':'não feito'}</span><span class="btn btn-ghost btn-sm" data-open-sim="${s.id}">${m[2]!=null?'Refazer':'Iniciar'}</span></div></div>`).join('')}
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px"><span style="font-size:12.5px;color:var(--muted)">Simulado completo: ${s.questions} questões · ${s.dur}</span><span class="btn btn-gold btn-sm" data-open-sim="${s.id}">▶ Fazer simulado completo</span></div>
+        ${s.descricao?`<div class="sdesc" style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px">${s.descricao}</div>`:''}
+        ${mods.length>1?mods.map((m,i)=>`<div class="simmod"><span class="mi">${i+1}</span><div style="flex:1"><div class="mnm">${esc(m[0])}</div><div class="mds">${m[1]} questões</div></div><div class="mright"><span class="msc" style="color:var(--faint)">—</span></div></div>`).join('')
+          :`<div class="simmod"><span class="mi">1</span><div style="flex:1"><div class="mnm">${esc(mods.length?mods[0][0]:'Questões')}</div><div class="mds">${mods.length?mods[0][1]:s.questions} questões</div></div></div>`}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px">
+          <span style="font-size:12.5px;color:var(--muted)">${s.questions} questões · ${esc(s.dur)}${s.regra==='assinantes'?' · só assinantes':''}</span>
+          <span class="btn btn-gold btn-sm" data-open-sim="${s.id}">▶ ${feito?'Refazer':'Fazer'} simulado</span></div>
       </div></div>`;
-  }).join('')}
+  }).join('')}`).join('')}
 `;
+};
 
 /* índice da questão aberta na revisão do Desempenho */
 var revIdx=0;
@@ -1367,177 +1560,288 @@ VIEWS.simulado=(sid)=>{
   <div class="simframe"><iframe src="simulado.html?sim=${encodeURIComponent(sid||'')}&embed=1" title="${titulo}" loading="eager"></iframe></div>`;
 };
 
-VIEWS.desempenho=(simId)=>{
-  const done=SIMULADOS.filter(s=>s.score!=null);
-  const sel=(simId&&simById(simId))?simById(simId):(done[0]||null);
-  let detail='';
+/* ===========================================================================
+   DESEMPENHO
+   ---------------------------------------------------------------------------
+   Esta tela foi a pior do prototipo, e vale registrar o que ela fazia:
+
+     - "Diagnostico de prontidao: 78%" com um dono-de-grafico fixo no HTML,
+       e o texto "Foque em Contabilidade e Renda Variavel: sao os modulos que
+       mais derrubam sua media" -- para qualquer aluno, sempre os mesmos dois.
+     - uma curva de evolucao desenhada no SVG, com "+23%" ao lado.
+     - "934 acertos / 263 erros", "14 dias seguidos de estudo".
+     - datas de prova escritas na mao ('ontem', '12 jun', '28 mai').
+     - "1a tentativa 62% -> atual 74%", onde a primeira tentativa era
+       score-12 calculado na hora.
+     - e a revisao de questoes: enunciado, alternativas, GABARITO, a
+       alternativa que o aluno "marcou" e o comentario, tudo de um banco fixo
+       de 11 questoes escrito no arquivo.
+
+   O ultimo item e o que torna isso serio: a pessoa esta estudando para uma
+   prova de certificacao e via uma questao que nunca respondeu, com um
+   gabarito que ninguem conferiu.
+
+   Agora: nota, data, duracao e quantidade vem de meu_desempenho(). A revisao
+   questao por questao vem de gabarito_tentativa(), que so responde para a
+   dona da tentativa e so depois de entregue. Quando o banco nao tem o
+   detalhe -- o caso das 91.242 provas do sistema antigo, que guardava apenas
+   o percentual -- a tela DIZ que nao tem, e nao preenche.
+   =========================================================================== */
+
+/* gabarito carregado sob demanda, por tentativa */
+var GAB={}, gabPedido={};
+function pedirGabarito(tid){
+  if(!tid||gabPedido[tid]||!(window.EDApi&&EDApi.ativo()))return;
+  gabPedido[tid]=true;
+  EDApi.gabarito(tid).then(function(g){
+    GAB[tid]=(g&&g.ok!==false)?g:{ok:false};
+    try{render()}catch(_){}
+  }).catch(function(){GAB[tid]={ok:false};try{render()}catch(_){}});
+}
+
+VIEWS.desempenho=(arg)=>{
+  const R=window.EDAluno?EDAluno.resumo():null;
+  const ultimas=window.EDAluno?EDAluno.ultimas():[];
+  const ligado=!!(window.EDAluno&&EDAluno.ligado());
+
+  /* Sem banco nao ha desempenho nenhum para mostrar. Dizer isso e melhor que
+     mostrar zero, porque zero afirma que a pessoa nunca fez prova. */
+  if(!ligado){
+    return `<div class="goldstrip"><span class="gi">◎</span><div><h4>Desempenho</h4>
+      <p>Seu histórico de simulados fica no banco. Entre na sua conta para vê-lo.</p></div></div>`;
+  }
+  if(!R){
+    return `<div class="goldstrip"><span class="gi">◎</span><div><h4>Desempenho</h4>
+      <p>Carregando seu histórico…</p></div></div>`;
+  }
+
+  const temProva=R.provas>0;
+  if(!temProva){
+    return `
+    <div class="goldstrip"><span class="gi">★</span><div><h4>Desempenho</h4>
+      <p>Você ainda não entregou nenhum simulado. Quando entregar, a nota, o tempo e a revisão questão por questão aparecem aqui.</p></div></div>
+    <div style="margin-top:16px"><a class="btn btn-gold" href="#/simulados">★ Ver os simulados</a></div>`;
+  }
+
+  /* qual tentativa esta aberta: ?t=<uuid> ou a mais recente */
+  const tid=(arg&&String(arg).indexOf('t=')===0)?String(arg).slice(2):null;
+  const sel=tid?ultimas.find(t=>t.id===tid)||ultimas[0]:ultimas[0];
+
+  const tempo=EDAluno.horas(R.tempo_seg);
+  const cats=EDAluno.porCategoria();
+
+  /* ---- cartoes de resumo. Cada numero e uma conta sobre as provas do aluno */
+  const topo=`
+  <div class="dstat">
+    <div class="card"><div class="dv">${R.provas}</div><div class="dl">${R.provas===1?'Prova entregue':'Provas entregues'}</div></div>
+    <div class="card"><div class="dv" style="color:${scoreColor(R.melhor)}">${R.melhor!=null?R.melhor+'%':'—'}</div><div class="dl">Melhor nota</div></div>
+    <div class="card"><div class="dv" style="color:${scoreColor(R.media)}">${R.media!=null?R.media+'%':'—'}</div><div class="dl">Média</div></div>
+    <div class="card"><div class="dv">${tempo||'—'}</div><div class="dl">Tempo de prova</div></div>
+  </div>`;
+
+  /* ---- por materia: existe so com resposta por questao */
+  const porTema = cats.length
+    ? `<div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos e erros por matéria</h3>
+        ${cats.map(c=>{const ac=100-(+c.erro_pct||0);return `<div class="tbar"><div class="tl"><span>${esc(c.nome||c.categoria_id||'Matéria')}</span><span class="pct" style="color:${barColor(ac)}">${ac}%</span></div><div class="track"><i style="width:${ac}%;background:${barColor(ac)}"></i><i style="width:${100-ac}%;background:var(--red);opacity:.25"></i></div><div style="font-size:11.5px;color:var(--faint);margin-top:3px">${c.respondidas} questões · ${c.erradas} erradas</div></div>`}).join('')}
+      </div>`
+    : `<div class="card"><h3 style="font-size:15px;margin-bottom:10px">Acertos e erros por matéria</h3>
+        <p style="font-size:13.5px;color:var(--muted);line-height:1.6">Ainda não dá para abrir suas notas por matéria.
+        ${R.provas} ${R.provas>1?'provas suas vieram':'prova sua veio'} do sistema antigo, que guardava só o
+        percentual total de cada prova — não qual questão você acertou.
+        A partir dos simulados que você fizer aqui, esta quebra passa a existir.</p></div>`;
+
+  /* ---- lista das provas entregues, com data e duracao reais */
+  const linhas=ultimas.map(t=>{
+    const sim=SIMULADOS.find(x=>x.id===t.simulado_id);
+    const dur=EDAluno.horas(t.duracao_seg);
+    return `<tr data-tent-row="${t.id}" class="${sel&&sel.id===t.id?'cur':''}">
+      <td style="font-weight:500">${esc(sim?sim.title:(t.simulado_id||'Simulado'))}</td>
+      <td style="color:var(--muted)">${esc(EDAluno.quando(t.enviada_em)||'—')}</td>
+      <td>${t.total!=null?t.total:(sim&&sim.questions?sim.questions:'—')}</td>
+      <td style="color:var(--muted)">${dur||'—'}</td>
+      <td class="sc" style="color:${scoreColor(t.nota)}">${t.nota!=null?t.nota+'%':'—'}</td></tr>`;
+  }).join('');
+
+  /* ---- detalhe da prova selecionada */
+  let detalhe='';
   if(sel){
-    const acertos=Math.round(sel.questions*sel.score/100),erros=sel.questions-acertos;
-    const datas={'sim-cb':'ontem','sim-cg1':'28 de maio','sim-cfg':'12 de junho'};
-    const prev=Math.max(40,sel.score-12),delta=sel.score-prev;
-    const worstMods=sel.modules.slice().filter(m=>m[2]!=null).sort((a,b)=>a[2]-b[2]);
-    // revisão das questões (onde você errou)
-    const reviewed=reviewQuestions(sel);
-    const errs=reviewed.filter(r=>r.errou);
-    const L='ABCDE';
-    /* Revisão uma questão por vez (decisão da reunião de 05/08): aqui ficam
-       o gabarito e o comentário de cada questão, então listar todas juntas
-       entregaria a prova inteira em um scroll só. */
-    if(revIdx>=reviewed.length)revIdx=0;
-    const qhtml=[reviewed[revIdx]].filter(Boolean).map((r)=>{
-      const i=revIdx;
-      const opts=r.alts.map((a,ai)=>{
-        const isC=ai===r.correct, isW=(ai===r.chosen&&r.chosen!==r.correct);
-        const cls=isC?'correct':(isW?'wrong':'');
-        const mk=isC?'✓ Gabarito':(isW?'✗ Você marcou':'');
-        return `<div class="qalt ${cls}"><span class="ql">${L[ai]}</span><span style="flex:1">${esc(a)}</span>${mk?`<span class="qmark">${mk}</span>`:''}</div>`;
-      }).join('');
-      const ans=r.errou?`Você marcou <b>${L[r.chosen]}</b> · Gabarito: <b>${L[r.correct]}</b>`:`Você marcou <b>${L[r.correct]}</b> e acertou`;
-      return `<div class="qrev ${r.errou?'err ':''}open" data-status="${r.errou?'erro':'acerto'}">
-        <div class="qrev-h"><span class="qs ${r.errou?'no':'ok'}">${r.errou?'✗':'✓'}</span>
-          <div style="flex:1;min-width:0"><span class="qnum">Questão ${i+1}</span><div class="qtt">${esc(r.q)}</div>
-            <div class="qchips"><span class="chip-sm">${esc(r.tema)}</span>${r.sub?`<span class="chip-sm">${esc(r.sub)}</span>`:''}<span class="chip-sm" style="color:${r.errou?'var(--red)':'var(--green)'}">${r.errou?'você errou':'você acertou'}</span></div>
+    const sim=SIMULADOS.find(x=>x.id===sel.simulado_id);
+    const dur=EDAluno.horas(sel.duracao_seg);
+    const legado=sel.origem==='legado';
+    const qtd=sel.total!=null?sel.total:(sim&&sim.questions?sim.questions:null);
+
+    /* acertos: so quando o banco realmente sabe. Nao se calcula acertos a
+       partir do percentual -- arredondar nota x questoes produz um numero
+       que parece medido e nao e. */
+    const temAcertos=sel.acertos!=null&&sel.total!=null;
+
+    let revisao='';
+    if(legado){
+      revisao=`<div class="qsum" style="background:var(--gold-soft-bg);border-color:var(--gold-soft-bd)">
+        📍 Esta prova veio do sistema antigo. Ele registrava a nota e o tempo, mas não guardava
+        qual alternativa você marcou em cada questão — então não há revisão questão por questão
+        para ela. Nos simulados feitos aqui, a revisão fica disponível logo depois de entregar.</div>`;
+    }else{
+      pedirGabarito(sel.id);
+      const g=GAB[sel.id];
+      if(!g){
+        revisao=`<div class="qsum">Carregando a revisão desta prova…</div>`;
+      }else if(g.ok===false||!g.questoes||!g.questoes.length){
+        revisao=`<div class="qsum">A revisão desta prova não está disponível.</div>`;
+      }else{
+        const qs=g.questoes;
+        if(revIdx>=qs.length)revIdx=0;
+        const L='ABCDE';
+        const errs=qs.filter(q=>!q.acertou);
+        const q=qs[revIdx];
+        /* 'marcada' e o id da alternativa que o aluno escolheu, ou null se
+           deixou em branco. Nao e um booleano na alternativa -- comparar pelo
+           id e o que faz "Voce marcou" apontar para a linha certa. */
+        const alts=(q.alternativas||[]).map((a,ai)=>{
+          const isC=!!a.correta, isW=(a.id===q.marcada&&!a.correta);
+          const cls=isC?'correct':(isW?'wrong':'');
+          const mk=isC?'✓ Gabarito':(isW?'✗ Você marcou':'');
+          return `<div class="qalt ${cls}"><span class="ql">${L[ai]}</span><span style="flex:1">${esc(a.texto||'')}</span>${mk?`<span class="qmark">${mk}</span>`:''}</div>`;
+        }).join('');
+        const marcou=(q.alternativas||[]).findIndex(a=>a.id===q.marcada);
+        const certa=(q.alternativas||[]).findIndex(a=>a.correta);
+        const ans = marcou<0
+          ? 'Você deixou esta questão <b>em branco</b>'+(certa>=0?` · Gabarito: <b>${L[certa]}</b>`:'')
+          : (!q.acertou
+              ? `Você marcou <b>${L[marcou]}</b> · Gabarito: <b>${L[certa]}</b>`
+              : `Você marcou <b>${L[marcou]}</b> e acertou`);
+        /* A explicacao desta plataforma e FALADA: nenhuma das 5.098 questoes
+           ativas tem comentario em texto, 4.388 tem audio. Por isso o audio
+           vem primeiro e o texto so aparece se existir. */
+        const audio = q.audio_embed
+          ? `<div class="qaudio">${q.audio_embed}</div>`
+          : (q.audio_url
+              ? `<audio controls preload="none" style="width:100%;margin-top:10px" src="${esc(q.audio_url)}"></audio>`
+              : (q.audio_bloqueado
+                  ? `<div class="qct" style="color:var(--gold-deep)">♪ O gabarito comentado em áudio desta questão é para assinantes.</div>`
+                  : (q.audio_indisponivel
+                      ? `<div class="qct" style="color:var(--muted)">♪ O áudio desta questão está indisponível.</div>`
+                      : '')));
+        revisao=`
+        <div class="rowtitle"><h3>Revisão das questões</h3><span class="cnt">questão ${revIdx+1} de ${qs.length}${errs.length?' · '+errs.length+' errada'+(errs.length>1?'s':''):''}</span></div>
+        <div class="qrev ${!q.acertou?'err ':''}open">
+          <div class="qrev-h"><span class="qs ${!q.acertou?'no':'ok'}">${!q.acertou?'✗':'✓'}</span>
+            <div style="flex:1;min-width:0"><span class="qnum">Questão ${revIdx+1}</span>
+              <div class="qtt">${q.enunciado_html||esc(q.enunciado||'')}</div>
+              <div class="qchips">${q.categoria?`<span class="chip-sm">${esc(q.categoria)}</span>`:''}<span class="chip-sm" style="color:${!q.acertou?'var(--red)':'var(--green)'}">${!q.acertou?'você errou':'você acertou'}</span></div>
+            </div>
           </div>
-          <span class="chevq"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span>
+          <div class="qrev-b">${alts}<div class="qans">${ans}</div>
+            ${q.comentario?`<div class="qcomment"><span class="qci">✦</span><div class="qct">${q.comentario}</div></div>`:''}
+            ${audio}
+          </div>
         </div>
-        <div class="qrev-b">${opts}<div class="qans">${ans}</div>
-          <div class="qcomment"><span class="qci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 3.9L17.5 8.5 13.6 10 12 14l-1.6-4L6.5 8.5z"/></svg></span><div class="qct"><b>Por que ${L[r.correct]}:</b> ${esc(r.comment)}</div></div>
-          <div class="qrev-foot"><a class="btn btn-ghost btn-sm" href="${r.aula}">▶ Revisar a aula</a><span class="btn btn-ghost btn-sm" data-toast="Reproduzindo o gabarito em áudio…">♪ Ouvir gabarito</span></div>
-        </div>
-      </div>`;
-    }).join('');
-    detail=`
+        <div class="qdotsapp">${qs.map((x,i)=>`<button class="qdotapp${i===revIdx?' on':(!x.acertou?' miss':' hit')}" onclick="revIr(${i})" title="Questão ${i+1}">${i+1}</button>`).join('')}</div>
+        <div class="revnavapp">
+          <button class="btn btn-ghost btn-sm" onclick="revIr(${revIdx-1})" ${revIdx===0?'disabled':''}>← Anterior</button>
+          <button class="btn btn-gold btn-sm" onclick="revIr(${revIdx+1})" ${revIdx>=qs.length-1?'disabled':''}>Próxima →</button>
+        </div>`;
+      }
+    }
+
+    detalhe=`
+    <div class="rowtitle"><h3>Detalhe da prova</h3></div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-      <div><div style="font-family:'Sora';font-weight:600;font-size:17px;color:var(--head)">${esc(sel.title)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px">${sel.cert} · realizado ${datas[sel.id]||'recentemente'} · ${sel.questions} questões · ${sel.dur}</div></div>
-      <a class="btn btn-ghost btn-sm" href="#/simulado/${sel.id}">↻ Refazer simulado</a>
+      <div><div style="font-family:'Sora';font-weight:600;font-size:17px;color:var(--head)">${esc(sim?sim.title:(sel.simulado_id||'Simulado'))}</div>
+        <div style="font-size:12.5px;color:var(--muted);margin-top:2px">${sim&&sim.cert?esc(sim.cert)+' · ':''}entregue ${esc(EDAluno.quando(sel.enviada_em)||'—')}${qtd?' · '+qtd+' questões':''}${dur?' · em '+dur:''}</div></div>
+      ${sim?`<a class="btn btn-ghost btn-sm" href="#/simulado/${sel.simulado_id}">↻ Refazer</a>`:''}
     </div>
     <div class="dstat">
-      <div class="card"><div class="dv" style="color:${scoreColor(sel.score)}">${sel.score}%</div><div class="dl">Nota</div></div>
-      <div class="card"><div class="dv" style="color:var(--green)">${acertos}</div><div class="dl">Acertos</div></div>
-      <div class="card"><div class="dv" style="color:var(--red)">${erros}</div><div class="dl">Erros</div></div>
-      <div class="card"><div class="dv">${sel.questions}</div><div class="dl">Questões</div></div>
+      <div class="card"><div class="dv" style="color:${scoreColor(sel.nota)}">${sel.nota!=null?sel.nota+'%':'—'}</div><div class="dl">Nota</div></div>
+      <div class="card"><div class="dv" style="color:${temAcertos?'var(--green)':'var(--faint)'}">${temAcertos?sel.acertos:'—'}</div><div class="dl">Acertos</div></div>
+      <div class="card"><div class="dv" style="color:${temAcertos?'var(--red)':'var(--faint)'}">${temAcertos?(sel.total-sel.acertos):'—'}</div><div class="dl">Erros</div></div>
+      <div class="card"><div class="dv">${sim&&sim.corte!=null?sim.corte+'%':'—'}</div><div class="dl">Nota de corte</div></div>
     </div>
-    <div class="perf-bot" style="margin-top:0">
-      <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Desempenho por tema</h3>
-        ${sel.modules.map(m=>{const v=m[2]==null?0:m[2];return `<div class="tbar"><div class="tl"><span>${esc(m[0])}</span><span class="pct" style="color:${m[2]==null?'var(--faint)':barColor(v)}">${m[2]==null?'·':v+'%'}</span></div><div class="track"><i style="width:${v}%;background:${barColor(v)}"></i><i style="width:${100-v}%;background:var(--red);opacity:.22"></i></div></div>`}).join('')}
-        <div style="font-size:12.5px;color:var(--amber);margin-top:12px">⚠ Precisa de atenção: ${worstMods.slice(0,2).map(m=>esc(m[0])+' ('+m[2]+'%)').join(' · ')}</div>
-      </div>
-      <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos × erros</h3>
-        <div style="display:flex;justify-content:center"><div class="donut" style="--p:${sel.score};--c:${scoreColor(sel.score)}"><span class="num">${sel.score}%</span></div></div>
-        <div class="legend" style="justify-content:center"><span><b>${acertos}</b> acertos</span><span><b>${erros}</b> erros</span></div>
-        <h3 style="font-size:14px;margin:20px 0 8px">Evolução</h3>
-        <div class="evolrow">1ª tentativa <b>${prev}%</b> → atual <b>${sel.score}%</b> <span class="up">▲ ${delta} pts</span></div>
-        <div class="track" style="height:8px;margin-top:8px"><i style="width:${sel.score}%;height:100%;display:block;background:var(--gold-grad);border-radius:999px"></i></div>
-      </div>
-    </div>
-    <div class="rowtitle"><h3>Revisão das questões</h3><span class="cnt">questão ${revIdx+1} de ${reviewed.length} · ${acertos} certas · ${erros} erradas no total</span></div>
-    <div class="qsum">📍 ${errs.length?`Você marcou a alternativa errada em <b>${errs.length}</b> ${errs.length>1?'questões desta revisão':'questão desta revisão'}. Seus erros se concentram em:`:'Você acertou todas as questões desta revisão. 👏'}${errs.length?`<div class="tags">${errs.map(e=>`<span class="etag">${esc(e.tema)}${e.sub?' · '+esc(e.sub):''}</span>`).join('')}</div>`:''}</div>
-    ${qhtml}
-    <div class="qdotsapp">${reviewed.map((r,i)=>`<button class="qdotapp${i===revIdx?' on':(r.errou?' miss':' hit')}" onclick="revIr(${i})" title="Questão ${i+1}">${i+1}</button>`).join('')}</div>
-    <div class="revnavapp">
-      <button class="btn btn-ghost btn-sm" onclick="revIr(${revIdx-1})" ${revIdx===0?'disabled':''}>← Anterior</button>
-      <button class="btn btn-gold btn-sm" onclick="revIr(${revIdx+1})" ${revIdx>=reviewed.length-1?'disabled':''}>Próxima →</button>
-    </div>
-    <div style="margin-top:6px"><span class="btn btn-gold btn-sm" data-ask="Monte um plano de revisão focado nos meus erros de ${errs[0]?esc(errs[0].tema):(worstMods[0]?esc(worstMods[0][0]):'pontos fracos')}.">✦ Plano de revisão dos meus erros com o ED</span></div>`;
+    ${!temAcertos?`<p style="font-size:12.5px;color:var(--muted);margin:10px 0 0">Acertos e erros em número só existem para as provas feitas aqui. Para o histórico importado, o sistema antigo guardava apenas o percentual.</p>`:''}
+    ${revisao}`;
   }
-  return `
-  <!-- gráficos aprovados (mantidos) -->
-  <div class="perf-top">
-    <div class="card">
-      <h3 style="font-size:15px;margin-bottom:16px">Diagnóstico de prontidão</h3>
-      <div class="diag"><div class="donut" style="--p:78"><span class="num">78%</span></div>
-        <div class="txt"><h4>Você está quase lá.</h4><p>Foque em <b style="color:var(--gold-deep)">Contabilidade</b> e <b style="color:var(--gold-deep)">Renda Variável</b>: são os módulos que mais derrubam sua média.</p></div></div>
-    </div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px"><h3 style="font-size:15px">Evolução do aproveitamento</h3><span class="mono up" style="font-size:13px">+23%</span></div>
-      <svg viewBox="0 0 520 180" width="100%" height="180" preserveAspectRatio="none">
-        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D4A437" stop-opacity=".35"/><stop offset="1" stop-color="#D4A437" stop-opacity="0"/></linearGradient></defs>
-        <path d="M0,140 L65,128 L130,132 L195,108 L260,96 L325,84 L390,70 L455,52 L520,40 L520,180 L0,180 Z" fill="url(#g)"/>
-        <path d="M0,140 L65,128 L130,132 L195,108 L260,96 L325,84 L390,70 L455,52 L520,40" fill="none" stroke="#D4A437" stroke-width="2.5"/>
-        <circle cx="520" cy="40" r="5" fill="#D4A437"/>
-      </svg>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint)" class="mono"><span>S1</span><span>S4</span><span>S8</span></div>
-    </div>
-  </div>
-  <div class="perf-bot">
-    <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos e erros por tema</h3>
-      ${THEMES.map(t=>`<div class="tbar"><div class="tl"><span>${t[0]}</span><span class="pct" style="color:${barColor(t[1])}">${t[1]}%</span></div><div class="track"><i style="width:${t[1]}%;background:${barColor(t[1])}"></i><i style="width:${100-t[1]}%;background:var(--red);opacity:.25"></i></div></div>`).join('')}
-    </div>
-    <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Acertos × erros</h3>
-      <div style="display:flex;justify-content:center"><div class="donut" style="--p:78;--c:var(--green)"><span class="num">78%</span></div></div>
-      <div class="legend" style="justify-content:center"><span><b>934</b> acertos</span><span><b>263</b> erros</span></div>
-      <h3 style="font-size:14px;margin:20px 0 10px">Mapa de constância</h3>
-      <div class="heat" id="heat"></div>
-      <div style="font-size:12.5px;color:var(--muted);margin-top:10px">14 dias seguidos de estudo 🔥</div>
-    </div>
-  </div>
 
-  <!-- histórico de simulados (sempre visível) + detalhe do selecionado -->
-  <div class="rowtitle"><h3>Seus simulados</h3><span class="cnt">${done.length} realizados · toque para ver o detalhe</span></div>
-  <div class="card">
-    <table class="simhist"><thead><tr><th>Simulado</th><th>Data</th><th>Questões</th><th>Nota</th></tr></thead>
-    <tbody>
-      ${done.map((s,i)=>`<tr data-sim-row="${s.id}" class="${sel&&sel.id===s.id?'cur':''}"><td style="font-weight:500">${esc(s.title)}</td><td style="color:var(--muted)">${['ontem','12 jun','28 mai'][i]||'·'}</td><td>${s.questions}</td><td class="sc" style="color:${scoreColor(s.score)}">${s.score}%</td></tr>`).join('')}
-    </tbody></table>
+  return `
+  <div class="goldstrip"><span class="gi">★</span><div><h4>Seu desempenho</h4>
+    <p>${R.provas} prova${R.provas>1?'s':''} entregue${R.provas>1?'s':''}${R.ultima_em?', a última '+esc(EDAluno.quando(R.ultima_em)):''}.</p></div></div>
+  ${topo}
+  <div class="perf-bot">
+    ${porTema}
+    <div class="card"><h3 style="font-size:15px;margin-bottom:16px">Suas certificações</h3>
+      ${TRILHAS.filter(t=>t.total).map(t=>`<div class="tbar"><div class="tl"><span>${esc(t.name)}</span><span class="pct">${t.feitos}/${t.total}</span></div><div class="track"><i style="width:${t.progress}%;background:${t.color}"></i></div></div>`).join('')
+        ||'<p style="font-size:13.5px;color:var(--muted)">Você ainda não entregou simulado de nenhuma certificação.</p>'}
+    </div>
   </div>
-  ${sel?`<div class="rowtitle"><h3>Desempenho detalhado do simulado</h3></div>${detail}`:''}
+  <div class="rowtitle"><h3>Suas provas</h3><span class="cnt">${R.provas} entregue${R.provas>1?'s':''}${ultimas.length<R.provas?' · mostrando as '+ultimas.length+' últimas':''} · toque para ver o detalhe</span></div>
+  <div class="card">
+    <table class="simhist"><thead><tr><th>Simulado</th><th>Data</th><th>Questões</th><th>Tempo</th><th>Nota</th></tr></thead>
+    <tbody>${linhas}</tbody></table>
+  </div>
+  ${detalhe}
   `;
 };
 
 VIEWS.historico=()=>{
   const ic={play:'▶',check:'✓',star:'★',repeat:'↻',doc:'❐',start:'✦'};
   // resumo da jornada
+  const R=window.EDAluno?EDAluno.resumo():null;
+  const ligado=!!(window.EDAluno&&EDAluno.ligado());
+  /* Sem resumo nao se afirma zero. "0 provas entregues" com o banco fora e a
+     mesma mentira de antes, so com outro numero: diz que a pessoa nunca fez
+     prova quando o que houve foi falha de leitura. */
+  if(!R){
+    return `<div class="goldstrip"><span class="gi">◎</span><div><h4>Seu histórico</h4>
+      <p>${ligado?'Carregando suas provas…':'Seu histórico fica no banco. Entre na sua conta para vê-lo.'}</p></div></div>`;
+  }
   const aulasDone=COURSES.filter(c=>c.owned).reduce((a,c)=>a+courseCounts(c).done,0);
-  const simsDone=SIMULADOS.filter(s=>s.score!=null).length;
+  /* provas entregues de verdade, nao "quantos simulados tem nota no arquivo" */
+  const simsDone=R.provas;
+  const horas=(R&&window.EDAluno)?EDAluno.horas(R.tempo_seg):null;
   const cursosStarted=COURSES.filter(c=>c.owned&&courseProgress(c)>0).length;
   // continue de onde parou
   const resume=[];COURSES.filter(c=>c.owned).forEach(c=>flatLessons(c).forEach(l=>{if(l.p>0&&l.p<100)resume.push({...l,code:c.code});}));
-  const trilhasStarted=TRILHAS.filter(t=>t.progress>0);
+  const trilhasStarted=TRILHAS.filter(t=>t.feitos>0);
   return `
   <div class="jour-stats">
-    <div class="card"><div class="jv">${aulasDone}</div><div class="jl">Aulas assistidas</div></div>
-    <div class="card"><div class="jv">${simsDone}</div><div class="jl">Simulados feitos</div></div>
-    <div class="card"><div class="jv">42h</div><div class="jl">Horas de estudo</div></div>
-    <div class="card"><div class="jv">${cursosStarted}</div><div class="jl">Cursos iniciados</div></div>
+    <div class="card"><div class="jv">${simsDone}</div><div class="jl">${simsDone===1?'Prova entregue':'Provas entregues'}</div></div>
+    <div class="card"><div class="jv">${R.melhor!=null?R.melhor+'%':'—'}</div><div class="jl">Melhor nota</div></div>
+    <div class="card"><div class="jv">${R.media!=null?R.media+'%':'—'}</div><div class="jl">Média</div></div>
+    <div class="card"><div class="jv">${horas||'—'}</div><div class="jl">Tempo de prova</div></div>
   </div>
+  ${aulasDone||cursosStarted?`<div class="jour-stats" style="margin-top:10px">
+    <div class="card"><div class="jv">${aulasDone}</div><div class="jl">Aulas assistidas</div></div>
+    <div class="card"><div class="jv">${cursosStarted}</div><div class="jl">Cursos iniciados</div></div>
+  </div>`:''}
 
   ${resume.length?`<div class="rowtitle"><h3>Retome de onde parou</h3><span class="cnt">${resume.length} em andamento</span></div>
   <div class="rail">${resume.slice(0,6).map(l=>railCard({tag:l.code,roman:romans[l.mod-1],p:l.p,t:l.title,d:`${l.modTitle} · ${Math.round(l.dur*(1-l.p/100))} min restantes`,href:`#/aula/${l.courseId}/${l.id}`})).join('')}</div>`:''}
 
-  <div class="rowtitle"><h3>Suas trilhas em andamento</h3><a class="cnt" href="#/trilhas">Ver trilhas →</a></div>
-  <div class="card">${trilhasStarted.map(t=>`<a class="htrilha" href="#/trilha/${t.id}" style="display:flex"><span class="hti" style="background:color-mix(in srgb,${t.color} 30%,transparent);border:1px solid ${t.color}">${t.ico}</span><div><div class="htn">${t.name}</div><div class="hts">${t.courses.length} cursos · ${t.courses.filter(id=>{const c=courseById(id);return c&&c.owned}).length} liberados</div></div><span class="htbar"><i style="width:${t.progress}%;background:${t.color}"></i></span><span class="htp">${t.progress}%</span></a>`).join('')}</div>
+  ${trilhasStarted.length?`<div class="rowtitle"><h3>Suas certificações em andamento</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
+  <div class="card">${trilhasStarted.map(t=>`<a class="htrilha" href="#/trilha/${t.id}" style="display:flex"><span class="hti" style="background:color-mix(in srgb,${t.color} 30%,transparent);border:1px solid ${t.color}">${t.ico}</span><div><div class="htn">${t.name}</div><div class="hts">${t.feitos} de ${t.total} simulados entregues</div></div><span class="htbar"><i style="width:${t.progress}%;background:${t.color}"></i></span><span class="htp">${t.progress}%</span></a>`).join('')}</div>`:''}
 
-  <div class="rowtitle"><h3>Linha do tempo</h3></div>
+  ${HISTORY.length?`<div class="rowtitle"><h3>Linha do tempo</h3></div>
   <div class="filters" id="hist-filters"><button class="on" data-f="tudo">Tudo</button><button data-f="aula">Aulas &amp; cursos</button><button data-f="simulado">Simulados</button><button data-f="conteudo">Conteúdos</button></div>
   <div id="timeline">
   ${HISTORY.map(d=>`<div class="daygrp"><div class="dh">${d[0]}</div>${d[1].map((e,i)=>{
     const kind=(e[3].startsWith('Aula')||e[3].startsWith('Curso'))?'aula':e[3].startsWith('Simulado')?'simulado':'conteudo';
     return `<div class="tl-item" data-kind="${kind}"><div class="line"><span class="dot" style="background:${e[1]}"></span>${i<d[1].length-1?'<span class="stick"></span>':''}</div><a class="tl-card" href="${e[5]}" style="display:block">${e[4]?`<span class="rs" style="color:${e[1]}">${esc(e[4])}</span>`:''}<div class="tt">${ic[e[0]]} ${esc(e[2])}</div><div class="cx">${esc(e[3])}</div></a></div>`;
   }).join('')}</div>`).join('')}
-  </div>
+  </div>`:'<p style="color:var(--muted);font-size:14px;margin-top:18px">Você ainda não entregou nenhum simulado. Quando entregar, suas provas aparecem aqui em ordem.</p>'}
   `;
 };
 
-VIEWS.favoritos=()=>{
-  const favA=[
-    {t:'Marcação a mercado',d:'Renda Fixa · CB',note:'✎ Revisar a fórmula de PU',href:'#/aula/cb/l6'},
-    {t:'Fluxo de caixa descontado',d:'Valuation · CG1',note:'✎ Caiu na prova passada',href:'#/aula/cg1/l2'},
-    {t:'Candlestick · padrões',d:'Técnica · CT1',note:'✎ Decorar os 5 principais',href:'#/aula/ct1/l3'},
-    {t:'Ética e suitability',d:'Regulação · CB',note:'✎ Pegadinha de conflito de interesse',href:'#/aula/cb/l1'}
-  ];
-  const favQ=[
-    ['Sobre marcação a mercado de títulos públicos, assinale a alternativa correta quanto ao impacto da taxa…','Renda Fixa','Errei 2x'],
-    ['Na análise de demonstrações, o EBITDA ajustado difere do lucro operacional porque…','Contabilidade','Pegadinha'],
-    ['Segundo a Teoria de Dow, uma tendência primária é confirmada quando…','Análise Técnica','Errei 2x']
-  ];
-  return `
-  <div class="goldstrip"><span class="gi">★</span><div><h4>Seu kit de revisão</h4><p>4 aulas favoritas · 3 questões salvas para revisar antes da prova.</p></div></div>
-  <div class="rowtitle"><h3>Aulas favoritas</h3></div>
-  <div class="fav-grid">${favA.map(f=>`<a class="card favcard" href="${f.href}"><div class="ft">▶</div><div style="flex:1"><div style="font-weight:600;color:var(--head)">${esc(f.t)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:3px">${f.d}</div><div class="note">${f.note}</div></div><span style="color:var(--gold)">★</span></a>`).join('')}</div>
-  <div class="rowtitle"><h3>Questões salvas</h3></div>
-  <div class="card">${favQ.map(q=>`<div class="qitem"><span class="star">★</span><div style="flex:1"><div class="qt">${esc(q[0])}</div><div class="qmeta"><span class="tagchip">${q[1]}</span><span class="why">${q[2]}</span></div></div><span class="btn btn-ghost btn-sm">Rever</span></div>`).join('')}</div>
-  `;
-};
+/* Favoritos e questoes salvas. Aqui havia 4 aulas favoritas e 3 questoes
+   com ANOTACAO do aluno escrita no arquivo ("Caiu na prova passada", "Errei
+   2x", "Decorar os 5 principais") -- texto em primeira pessoa, atribuido a
+   quem estava lendo. Nao existe tabela de favorito no banco, entao a tela
+   diz que o recurso ainda nao esta de pe, em vez de mostrar anotacao de
+   mentira. */
+VIEWS.favoritos=()=>`
+  <div class="goldstrip"><span class="gi">★</span><div><h4>Seu kit de revisão</h4>
+    <p>Favoritar aula e salvar questão para revisar ainda não está no ar. Quando estiver, o que você marcar aparece aqui.</p></div></div>
+  <div style="margin-top:16px"><a class="btn btn-gold" href="#/simulados">★ Ver os simulados</a>
+    <a class="btn btn-ghost" href="#/desempenho">Ver meu desempenho</a></div>
+`;
 
 VIEWS.perfil=()=>{
   /* Quem ainda nao comprou nao tem planId. Antes isto virava undefined e a
@@ -1549,10 +1853,9 @@ VIEWS.perfil=()=>{
       <h3>Perfil</h3>
       <div class="cfg-prof"><span class="av">${USER.initials}</span><div><div style="font-weight:600;font-size:16px;color:var(--head)">${USER.name}</div><div style="font-size:13px;color:var(--muted)">${USER.email}</div></div><span class="btn btn-ghost btn-sm" style="margin-left:auto" data-toast="Troca de foto em breve nesta versão.">Trocar foto</span></div>
       <div class="cfg-grid">
-        <div class="f"><label>Nome</label><div class="val">${USER.name}</div></div>
-        <div class="f"><label>E-mail</label><div class="val">${USER.email}</div></div>
-        <div class="f"><label>Telefone</label><div class="val">${USER.phone}</div></div>
-        <div class="f"><label>Objetivo</label><div class="val">${USER.goal}</div></div>
+        <div class="f"><label>Nome</label><div class="val">${USER.name||'—'}</div></div>
+        <div class="f"><label>E-mail</label><div class="val">${USER.email||'—'}</div></div>
+        <div class="f"><label>Telefone</label><div class="val">${USER.phone||'—'}</div></div>
       </div>
       <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap"><span class="btn btn-gold btn-sm" onclick="abrirEditarDados()">Editar dados</span><span class="btn btn-ghost btn-sm" onclick="abrirTrocarEmail()">Trocar e-mail</span><a class="btn btn-ghost btn-sm" href="senha.html">Trocar minha senha</a></div>
     </div>
@@ -1615,7 +1918,7 @@ VIEWS.ia=()=>`
     <div class="rowtitle"><h3>Recomendações inteligentes pra você</h3></div>
     <div class="reccards">
       <div class="reccard" data-ask="Como melhorar em Contabilidade?"><div class="rc-ic">↑</div><h4>Reforce Contabilidade</h4><p>Seu ponto mais fraco (54%). Comece por “Análise de balanços” no CG1.</p></div>
-      <div class="reccard" data-ask="Estou pronto para o simulado CT1?"><div class="rc-ic">◎</div><h4>Teste o CT1</h4><p>Você ainda não fez o simulado de Análise Técnica. Meça sua prontidão.</p></div>
+      <div class="reccard" data-ask="Quais simulados eu já fiz?"><div class="rc-ic">◎</div><h4>Seus simulados</h4><p>Veja quais você já entregou e quais faltam.</p></div>
       <div class="reccard" data-ask="Qual meu plano de estudo para os próximos 15 dias?"><div class="rc-ic">✎</div><h4>Plano de 15 dias</h4><p>Monto uma rotina de revisão priorizando o que mais cai e o que você erra.</p></div>
     </div>
   </div>
@@ -1765,7 +2068,10 @@ function render(){
   else if(name==='aula')html=VIEWS.aula(params[0],params[1]);
   else if(name==='simulados')html=VIEWS.simulados();
   else if(name==='simulado')html=VIEWS.simulado(params[0]);
-  else if(name==='desempenho')html=VIEWS.desempenho(qs.get('sim'));
+  /* ?t=<tentativa> seleciona uma prova entregue. Antes era ?sim=<simulado>,
+     que nao servia mais: o aluno pode ter varias provas do mesmo simulado,
+     e o detalhe (e a revisao) e de UMA tentativa. */
+  else if(name==='desempenho')html=VIEWS.desempenho(qs.get('t')?('t='+qs.get('t')):null);
   else if(name==='historico')html=VIEWS.historico();
   else if(name==='favoritos')html=VIEWS.favoritos();
   else if(name==='perfil')html=VIEWS.perfil();
@@ -1890,7 +2196,7 @@ document.addEventListener('click',e=>{
   const ask=e.target.closest('[data-ask]');if(ask){openIa();sendIa(ask.dataset.ask);return;}
   const fav=e.target.closest('[data-fav]');if(fav){const key=fav.dataset.fav||'fav';let on;if(FAVS.has(key)){FAVS.delete(key);on=false;}else{FAVS.add(key);on=true;}_save('ed-favs',FAVS);fav.innerHTML=on?'★ Favoritado':'☆ Favoritar';fav.style.color=on?'var(--gold-deep)':'';toast(on?'Adicionado aos favoritos ★':'Removido dos favoritos','ok');return;}
   const dl=e.target.closest('.dl');if(dl){toast('Download iniciado.','ok');return;}
-  const simRow=e.target.closest('[data-sim-row]');if(simRow){revIdx=0;location.hash='#/desempenho?sim='+simRow.dataset.simRow;return;}
+  const tRow=e.target.closest('[data-tent-row]');if(tRow){revIdx=0;location.hash='#/desempenho?t='+tRow.dataset.tentRow;return;}
   if(e.target.closest('#home-search')){openSearch();return;}
   if(e.target.closest('#btn-manage')){openManage();return;}
   if(e.target.closest('#btn-upgrade')){openPlans();return;}
@@ -1915,7 +2221,10 @@ function searchIndex(){
     if(c.owned)flatLessons(c).forEach(l=>idx.push({type:'Aula',icon:'▷',title:l.title,sub:`${c.code} · ${l.modTitle}`,href:`#/aula/${c.id}/${l.id}`,kw:l.title+' '+l.modTitle+' '+c.code}));});
   TRILHAS.forEach(t=>idx.push({type:'Trilha',icon:'◎',title:t.name,sub:t.eye,href:`#/trilha/${t.id}`,kw:t.name+' '+t.desc}));
   SIMULADOS.forEach(s=>idx.push({type:'Simulado',icon:'★',title:s.title,sub:`${s.cert} · ${s.questions} questões`,href:'#/simulados',kw:s.title+' '+s.cert}));
-  [['Diagnóstico de prontidão','Conteúdo · Desempenho','#/desempenho'],['Gabarito comentado em áudio','Conteúdo · recurso','#/aula/cb/l6'],['Plano de revisão de 15 dias','Conteúdo · Valuation','#/curso/simrev']].forEach(x=>idx.push({type:'Conteúdo',icon:'❐',title:x[0],sub:x[1],href:x[2],kw:x[0]}));
+  /* o indice de busca listava "Diagnostico de prontidao", "Plano de revisao
+     de 15 dias" e uma aula de gabarito em audio -- tres paginas que nao
+     existem. Agora so entra no indice o que tem rota de verdade. */
+  [['Meu desempenho','Suas provas, notas e tempo','#/desempenho'],['Histórico','Todas as provas que você entregou','#/historico']].forEach(x=>idx.push({type:'Página',icon:'❐',title:x[0],sub:x[1],href:x[2],kw:x[0]+' '+x[1]}));
   return idx;
 }
 const SIDX=searchIndex();
@@ -2053,7 +2362,7 @@ function abrirTrocarEmail(){
 function openCancel(){
   showModal(`<div class="mic" style="background:rgba(224,83,61,.12);border:1px solid rgba(224,83,61,.34);color:#E0533D"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.6L2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/></svg></div>
   <h3>Cancelar assinatura?</h3>
-  <p>Você perde o acesso às aulas, simulados e ao seu <b>diagnóstico de prontidão</b> em 12/12/2027. Faltam <b>${examDaysLeft()} dias</b> para a sua prova do CNPI. Tem certeza?</p>
+  <p>Você perde o acesso aos simulados e ao seu histórico de provas. Tem certeza?</p>
   <div class="plan-opt" style="margin-top:18px;border-color:var(--gold-soft-bd);background:var(--gold-soft-bg)"><div><div class="po-nm">Que tal pausar?</div><div class="po-d">Congele por 30 dias sem perder progresso</div></div></div>
   <div class="macts"><span class="btn btn-gold" data-close-modal data-toast="Que bom que você ficou! 💛">Manter assinatura</span><span class="btn btn-ghost" data-close-modal style="color:var(--red)" data-toast="Assinatura cancelada. Acesso mantido até 12/12/2027.">Cancelar mesmo assim</span></div>`);
 }
@@ -2067,72 +2376,160 @@ function openSimStart(id){
 /* =========================================================
    IA · mock com getAIResponse() (fronteira p/ API real depois)
    ========================================================= */
-const IA_SUGG=['Como está meu desempenho?','O que estudar antes do próximo simulado?','Onde vejo minhas aulas favoritas?','Estou pronto para o CNPI?'];
+const IA_SUGG=['Como está meu desempenho?','Quais simulados eu já fiz?','Quais certificações eu acompanho?','Onde eu mais erro?'];
 let iaHistory=[];
-// tema fraco -> aulas específicas para revisar
-const THEME_LESSONS={
-  'Contabilidade':{course:'cg1',mod:'Contabilidade',lessons:['Demonstrações financeiras','Análise de balanços']},
-  'Renda variável':{course:'cg1',mod:'Valuation',lessons:['Introdução a valuation','Fluxo de caixa descontado']},
-  'Renda fixa':{course:'cb',mod:'Renda Fixa',lessons:['Renda fixa · conceitos','Marcação a mercado','Títulos públicos']},
-  'Derivativos':{course:'cb',mod:'Derivativos',lessons:['Derivativos · introdução','Hedge e especulação']},
-  'Sistema financeiro':{course:'cb',mod:'Sistema Financeiro',lessons:['Sistema Financeiro Nacional','Política monetária e Copom']},
-  'Ética e regulação':{course:'cb',mod:'Ética e Regulação',lessons:['Ética e suitability','Regulação e órgãos do SFN']}
-};
-// contexto do aluno (simulados, módulos fracos, aulas em andamento, trilhas)
-function studentCtx(){
-  const doneSims=SIMULADOS.filter(s=>s.score!=null);
-  let worstMod=null;
-  doneSims.forEach(s=>s.modules.forEach(m=>{if(m[2]!=null&&(!worstMod||m[2]<worstMod.score))worstMod={sim:s.cert,name:m[0],score:m[2]};}));
-  const weakThemes=THEMES.slice().sort((a,b)=>a[1]-b[1]);
-  const inProgress=[];COURSES.filter(c=>c.owned).forEach(c=>flatLessons(c).forEach(l=>{if(l.p>0&&l.p<100)inProgress.push({...l,code:c.code});}));
-  const started=COURSES.filter(c=>c.owned&&courseProgress(c)>0).length;
-  const notDoneSim=SIMULADOS.find(s=>s.score==null);
-  const trilhaAtual=TRILHAS.find(t=>t.id==='evaluation');
-  return {doneSims,worstMod,weakThemes,inProgress,started,notDoneSim,trilhaAtual};
-}
-function getAIResponse(text){
-  // >>> Ponto único de integração: troque este mock por um fetch à API (Claude) mantendo o mesmo retorno {text, recs?}.
-  //     O contexto (studentCtx) é o que você enviaria como "system/context" para a IA real. <<<
-  const q=text.toLowerCase();
-  const ctx=studentCtx();
-  const wm=ctx.worstMod;                       // pior módulo em simulado
-  const wt=ctx.weakThemes[0];                   // tema mais fraco no geral
-  const tl=THEME_LESSONS[wt[0]]||THEME_LESSONS[wm.name]||null;
-  const revise=tl?`Recomendo revisar <b>${tl.lessons.join('</b>, <b>')}</b> (módulo de ${tl.mod}) antes de um novo simulado.`:'';
-  const reviseHref=tl?`#/curso/${tl.course}`:'#/desempenho';
-  const reviseLbl=tl?('Revisar '+tl.mod):('Revisar '+wt[0]);
 
-  if(/(desempenho|como (estou|vou|to)|minha nota|prontid|resumo|como est)/.test(q)){
-    return {text:`Sua prontidão está em <b>78%</b> (subiu 6% na semana). Nos simulados você acerta 934 e erra 263 questões. Seu módulo mais fraco é <b>${wm.name} (${wm.score}%)</b>, no ${wm.sim}. ${revise}`,
-      recs:[['Ver desempenho detalhado','#/desempenho'],[reviseLbl,reviseHref]]};
+/* ===========================================================================
+   O ED
+   ---------------------------------------------------------------------------
+   Isto NAO e uma IA: e um roteiro de respostas, e era um roteiro que mentia.
+   O que ele afirmava, para qualquer aluno:
+     "Sua prontidao esta em 78% (subiu 6% na semana)"
+     "Nos simulados voce acerta 934 e erra 263 questoes"
+     "Contabilidade e hoje seu ponto critico (49% no CG1)"
+     "Voce foi bem no CB (84%)"
+     "Seu kit de revisao tem 4 aulas favoritas e 3 questoes salvas"
+     "costuma subir uns 15%"
+   Um assistente que afirma numero errado sobre o estudo da pessoa e pior que
+   nenhum assistente: ele direciona a revisao para a materia errada a dias de
+   uma prova paga.
+
+   Agora ele responde SO com o que meu_desempenho() devolve, e quando nao
+   tem o dado, diz que nao tem. Nenhuma frase aqui afirma numero que nao
+   venha do banco. Se um dia entrar IA de verdade, studentCtx() e o contexto
+   que se manda -- e ele agora contem fato, nao enfeite.
+   =========================================================================== */
+function studentCtx(){
+  const R=window.EDAluno?EDAluno.resumo():null;
+  const cats=window.EDAluno?EDAluno.porCategoria():[];
+  const minhas=window.EDAluno?EDAluno.trilhas():[];
+  const feitas=SIMULADOS.filter(s=>s.score!=null);
+  const aFazer=SIMULADOS.filter(s=>s.score==null);
+  const certs=TRILHAS.filter(t=>minhas.indexOf(t.id)>=0);
+  const andamento=TRILHAS.filter(t=>t.feitos>0).sort((a,b)=>b.progress-a.progress);
+  return {R, cats, feitas, aFazer, certs, andamento,
+          pior:cats.length?cats[0]:null,
+          temDetalhe:!!(window.EDAluno&&EDAluno.temDetalhe())};
+}
+
+/* Frase unica para "nao sei", usada em todo lugar onde antes havia numero
+   inventado. Dizer o motivo e melhor que dizer "nao sei": o aluno entende
+   que o dado nao existe, em vez de achar que o site esta quebrado. */
+function iaSemDetalhe(R){
+  if(!R||!R.provas)return 'Você ainda não entregou nenhum simulado, então eu ainda não tenho o que medir.';
+  return 'Suas '+R.provas+' prova'+(R.provas>1?'s':'')+' vier'+(R.provas>1?'am':'a')+
+         ' do sistema antigo, que guardava só o percentual de cada prova — não qual questão você errou. '+
+         'Por isso eu não consigo te dizer a matéria. A partir dos simulados feitos aqui, eu passo a conseguir.';
+}
+
+function getAIResponse(text){
+  /* >>> Ponto unico de integracao: para trocar por IA de verdade, mande
+     studentCtx() como contexto. NAO complete o que o contexto nao traz: o
+     erro desta tela nunca foi de modelo, foi de inventar numero. <<< */
+  const q=String(text||'').toLowerCase();
+  const c=studentCtx();
+  const R=c.R;
+
+  if(!R){
+    return {text:'Não consegui ler seu histórico agora. Tente de novo em instantes.',
+      recs:[['Ver meu desempenho','#/desempenho']]};
   }
-  if(/(recomend|o que estud|o que fa|próxim|proxim|melhor aç|onde foc|plano|15 dias|rotina|cronograma|revis)/.test(q)){
-    return {text:`Você apresentou dificuldade no módulo de <b>${wm.name}</b> (${wm.score}% no ${wm.sim}). ${revise} Depois disso, refaça o simulado desse módulo pra medir o ganho (costuma subir uns 15%).`,
-      recs:[[reviseLbl,reviseHref],['Refazer simulado','#/simulados']]};
+
+  /* "estou pronto?" e a pergunta que o site antes respondia com "78%".
+     Vem antes de tudo e e respondida de frente: nao se mede. Dar o que se
+     sabe (nota, media, corte) e deixar a conclusao com a pessoa. */
+  if(/(pronto|prontid|estou apto|consigo passar|vou passar|passo na prova)/.test(q)){
+    let t='Não meço prontidão — nenhum número aqui diz se você está pronto para a prova, e eu não vou chutar um.';
+    if(R.provas&&R.media!=null){
+      t+=' O que eu sei: sua média nas '+R.provas+' prova'+(R.provas>1?'s':'')+' é <b>'+R.media+'%</b>';
+      if(R.melhor!=null)t+=' e sua melhor nota é <b>'+R.melhor+'%</b>';
+      const cortes=SIMULADOS.filter(s=>s.corte!=null).map(s=>s.corte);
+      if(cortes.length){
+        const c=Math.round(cortes.reduce((a,b)=>a+b,0)/cortes.length);
+        t+='. A nota de corte dos simulados é '+c+'%.';
+      }else t+='.';
+    }else if(R.provas){
+      t+=' Você tem '+R.provas+' prova'+(R.provas>1?'s':'')+' no histórico.';
+    }else{
+      t+=' Você ainda não entregou nenhum simulado, então não tenho nem nota para te mostrar.';
+    }
+    return {text:t, recs:[['Ver meu desempenho','#/desempenho'],['Fazer um simulado','#/simulados']]};
   }
-  if(/(contabil|balanç|ebitda|demonstra)/.test(q)){
-    return {text:`Contabilidade é hoje seu ponto crítico (<b>49% no CG1</b>). Comece por <b>Demonstrações financeiras</b> e depois <b>Análise de balanços</b>. São exatamente os temas que mais derrubaram sua nota no último simulado.`,
-      recs:[['Aula: Demonstrações financeiras','#/aula/cg1/l3'],['Refazer simulado CG1','#/desempenho?sim=sim-cg1']]};
+
+  /* desempenho geral */
+  if(/(desempenho|como (estou|vou|to)|minha nota|resumo|como est|media|média)/.test(q)){
+    if(!R.provas)return {text:'Você ainda não entregou nenhum simulado. Quando entregar o primeiro, eu te mostro nota, tempo e a revisão questão por questão.',
+      recs:[['Ver os simulados','#/simulados']]};
+    let t='Você entregou <b>'+R.provas+'</b> prova'+(R.provas>1?'s':'')+'.';
+    if(R.melhor!=null)t+=' Sua melhor nota é <b>'+R.melhor+'%</b>';
+    if(R.media!=null)t+=' e a média é <b>'+R.media+'%</b>';
+    t+='.';
+    if(R.ultima_em)t+=' A última foi '+EDAluno.quando(R.ultima_em)+'.';
+    /* nao existe "prontidao": o banco nao sabe se alguem esta pronto para a
+       prova da APIMEC, e chutar isso e o tipo de numero que faz a pessoa
+       parar de estudar cedo */
+    return {text:t, recs:[['Ver desempenho detalhado','#/desempenho']]};
   }
-  if(/(simulad|prova|pronto|ct1|técnic|test)/.test(q)){
-    const nd=ctx.notDoneSim;
-    return {text:`Você foi bem no CB (84%), mas <b>ainda não fez o ${nd?nd.title:'Simulado CNPI-CT1'}</b>. Como faltam ${examDaysLeft()} dias, vale medir isso essa semana. Antes, revise <b>Tendências e suportes</b> e <b>Candlestick</b> no CT1.`,
-      recs:[['Fazer '+(nd?nd.cert:'CT1'),'#/simulados'],['Aula: Tendências e suportes','#/aula/ct1/l2']]};
+
+  /* onde erro mais */
+  if(/(onde.*err|materia|matéria|ponto fraco|fraco|dificuldade|o que estud|recomend|revis|próxim|proxim|plano)/.test(q)){
+    if(c.pior){
+      return {text:'Entre as questões que você respondeu aqui, <b>'+esc(c.pior.nome||c.pior.categoria_id)+
+        '</b> é onde você mais erra: '+c.pior.erradas+' de '+c.pior.respondidas+'. É por ela que eu começaria.',
+        recs:[['Ver desempenho','#/desempenho'],['Fazer um simulado','#/simulados']]};
+    }
+    return {text:iaSemDetalhe(R), recs:[['Fazer um simulado','#/simulados'],['Ver meu desempenho','#/desempenho']]};
   }
-  if(/(trilha|começar|onde começ|navega|como uso|menu|caminho|jornada)/.test(q)){
-    return {text:`Você está na <b>${ctx.trilhaAtual.name}</b> (${ctx.trilhaAtual.progress}% concluída) e já iniciou <b>${ctx.started} cursos</b>. Seu próximo passo é o <b>Plano de revisão de 15 dias</b>. Te levo lá?`,
-      recs:[['Continuar minha trilha','#/trilha/evaluation'],['Ver todas as trilhas','#/trilhas']]};
+
+  /* simulados feitos / a fazer */
+  if(/(simulad|prova|pronto|test|quais.*fiz|ja fiz|já fiz)/.test(q)){
+    let t='';
+    if(c.feitas.length){
+      const n=c.feitas.slice(0,3).map(s=>esc(s.title)+' ('+s.score+'%)').join(', ');
+      t='Você já entregou '+c.feitas.length+' simulado'+(c.feitas.length>1?'s':'')+' do catálogo atual: '+n+
+        (c.feitas.length>3?' e outros':'')+'.';
+    }else{
+      t='Nenhum dos simulados do catálogo atual tem prova sua ainda.';
+      if(R.provas)t+=' Seu histórico tem '+R.provas+' prova'+(R.provas>1?'s':'')+', de simulados do sistema antigo.';
+    }
+    if(c.aFazer.length)t+=' Faltam <b>'+c.aFazer.length+'</b> para fazer.';
+    return {text:t, recs:[['Ver os simulados','#/simulados'],['Ver meu desempenho','#/desempenho']]};
   }
+
+  /* certificacoes */
+  if(/(trilha|certifica|caminho|jornada|cnpi|cfg|cpa|cea|ancord|começar|onde começ)/.test(q)){
+    if(c.certs.length){
+      const nomes=c.certs.map(t=>esc(t.name)).join(', ');
+      const sem=c.certs.filter(t=>!t.simulados);
+      let t='Você acompanha '+nomes+'.';
+      if(c.andamento.length)t+=' Está mais adiantado em <b>'+esc(c.andamento[0].name)+'</b> ('+
+        c.andamento[0].feitos+' de '+c.andamento[0].total+' simulado'+(c.andamento[0].total>1?'s':'')+').';
+      /* fato que o site escondia: 4 das 8 certificacoes nao tem simulado */
+      if(sem.length)t+=' Ainda não há simulado no ar de '+sem.map(t=>esc(t.name)).join(' nem de ')+'.';
+      return {text:t, recs:[['Ver as certificações','#/trilhas']]};
+    }
+    return {text:'Você não acompanha nenhuma certificação ainda. São '+TRILHAS.length+
+      ' no catálogo, e '+TRILHAS.filter(t=>t.simulados).length+' delas já têm simulado no ar.',
+      recs:[['Ver as certificações','#/trilhas']]};
+  }
+
+  /* favoritos: o recurso nao existe, e dizer isso e a resposta certa */
   if(/(favorit|salv|kit)/.test(q)){
-    return {text:`Seu kit de revisão tem <b>4 aulas favoritas</b> e 3 questões salvas, incluindo Marcação a mercado e Fluxo de caixa descontado. Ótimo material pra reta final.`,
-      recs:[['Abrir Favoritos','#/favoritos']]};
+    return {text:'Favoritar aula e salvar questão ainda não está no ar nesta versão.',
+      recs:[['Ver os simulados','#/simulados']]};
   }
-  if(/(renda fixa|marcação|pu|título)/.test(q)){
-    return {text:`Em Renda Fixa você está em 74%. A pegadinha costuma ser <b>marcação a mercado</b>: a aula certa é essa. Depois, ouça o gabarito em áudio pra fixar.`,
-      recs:[['Aula: Marcação a mercado','#/aula/cb/l6']]};
+
+  /* aulas: nao existe aula no banco hoje */
+  if(/(aula|v[ií]deo|curso|assist)/.test(q)){
+    return {text:'Ainda não há aula em vídeo publicada. O que está no ar '+
+      (SIMULADOS.length===1?'é <b>1 simulado</b>':'são os <b>'+SIMULADOS.length+' simulados</b>')+
+      ' com gabarito comentado em áudio.',
+      recs:[['Ver os simulados','#/simulados']]};
   }
-  return {text:`Posso te ajudar com <b>aulas, simulados, conteúdos e navegação</b>, e principalmente dizer <b>o que estudar a seguir</b> pelo seu desempenho. Hoje eu focaria em <b>${wm.name} (${wm.score}%)</b>. ${revise}`,
-    recs:[['Ver meu desempenho','#/desempenho'],[reviseLbl,reviseHref]]};
+
+  let t='Posso te dizer o que o seu histórico mostra: provas entregues, nota, tempo e, para as provas feitas aqui, em que matéria você mais erra.';
+  if(R.provas)t+=' Você tem <b>'+R.provas+'</b> prova'+(R.provas>1?'s':'')+' no histórico.';
+  return {text:t, recs:[['Ver meu desempenho','#/desempenho'],['Ver os simulados','#/simulados']]};
 }
 function iaBubble(role,text,recs){
   const rec=recs&&recs.length?`<div class="rec">${recs.map(r=>`<a href="${r[1]}" data-ia-go>${esc(r[0])}</a>`).join('')}</div>`:'';
@@ -2147,11 +2544,29 @@ function refreshIa(){
   const b=$('#ia-body');if(b)renderIaInto(b);
   const pb=$('#ia-page-body');if(pb)renderIaInto(pb);
 }
+/* A primeira fala do ED. Antes ela abria com "prontidao 78%" e o modulo
+   mais fraco -- numeros inventados, ditos antes de o aluno perguntar nada.
+   Agora ela abre com o que existe, ou sem numero nenhum. */
 function seedIa(){
   if(iaHistory.length)return;
-  const ctx=studentCtx();const wm=ctx.worstMod;const tl=THEME_LESSONS[ctx.weakThemes[0][0]];
-  iaHistory.push({role:'ai',text:`Oi, ${USER.first}! 👋 Sou o <b>ED</b>. Olhei seu progresso: prontidão <b>78%</b>, e seu módulo mais fraco é <b>${wm.name} (${wm.score}%)</b> no ${wm.sim}.${tl?` Antes de um novo simulado, recomendo revisar <b>${tl.lessons.join('</b> e <b>')}</b>.`:''}`,
-    recs:[['Revisar '+(tl?tl.mod:ctx.weakThemes[0][0]),tl?`#/curso/${tl.course}`:'#/desempenho'],['Ver meu desempenho','#/desempenho']]});
+  const c=studentCtx(), R=c.R;
+  const oi='Oi'+(USER.first?', '+esc(USER.first):'')+'! 👋 Sou o <b>ED</b>. ';
+  let t, recs=[['Ver meu desempenho','#/desempenho'],['Ver os simulados','#/simulados']];
+
+  if(!R){
+    t=oi+'Pergunte sobre suas provas, suas notas e as certificações que você acompanha.';
+  }else if(!R.provas){
+    t=oi+'Você ainda não entregou nenhum simulado. Quando entregar, eu te mostro nota, tempo e onde você mais erra.';
+    recs=[['Ver os simulados','#/simulados']];
+  }else if(c.pior){
+    t=oi+'Você tem <b>'+R.provas+'</b> prova'+(R.provas>1?'s':'')+' no histórico'+
+      (R.media!=null?', média <b>'+R.media+'%</b>':'')+'. Onde você mais erra é <b>'+
+      esc(c.pior.nome||c.pior.categoria_id)+'</b>.';
+  }else{
+    t=oi+'Você tem <b>'+R.provas+'</b> prova'+(R.provas>1?'s':'')+' no histórico'+
+      (R.melhor!=null?', a melhor com <b>'+R.melhor+'%</b>':'')+'. Pergunte o que quiser sobre elas.';
+  }
+  iaHistory.push({role:'ai',text:t,recs:recs});
 }
 function renderSugg(){$('#ia-sugg').innerHTML=IA_SUGG.map(s=>`<button data-ia-sugg>${esc(s)}</button>`).join('');}
 function openIa(){dismissIaNudge();seedIa();refreshIa();renderSugg();$('#ia-pop').classList.add('show');$('#ia-fab').style.display='none';setTimeout(()=>$('#ia-text')?.focus(),40);}
@@ -2241,7 +2656,7 @@ function sairDaConta(){
   if(n)n.textContent=USER.name;
   if(i)i.textContent=USER.initials;
   var nd=document.getElementById('ia-nudge-t');
-  if(nd)nd.innerHTML='👋 Oi, '+esc(USER.first)+'! Quer que eu monte seu <b>plano de estudo</b> até a prova?';
+  if(nd)nd.innerHTML='👋 Oi'+(USER.first?', '+esc(USER.first):'')+'! Quer ver como está seu desempenho nos simulados?';
 })();
 
 if(!location.hash)location.hash='#/inicio';

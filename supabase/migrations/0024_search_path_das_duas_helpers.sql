@@ -21,7 +21,7 @@ end $mig$;
 --     _mapa_aluno) -- RLS ligada com ZERO politica E a negacao total para
 --     anon e authenticated, conferido trocando de papel. Nao e falta de
 --     politica, e a politica.
---   security_definer_function_executable nas 25 RPC -- cada uma confere
+--   security_definer_function_executable nas 26 RPC -- cada uma confere
 --     eh_admin() ou auth.uid() por dentro. SECURITY DEFINER e o que permite
 --     o painel ler o que o aluno nao pode. Nenhuma e SECURITY INVOKER por
 --     descuido.
