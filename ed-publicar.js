@@ -564,7 +564,73 @@
     return EDApi.rpc('atividade_do_dia',{});
   }
 
+  /* Imagens, paginas e tags tinham aba no painel, mas as tres liam a copia
+     local do seed: as 166 imagens, 133 paginas e 17 tags que vieram do site
+     antigo nunca apareciam.
+
+     A lista de paginas vem SEM o conteudo. Somados, os conteudos dao 1 MB, e
+     o painel inteiro vive num localStorage de ~5 MB que ja estourou uma vez
+     nesta migracao. O conteudo e buscado so quando alguem abre a pagina para
+     editar, por conteudoDaPagina(). */
+  function baixarSite(){
+    if(!window.EDApi||!EDApi.listar)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+
+    return Promise.all([
+      EDApi.listar('imagens','select=id,titulo,caminho,url_nova,url_antiga&order=caminho'),
+      EDApi.listar('paginas','select=id,titulo,slug,ativo,tipo&order=titulo'),
+      EDApi.listar('tags','select=id,nome&order=nome'),
+      EDApi.listar('blocos_site','select=id,nome,ativo&order=id')
+    ]).then(function(r){
+      var imgs=r[0]||[], pgs=r[1]||[], tgs=r[2]||[], blcs=r[3]||[];
+      db.imagens = db.imagens || []; db.paginas = db.paginas || []; db.tags = db.tags || [];
+      var n={imagens:0, paginas:0, tags:0, blocos:0};
+
+      var temI={}; db.imagens.forEach(function(x){temI[x.id]=true;});
+      imgs.forEach(function(i){
+        if(temI[i.id])return;
+        db.imagens.push({id:i.id, name:i.caminho?i.caminho.split('/').pop():(i.titulo||i.id),
+                         size:null, url:i.url_nova||i.url_antiga||'', doBanco:true});
+        n.imagens++;
+      });
+
+      var temP={}; db.paginas.forEach(function(x){temP[x.id]=true;});
+      pgs.forEach(function(g){
+        if(temP[g.id])return;
+        db.paginas.push({id:g.id, title:g.titulo||'(sem titulo)', slug:g.slug||'',
+                         active:g.ativo!==false, content:null, tipo:g.tipo||'', doBanco:true});
+        n.paginas++;
+      });
+
+      var temT={}; db.tags.forEach(function(x){temT[x.id]=true;});
+      tgs.forEach(function(t){
+        if(temT[t.id])return;
+        db.tags.push({id:t.id, name:t.nome||t.id, active:true,
+                      slug:String(t.nome||t.id).toLowerCase()
+                            .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+                            .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),
+                      doBanco:true});
+        n.tags++;
+      });
+
+      n.blocos = blcs.length;
+      save();
+      return n;
+    });
+  }
+
+  /* o conteudo de UMA pagina, so na hora de abrir */
+  function conteudoDaPagina(id){
+    if(!window.EDApi||!EDApi.listar)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    return EDApi.listar('paginas','select=conteudo&id=eq.'+encodeURIComponent(id))
+      .then(function(l){ return (l&&l[0]&&l[0].conteudo)||''; });
+  }
+
   window.EDPublicar={
+    baixarSite:baixarSite, conteudoDaPagina:conteudoDaPagina,
     resumo:resumo, pacote:montarPacote, publicar:publicar,
     entrar:entrar, conta:conta, baixar:baixar, baixarAlunos:baixarAlunos,
     baixarQuestoes:baixarQuestoes,

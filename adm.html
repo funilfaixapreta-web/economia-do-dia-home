@@ -1223,6 +1223,7 @@ function router(){
   if(r==='simulados')sincronizarSimulados();
   if(r==='perguntas')sincronizarPerguntas();
   if(r==='usuarios'||r==='alunos')sincronizarUsuarios();
+  if(r==='imagens'||r==='paginas'||r==='artigos')sincronizarSite();
   if(r==='perfil')perfilCarregar();
   if(r==='editorfotos')peInit();
   if(aiOpened)aiUpdateCtx();
@@ -1607,6 +1608,53 @@ function toggleSimActive(id){const s=db.simulados.find(x=>x.id===id);if(!s)retur
    Roda uma vez por sessao (ou quando se clica em "Buscar no banco"), porque
    sao quatro leituras e nao faz sentido repetir a cada clique no menu.      */
 var _SIMS_SINCRONIZADOS=false;
+
+/* Imagens, paginas e tags do site antigo vivem no banco e as tres abas liam
+   so a copia local. Mesmo padrao dos outros sincronizadores: um aviso na
+   propria aba, e um botao para buscar. */
+var _SITE_SINCRONIZADO=false;
+function sincronizarSite(forcar){
+  /* ed-publicar.js carrega depois deste arquivo, entao na primeira passada
+     EDPublicar ainda nao existe. Desistir ali deixava a aba em branco para
+     sempre; esperaPublicar() tenta de novo por um tempo curto. */
+  if(!window.EDPublicar||!EDPublicar.baixarSite){
+    return esperaPublicar('baixarSite', function(){ sincronizarSite(forcar); },
+      function(m){ var e=$('#site-sinc'); if(e)e.innerHTML='<span style="color:var(--muted)">'+esc(m)+'</span>'; });
+  }
+  var el=$('#site-sinc');
+  var logado=!!(window.EDApi&&EDApi.sessao&&EDApi.sessao());
+  if(!logado){
+    if(el)el.innerHTML='<span style="color:var(--muted)">Mostrando só o que está neste navegador. '
+      +'<a href="#/sistema" style="color:var(--gold-deep)">Entre no banco</a> para ver o que veio do site antigo.</span>';
+    return;
+  }
+  if(_SITE_SINCRONIZADO&&!forcar){
+    if(el)el.innerHTML='<span style="color:var(--muted)">Mostrando o que está no banco. '
+      +'<button class="btn btn-ghost btn-sm" onclick="sincronizarSite(true)">Buscar de novo</button></span>';
+    return;
+  }
+  if(el)el.innerHTML='<span style="color:var(--muted)">Procurando no banco…</span>';
+  EDPublicar.baixarSite().then(function(n){
+    _SITE_SINCRONIZADO=true;
+    toast(n.imagens+' imagem(ns), '+n.paginas+' página(s) e '+n.tags+' tag(s) vindas do banco.');
+    router();
+  }).catch(function(e){
+    if(el)el.innerHTML='<span style="color:var(--red)">Não deu para buscar: '+esc(e&&e.message||'erro')+'</span>';
+  });
+}
+
+/* O conteudo das paginas nao vem na lista: somados dao 1 MB, e o painel vive
+   num localStorage de ~5 MB que ja estourou nesta migracao. Busca na hora de
+   abrir, e guarda so em memoria. */
+var _CONTEUDO={};
+function carregarConteudoPagina(id){
+  if(_CONTEUDO[id]!==undefined)return;
+  _CONTEUDO[id]=null;
+  if(!window.EDPublicar||!EDPublicar.conteudoDaPagina){_CONTEUDO[id]='';return;}
+  EDPublicar.conteudoDaPagina(id).then(function(c){
+    _CONTEUDO[id]=c; router();
+  }).catch(function(){_CONTEUDO[id]='';});
+}
 
 function sincronizarSimulados(forcar){
   var el=$('#sim-sinc');
@@ -4174,18 +4222,35 @@ function editArtigo(id){
 function viewPaginas(){
   const rows=(db.paginas||[]).map((p,i)=>`
     <tr class="clk urow" data-s="${esc((p.title+' '+(p.slug||'')).toLowerCase())}" onclick="editPagina('${p.id}')">
-      <td class="mono t-sub">${i+1}</td><td>${catBadge(p.active)}</td><td class="t-title">${esc(p.title)}</td><td class="mono t-sub">${esc(p.slug||'')}</td>
+      <td class="mono t-sub">${i+1}</td><td>${catBadge(p.active)}</td><td class="t-title">${esc(p.title)}${p.doBanco?' <span class="badge b-draft" title="Veio do site antigo">do banco</span>':''}</td><td class="mono t-sub">${esc(p.slug||'')}</td>
       <td class="rowend"><div class="rowact"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();toggleGeneric('paginas','${p.id}')">${p.active?'Desativar':'Ativar'}</button><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();editPagina('${p.id}')">${EDIT_IC}</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delGeneric('paginas','${p.id}','Página')">${DEL_IC}</button></div></td>
     </tr>`).join('');
   return `
   <div class="crumb"><span>Conteúdo</span> <span class="sep">›</span> <span style="color:var(--text)">Páginas</span></div>
   <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Páginas</h1><p>Páginas institucionais (sobre, contato, termos), com editor de texto rico e slug.</p></div>
     <div class="ph-actions"><button class="btn btn-gold" onclick="editPagina()">+ Nova página</button></div></div>
+  <p class="hint" id="site-sinc" style="margin:0 0 12px"></p>
   <div class="toolbar"><div class="searchbox" id="pg-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input placeholder="Buscar página…" oninput="filterRows('pg-search','pg-rows')"></div></div>
   ${(db.paginas||[]).length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Id</th><th>Ativo</th><th>Título</th><th>Slug</th><th></th></tr></thead><tbody id="pg-rows">${rows}</tbody></table></div>`:emptyState('❐','Nenhuma página','Crie a primeira página.','+ Nova página','editPagina()')}`;
 }
 function editPagina(id){
   const p=id?(db.paginas||[]).find(x=>x.id===id):null;
+  /* pagina que veio do banco nao traz o conteudo na lista, para nao carregar
+     1 MB no localStorage. Busca agora, e so reabre quando chegar. */
+  if(p&&p.doBanco&&p.content==null){
+    if(window.EDPublicar&&EDPublicar.conteudoDaPagina){
+      toast('Buscando o conteúdo no banco…');
+      EDPublicar.conteudoDaPagina(id).then(function(c){
+        p.content=c||''; editPagina(id);
+      }).catch(function(e){
+        p.content='';
+        toast('Não deu para buscar o conteúdo: '+(e&&e.message||'erro'),'err');
+        editPagina(id);
+      });
+      return;
+    }
+    p.content='';
+  }
   openDrawer(p?'Editar página':'Nova página',[
     {key:'title',label:'Título',type:'text',req:true},
     {key:'slug',label:'Slug (URL, opcional)',type:'text'},
@@ -4279,7 +4344,7 @@ function viewImagens(){
   const cards=(db.imagens||[]).map((im)=>`
     <div class="img-card">
       <img class="img-thumb" src="${im.url||''}" alt="${esc(im.name)}" onerror="this.removeAttribute('src')">
-      <div class="img-meta"><div class="img-nm">${esc(im.name)}</div><div class="img-sz">${fmtSize(im.size)}${im.url?'':' · não carregada'}</div></div>
+      <div class="img-meta"><div class="img-nm">${esc(im.name)}${im.doBanco?' <span class="badge b-draft" title="Veio do site antigo">do banco</span>':''}</div><div class="img-sz">${im.size!=null?fmtSize(im.size):'no Storage'}${im.url?'':' · sem url'}</div></div>
       <div class="img-acts">
         <button class="btn btn-gold btn-sm" style="flex:1" onclick="peOpenFromLibrary('${im.id}')">${EDIT_IC} Editar</button>
         <div class="dd"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();ddToggle(this)">⋯</button><div class="dd-menu">
@@ -4296,6 +4361,7 @@ function viewImagens(){
   <div class="listhead"><div><div class="le">Conteúdo</div><h1>Imagens</h1><p>Biblioteca de mídia. Envie, edite (cortar, centralizar, girar, filtros), troque ou abra no Pixlr Express.</p></div>
     <div class="ph-actions" style="display:flex;gap:9px"><button class="btn btn-ghost" onclick="pePixlr()">↗ Pixlr Express</button><button class="btn btn-gold" onclick="document.getElementById('img-input').click()">+ Enviar imagens</button></div></div>
   ${profPhotoPanel()}
+  <p class="hint" id="site-sinc" style="margin:0 0 12px"></p>
   <div class="infobox" style="margin-bottom:16px">Clique em <b>Editar</b> em qualquer foto para cortar, centralizar, girar e ajustar; salve de volta na biblioteca ou baixe. O <b>Pixlr Express</b> abre o editor avançado em nova aba.</div>
   ${(db.imagens||[]).length?`<div class="img-grid">${cards}</div>`:emptyState('🖼','Nenhuma imagem','Envie a primeira imagem.','+ Enviar imagens',"document.getElementById('img-input').click()")}`;
 }
