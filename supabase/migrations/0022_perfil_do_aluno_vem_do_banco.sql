@@ -1,0 +1,25 @@
+-- 0022 — o perfil do aluno deixa de depender da copia local
+--
+-- Sintoma: clicar no aluno e nao aparecer nada, so "Usuário não encontrado".
+--
+-- Reproduzido: viewAluno fazia db.students.find(id) e desistia quando a lista
+-- local nao estava carregada. Isso acontece sempre que:
+--   - a pagina e recarregada estando no perfil (F5)
+--   - o link do aluno e aberto em outra aba
+--   - se volta ao painel direto numa URL de aluno
+--   - e o pior: o save() DESCARTA db.students quando o localStorage enche.
+--     Essa queda foi uma correcao minha, para o painel parar de estourar com
+--     as 5.105 questoes. As duas correcoes brigaram: arrumar o espaco quebrou
+--     o perfil, e nenhuma das duas sabia da outra.
+--
+-- desempenho_aluno() passa a devolver tambem QUEM e o aluno -- nome, e-mail,
+-- telefone, papel, origem, data de cadastro e saldo de tokens. Com isso a tela
+-- se sustenta sozinha, e a copia local virou apenas atalho para a primeira
+-- pintura. Sem banco, a tela diz que nao conseguiu ler, em vez de afirmar que
+-- a pessoa nao existe.
+
+-- (patch aplicado sobre o corpo existente, acrescentando a chave 'aluno')
+-- Conferido com JWT de admin: devolve id, nome, email, papel, saldo,
+-- criado_em. E no navegador: com db.students vazio o perfil abre, mostra nome
+-- e e-mail do banco, as provas com tempo e a marca "antigo", as trilhas e o
+-- historico de assinatura; depois de um F5 continua abrindo.

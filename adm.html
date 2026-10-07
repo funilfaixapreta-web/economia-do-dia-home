@@ -2177,14 +2177,35 @@ function toggleEnroll(kind,sid,refId){
 }
 function accessRow(s,kind,refId,label){var on=hasAccess(s,kind,refId);return '<label class="acrow"><input type="checkbox" '+(on?'checked':'')+' onclick="toggleEnroll(\''+kind+'\',\''+s.id+'\',\''+refId+'\')"><span>'+esc(label||'(sem nome)')+'</span></label>';}
 function viewAluno(id){
-  const s=db.students.find(s=>s.id===id);if(!s)return notFound('Usuário não encontrado');
+  /* Nao depender da copia local para saber quem e o aluno. Antes isto fazia
+     db.students.find() e devolvia "Usuário não encontrado" sempre que a lista
+     nao estava carregada -- recarregar a pagina no perfil, abrir o link em
+     outra aba, ou voltar depois. Pior: o save() descarta students quando o
+     localStorage enche, entao a correcao do espaco quebrava o perfil.
+     Agora a identidade vem de desempenho_aluno(), e a copia local e so um
+     atalho para a primeira pintura. */
+  carregarAluno(id);
+  const dd=ALUNOD[id];
+  const doBanco=(dd&&!dd.erro&&dd.aluno)?dd.aluno:null;
+  let s=db.students.find(s=>s.id===id);
+  if(!s&&doBanco){
+    s={id:doBanco.id, name:doBanco.nome||'(sem nome)', email:doBanco.email||'',
+       role:doBanco.papel||'aluno', phone:doBanco.telefone||'', plan:'', cpf:'',
+       progress:0, sims:(dd.feitos||0), status:'ativo',
+       joined:(function(d){try{return d?new Date(d).toLocaleDateString('pt-BR'):'-';}catch(_){return '-';}})(doBanco.criado_em),
+       last:'-', origem:doBanco.origem||'', doBanco:true};
+  }
+  if(!s){
+    if(dd===null) return '<div class="card">'+semBanco('Buscando este aluno no banco…')+'</div>';
+    return notFound(dd&&dd.erro ? 'Não deu para ler este aluno: '+esc(dd.erro)
+                                : 'Usuário não encontrado');
+  }
   const pl=db.plans.find(p=>p.id===s.plan);
   const pays=studentPayments(s);
   /* Aqui se inventava uma prova por simulado ativo, com nota por hash do id do
      aluno e data em julho de 2026 -- com o nome real da pessoa em cima e
      "Aprovado/Reprovado" ao lado. Agora vem de desempenho_aluno(). */
-  carregarAluno(id);
-  const da=(ALUNOD[id]&&!ALUNOD[id].erro)?ALUNOD[id]:null;
+  const da=(dd&&!dd.erro)?dd:null;
   const desemp=da?(da.provas||[]):[];
   const media=da?(da.media||0):null;
   return `
