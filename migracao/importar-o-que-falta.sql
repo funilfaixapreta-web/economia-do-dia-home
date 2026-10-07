@@ -181,8 +181,31 @@ select 'trilhas por categoria',
        (select string_agg(categoria_simulado_id||'='||n, ' ' order by n desc)
           from (select categoria_simulado_id, count(*) as n
                   from public.trilhas_do_aluno group by 1) t)::text,
-       'cpa-10 17.960 cpa-20 17.213 cea 5.195 ancord 3.239 cnpi-cb 2.303 cnpi-cg1 2.009 cnpi-ct1 1.872 cfg 633',
-       'desvio grande numa categoria = mapa de quiz_category_id errado';
+       'cada categoria >= o numero de 02/10, e a soma das diferencas = quantos vinculos entraram depois',
+       'a REGRA acima, nao o numero exato: o antigo continua recebendo dado. Desvio grande em UMA categoria = mapa de quiz_category_id errado';
+
+-- ---------------------------------------------------------------------------
+-- Referencia por categoria, e por que ela e uma REGRA e nao uma lista fixa.
+--
+-- A quebra abaixo foi medida em 02/10 e soma 50.424. O arquivo exportado tem
+-- 50.433, porque inclui 9 vinculos criados depois dessa data. Logo a
+-- conferencia sai ATE 9 linhas acima, espalhadas pelas trilhas onde esses 9
+-- cairam -- e isso e esperado, nao defeito.
+--
+--   cpa-10    17.960        ancord     3.239
+--   cpa-20    17.213        cnpi-cb    2.303
+--   cea        5.195        cnpi-cg1   2.009
+--   cnpi-ct1   1.872        cfg          633
+--
+-- Como ler: cada categoria tem de ficar MAIOR OU IGUAL ao numero acima, e a
+-- soma de todas as diferencas tem de ser igual ao numero de vinculos criados
+-- depois de 02/10. Assim um mapa de quiz_category_id errado continua
+-- aparecendo (desvio grande concentrado numa categoria) sem que o crescimento
+-- normal do sistema antigo dispare alarme falso.
+--
+-- Quem repetir esta importacao no futuro: refaca a quebra no antigo em vez de
+-- confiar nos numeros acima, porque eles envelhecem a cada cadastro novo.
+-- ---------------------------------------------------------------------------
 
 -- Depois que isto fechar, estas podem ser apagadas pelo SQL Editor do painel:
 --   truncate public._imp_quiz_user;
