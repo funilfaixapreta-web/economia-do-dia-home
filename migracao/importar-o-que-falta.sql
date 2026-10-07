@@ -223,3 +223,32 @@ select 'trilhas por categoria',
 --   truncate public._imp_user_quiz_category;
 --   drop table public._imp_quiz_user, public._imp_subscription_log, public._imp_user_quiz_category;
 -- e, so depois, as da migracao 0015 (_legacy_raw, _legacy_map, _legacy_urls).
+
+-- ===========================================================================
+-- RESULTADO — rodado em 07/10/2026
+-- ===========================================================================
+--   provas importadas ............ 91.229 de 91.242   (13 de fora, abaixo)
+--   provas sem tempo ............. 1.605              = exato
+--   alunos distintos com historico 3.718              = exato (has_quiz=1)
+--   log de assinatura ............ 2.625              = exato
+--   log sem aluno conhecido ...... 12
+--   trilhas ...................... 50.420 de 50.433   (13 de fora, abaixo)
+--   nota fora de 0-100 ........... 0
+--   duracao acima de 3h .......... 0
+--
+-- Por categoria, cpa-10, cpa-20, cea e ancord bateram EXATAS. As 13 que
+-- faltam estao todas em cnpi-cb (-5), cnpi-cg1 (-3), cnpi-ct1 (-4) e cfg (-1).
+--
+-- AS 26 LINHAS DE FORA (13 provas + 13 trilhas) SAO DE 9 ALUNOS:
+--
+--   11338  -> 2 provas. Este aluno EXISTE no banco novo (veio pelo e-mail no
+--             user_csv), mas o id antigo dele nao estava no user_list, entao
+--             nao tem ponte. Recuperavel: basta o e-mail desse id.
+--   66036 a 66043 -> 11 provas e 13 trilhas. Estes OITO alunos cadastraram no
+--             sistema antigo depois do export de alunos e nao existem no novo.
+--             Nao ha onde pendurar o historico. Entram no delta da virada,
+--             junto com o cadastro deles.
+--
+-- Confirmacao independente da conversao de tempo: simulado de modulo deu ~6
+-- minutos de media e o Simulado Completo Gratuito deu 43,2. Se elapsed_time
+-- fosse em segundos, a prova completa teria durado 43 segundos.
