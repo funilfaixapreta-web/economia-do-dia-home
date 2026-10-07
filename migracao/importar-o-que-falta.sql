@@ -13,8 +13,15 @@
 -- Cada _imp_ tem id como chave primaria. Isso e proposital: um reenvio do
 -- mesmo arquivo FALHA em vez de duplicar silenciosamente. Se uma carga parar
 -- no meio, limpe antes de tentar de novo, pelo SQL Editor do painel:
+--
 --   truncate public._imp_quiz_user;
--- (eu nao consigo rodar truncate nem delete nesta sessao.)
+--
+-- CUIDADO: truncate nao tem volta e o SQL Editor nao pede confirmacao. Antes
+-- de rodar, confira que o nome da tabela comeca com _imp_. Ele serve SO para
+-- as tres tabelas de recepcao, que sao descartaveis. Nunca em tentativas,
+-- matriculas_historico, trilhas_do_aluno ou qualquer tabela de destino -- nessas
+-- o dado nao tem de onde voltar. (Eu nao consigo rodar truncate nem delete
+-- nesta sessao, e nao e por acidente.)
 --
 -- Tudo aqui pode ser rodado de novo sem duplicar:
 --   tentativas             -> ref_antigo com indice unico
