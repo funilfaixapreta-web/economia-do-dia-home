@@ -2322,13 +2322,25 @@ function emptyState(ic,t,p,btn,act){return `<div class="empty"><div class="ei">$
 function notFound(m){return `<div class="empty"><div class="ei">∅</div><h3>${m}</h3><p>O item pode ter sido removido.</p><button class="btn btn-ghost" onclick="history.back()">Voltar</button></div>`;}
 
 /* ============ vídeo: upload / link / incorporação ============ */
-function ytEmbedUrl(u){u=String(u||'');var m=u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/);if(m)return 'https://www.youtube.com/embed/'+m[1];var v=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);if(v)return 'https://player.vimeo.com/video/'+v[1];return null;}
+/* era uma copia do embutir() do ed-conteudo.js; agora os dois chamam o mesmo */
+function ytEmbedUrl(u){return window.EDVideo?EDVideo.embutir(u):null;}
 function videoSourceLabel(l){if(l.videoEmbed&&String(l.videoEmbed).trim())return 'Incorporação';if(l.videoUrl&&String(l.videoUrl).trim())return 'Link';if(l.video)return 'Upload';return '-';}
 function videoHtml(l){
-  if(l.videoEmbed&&String(l.videoEmbed).trim())return '<div class="pv-embed" style="aspect-ratio:16/9">'+l.videoEmbed+'</div>';
+  /* A pre-visualizacao do painel mostra o MESMO que o aluno vai ver -- passa
+     pelo mesmo EDVideo.seguro(). Se o painel mostrasse o embed cru e o aluno
+     o filtrado, o admin publicaria achando que esta certo. */
+  if(l.videoEmbed&&String(l.videoEmbed).trim()){
+    var seg=window.EDVideo?EDVideo.seguro(l.videoEmbed):null;
+    if(seg)return '<div class="pv-embed" style="aspect-ratio:16/9">'+seg+'</div>';
+    return '<div class="hint" style="color:var(--red)">O código de incorporação não tem um player válido. '
+         + 'Cole o <code>&lt;iframe&gt;</code> que o VEED, o Vimeo ou o YouTube dá no botão de incorporar (Share → Embed), e não o endereço da página.</div>';
+  }
   if(l.videoUrl&&String(l.videoUrl).trim()){var emb=ytEmbedUrl(l.videoUrl);
-    if(emb)return '<div class="pv-embed" style="aspect-ratio:16/9"><iframe src="'+esc(emb)+'" allowfullscreen style="width:100%;height:100%"></iframe></div>';
-    return '<video controls src="'+esc(l.videoUrl)+'" style="width:100%;border-radius:12px;background:#000"></video>';}
+    if(emb)return '<div class="pv-embed" style="aspect-ratio:16/9"><iframe src="'+esc(emb)+'" allow="fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%"></iframe></div>';
+    if(window.EDVideo&&EDVideo.pareceArquivoDeVideo(l.videoUrl))
+      return '<video controls src="'+esc(l.videoUrl)+'" style="width:100%;border-radius:12px;background:#000"></video>';
+    return '<div class="hint" style="color:var(--red)">Este link o player não toca. O campo de LINK serve para YouTube, Vimeo ou um arquivo .mp4 direto. '
+         + 'Para VEED, Panda, Bunny e afins, use o campo <b>Vídeo por incorporação</b> e cole o iframe.</div>';}
   if(l.video&&l.video.url)return '<video controls src="'+l.video.url+'"></video>';
   return '<div class="pbtn"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div><div class="pph">'+(l.video?esc(l.video.name):'Vídeo não enviado')+'</div>';
 }
@@ -2721,9 +2733,16 @@ function editLesson(cid,mi,li){
     {key:'title',label:'Título da aula',type:'text',req:true},
     {key:'duration',label:'Duração (minutos)',type:'number'},
     {key:'desc',label:'Descrição',type:'textarea'},
-    {key:'video',label:'Vídeo da aula · enviar arquivo (upload)',type:'file',accept:'video/*',hint:'Use UMA das 3 formas: enviar arquivo aqui, colar um link, ou colar o código de incorporação.'},
-    {key:'videoUrl',label:'Vídeo por link (YouTube, Vimeo ou URL do .mp4)',type:'text',hint:'Ex.: https://www.youtube.com/watch?v=... ou https://.../aula.mp4'},
-    {key:'videoEmbed',label:'Vídeo por incorporação (código embed / iframe)',type:'textarea',hint:'Cole o iframe fornecido pelo YouTube/Vimeo/player.'},
+    /* A ordem mudou de proposito: incorporacao primeiro, porque e a que
+       funciona para hospedagem externa (VEED, Panda, Bunny) e e a que a
+       plataforma usa de verdade. O upload ficou por ultimo e marcado, porque
+       hoje ele NAO sobe arquivo nenhum -- ver o rotulo. */
+    {key:'videoEmbed',label:'Vídeo por incorporação (código iframe) · recomendado',type:'textarea',
+     hint:'No VEED: Export → Share → botão </> Embed → copie o iframe e cole aqui. Mesmo caminho no Vimeo, YouTube, Panda e Bunny. Cole o iframe, não o endereço da página.'},
+    {key:'videoUrl',label:'Vídeo por link (só YouTube, Vimeo ou arquivo .mp4)',type:'text',
+     hint:'Ex.: https://www.youtube.com/watch?v=... ou https://.../aula.mp4 . Link de compartilhamento do VEED NÃO funciona aqui — para o VEED use o campo de incorporação acima.'},
+    {key:'video',label:'Vídeo da aula · enviar arquivo (ainda não funciona)',type:'file',accept:'video/*',
+     hint:'ATENÇÃO: este campo ainda não envia o arquivo para lugar nenhum — guarda só o nome dele, e a aula fica sem vídeo. Use a incorporação acima. (Para hospedar o arquivo aqui dentro, o upload precisa ser construído.)'},
     {key:'audio',label:'Áudio do gabarito comentado',type:'file',accept:'audio/*',hint:'Explicação em áudio para ouvir no trânsito/academia.'},
     {key:'materials',label:'Materiais para download (um por linha: Nome | URL)',type:'lines',hint:'Ex.: Resumo em PDF | https://.../resumo.pdf'},
     {key:'quizCategoryId',label:'Quiz de fixação · categoria de perguntas',type:'select',options:[['','Sem quiz de fixação']].concat((db.qCategories||[]).filter(x=>x.active).map(c=>[c.id,c.name]))},
@@ -4722,6 +4741,7 @@ window.addEventListener('load',function(){
   conferirAcesso();
 });
 </script>
+<script src="ed-video.js"></script>
 <script src="ed-api.js"></script>
 <script src="ed-publicar.js"></script>
 <script src="ed-migrar.js"></script>

@@ -795,6 +795,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 <div class="modal" id="modal"><div class="modal-card" id="modal-card"></div></div>
 
 <script src="ed-api.js"></script>
+<script src="ed-video.js"></script>
 <script src="ed-conteudo.js"></script>
 <script src="ed-aluno.js"></script>
 <script src="tokens.js"></script>
@@ -2114,11 +2115,30 @@ function montarVideo(){
       return;
     }
     let html='';
-    if(r.video_embed)      html=r.video_embed;
-    else if(r.video_url){
+    if(r.video_embed){
+      /* codigo de incorporacao colado no painel (VEED, Vimeo, YouTube, Panda...).
+         Passa pelo EDVideo.seguro(): so o iframe, sem script, com tela cheia
+         garantida. Devolve null quando o que foi colado nao e um player -- aí
+         o aluno recebe um aviso, nao um retangulo preto. */
+      html=(window.EDVideo?EDVideo.seguro(r.video_embed):'');
+      if(!html){
+        box.insertAdjacentHTML('beforeend',
+          '<div class="pv-aviso">O vídeo desta aula está com o código de incorporação inválido. Já avisamos a equipe.</div>');
+        return;
+      }
+    }else if(r.video_url){
       const emb=EDConteudo.embutir(r.video_url);
-      html = emb ? '<iframe src="'+emb+'" allowfullscreen loading="lazy"></iframe>'
-                 : '<video controls preload="metadata" src="'+r.video_url+'"></video>';
+      if(emb) html='<iframe src="'+esc(emb)+'" allow="fullscreen; picture-in-picture" allowfullscreen loading="lazy" title="Vídeo da aula"></iframe>';
+      else if(window.EDVideo&&EDVideo.pareceArquivoDeVideo(r.video_url))
+        html='<video controls preload="metadata" src="'+esc(r.video_url)+'"></video>';
+      else{
+        /* link de pagina (um compartilhamento do VEED, por exemplo) no campo
+           de LINK: <video src> numa pagina HTML da player preto. Dizer e
+           melhor que mostrar o buraco. */
+        box.insertAdjacentHTML('beforeend',
+          '<div class="pv-aviso">O vídeo desta aula está com um link que o player não toca. Já avisamos a equipe.</div>');
+        return;
+      }
     }
     if(!html)return;              // sem vídeo: mantém o cartaz, não erra a tela
     box.innerHTML=html;

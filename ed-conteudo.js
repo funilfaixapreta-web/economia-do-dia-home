@@ -110,14 +110,11 @@
       video_id:achada.video&&achada.video.name||null});
   }
 
-  /* Link de video -> endereco que da para por num iframe. */
+  /* Link de video -> endereco que da para por num iframe.
+     Mora no ed-video.js, que o painel tambem carrega: o regex ja existiu em
+     duas copias (aqui e em ytEmbedUrl no adm.html) e so uma recebia conserto. */
   function embutir(u){
-    u=String(u||'');
-    var y=u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/);
-    if(y)return 'https://www.youtube.com/embed/'+y[1];
-    var v=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    if(v)return 'https://player.vimeo.com/video/'+v[1];
-    return null;
+    return window.EDVideo?EDVideo.embutir(u):null;
   }
 
   window.EDConteudo={
