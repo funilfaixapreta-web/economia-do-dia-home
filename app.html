@@ -796,6 +796,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 
 <script src="ed-api.js"></script>
 <script src="ed-video.js"></script>
+<script src="ed-audio.js"></script>
 <script src="ed-conteudo.js"></script>
 <script src="ed-aluno.js"></script>
 <script src="tokens.js"></script>
@@ -1714,7 +1715,10 @@ VIEWS.desempenho=(arg)=>{
         /* A explicacao desta plataforma e FALADA: nenhuma das 5.098 questoes
            ativas tem comentario em texto, 4.388 tem audio. Por isso o audio
            vem primeiro e o texto so aparece se existir. */
-        const audio = q.audio_embed
+        const mini = window.EDAudio && EDAudio.player(q.audio_url, q.audio_embed);
+        const audio = mini
+          ? `<div class="qaudio">${mini}</div>`
+          : q.audio_embed
           ? `<div class="qaudio">${q.audio_embed}</div>`
           : (q.audio_url
               ? `<audio controls preload="none" style="width:100%;margin-top:10px" src="${esc(q.audio_url)}"></audio>`
