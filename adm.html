@@ -617,6 +617,7 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
             <button class="nav-subparent" onclick="toggleSub('cursos')"><span class="fi">▸</span>Cursos <span class="caret2">▶</span></button>
             <div class="nav-subsub">
               <a class="nav-item sub2" href="#/cursos" data-r="cursos">Cursos e aulas</a>
+              <a class="nav-item sub2" href="#/videos" data-r="videos">Vídeos das aulas</a>
               <a class="nav-item sub2" href="#/trilhas" data-r="trilhas">Trilhas</a>
             </div>
           </div>
@@ -1154,8 +1155,8 @@ function applySideState(){try{if(localStorage.getItem('eda-side')==='1')$('#shel
 function toggleSide(){var sh=$('#shell');var on=sh.classList.toggle('collapsed');try{localStorage.setItem('eda-side',on?'1':'0');}catch(_){}}
 
 /* ============ router ============ */
-const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',verpergunta:'Visualizar pergunta','importar-perguntas':'Importar perguntas',migrar:'Migrar do sistema antigo',form:'Editar',tags:'Tags',artigos:'Artigos',paginas:'Páginas',popups:'Popups',imagens:'Imagens',modulos:'Módulos',editorfotos:'Editor de Fotos',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',alunos:'Usuários',aluno:'Usuário',planos:'Planos',perfil:'Minha conta'};
-const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',perguntas:'conteudo',pergunta:'conteudo',verpergunta:'conteudo','importar-perguntas':'conteudo',migrar:'conteudo',form:'conteudo',tags:'conteudo',artigos:'conteudo',paginas:'conteudo',popups:'conteudo',imagens:'conteudo',modulos:'conteudo',editorfotos:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
+const TITLES={'':'Painel de Controle',usuarios:'Usuários',conteudo:'Conteúdo',venda:'Venda',relatorio:'Relatório',sistema:'Sistema',site:'Site',app:'Área do aluno',aovivo:'Área do aluno · ao vivo',cursos:'Cursos & aulas',curso:'Curso',aula:'Aula',simulados:'Simulados',simulado:'Simulado',banco:'Banco de questões',importar:'Importação em massa',simcategs:'Categorias de simulado',qcategs:'Categorias de questão',perguntas:'Perguntas',pergunta:'Pergunta',verpergunta:'Visualizar pergunta','importar-perguntas':'Importar perguntas',migrar:'Migrar do sistema antigo',form:'Editar',tags:'Tags',artigos:'Artigos',paginas:'Páginas',popups:'Popups',imagens:'Imagens',modulos:'Módulos',editorfotos:'Editor de Fotos',prova:'Prova',trilhas:'Trilhas',trilha:'Trilha',videos:'Vídeos das aulas',alunos:'Usuários',aluno:'Usuário',planos:'Planos',perfil:'Minha conta'};
+const GROUP_OF={usuarios:'usuarios',aluno:'usuarios',cursos:'conteudo',curso:'conteudo',aula:'conteudo',simulados:'conteudo',simulado:'conteudo',banco:'conteudo',importar:'conteudo',simcategs:'conteudo',qcategs:'conteudo',perguntas:'conteudo',pergunta:'conteudo',verpergunta:'conteudo','importar-perguntas':'conteudo',migrar:'conteudo',form:'conteudo',tags:'conteudo',artigos:'conteudo',paginas:'conteudo',popups:'conteudo',imagens:'conteudo',modulos:'conteudo',editorfotos:'conteudo',prova:'conteudo',trilhas:'conteudo',trilha:'conteudo',videos:'conteudo',site:'conteudo',app:'conteudo',aovivo:'conteudo',venda:'venda',planos:'venda'};
 const HILITE={curso:'cursos',aula:'cursos',simulado:'simulados',prova:'simulados',trilha:'trilhas',aluno:'usuarios',pergunta:'perguntas'};
 function toggleGroup(g){
   var sh=$('#shell');
@@ -1163,7 +1164,7 @@ function toggleGroup(g){
   const el=document.getElementById('g-'+g);if(el)el.classList.toggle('open');
 }
 function toggleSub(id){const el=document.getElementById('sg-'+id);if(el)el.classList.toggle('open');}
-const SUBGROUP_OF={simcategs:'categs',qcategs:'categs',artigos:'cms',paginas:'cms',popups:'cms',cursos:'cursos',curso:'cursos',aula:'cursos',trilhas:'cursos',trilha:'cursos',importar:'cursos',site:'siteapp',app:'siteapp',aovivo:'siteapp'};
+const SUBGROUP_OF={simcategs:'categs',qcategs:'categs',artigos:'cms',paginas:'cms',popups:'cms',cursos:'cursos',curso:'cursos',aula:'cursos',videos:'cursos',trilhas:'cursos',trilha:'cursos',importar:'cursos',site:'siteapp',app:'siteapp',aovivo:'siteapp'};
 /* editor de texto rico (rich) */
 function rteBody(k){return document.querySelector('.rte-body[data-rk="'+k+'"]');}
 function rteCmd(k,cmd){var b=rteBody(k);if(b){b.focus();try{document.execCommand(cmd,false,null);}catch(_){}}}
@@ -1194,6 +1195,7 @@ function router(){
     else if(r==='app'){html=viewApp();}
     else if(r==='aovivo'){html=viewAoVivo();}
     else if(r==='cursos'){html=viewCursos();}
+    else if(r==='videos'){html=viewVideos();}
     else if(r==='curso'){html=viewCurso(parts[1]);}
     else if(r==='aula'){html=viewAula(parts[1],+parts[2],+parts[3]);}
     else if(r==='simulados'){html=viewSimulados();}
@@ -1517,6 +1519,146 @@ function lvDragEnd(e){try{e.currentTarget.classList.remove('dragging')}catch(_){
 function lvDrop(e,i){e.preventDefault();e.currentTarget.classList.remove('dragover');if(lvDrag==null)return;lvReorder(lvDrag,+i);lvDrag=null;}
 
 /* ============ CURSOS ============ */
+/* ===========================================================================
+   VIDEOS DAS AULAS
+   ---------------------------------------------------------------------------
+   Esta tela existe porque o caminho para por video numa aula estava a cinco
+   cliques de distancia e a palavra "video" nao aparecia em parte nenhuma do
+   menu: Conteudo (grupo fechado) > Cursos > Abrir & editar > modulo > aula >
+   Editar. Quem nao sabia o caminho nao achava, e nao e culpa de quem procura.
+
+   Aqui tudo fica numa lista so: toda aula de todo curso, com a fonte do
+   video de cada uma e o botao que abre exatamente o campo certo.
+   =========================================================================== */
+function viewVideos(){
+  /* achata curso > modulo > aula numa lista, guardando os indices para o
+     editLesson(cid,mi,li) poder ser chamado direto do botao */
+  var linhas=[];
+  (db.courses||[]).forEach(function(c){
+    (c.modules||[]).forEach(function(m,mi){
+      (m.lessons||[]).forEach(function(l,li){
+        linhas.push({c:c, m:m, l:l, mi:mi, li:li});
+      });
+    });
+  });
+
+  var temEmbed=function(l){return !!(l.videoEmbed&&String(l.videoEmbed).trim());};
+  var temLink =function(l){return !!(l.videoUrl&&String(l.videoUrl).trim());};
+  var temArq  =function(l){return !!l.video;};
+  /* "com video" tem de significar video que TOCA. Na primeira versao eu
+     contava qualquer fonte preenchida, e uma aula com iframe invalido
+     aparecia em "Ja com video" -- quem olhasse a lista acharia aquela aula
+     pronta, e so o aluno descobriria. Fonte quebrada e grupo proprio, e vem
+     primeiro, porque e o unico que exige conserto e nao trabalho novo. */
+  var quebrada=function(l){
+    if(temEmbed(l))return window.EDVideo?!EDVideo.seguro(l.videoEmbed):false;
+    if(temLink(l)) return window.EDVideo?!(EDVideo.embutir(l.videoUrl)||EDVideo.pareceArquivoDeVideo(l.videoUrl)):false;
+    return false;
+  };
+  var problemas=linhas.filter(function(x){return quebrada(x.l);});
+  var comVideo =linhas.filter(function(x){return (temEmbed(x.l)||temLink(x.l))&&!quebrada(x.l);});
+  var semVideo =linhas.filter(function(x){return !temEmbed(x.l)&&!temLink(x.l);});
+  /* arquivo enviado NAO conta como video: o campo guarda so o nome e a aula
+     sai sem video nenhum. Ver a dica no proprio campo. */
+  var soArquivo=semVideo.filter(function(x){return temArq(x.l);});
+
+  var cab=''
+   + '<div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Cursos</div>'
+   + '<h1>Vídeos das aulas</h1>'
+   + '<p>Todas as aulas de todos os cursos num lugar, com a fonte do vídeo de cada uma. '
+   + 'Clique em <b>Pôr vídeo</b> para colar o código de incorporação do VEED, Vimeo ou YouTube.</p>'
+   + '</div></div>';
+
+  if(!linhas.length){
+    return cab + '<div class="card"><div class="hint" style="color:var(--muted)">'
+      + 'Não há nenhuma aula cadastrada ainda. Crie um curso e um módulo primeiro em '
+      + '<a href="#/cursos" style="color:var(--gold-deep)">Cursos e aulas</a>, e as aulas aparecem aqui.'
+      + '</div></div>';
+  }
+
+  /* .stat-grid/.stat sao as classes do painel. Na primeira versao usei
+     .jour-stats, que so existe no app.html -- os quatro cartoes empilharam
+     um por linha, cada um do tamanho de um banner. */
+  var cartao=function(rot,n,cor,sub){
+    return '<div class="stat"><div class="k">'+rot+'</div>'
+         + '<div class="v"'+(cor?' style="color:'+cor+'"':'')+'>'+n+'</div>'
+         + (sub?'<div class="d">'+sub+'</div>':'')+'</div>';
+  };
+
+  var fonte=function(l){
+    if(temEmbed(l)){
+      var h=(window.EDVideo&&EDVideo.host(l.videoEmbed))||null;
+      var ok=window.EDVideo?!!EDVideo.seguro(l.videoEmbed):true;
+      if(!ok)return '<span class="filei" style="color:var(--red)">✕ incorporação inválida</span>';
+      return '<span class="filei has">▶ incorporação'+(h?' · '+esc(h):'')+'</span>';
+    }
+    if(temLink(l)){
+      var emb=window.EDVideo?EDVideo.embutir(l.videoUrl):null;
+      var arq=window.EDVideo?EDVideo.pareceArquivoDeVideo(l.videoUrl):false;
+      if(!emb&&!arq)return '<span class="filei" style="color:var(--red)">✕ link que o player não toca</span>';
+      return '<span class="filei has">▶ link'+(emb?' · '+esc(emb.replace(/^https:\/\//,'').split('/')[0]):'')+'</span>';
+    }
+    if(temArq(l))return '<span class="filei" style="color:var(--amber)">⚠ arquivo só pelo nome</span>';
+    return '<span class="filei">sem vídeo</span>';
+  };
+
+  var tabela=function(lista){
+    return '<table class="simhist" style="width:100%"><thead><tr>'
+      + '<th style="text-align:left">Aula</th><th style="text-align:left">Curso</th>'
+      + '<th style="text-align:left">Módulo</th>'
+      + '<th style="text-align:left;white-space:nowrap">Duração</th>'
+      + '<th style="text-align:left">Vídeo</th><th></th></tr></thead><tbody>'
+      + lista.map(function(x){
+          return '<tr>'
+            + '<td style="font-weight:500">'+esc(x.l.title||'(sem título)')+' '+stBadge(x.l.status)+'</td>'
+            + '<td style="color:var(--muted);padding-right:18px">'+esc(x.c.title||'')+'</td>'
+            + '<td style="color:var(--muted);padding-right:18px">'+esc(x.m.title||'')+'</td>'
+            + '<td style="color:var(--muted)">'+(x.l.duration?x.l.duration+' min':'—')+'</td>'
+            + '<td>'+fonte(x.l)+'</td>'
+            + '<td style="text-align:right"><button class="btn '
+            + ((temEmbed(x.l)||temLink(x.l))?'btn-ghost':'btn-gold')
+            + ' btn-sm" onclick="editLesson(\''+x.c.id+'\','+x.mi+','+x.li+')">'
+            + ((temEmbed(x.l)||temLink(x.l))?'Trocar vídeo':'Pôr vídeo')+'</button></td>'
+            + '</tr>';
+        }).join('')
+      + '</tbody></table>';
+  };
+
+  return cab
+   + '<div class="stat-grid">'
+   +   cartao('Aulas no total', linhas.length, null, (db.courses||[]).length+' cursos')
+   +   cartao('Com vídeo', comVideo.length, comVideo.length?'var(--green)':null,
+              linhas.length?Math.round(100*comVideo.length/linhas.length)+'% do total':null)
+   +   cartao('Sem vídeo', semVideo.length, semVideo.length?'var(--amber)':null,
+              semVideo.length?'é por onde começar':'nenhuma faltando')
+   +   cartao('Problemas', problemas.length, problemas.length?'var(--red)':null,
+              problemas.length?'código ou link que não toca':'nada quebrado')
+   + '</div>'
+   + (soArquivo.length
+      ? '<div class="card" style="margin-top:14px"><div class="hint" style="color:var(--amber);line-height:1.6">'
+        + '<b>'+soArquivo.length+' aula'+(soArquivo.length>1?'s':'')+'</b> '
+        + (soArquivo.length>1?'têm':'tem')+' arquivo anexado pelo campo de upload, que ainda não envia nada — '
+        + 'guarda só o nome. '+(soArquivo.length>1?'Elas contam':'Ela conta')+' como <b>sem vídeo</b>. '
+        + 'Use o campo <b>Vídeo por incorporação</b> e cole o iframe do seu player.'
+        + '</div></div>'
+      : '')
+   + (problemas.length
+      ? '<div class="rowtitle" style="margin-top:22px"><h3 style="color:var(--red)">Com problema</h3>'
+        + '<span class="cnt">'+problemas.length+' de '+linhas.length+' · a fonte está preenchida mas o player não toca</span></div>'
+        + '<div class="card">'+tabela(problemas)+'</div>'
+      : '')
+   + (semVideo.length
+      ? '<div class="rowtitle" style="margin-top:22px"><h3>Faltando vídeo</h3>'
+        + '<span class="cnt">'+semVideo.length+' de '+linhas.length+'</span></div>'
+        + '<div class="card">'+tabela(semVideo)+'</div>'
+      : '')
+   + (comVideo.length
+      ? '<div class="rowtitle" style="margin-top:22px"><h3>Já com vídeo</h3>'
+        + '<span class="cnt">'+comVideo.length+' de '+linhas.length+'</span></div>'
+        + '<div class="card">'+tabela(comVideo)+'</div>'
+      : '');
+}
+
 function viewCursos(){
   const cards=db.courses.map((c,ci)=>`
     <div class="ecard dropzone" draggable="true" ondragstart="dragStart(event,'course',${ci})" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondragend="dragEnd(event)" ondrop="dropOn(event,'course',${ci})">
@@ -2520,6 +2662,9 @@ var AI_KB=[
   {k:['area do aluno','saudacao','texto do aluno','menu do aluno','rotulo'],r:'Em <b>Conteúdo › Área do aluno</b> você edita os textos da área logada (saudação, rótulos do menu, assinatura). Reflete na área do aluno real.',go:'#/app',gol:'Editar Área do aluno'},
   {k:['usuario','aluno','admin','papel','permissao','tornar admin','exportar'],r:'Em <b>Usuários › Listagem</b> você vê todos, define papéis (Tornar admin), faz ações em massa e exporta a lista em CSV.',go:'#/usuarios',gol:'Ir para Usuários'},
   {k:['plano','preco','venda','assinatura','pagamento'],r:'Em <b>Venda › Planos</b> você edita os planos (nome, preço, benefícios). Eles são os mesmos do site.',go:'#/planos',gol:'Ir para Planos'},
+  {k:['video','videos','aula com video','por video','subir video','enviar video','embed','incorporacao','iframe','veed','vimeo','youtube','player','hospedar video'],
+   r:'Em <b>Conteúdo › Cursos › Vídeos das aulas</b> você vê todas as aulas de todos os cursos numa lista só, quais já têm vídeo e quais faltam, e põe o vídeo ali mesmo.<br><br>O vídeo não fica hospedado aqui: você sobe no seu player (VEED, Vimeo, YouTube) e cola o <b>código de incorporação</b> — no VEED é Export → Share → botão <code>&lt;/&gt;</code> Embed. O campo de <i>enviar arquivo</i> ainda não envia nada, guarda só o nome.',
+   go:'#/videos',gol:'Ir para Vídeos das aulas'},
   {k:['relatorio','metrica','dashboard','numero','receita'],r:'O <b>Painel de Controle</b> traz o resumo do dia e <b>Relatório</b> os números por período. No protótipo os números são de exemplo.',go:'#/relatorio',gol:'Ir para Relatório'},
   {k:['reflete','sincroniza','aparece no site','aparece no aluno','publicar mudanca'],r:'As edições que você faz no painel refletem no site e na área do aluno automaticamente (mesma base). Só troca o que você realmente mudou; o resto fica no padrão.'},
   {k:['publicar','rascunho','despublicar','ativar','tirar do ar'],r:'Cada curso, aula e simulado tem status publicado/rascunho. Use o botão Publicar/Despublicar para ligar ou tirar do ar.'},
