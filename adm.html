@@ -1594,27 +1594,135 @@ function buscarVideos(v){
   var alvo=document.getElementById('vid-listas');
   if(alvo)alvo.innerHTML=listasDeVideo();
 }
-/* A lista vem do BANCO; o editor de aula trabalha com os indices do db
-   LOCAL. Quando a aula existe tambem neste navegador (mesma ref), da para
-   abrir direto. Quando nao existe -- outra maquina, painel ainda nao
-   sincronizado -- o botao leva para Cursos e diz por que, em vez de abrir a
-   aula errada ou nao fazer nada. */
-function editarAulaPorRef(ref){
-  var achou=null;
-  (db.courses||[]).forEach(function(c){
-    (c.modules||[]).forEach(function(m,mi){
-      (m.lessons||[]).forEach(function(l,li){
-        if(l.id===ref)achou={cid:c.id,mi:mi,li:li};
-      });
-    });
-  });
-  if(achou)return editLesson(achou.cid,achou.mi,achou.li);
-  toast('Esta aula não está no rascunho deste navegador. Abra o curso em Cursos e aulas.');
-  location.hash='#/cursos';
-}
 function verVideo(id){PREVIA=(PREVIA===id)?null:id;router();
   setTimeout(function(){var el=document.getElementById('prev-'+id);
     if(el)el.scrollIntoView({block:'center',behavior:'smooth'});},60);}
+
+/* ---------------------------------------------------------------------------
+   EDITAR E CRIAR AULA, direto no banco
+   A tela era so leitura na pratica: o editor antigo trabalha com indices do db
+   LOCAL (curso, modulo, aula) e as 314 aulas estao no banco, nao no
+   localStorage de quem abre o painel -- entao o botao Editar nunca achava a
+   aula e caía no aviso. Aqui a gravacao vai pela salvar_aula(), uma aula por
+   vez, sem passar pelo "publicar o pacote inteiro".
+   --------------------------------------------------------------------------- */
+var OPC=null;                    /* modulos e categorias, para os campos */
+
+function comOpcoes(aoVir){
+  if(OPC)return aoVir(OPC);
+  esperaPublicar('opcoesDeAula', function(){
+    EDPublicar.opcoesDeAula().then(function(o){OPC=o||{modulos:[],categorias:[]};aoVir(OPC);})
+      .catch(function(e){toast('Não deu para ler cursos e categorias: '+((e&&e.message)||'erro'));});
+  }, function(m){toast(m);});
+}
+
+/* opcoes do campo de quiz, com quantas questoes cada categoria tem */
+function opcoesQuiz(){
+  var l=[['','Sem quiz de fixação']];
+  ((OPC&&OPC.categorias)||[]).forEach(function(c){
+    l.push([c.id, c.nome+' ('+c.questoes+' questõe'+(c.questoes===1?'':'s')+')']);
+  });
+  return l;
+}
+function opcoesModulo(){
+  return ((OPC&&OPC.modulos)||[]).map(function(m){
+    return [m.modulo_id, m.curso+' › '+m.modulo+' ('+m.aulas+' aulas)'];
+  });
+}
+
+/* campos comuns ao editar e ao criar */
+function camposDaAula(){
+  return [
+    {key:'titulo',label:'Título da aula',type:'text',req:true},
+    {key:'duracao_min',label:'Duração (minutos)',type:'number'},
+    {key:'descricao',label:'Descrição',type:'textarea'},
+    {key:'video_embed',label:'Vídeo por incorporação (código iframe) · recomendado',type:'textarea',
+     hint:'No VEED: Export → Share → botão </> Embed → copie o iframe e cole aqui. Mesmo caminho no Vimeo, YouTube, Panda e Bunny. Cole o iframe, não o endereço da página.'},
+    {key:'video_url',label:'Vídeo por link (só YouTube, Vimeo ou arquivo .mp4)',type:'text',
+     hint:'Link de compartilhamento do VEED NÃO funciona aqui — use o campo de incorporação acima.'},
+    {key:'quiz_categoria_id',label:'Quiz de fixação · de qual categoria vêm as perguntas',type:'select',
+     options:opcoesQuiz(),
+     hint:'As perguntas que o aluno responde ao fim desta aula. O número entre parênteses é quantas existem na categoria.'},
+    {key:'quiz_quantidade',label:'Quiz de fixação · quantas perguntas',type:'number',
+     hint:'De 1 a 50. Não peça mais do que a categoria tem, senão o quiz sai curto.'},
+    {key:'material_url',label:'Material para download (URL)',type:'text'},
+    {key:'ativo',label:'Situação',type:'select',options:[['true','Publicada'],['false','Rascunho']]}
+  ];
+}
+
+/* Confere o que o banco tambem vai conferir, mas ANTES de mandar -- para o
+   erro aparecer no campo e nao como "quantidade-fora-de-1-a-50". */
+function criticaAula(d){
+  var q=parseInt(d.quiz_quantidade,10);
+  if(d.quiz_categoria_id&&!(q>0))
+    return 'Você escolheu a categoria do quiz mas não disse quantas perguntas.';
+  if(q>0&&!d.quiz_categoria_id)
+    return 'Você pediu '+q+' perguntas mas não escolheu de qual categoria.';
+  if(q>0&&(q<1||q>50))return 'A quantidade do quiz tem de ser de 1 a 50.';
+  if(d.quiz_categoria_id&&q>0){
+    var c=((OPC&&OPC.categorias)||[]).filter(function(x){return x.id===d.quiz_categoria_id;})[0];
+    if(c&&q>c.questoes)
+      return 'A categoria "'+c.nome+'" tem '+c.questoes+' questões ativas e você pediu '+q+'. O quiz sairia curto.';
+  }
+  if(d.video_embed&&String(d.video_embed).trim()&&window.EDVideo&&!EDVideo.seguro(d.video_embed))
+    return 'O código de incorporação não tem um player válido. Cole o <iframe> que o player dá em Compartilhar → Incorporar.';
+  if(d.video_url&&String(d.video_url).trim()&&window.EDVideo
+     &&!EDVideo.embutir(d.video_url)&&!EDVideo.pareceArquivoDeVideo(d.video_url))
+    return 'Esse link o player não toca. O campo de link serve para YouTube, Vimeo ou um .mp4 direto; para os outros use a incorporação.';
+  return null;
+}
+
+function editarAulaDoBanco(id){
+  var a=(AULAS_DB||[]).filter(function(x){return x.aula_id===id;})[0];
+  if(!a)return;
+  comOpcoes(function(){
+    openDrawer('Editar aula · '+(a.curso||''), camposDaAula(), {
+      titulo:a.titulo||'', duracao_min:a.duracao||'', descricao:a.descricao||'',
+      video_embed:a.video_embed||'', video_url:a.video_url||'',
+      quiz_categoria_id:a.quiz_categoria_id||'', quiz_quantidade:a.quiz_quantidade||'',
+      material_url:a.material_url||'', ativo:String(a.ativo!==false)
+    }, function(d){
+      var erro=criticaAula(d); if(erro){toast(erro);return;}
+      EDPublicar.salvarAula({
+        aula_id:id,
+        titulo:d.titulo, duracao_min:d.duracao_min||'', descricao:d.descricao||'',
+        video_embed:d.video_embed||'', video_url:d.video_url||'',
+        quiz_categoria_id:d.quiz_categoria_id||'', quiz_quantidade:d.quiz_quantidade||'',
+        material_url:d.material_url||'', ativo:(d.ativo==='true')
+      }).then(function(){
+        closeDrawer(); toast('Aula salva no banco.');
+        AULAS_DB=undefined; carregarAulas(true);
+      }).catch(function(e){toast('Não deu para salvar: '+((e&&e.message)||'erro'));});
+    });
+  });
+}
+
+function novaAulaNoBanco(){
+  comOpcoes(function(){
+    if(!opcoesModulo().length){
+      toast('Não há módulo nenhum no banco. Crie o curso e o módulo em Cursos e aulas e publique.');
+      return;
+    }
+    openDrawer('Nova aula',
+      [{key:'modulo_id',label:'Em qual curso e módulo',type:'select',options:opcoesModulo(),req:true}]
+        .concat(camposDaAula()),
+      {ativo:'false'},
+      function(d){
+        if(!d.modulo_id){toast('Escolha o curso e o módulo.');return;}
+        var erro=criticaAula(d); if(erro){toast(erro);return;}
+        EDPublicar.criarAula({
+          modulo_id:d.modulo_id, titulo:d.titulo,
+          duracao_min:d.duracao_min||'', descricao:d.descricao||'',
+          video_embed:d.video_embed||'', video_url:d.video_url||'',
+          quiz_categoria_id:d.quiz_categoria_id||'', quiz_quantidade:d.quiz_quantidade||'',
+          material_url:d.material_url||'', ativo:(d.ativo==='true')
+        }).then(function(){
+          closeDrawer(); toast('Aula criada. Ela entra como rascunho até você publicar.');
+          OPC=null; AULAS_DB=undefined; carregarAulas(true);
+        }).catch(function(e){toast('Não deu para criar: '+((e&&e.message)||'erro'));});
+      });
+  });
+}
 
 function viewVideos(){
   carregarAulas();
@@ -1623,7 +1731,8 @@ function viewVideos(){
    + '<div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Cursos</div>'
    + '<h1>Vídeos das aulas</h1>'
    + '<p>Todas as aulas publicadas no banco, onde cada vídeo está hospedado e se ele toca. '
-   + 'Clique em <b>Ver</b> para assistir sem sair daqui.</p></div></div>';
+   + 'Clique em <b>Ver</b> para assistir e em <b>Editar</b> para trocar o vídeo ou o quiz.</p></div>'
+   + '<div class="ph-r"><button class="btn btn-gold" onclick="novaAulaNoBanco()">+ Nova aula</button></div></div>';
 
   if(AULAS_DB===null||AULAS_DB===undefined)
     return cab+'<div class="card">'+semBanco('Lendo as aulas no banco…')+'</div>';
@@ -1686,6 +1795,23 @@ function viewVideos(){
     return '<span class="filei">sem vídeo</span>';
   };
 
+  /* O quiz de fixacao existia so como campo no painel: nao era publicado nem
+     lido em lugar nenhum. Agora e coluna no banco, e aqui aparece ligado a
+     aula -- com aviso quando a quantidade pedida nao cabe na categoria, que
+     e o erro que so o aluno descobriria, no meio da aula. */
+  var quizDe=function(a){
+    if(!a.quiz_categoria_id&&!a.quiz_quantidade)
+      return '<span class="filei">sem quiz</span>';
+    if(!a.quiz_categoria_id)
+      return '<span class="filei" style="color:var(--red)">✕ sem categoria</span>';
+    if(!a.quiz_quantidade)
+      return '<span class="filei" style="color:var(--red)">✕ sem quantidade</span>';
+    var falta=(+a.quiz_disponivel||0) < (+a.quiz_quantidade||0);
+    return '<span class="filei '+(falta?'':'has')+'"'+(falta?' style="color:var(--amber)"':'')+'>'
+         + (falta?'⚠ ':'')+a.quiz_quantidade+' de '+esc(a.quiz_categoria||a.quiz_categoria_id)
+         + (falta?' · só há '+(+a.quiz_disponivel||0):'')+'</span>';
+  };
+
   var previaDe=function(a){
     if(PREVIA!==a.aula_id)return '';
     var html=temEmbed(a)?(window.EDVideo?EDVideo.seguro(a.video_embed):null)
@@ -1695,7 +1821,7 @@ function viewVideos(){
                 if(window.EDVideo&&EDVideo.pareceArquivoDeVideo(a.video_url))
                   return '<video controls preload="metadata" src="'+esc(a.video_url)+'"></video>';
                 return null;})():null);
-    return '<tr id="prev-'+esc(a.aula_id)+'"><td colspan="6" style="padding:0 0 16px">'
+    return '<tr id="prev-'+esc(a.aula_id)+'"><td colspan="7" style="padding:0 0 16px">'
       + (html
          ? '<div class="pv-embed pv-video" style="max-width:680px">'+html+'</div>'
            +'<div class="hint" style="margin-top:8px">'+esc(a.curso||'')+' · '+esc(a.modulo||'')
@@ -1722,12 +1848,14 @@ function viewVideos(){
       semVideo :l.filter(function(a){return !temEmbed(a)&&!temLink(a);})};
   };
 
+  VID.quizDe=quizDe;
   var tabela=VID.tabela=function(l){
     return '<table class="simhist" style="width:100%"><thead><tr>'
       + '<th style="text-align:left">Aula</th><th style="text-align:left">Curso</th>'
       + '<th style="text-align:left">Módulo</th>'
       + '<th style="text-align:left;white-space:nowrap">Duração</th>'
-      + '<th style="text-align:left">Onde está</th><th></th></tr></thead><tbody>'
+      + '<th style="text-align:left">Onde está</th>'
+      + '<th style="text-align:left">Quiz</th><th></th></tr></thead><tbody>'
       + l.map(function(a){
           var podeVer=(temEmbed(a)||temLink(a));
           return '<tr>'
@@ -1737,11 +1865,12 @@ function viewVideos(){
             + '<td style="color:var(--muted);padding-right:18px">'+esc(a.modulo||'')+'</td>'
             + '<td style="color:var(--muted)">'+(a.duracao?a.duracao+' min':'—')+'</td>'
             + '<td>'+fonte(a)+'</td>'
+            + '<td>'+quizDe(a)+'</td>'
             + '<td style="text-align:right;white-space:nowrap">'
               + (podeVer?'<button class="btn btn-ghost btn-sm" onclick="verVideo(\''+esc(a.aula_id)+'\')">'
                          +(PREVIA===a.aula_id?'Fechar':'Ver')+'</button> ':'')
               + '<button class="btn '+(podeVer?'btn-ghost':'btn-gold')+' btn-sm" '
-              + 'onclick="editarAulaPorRef(\''+esc(a.ref||'')+'\')">'
+              + 'onclick="editarAulaDoBanco(\''+esc(a.aula_id)+'\')">'
               + (podeVer?'Editar':'Pôr vídeo')+'</button></td>'
             + '</tr>'
             + previaDe(a);

@@ -648,6 +648,47 @@
     });
   }
 
+  /* Gravar UMA aula no banco. O painel sempre publicou o pacote inteiro a
+     partir do localStorage -- com 314 aulas no banco e 7 no rascunho de um
+     navegador qualquer, isso seria uma arma apontada para o pe. Aqui vai so
+     o que mudou, da aula que esta aberta.
+
+     Campo ausente no objeto nao e campo apagado: a salvar_aula() so toca no
+     que foi mandado. Para LIMPAR um campo de proposito, mande a chave com
+     string vazia (ex.: quiz_categoria_id:'' tira o quiz).                 */
+  function salvarAula(dados){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+    return EDApi.rpc('salvar_aula',{p:dados}).then(function(r){
+      if(!r||r.ok!==true)throw new Error((r&&r.motivo)||'nao deu para salvar');
+      return r;
+    });
+  }
+
+  function criarAula(dados){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+    return EDApi.rpc('criar_aula',{p:dados}).then(function(r){
+      if(!r||r.ok!==true)throw new Error((r&&r.motivo)||'nao deu para criar');
+      return r;
+    });
+  }
+
+  /* modulos (para escolher onde a aula nova entra) e categorias de questao
+     com quantas questoes ATIVAS cada uma tem -- sem esse numero da para pedir
+     um quiz de 10 numa categoria que tem 6, e so o aluno descobriria. */
+  function opcoesDeAula(){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+    return EDApi.rpc('opcoes_de_aula',{});
+  }
+
   function painelAssinaturas(){
     if(!window.EDApi||!EDApi.rpc)
       return Promise.reject(new Error('ed-api.js nao carregou.'));
@@ -662,6 +703,7 @@
     resumo:resumo, pacote:montarPacote, publicar:publicar,
     entrar:entrar, conta:conta, baixar:baixar, baixarAlunos:baixarAlunos,
     baixarQuestoes:baixarQuestoes, baixarAulas:baixarAulas,
+    salvarAula:salvarAula, criarAula:criarAula, opcoesDeAula:opcoesDeAula,
     desempenho:desempenho, atividadeDoDia:atividadeDoDia,
     desempenhoAluno:function(id){
       if(!window.EDApi||!EDApi.sessao())
