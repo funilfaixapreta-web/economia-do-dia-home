@@ -689,6 +689,30 @@
     return EDApi.rpc('opcoes_de_aula',{});
   }
 
+  /* A estrutura inteira (curso > modulo > aula) do banco. A aba "Cursos e
+     aulas" lia o localStorage: mostrava os 3 cursos de demonstracao do
+     prototipo enquanto o banco tinha 4 cursos, 42 modulos e 314 aulas. Duas
+     telas do mesmo painel diziam coisas diferentes, e a principal mentia. */
+  function cursosDoBanco(){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+    return EDApi.rpc('cursos_admin').then(function(l){return Array.isArray(l)?l:[];});
+  }
+  function rpcSimples(nome){
+    return function(dados){
+      if(!window.EDApi||!EDApi.rpc)
+        return Promise.reject(new Error('ed-api.js nao carregou.'));
+      if(!EDApi.sessao())
+        return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+      return EDApi.rpc(nome,{p:dados}).then(function(r){
+        if(!r||r.ok!==true)throw new Error((r&&r.motivo)||'nao deu certo');
+        return r;
+      });
+    };
+  }
+
   function painelAssinaturas(){
     if(!window.EDApi||!EDApi.rpc)
       return Promise.reject(new Error('ed-api.js nao carregou.'));
@@ -704,6 +728,9 @@
     entrar:entrar, conta:conta, baixar:baixar, baixarAlunos:baixarAlunos,
     baixarQuestoes:baixarQuestoes, baixarAulas:baixarAulas,
     salvarAula:salvarAula, criarAula:criarAula, opcoesDeAula:opcoesDeAula,
+    cursosDoBanco:cursosDoBanco,
+    salvarCurso:rpcSimples('salvar_curso'), criarCurso:rpcSimples('criar_curso'),
+    salvarModulo:rpcSimples('salvar_modulo'), criarModulo:rpcSimples('criar_modulo'),
     desempenho:desempenho, atividadeDoDia:atividadeDoDia,
     desempenhoAluno:function(id){
       if(!window.EDApi||!EDApi.sessao())

@@ -1,0 +1,31 @@
+-- 0031 — "Cursos e aulas" passa a mostrar os cursos de verdade
+--
+-- O painel tinha DUAS telas discordando: "Videos das aulas" lia o banco e
+-- dizia 314 aulas; "Cursos e aulas" lia o localStorage e dizia 7 -- os cursos
+-- de demonstracao do prototipo. "Abrir & editar" levava para um curso que nao
+-- existe, o botao Publicar agia no rascunho local, e "Alunos matriculados"
+-- mostrava null porque a conta nao existia em lugar nenhum.
+--
+-- Nao e detalhe de usabilidade: e a tela principal de conteudo do painel
+-- escondendo o conteudo e mostrando ficcao.
+--
+-- cursos_admin() traz curso > modulo > aula do banco, com os numeros do
+-- cabecalho prontos (aulas, minutos e alunos com matricula valida). Sem o
+-- video_embed inteiro: a lista precisa saber se existe e de onde vem, nao
+-- carregar 314 iframes.
+--
+-- salvar_curso / criar_curso / salvar_modulo / criar_modulo seguem o criterio
+-- da 0029: uma coisa por vez, eh_admin() por dentro, campo ausente nao e
+-- campo apagado. publicar_conteudo() continua para a carga em massa, mas
+-- deixa de ser o unico jeito de mexer na estrutura.
+--
+-- Corpos completos conforme aplicado no banco.
+--
+-- Conferido trocando de papel, com a transacao abortada no fim:
+--   aluno comum ............... barrado (42501)
+--   cursos_admin .............. 4 cursos, 42 modulos, 314 aulas
+--   cabecalho do 1o curso ..... 165 aulas, 1258 min, 48 alunos (era "null")
+--   criar_curso ............... ok
+--   criar_modulo .............. ok
+--   salvar_curso/_modulo ...... ok
+--   recusas ................... sem-titulo, curso-nao-encontrado

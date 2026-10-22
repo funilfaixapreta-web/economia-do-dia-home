@@ -1956,70 +1956,248 @@ function listasDeVideo(){
         + '<div class="card">'+VID.tabela(f.comVideo)+'</div>' : '');
 }
 
-function viewCursos(){
-  const cards=db.courses.map((c,ci)=>`
-    <div class="ecard dropzone" draggable="true" ondragstart="dragStart(event,'course',${ci})" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondragend="dragEnd(event)" ondrop="dropOn(event,'course',${ci})">
-      <div class="ic" style="background:${c.color}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B0D10" stroke-width="2"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H11v16H4.5A2.5 2.5 0 0 1 2 17.5z"/><path d="M22 6.5A2.5 2.5 0 0 0 19.5 4H13v16h6.5a2.5 2.5 0 0 0 2.5-2.5z"/></svg></div>
-      <div class="meta">${esc(c.code||'')} · ${esc(c.cert||'')}</div>
-      <h3>${esc(c.title)}</h3>
-      <p>${esc(c.desc||'')}</p>
-      <div class="foot"><span>${(c.modules||[]).length} módulos</span><span>·</span><span>${countLessons(c)} aulas</span><span>·</span><span>${courseMinutes(c)} min</span><span style="margin-left:auto">${stBadge(c.status)}</span></div>
-      <div class="acts">
-        <span class="grip" title="Arraste para reordenar"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span>
-        <button class="btn btn-gold btn-sm" onclick="location.hash='#/curso/${c.id}'">Abrir & editar</button>
-        <button class="btn btn-ghost btn-sm" onclick="togglePubCourse('${c.id}')">${c.status==='publicado'?'Despublicar':'Publicar'}</button>
-      </div>
-    </div>`).join('');
-  return `
-  <div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div><h1>Cursos & aulas</h1><p>Crie cursos, organize em módulos e suba os vídeos e áudios de cada aula.</p></div>
-    <div class="ph-actions"><button class="btn btn-gold" onclick="editCourse()">+ Novo curso</button></div></div>
-  <div class="cardgrid">${cards||''}</div>
-  ${db.courses.length?'':emptyState('◱','Nenhum curso ainda','Crie seu primeiro curso para começar a montar as aulas.','+ Novo curso','editCourse()')}`;
+/* ===========================================================================
+   CURSOS E AULAS — do banco
+   ---------------------------------------------------------------------------
+   Esta tela lia o localStorage: mostrava os 3 cursos de demonstracao do
+   prototipo, com 7 aulas, enquanto o banco tinha 4 cursos, 42 modulos e 314
+   aulas. "Abrir & editar" levava para um curso que nao existe, o botao
+   Publicar agia no rascunho deste navegador, e "Alunos matriculados" dizia
+   null porque a conta nao existia em lugar nenhum.
+
+   Era a tela principal de conteudo do painel escondendo o conteudo.
+
+   Agora le cursos_admin(), a mesma fonte da tela de Videos -- as duas param
+   de discordar. O layout (modulo > aula, selos, acoes por linha) ficou: ele
+   ja era bom, so estava alimentado pelo lugar errado.
+   =========================================================================== */
+var CURSOS_DB=undefined;
+
+function carregarCursos(forcar){
+  if(CURSOS_DB===null)return;
+  if(CURSOS_DB!==undefined && !precisaSincronizar('cursos') && !forcar)return;
+  CURSOS_DB=null;
+  esperaPublicar('cursosDoBanco', function(){ pedeCursos(); },
+    function(m){ CURSOS_DB={erro:m}; repintaCursos(); });
 }
+function pedeCursos(){
+  EDPublicar.cursosDoBanco().then(function(l){
+    marcaSincronizado('cursos');
+    CURSOS_DB=Array.isArray(l)?l:[];
+    repintaCursos();
+  }).catch(function(e){
+    CURSOS_DB={erro:(e&&e.message)||'erro'}; repintaCursos();
+  });
+}
+function repintaCursos(){
+  var h=location.hash||'';
+  if(h.indexOf('#/cursos')===0||h.indexOf('#/curso/')===0)router();
+}
+function cursoDoBanco(id){
+  if(!CURSOS_DB||CURSOS_DB.erro)return null;
+  return CURSOS_DB.filter(function(c){return c.curso_id===id;})[0]||null;
+}
+function hhmm(min){min=+min||0;return Math.floor(min/60)+'h'+(min%60<10?'0':'')+(min%60);}
+
+/* selo de video/quiz, o mesmo vocabulario da tela de Videos */
+function seloAula(a){
+  var v = a.tem_video
+    ? '<span class="filei has">▶ '+esc(a.host||'vídeo')+'</span>'
+    : '<span class="filei">sem vídeo</span>';
+  var q;
+  if(!a.quiz_quantidade) q='<span class="filei">sem quiz</span>';
+  else if((+a.quiz_disponivel||0) < (+a.quiz_quantidade||0))
+    q='<span class="filei" style="color:var(--amber)">⚠ quiz '+a.quiz_quantidade+' · só há '+(+a.quiz_disponivel||0)+'</span>';
+  else q='<span class="filei has">✓ quiz '+a.quiz_quantidade+'</span>';
+  return v+q;
+}
+
+function viewCursos(){
+  carregarCursos();
+  var cab='<div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo</div>'
+    + '<h1>Cursos &amp; aulas</h1><p>A estrutura que está no banco: curso, módulo e aula. '
+    + 'Para ver onde os vídeos estão hospedados, use <a href="#/videos" style="color:var(--gold-deep)">Vídeos das aulas</a>.</p></div>'
+    + '<div class="ph-r"><button class="btn btn-gold" onclick="novoCursoNoBanco()">+ Novo curso</button></div></div>';
+
+  if(CURSOS_DB===null||CURSOS_DB===undefined)
+    return cab+'<div class="card">'+semBanco('Lendo os cursos no banco…')+'</div>';
+  if(CURSOS_DB.erro)
+    return cab+'<div class="card">'+erroDeLeitura('os cursos',CURSOS_DB.erro)+'</div>';
+  if(!CURSOS_DB.length)
+    return cab+emptyState('▤','Nenhum curso no banco',
+      'Crie o primeiro curso e depois os módulos e aulas.','+ Novo curso','novoCursoNoBanco()');
+
+  var cards=CURSOS_DB.map(function(c){
+    var mods=(c.modulos||[]).length;
+    var comVideo=0, total=0;
+    (c.modulos||[]).forEach(function(m){(m.aulas||[]).forEach(function(a){
+      total++; if(a.tem_video)comVideo++;});});
+    return '<div class="ecard">'
+      + '<div class="ic" style="background:'+(c.cor||'#D4A437')+'"></div>'
+      + '<div class="meta">'+esc(c.codigo||'')+'</div>'
+      + '<h3>'+esc(c.titulo||'(sem título)')+'</h3>'
+      + '<p>'+esc(c.descricao||'')+'</p>'
+      + '<div class="foot"><span>'+mods+' módulos</span><span>·</span><span>'+c.aulas+' aulas</span>'
+      +   '<span>·</span><span>'+hhmm(c.minutos)+'</span>'
+      +   '<span>·</span><span style="color:'+(comVideo===total&&total?'var(--green)':'var(--amber)')+'">'
+      +   comVideo+'/'+total+' com vídeo</span>'
+      +   '<span>·</span><span>'+(c.alunos||0)+' alunos</span>'
+      +   ' '+stBadge(c.ativo?'publicado':'rascunho')+'</div>'
+      + '<div class="acts">'
+      +   '<button class="btn btn-gold btn-sm" onclick="location.hash=\'#/curso/'+esc(c.curso_id)+'\'">Abrir &amp; editar</button>'
+      +   '<button class="btn btn-ghost btn-sm" onclick="publicarCurso(\''+esc(c.curso_id)+'\','+(!c.ativo)+')">'
+      +     (c.ativo?'Despublicar':'Publicar')+'</button>'
+      + '</div></div>';
+  }).join('');
+  return cab+'<div class="ecards">'+cards+'</div>';
+}
+
 function viewCurso(id){
-  const c=db.courses.find(c=>c.id===id);if(!c)return notFound('Curso não encontrado');
-  const st=courseStats(c);
-  const mods=(c.modules||[]).map((m,mi)=>`
-    <div class="mod">
-      <div class="mod-head"><span class="mi">${mi+1}</span><span class="mt">${esc(m.title)}</span>
-        <span class="chip">${(m.lessons||[]).length} aulas</span>
-        <button class="btn-icon" title="Subir módulo" ${mi===0?'disabled':''} onclick="moveModule('${c.id}',${mi},-1)">↑</button>
-        <button class="btn-icon" title="Descer módulo" ${mi===(c.modules.length-1)?'disabled':''} onclick="moveModule('${c.id}',${mi},1)">↓</button>
-        <button class="btn btn-gold btn-sm" onclick="editLesson('${c.id}',${mi})">+ Aula</button>
-        <button class="btn btn-ghost btn-sm" onclick="editModule('${c.id}',${mi})">${EDIT_IC} Módulo</button>
-        <button class="btn btn-danger btn-sm" onclick="delModule('${c.id}',${mi})">${DEL_IC}</button>
-      </div>
-      ${(m.lessons||[]).map((l,li)=>`
-        <div class="lrow dropzone" draggable="true" ondragstart="dragStart(event,'lesson',${li},'${c.id}',${mi})" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondragend="dragEnd(event)" ondrop="dropOn(event,'lesson',${li},'${c.id}',${mi})">
-          <span class="grip" title="Arraste para reordenar"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span>
-          <div class="lt" onclick="location.hash='#/aula/${c.id}/${mi}/${li}'"><div class="ltt">${esc(l.title)}</div>
-            <div class="lts"><span>${l.duration||0} min</span><span class="filei ${(l.video||(l.videoUrl&&l.videoUrl.trim())||(l.videoEmbed&&l.videoEmbed.trim()))?'has':''}">▶ ${(l.video||(l.videoUrl&&l.videoUrl.trim())||(l.videoEmbed&&l.videoEmbed.trim()))?'vídeo':'sem vídeo'}</span><span class="filei ${l.audio?'has':''}">♪ ${l.audio?'áudio':'sem áudio'}</span>${stBadge(l.status)}</div>
-          </div>
-          <div class="rowact">
-            <button class="btn btn-ghost btn-sm" onclick="togglePubLesson('${c.id}',${mi},${li})">${l.status==='publicado'?'Despublicar':'Publicar'}</button>
-            <button class="btn btn-ghost btn-sm" onclick="previewAula('${c.id}',${mi},${li})">${EYE_IC}</button>
-            <button class="btn btn-ghost btn-sm" onclick="editLesson('${c.id}',${mi},${li})">${EDIT_IC}</button>
-            <button class="btn btn-danger btn-sm" onclick="delLesson('${c.id}',${mi},${li})">${DEL_IC}</button>
-          </div>
-        </div>`).join('')||'<div class="lrow"><span class="lnum"></span><div class="lt" style="cursor:default"><div class="lts">Nenhuma aula neste módulo.</div></div></div>'}
-    </div>`).join('');
-  return `
-  <div class="crumb"><a href="#/cursos">Cursos</a> <span class="sep">›</span> <span>${esc(c.title)}</span></div>
-  <div class="page-head"><div class="ph-l"><div class="eyebrow">${esc(c.code||'')} · ${esc(c.cert||'')} ${stBadge(c.status)}</div><h1>${esc(c.title)}</h1><p>${esc(c.desc||'')}</p>
-    <div class="lts" style="margin-top:10px"><span class="chip">${(c.modules||[]).length} módulos</span><span class="chip">${countLessons(c)} aulas</span><span class="chip">${courseMinutes(c)} min</span></div></div>
-    <div class="ph-actions">
-      <button class="btn ${c.status==='publicado'?'btn-ghost':'btn-gold'}" onclick="togglePubCourse('${c.id}')">${c.status==='publicado'?'Despublicar':'Publicar'}</button>
-      <button class="btn btn-ghost" onclick="previewCurso('${c.id}')">${EYE_IC} Visualizar</button>
-      <button class="btn btn-ghost" onclick="editCourse('${c.id}')">${EDIT_IC} Editar</button>
-      <button class="btn btn-ghost" onclick="addModule('${c.id}')">+ Módulo</button>
-    </div></div>
-  <div class="stat-grid" style="margin-bottom:20px">
-    <div class="stat"><div class="k">Alunos matriculados</div><div class="v">${st.alunos}</div><div class="d">no curso</div></div>
-    <div class="stat"><div class="k">Conclusão média</div><div class="v" style="font-size:15px;color:var(--muted)">—</div><div class="d">sem registro de progresso</div></div>
-    <div class="stat"><div class="k">Avaliação</div><div class="v" style="font-size:15px;color:var(--muted)">—</div><div class="d">sem avaliação coletada</div></div>
-    <div class="stat"><div class="k">Aulas</div><div class="v">${countLessons(c)}</div><div class="d">${courseMinutes(c)} min no total</div></div>
-  </div>
-  ${mods||emptyState('▤','Sem módulos','Adicione um módulo para começar a inserir aulas.','+ Módulo',`addModule('${c.id}')`)}`;
+  carregarCursos();
+  if(CURSOS_DB===null||CURSOS_DB===undefined)
+    return '<div class="card">'+semBanco('Lendo o curso no banco…')+'</div>';
+  if(CURSOS_DB.erro)
+    return '<div class="card">'+erroDeLeitura('o curso',CURSOS_DB.erro)+'</div>';
+  var c=cursoDoBanco(id);
+  if(!c)return notFound('Curso não encontrado no banco');
+
+  var listaMods=(c.modulos||[]);
+  var mods=listaMods.map(function(m,mi){
+    var aulas=(m.aulas||[]);
+    return '<div class="mod">'
+      + '<div class="mod-head"><span class="mi">'+(mi+1)+'</span><span class="mt">'+esc(m.titulo||'')+'</span>'
+      +   '<span class="chip">'+aulas.length+' aulas</span>'
+      +   '<button class="btn btn-gold btn-sm" onclick="novaAulaNoModulo(\''+esc(m.modulo_id)+'\')">+ Aula</button>'
+      +   '<button class="btn btn-ghost btn-sm" onclick="editarModuloNoBanco(\''+esc(m.modulo_id)+'\')">'+EDIT_IC+' Módulo</button>'
+      + '</div>'
+      + (aulas.length
+         ? aulas.map(function(a){
+             return '<div class="lrow">'
+               + '<div class="lt" style="cursor:pointer" onclick="editarAulaDoBanco(\''+esc(a.aula_id)+'\')">'
+               +   '<div class="ltt">'+esc(a.titulo||'(sem título)')+'</div>'
+               +   '<div class="lts"><span>'+(a.duracao||0)+' min</span>'+seloAula(a)+stBadge(a.ativo?'publicado':'rascunho')+'</div>'
+               + '</div>'
+               + '<div class="rowact">'
+               +   '<button class="btn btn-ghost btn-sm" onclick="publicarAula(\''+esc(a.aula_id)+'\','+(!a.ativo)+')">'
+               +     (a.ativo?'Despublicar':'Publicar')+'</button>'
+               +   (a.tem_video?'<button class="btn btn-ghost btn-sm" title="Assistir" onclick="location.hash=\'#/videos\';setTimeout(function(){verVideo(\''+esc(a.aula_id)+'\')},400)">'+EYE_IC+'</button>':'')
+               +   '<button class="btn btn-ghost btn-sm" onclick="editarAulaDoBanco(\''+esc(a.aula_id)+'\')">'+EDIT_IC+'</button>'
+               + '</div></div>';
+           }).join('')
+         : '<div class="lrow"><div class="lt" style="cursor:default"><div class="lts">Nenhuma aula neste módulo.</div></div></div>')
+      + '</div>';
+  }).join('');
+
+  var comVideo=0,total=0;
+  listaMods.forEach(function(m){(m.aulas||[]).forEach(function(a){total++;if(a.tem_video)comVideo++;});});
+
+  return '<div class="crumb"><a href="#/cursos">Cursos</a> <span class="sep">›</span> <span>'+esc(c.titulo||'')+'</span></div>'
+   + '<div class="page-head"><div class="ph-l">'
+   +   '<div class="eyebrow">'+esc(c.codigo||'')+' '+stBadge(c.ativo?'publicado':'rascunho')+'</div>'
+   +   '<h1>'+esc(c.titulo||'')+'</h1><p>'+esc(c.descricao||'')+'</p>'
+   +   '<div class="lts" style="margin-top:10px"><span class="chip">'+listaMods.length+' módulos</span>'
+   +     '<span class="chip">'+c.aulas+' aulas</span><span class="chip">'+hhmm(c.minutos)+'</span></div></div>'
+   + '<div class="ph-actions">'
+   +   '<button class="btn '+(c.ativo?'btn-ghost':'btn-gold')+'" onclick="publicarCurso(\''+esc(c.curso_id)+'\','+(!c.ativo)+')">'
+   +     (c.ativo?'Despublicar':'Publicar')+'</button>'
+   +   '<button class="btn btn-ghost" onclick="editarCursoNoBanco(\''+esc(c.curso_id)+'\')">'+EDIT_IC+' Editar</button>'
+   +   '<button class="btn btn-ghost" onclick="novoModuloNoBanco(\''+esc(c.curso_id)+'\')">+ Módulo</button>'
+   + '</div></div>'
+   + '<div class="stat-grid" style="margin-bottom:20px">'
+   +   '<div class="stat"><div class="k">Alunos com acesso</div><div class="v">'+(c.alunos||0)+'</div>'
+   +     '<div class="d">matrícula válida hoje</div></div>'
+   +   '<div class="stat"><div class="k">Aulas</div><div class="v">'+c.aulas+'</div><div class="d">'+hhmm(c.minutos)+' no total</div></div>'
+   +   '<div class="stat"><div class="k">Com vídeo</div><div class="v" style="color:'+(comVideo===total&&total?'var(--green)':'var(--amber)')+'">'
+   +     comVideo+'/'+total+'</div><div class="d">'+(comVideo===total?'nenhuma faltando':(total-comVideo)+' sem vídeo')+'</div></div>'
+   +   '<div class="stat"><div class="k">Conclusão média</div>'
+   +     '<div class="v" style="font-size:15px;color:var(--muted)">—</div>'
+   +     '<div class="d">o banco não registra progresso de aula</div></div>'
+   + '</div>'
+   + (mods||emptyState('▤','Sem módulos','Adicione um módulo para começar a inserir aulas.',
+                       '+ Módulo','novoModuloNoBanco(\''+esc(c.curso_id)+'\')'));
+}
+
+/* ------------------------------------------------------- acoes, no banco -- */
+function recarregaEstrutura(){
+  CURSOS_DB=undefined; AULAS_DB=undefined; OPC=null;
+  carregarCursos(true); carregarAulas(true);
+}
+function publicarCurso(id,ativo){
+  EDPublicar.salvarCurso({curso_id:id,ativo:ativo}).then(function(){
+    toast(ativo?'Curso publicado.':'Curso despublicado.'); recarregaEstrutura();
+  }).catch(function(e){toast('Não deu certo: '+((e&&e.message)||'erro'));});
+}
+function publicarAula(id,ativo){
+  EDPublicar.salvarAula({aula_id:id,ativo:ativo}).then(function(){
+    toast(ativo?'Aula publicada.':'Aula despublicada.'); recarregaEstrutura();
+  }).catch(function(e){toast('Não deu certo: '+((e&&e.message)||'erro'));});
+}
+function editarCursoNoBanco(id){
+  var c=cursoDoBanco(id); if(!c)return;
+  openDrawer('Editar curso',[
+    {key:'titulo',label:'Nome do curso',type:'text',req:true},
+    {key:'codigo',label:'Código (ex.: CNPI-CB)',type:'text'},
+    {key:'descricao',label:'Descrição',type:'textarea'},
+    {key:'cor',label:'Cor (hex)',type:'text',hint:'Ex.: #D4A437'},
+    {key:'ativo',label:'Situação',type:'select',options:[['true','Publicado'],['false','Rascunho']]}
+  ],{titulo:c.titulo||'',codigo:c.codigo||'',descricao:c.descricao||'',cor:c.cor||'',
+     ativo:String(c.ativo!==false)},
+  function(d){
+    EDPublicar.salvarCurso({curso_id:id,titulo:d.titulo,codigo:d.codigo||'',
+      descricao:d.descricao||'',cor:d.cor||'',ativo:(d.ativo==='true')}).then(function(){
+      closeDrawer();toast('Curso salvo.');recarregaEstrutura();
+    }).catch(function(e){toast('Não deu para salvar: '+((e&&e.message)||'erro'));});
+  });
+}
+function novoCursoNoBanco(){
+  openDrawer('Novo curso',[
+    {key:'titulo',label:'Nome do curso',type:'text',req:true},
+    {key:'codigo',label:'Código (ex.: CNPI-CB)',type:'text'},
+    {key:'descricao',label:'Descrição',type:'textarea'},
+    {key:'cor',label:'Cor (hex)',type:'text',hint:'Ex.: #D4A437'}
+  ],{},function(d){
+    EDPublicar.criarCurso({titulo:d.titulo,codigo:d.codigo||'',
+      descricao:d.descricao||'',cor:d.cor||''}).then(function(r){
+      closeDrawer();toast('Curso criado como rascunho.');
+      recarregaEstrutura(); location.hash='#/curso/'+r.curso_id;
+    }).catch(function(e){toast('Não deu para criar: '+((e&&e.message)||'erro'));});
+  });
+}
+function editarModuloNoBanco(mid){
+  var tit='';
+  (CURSOS_DB||[]).forEach(function(c){(c.modulos||[]).forEach(function(m){
+    if(m.modulo_id===mid)tit=m.titulo||'';});});
+  openDrawer('Editar módulo',[{key:'titulo',label:'Nome do módulo',type:'text',req:true}],
+    {titulo:tit},function(d){
+      EDPublicar.salvarModulo({modulo_id:mid,titulo:d.titulo}).then(function(){
+        closeDrawer();toast('Módulo salvo.');recarregaEstrutura();
+      }).catch(function(e){toast('Não deu para salvar: '+((e&&e.message)||'erro'));});
+    });
+}
+function novoModuloNoBanco(cid){
+  openDrawer('Novo módulo',[{key:'titulo',label:'Nome do módulo',type:'text',req:true}],{},
+    function(d){
+      EDPublicar.criarModulo({curso_id:cid,titulo:d.titulo}).then(function(){
+        closeDrawer();toast('Módulo criado.');recarregaEstrutura();
+      }).catch(function(e){toast('Não deu para criar: '+((e&&e.message)||'erro'));});
+    });
+}
+/* "+ Aula" dentro de um modulo: ja sabe onde entra, nao pergunta de novo */
+function novaAulaNoModulo(mid){
+  comOpcoes(function(){
+    openDrawer('Nova aula',camposDaAula(),{ativo:'false'},function(d){
+      var erro=criticaAula(d); if(erro){toast(erro);return;}
+      EDPublicar.criarAula({
+        modulo_id:mid, titulo:d.titulo, duracao_min:d.duracao_min||'',
+        descricao:d.descricao||'', video_embed:d.video_embed||'', video_url:d.video_url||'',
+        quiz_categoria_id:d.quiz_categoria_id||'', quiz_quantidade:d.quiz_quantidade||'',
+        material_url:d.material_url||'', ativo:(d.ativo==='true')
+      }).then(function(){
+        closeDrawer();toast('Aula criada. Ela entra como rascunho até você publicar.');
+        recarregaEstrutura();
+      }).catch(function(e){toast('Não deu para criar: '+((e&&e.message)||'erro'));});
+    });
+  });
 }
 function viewAula(cid,mi,li){
   const c=db.courses.find(c=>c.id===cid);if(!c)return notFound('Curso não encontrado');
