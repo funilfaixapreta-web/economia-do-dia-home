@@ -531,6 +531,33 @@ input[type=color].fld{height:42px;padding:4px;cursor:pointer}
 /* visualizar (read-only) */
 .pv-embed{background:#000;border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .pv-embed iframe{display:block;width:100%;border:0}
+/* Previa de VIDEO: a caixa manda na proporcao e o iframe preenche. Sem o
+   height:100% o iframe caía nos 150px do padrao do HTML -- o EDVideo.seguro()
+   tira width/height do atributo de proposito, para o player nao quebrar no
+   celular, e aqui nada repunha. A previa da aula no editor tinha o mesmo
+   defeito desde sempre: 678 de largura por 150 de altura.
+   NAO vale para .pv-embed sozinho, que tambem serve de moldura para o audio
+   do SoundCloud -- ali 100% de altura zeraria o player. */
+/* ---- tela "Videos das aulas" --------------------------------------------
+   .tbar/.tl/.track/.pct e .filters sao classes do app.html e NAO existem
+   aqui. Usei-as de memoria e o resultado foi "veed.io314 aulas" coladinho e
+   barra nenhuma na tela. Ficam definidas abaixo, no painel, com as variaveis
+   do painel. (Segunda vez que caio nisso nesta tela; a primeira foi
+   .jour-stats nos cartoes de resumo.) */
+.vidbar{margin-bottom:14px}
+.vidbar .tl{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  font-size:13.5px;color:var(--head);margin-bottom:6px}
+.vidbar .tl .pct{font-family:'IBM Plex Mono';font-size:12.5px;color:var(--muted);white-space:nowrap}
+.vidbar .track{height:7px;border-radius:999px;background:var(--overlay-soft);overflow:hidden}
+.vidbar .track > i{display:block;height:100%;border-radius:999px}
+.vidbar .sub{font-size:11.5px;color:var(--faint);margin-top:4px}
+.vidfiltros{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 2px}
+.vidfiltros button{background:var(--overlay-soft);border:1px solid var(--border);color:var(--muted);
+  border-radius:999px;padding:7px 14px;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.15s}
+.vidfiltros button:hover{color:var(--head);border-color:var(--gold-soft-bd)}
+.vidfiltros button.on{background:var(--gold-soft-bg);border-color:var(--gold-soft-bd);color:var(--gold-deep);font-weight:600}
+.pv-video{aspect-ratio:16/9}
+.pv-video iframe,.pv-video video{height:100%;object-fit:contain;background:#000}
 .pv-embed .pv-noembed{padding:16px;color:var(--muted);font-size:13px;font-family:'IBM Plex Mono'}
 .pv-stmt{font-size:16px;line-height:1.6;color:var(--head);margin:4px 0 6px;padding:18px 0;border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
 .pv-alts{margin-top:4px}
@@ -1523,140 +1550,281 @@ function lvDrop(e,i){e.preventDefault();e.currentTarget.classList.remove('dragov
    VIDEOS DAS AULAS
    ---------------------------------------------------------------------------
    Esta tela existe porque o caminho para por video numa aula estava a cinco
-   cliques de distancia e a palavra "video" nao aparecia em parte nenhuma do
-   menu: Conteudo (grupo fechado) > Cursos > Abrir & editar > modulo > aula >
-   Editar. Quem nao sabia o caminho nao achava, e nao e culpa de quem procura.
+   cliques e a palavra "video" nao aparecia no menu: Conteudo (grupo fechado)
+   > Cursos > Abrir & editar > modulo > aula > Editar.
 
-   Aqui tudo fica numa lista so: toda aula de todo curso, com a fonte do
-   video de cada uma e o botao que abre exatamente o campo certo.
+   Ela le o BANCO, nao o localStorage. A diferenca nao e detalhe: a aba Cursos
+   mostra o rascunho DESTE navegador, entao duas maquinas mostrariam listas
+   diferentes e nenhuma seria o que o aluno ve. Aqui a pergunta e "onde esta o
+   video que esta no ar", e isso so o banco responde.
    =========================================================================== */
-function viewVideos(){
-  /* achata curso > modulo > aula numa lista, guardando os indices para o
-     editLesson(cid,mi,li) poder ser chamado direto do botao */
-  var linhas=[];
+var AULAS_DB=undefined;          /* undefined=nao pedi · null=pedindo · []=veio */
+
+function carregarAulas(forcar){
+  if(AULAS_DB===null)return;                    /* ja estou buscando */
+  if(AULAS_DB!==undefined && !precisaSincronizar('aulas') && !forcar)return;
+  AULAS_DB=null;
+  /* esperaPublicar so ESPERA o ed-publicar.js aparecer e chama aoVir() sem
+     argumento -- quem busca e quem chamou. Escrevi como se ele entregasse a
+     lista, e o resultado foi AULAS_DB=[] e a tela dizendo "nenhuma aula
+     publicada" com 314 no banco. Mesmo formato de carregarAluno(). */
+  esperaPublicar('baixarAulas', function(){ pedeAulas(); },
+    function(m){ AULAS_DB={erro:m}; if((location.hash||'').indexOf('#/videos')===0)router(); });
+}
+function pedeAulas(){
+  EDPublicar.baixarAulas().then(function(l){
+    marcaSincronizado('aulas');
+    AULAS_DB=Array.isArray(l)?l:[];
+    if((location.hash||'').indexOf('#/videos')===0)router();
+  }).catch(function(e){
+    AULAS_DB={erro:(e&&e.message)||'erro'};
+    if((location.hash||'').indexOf('#/videos')===0)router();
+  });
+}
+
+/* Prévia aberta no momento (aula_id), uma por vez: 314 iframes de uma vez
+   derrubariam a aba, e cada um abre conexao com o player. */
+var PREVIA=null;
+var FILTRO_CURSO='', FILTRO_TEXTO='';
+var VID={};                      /* ponte entre viewVideos() e listasDeVideo() */
+function filtrarVideos(curso){FILTRO_CURSO=curso||'';PREVIA=null;router();}
+function buscarVideos(v){
+  FILTRO_TEXTO=String(v||'').toLowerCase();
+  /* redesenha so as tabelas, para o campo nao perder o foco a cada tecla */
+  var alvo=document.getElementById('vid-listas');
+  if(alvo)alvo.innerHTML=listasDeVideo();
+}
+/* A lista vem do BANCO; o editor de aula trabalha com os indices do db
+   LOCAL. Quando a aula existe tambem neste navegador (mesma ref), da para
+   abrir direto. Quando nao existe -- outra maquina, painel ainda nao
+   sincronizado -- o botao leva para Cursos e diz por que, em vez de abrir a
+   aula errada ou nao fazer nada. */
+function editarAulaPorRef(ref){
+  var achou=null;
   (db.courses||[]).forEach(function(c){
     (c.modules||[]).forEach(function(m,mi){
       (m.lessons||[]).forEach(function(l,li){
-        linhas.push({c:c, m:m, l:l, mi:mi, li:li});
+        if(l.id===ref)achou={cid:c.id,mi:mi,li:li};
       });
     });
   });
+  if(achou)return editLesson(achou.cid,achou.mi,achou.li);
+  toast('Esta aula não está no rascunho deste navegador. Abra o curso em Cursos e aulas.');
+  location.hash='#/cursos';
+}
+function verVideo(id){PREVIA=(PREVIA===id)?null:id;router();
+  setTimeout(function(){var el=document.getElementById('prev-'+id);
+    if(el)el.scrollIntoView({block:'center',behavior:'smooth'});},60);}
 
-  var temEmbed=function(l){return !!(l.videoEmbed&&String(l.videoEmbed).trim());};
-  var temLink =function(l){return !!(l.videoUrl&&String(l.videoUrl).trim());};
-  var temArq  =function(l){return !!l.video;};
-  /* "com video" tem de significar video que TOCA. Na primeira versao eu
-     contava qualquer fonte preenchida, e uma aula com iframe invalido
-     aparecia em "Ja com video" -- quem olhasse a lista acharia aquela aula
-     pronta, e so o aluno descobriria. Fonte quebrada e grupo proprio, e vem
-     primeiro, porque e o unico que exige conserto e nao trabalho novo. */
-  var quebrada=function(l){
-    if(temEmbed(l))return window.EDVideo?!EDVideo.seguro(l.videoEmbed):false;
-    if(temLink(l)) return window.EDVideo?!(EDVideo.embutir(l.videoUrl)||EDVideo.pareceArquivoDeVideo(l.videoUrl)):false;
-    return false;
-  };
-  var problemas=linhas.filter(function(x){return quebrada(x.l);});
-  var comVideo =linhas.filter(function(x){return (temEmbed(x.l)||temLink(x.l))&&!quebrada(x.l);});
-  var semVideo =linhas.filter(function(x){return !temEmbed(x.l)&&!temLink(x.l);});
-  /* arquivo enviado NAO conta como video: o campo guarda so o nome e a aula
-     sai sem video nenhum. Ver a dica no proprio campo. */
-  var soArquivo=semVideo.filter(function(x){return temArq(x.l);});
+function viewVideos(){
+  carregarAulas();
 
   var cab=''
    + '<div class="page-head"><div class="ph-l"><div class="eyebrow">Conteúdo · Cursos</div>'
    + '<h1>Vídeos das aulas</h1>'
-   + '<p>Todas as aulas de todos os cursos num lugar, com a fonte do vídeo de cada uma. '
-   + 'Clique em <b>Pôr vídeo</b> para colar o código de incorporação do VEED, Vimeo ou YouTube.</p>'
-   + '</div></div>';
+   + '<p>Todas as aulas publicadas no banco, onde cada vídeo está hospedado e se ele toca. '
+   + 'Clique em <b>Ver</b> para assistir sem sair daqui.</p></div></div>';
 
-  if(!linhas.length){
-    return cab + '<div class="card"><div class="hint" style="color:var(--muted)">'
-      + 'Não há nenhuma aula cadastrada ainda. Crie um curso e um módulo primeiro em '
-      + '<a href="#/cursos" style="color:var(--gold-deep)">Cursos e aulas</a>, e as aulas aparecem aqui.'
-      + '</div></div>';
-  }
+  if(AULAS_DB===null||AULAS_DB===undefined)
+    return cab+'<div class="card">'+semBanco('Lendo as aulas no banco…')+'</div>';
+  if(AULAS_DB&&AULAS_DB.erro)
+    return cab+'<div class="card">'+erroDeLeitura('as aulas',AULAS_DB.erro)+'</div>';
+  if(!AULAS_DB.length)
+    return cab+'<div class="card"><div class="hint" style="color:var(--muted)">'
+      +'Nenhuma aula publicada ainda. Crie em <a href="#/cursos" style="color:var(--gold-deep)">Cursos e aulas</a> '
+      +'e clique em <b>Publicar</b> — as aulas aparecem aqui depois de publicadas.</div></div>';
 
-  /* .stat-grid/.stat sao as classes do painel. Na primeira versao usei
-     .jour-stats, que so existe no app.html -- os quatro cartoes empilharam
-     um por linha, cada um do tamanho de um banner. */
+  var temEmbed=function(a){return !!(a.video_embed&&String(a.video_embed).trim());};
+  var temLink =function(a){return !!(a.video_url&&String(a.video_url).trim());};
+  var quebrada=function(a){
+    if(temEmbed(a))return window.EDVideo?!EDVideo.seguro(a.video_embed):false;
+    if(temLink(a)) return window.EDVideo?!(EDVideo.embutir(a.video_url)||EDVideo.pareceArquivoDeVideo(a.video_url)):false;
+    return false;
+  };
+  var lista     = AULAS_DB;
+  var problemas = lista.filter(quebrada);
+  var comVideo  = lista.filter(function(a){return (temEmbed(a)||temLink(a))&&!quebrada(a);});
+  var semVideo  = lista.filter(function(a){return !temEmbed(a)&&!temLink(a);});
+  var minutos   = lista.reduce(function(t,a){return t+(+a.duracao||0);},0);
+  var horas     = Math.floor(minutos/60)+'h'+(minutos%60<10?'0':'')+(minutos%60);
+
+  /* ONDE ESTAO: contagem por host, que e a pergunta que a tela responde */
+  /* So conta o que TOCA. Uma aula de embed quebrado nao tem host legivel e
+     entrava aqui como "(nao identificado)" -- poluia a resposta de "onde
+     estao meus videos" com uma linha que nao e um lugar, e sim um defeito.
+     O defeito ja tem o seu proprio cartao e a sua propria secao. */
+  var porHost={};
+  comVideo.forEach(function(a){
+    var h=a.host||'(sem host reconhecido)';
+    porHost[h]=(porHost[h]||0)+1;
+  });
+  var hosts=Object.keys(porHost).sort(function(x,y){return porHost[y]-porHost[x];});
+
+  /* por curso */
+  var porCurso={}, ordemCurso=[];
+  lista.forEach(function(a){
+    var k=a.curso||'(sem curso)';
+    if(!porCurso[k]){porCurso[k]={n:0,com:0,min:0,mods:{}};ordemCurso.push(k);}
+    porCurso[k].n++; porCurso[k].min+=(+a.duracao||0);
+    porCurso[k].mods[a.modulo||'-']=1;
+    if((temEmbed(a)||temLink(a))&&!quebrada(a))porCurso[k].com++;
+  });
+
   var cartao=function(rot,n,cor,sub){
     return '<div class="stat"><div class="k">'+rot+'</div>'
          + '<div class="v"'+(cor?' style="color:'+cor+'"':'')+'>'+n+'</div>'
          + (sub?'<div class="d">'+sub+'</div>':'')+'</div>';
   };
 
-  var fonte=function(l){
-    if(temEmbed(l)){
-      var h=(window.EDVideo&&EDVideo.host(l.videoEmbed))||null;
-      var ok=window.EDVideo?!!EDVideo.seguro(l.videoEmbed):true;
-      if(!ok)return '<span class="filei" style="color:var(--red)">✕ incorporação inválida</span>';
-      return '<span class="filei has">▶ incorporação'+(h?' · '+esc(h):'')+'</span>';
+  var fonte=function(a){
+    if(quebrada(a))return '<span class="filei" style="color:var(--red)">✕ não toca</span>';
+    if(temEmbed(a))return '<span class="filei has">▶ '+esc(a.host||'incorporação')+'</span>';
+    if(temLink(a)){
+      var e=window.EDVideo?EDVideo.embutir(a.video_url):null;
+      return '<span class="filei has">▶ '+esc(a.host||'link')+(e?'':' · arquivo')+'</span>';
     }
-    if(temLink(l)){
-      var emb=window.EDVideo?EDVideo.embutir(l.videoUrl):null;
-      var arq=window.EDVideo?EDVideo.pareceArquivoDeVideo(l.videoUrl):false;
-      if(!emb&&!arq)return '<span class="filei" style="color:var(--red)">✕ link que o player não toca</span>';
-      return '<span class="filei has">▶ link'+(emb?' · '+esc(emb.replace(/^https:\/\//,'').split('/')[0]):'')+'</span>';
-    }
-    if(temArq(l))return '<span class="filei" style="color:var(--amber)">⚠ arquivo só pelo nome</span>';
     return '<span class="filei">sem vídeo</span>';
   };
 
-  var tabela=function(lista){
+  var previaDe=function(a){
+    if(PREVIA!==a.aula_id)return '';
+    var html=temEmbed(a)?(window.EDVideo?EDVideo.seguro(a.video_embed):null)
+            :(temLink(a)?(function(){
+                var e=window.EDVideo?EDVideo.embutir(a.video_url):null;
+                if(e)return '<iframe src="'+esc(e)+'" allow="fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
+                if(window.EDVideo&&EDVideo.pareceArquivoDeVideo(a.video_url))
+                  return '<video controls preload="metadata" src="'+esc(a.video_url)+'"></video>';
+                return null;})():null);
+    return '<tr id="prev-'+esc(a.aula_id)+'"><td colspan="6" style="padding:0 0 16px">'
+      + (html
+         ? '<div class="pv-embed pv-video" style="max-width:680px">'+html+'</div>'
+           +'<div class="hint" style="margin-top:8px">'+esc(a.curso||'')+' · '+esc(a.modulo||'')
+           +(a.duracao?' · '+a.duracao+' min':'')+'</div>'
+         : '<div class="hint" style="color:var(--red)">Não dá para tocar este vídeo: '
+           +'o conteúdo do campo não é um player válido. Abra a aula e cole o iframe do seu player.</div>')
+      + '</td></tr>';
+  };
+
+  /* o filtro e as tabelas ficam acessiveis para listasDeVideo() */
+  VID.quebrada=quebrada; VID.temEmbed=temEmbed; VID.temLink=temLink;
+  VID.filtra=function(){
+    var l=AULAS_DB.filter(function(a){
+      if(FILTRO_CURSO&&a.curso!==FILTRO_CURSO)return false;
+      if(FILTRO_TEXTO){
+        var alvo=((a.titulo||'')+' '+(a.modulo||'')+' '+(a.curso||'')).toLowerCase();
+        if(alvo.indexOf(FILTRO_TEXTO)<0)return false;
+      }
+      return true;
+    });
+    return {todas:l,
+      problemas:l.filter(quebrada),
+      comVideo :l.filter(function(a){return (temEmbed(a)||temLink(a))&&!quebrada(a);}),
+      semVideo :l.filter(function(a){return !temEmbed(a)&&!temLink(a);})};
+  };
+
+  var tabela=VID.tabela=function(l){
     return '<table class="simhist" style="width:100%"><thead><tr>'
       + '<th style="text-align:left">Aula</th><th style="text-align:left">Curso</th>'
       + '<th style="text-align:left">Módulo</th>'
       + '<th style="text-align:left;white-space:nowrap">Duração</th>'
-      + '<th style="text-align:left">Vídeo</th><th></th></tr></thead><tbody>'
-      + lista.map(function(x){
+      + '<th style="text-align:left">Onde está</th><th></th></tr></thead><tbody>'
+      + l.map(function(a){
+          var podeVer=(temEmbed(a)||temLink(a));
           return '<tr>'
-            + '<td style="font-weight:500">'+esc(x.l.title||'(sem título)')+' '+stBadge(x.l.status)+'</td>'
-            + '<td style="color:var(--muted);padding-right:18px">'+esc(x.c.title||'')+'</td>'
-            + '<td style="color:var(--muted);padding-right:18px">'+esc(x.m.title||'')+'</td>'
-            + '<td style="color:var(--muted)">'+(x.l.duration?x.l.duration+' min':'—')+'</td>'
-            + '<td>'+fonte(x.l)+'</td>'
-            + '<td style="text-align:right"><button class="btn '
-            + ((temEmbed(x.l)||temLink(x.l))?'btn-ghost':'btn-gold')
-            + ' btn-sm" onclick="editLesson(\''+x.c.id+'\','+x.mi+','+x.li+')">'
-            + ((temEmbed(x.l)||temLink(x.l))?'Trocar vídeo':'Pôr vídeo')+'</button></td>'
-            + '</tr>';
+            + '<td style="font-weight:500">'+esc(a.titulo||'(sem título)')
+              + (a.ativo?'':' <span class="badge">rascunho</span>')+'</td>'
+            + '<td style="color:var(--muted);padding-right:18px">'+esc(a.curso||'')+'</td>'
+            + '<td style="color:var(--muted);padding-right:18px">'+esc(a.modulo||'')+'</td>'
+            + '<td style="color:var(--muted)">'+(a.duracao?a.duracao+' min':'—')+'</td>'
+            + '<td>'+fonte(a)+'</td>'
+            + '<td style="text-align:right;white-space:nowrap">'
+              + (podeVer?'<button class="btn btn-ghost btn-sm" onclick="verVideo(\''+esc(a.aula_id)+'\')">'
+                         +(PREVIA===a.aula_id?'Fechar':'Ver')+'</button> ':'')
+              + '<button class="btn '+(podeVer?'btn-ghost':'btn-gold')+' btn-sm" '
+              + 'onclick="editarAulaPorRef(\''+esc(a.ref||'')+'\')">'
+              + (podeVer?'Editar':'Pôr vídeo')+'</button></td>'
+            + '</tr>'
+            + previaDe(a);
         }).join('')
       + '</tbody></table>';
   };
 
   return cab
    + '<div class="stat-grid">'
-   +   cartao('Aulas no total', linhas.length, null, (db.courses||[]).length+' cursos')
-   +   cartao('Com vídeo', comVideo.length, comVideo.length?'var(--green)':null,
-              linhas.length?Math.round(100*comVideo.length/linhas.length)+'% do total':null)
+   +   cartao('Aulas publicadas', lista.length, null, ordemCurso.length+' cursos · '+horas+' de aula')
+   +   cartao('Com vídeo', comVideo.length, comVideo.length===lista.length?'var(--green)':null,
+              lista.length?Math.round(100*comVideo.length/lista.length)+'% do total':null)
    +   cartao('Sem vídeo', semVideo.length, semVideo.length?'var(--amber)':null,
               semVideo.length?'é por onde começar':'nenhuma faltando')
-   +   cartao('Problemas', problemas.length, problemas.length?'var(--red)':null,
-              problemas.length?'código ou link que não toca':'nada quebrado')
+   +   cartao('Não tocam', problemas.length, problemas.length?'var(--red)':null,
+              problemas.length?'precisa conserto':'nada quebrado')
    + '</div>'
-   + (soArquivo.length
-      ? '<div class="card" style="margin-top:14px"><div class="hint" style="color:var(--amber);line-height:1.6">'
-        + '<b>'+soArquivo.length+' aula'+(soArquivo.length>1?'s':'')+'</b> '
-        + (soArquivo.length>1?'têm':'tem')+' arquivo anexado pelo campo de upload, que ainda não envia nada — '
-        + 'guarda só o nome. '+(soArquivo.length>1?'Elas contam':'Ela conta')+' como <b>sem vídeo</b>. '
-        + 'Use o campo <b>Vídeo por incorporação</b> e cole o iframe do seu player.'
-        + '</div></div>'
-      : '')
-   + (problemas.length
-      ? '<div class="rowtitle" style="margin-top:22px"><h3 style="color:var(--red)">Com problema</h3>'
-        + '<span class="cnt">'+problemas.length+' de '+linhas.length+' · a fonte está preenchida mas o player não toca</span></div>'
-        + '<div class="card">'+tabela(problemas)+'</div>'
-      : '')
-   + (semVideo.length
-      ? '<div class="rowtitle" style="margin-top:22px"><h3>Faltando vídeo</h3>'
-        + '<span class="cnt">'+semVideo.length+' de '+linhas.length+'</span></div>'
-        + '<div class="card">'+tabela(semVideo)+'</div>'
-      : '')
-   + (comVideo.length
-      ? '<div class="rowtitle" style="margin-top:22px"><h3>Já com vídeo</h3>'
-        + '<span class="cnt">'+comVideo.length+' de '+linhas.length+'</span></div>'
-        + '<div class="card">'+tabela(comVideo)+'</div>'
-      : '');
+
+   /* ONDE OS VIDEOS ESTAO */
+   + '<div class="grid2" style="margin-top:18px">'
+   + '<div class="card"><h3 class="sec-title">Onde os vídeos estão hospedados</h3>'
+   +   (hosts.length
+        ? hosts.map(function(h){
+            var n=porHost[h], bruto=100*n/Math.max(comVideo.length,1);
+            var pct=Math.round(bruto);
+            /* 1 aula em 315 arredonda para 0% e fica com cara de defeito.
+               Abaixo de meio ponto, dizer "<1%" e a largura minima da barra
+               fica visivel -- a linha existe, entao a barra tem de existir. */
+            var rot=(bruto>0&&pct===0)?'<1%':pct+'%';
+            return '<div class="vidbar"><div class="tl"><span>'+esc(h)+'</span>'
+                 + '<span class="pct">'+n+' aula'+(n>1?'s':'')+' · '+rot+'</span></div>'
+                 + '<div class="track"><i style="width:'+Math.max(pct,2)+'%;background:var(--gold-grad)"></i></div></div>';
+          }).join('')
+        : '<div class="hint" style="color:var(--muted)">Nenhum vídeo ainda.</div>')
+   +   '<div class="hint" style="margin-top:12px;line-height:1.6">O vídeo não fica neste servidor: cada aula guarda o '
+   +   'código de incorporação do player onde o arquivo está. Trocar de player é trocar o iframe, aula por aula.</div>'
+   + '</div>'
+   + '<div class="card"><h3 class="sec-title">Por curso</h3>'
+   +   ordemCurso.map(function(k){
+         var c=porCurso[k], pct=c.n?Math.round(100*c.com/c.n):0;
+         return '<div class="vidbar"><div class="tl"><span>'+esc(k)+'</span>'
+              + '<span class="pct" style="color:'+(pct===100?'var(--green)':'var(--amber)')+'">'+c.com+'/'+c.n+' com vídeo</span></div>'
+              + '<div class="track"><i style="width:'+pct+'%;background:'+(pct===100?'var(--green)':'var(--amber)')+'"></i></div>'
+              + '<div class="sub">'+Object.keys(c.mods).length+' módulos · '
+              + Math.floor(c.min/60)+'h'+(c.min%60<10?'0':'')+(c.min%60)+' de aula</div></div>';
+       }).join('')
+   + '</div></div>'
+
+   /* ---- filtro: 317 aulas numa tabela corrida nao se navega ---- */
+   + '<div class="rowtitle" style="margin-top:24px"><h3>As aulas</h3></div>'
+   + '<div class="vidfiltros" id="vid-filtros">'
+   +   '<button class="'+(FILTRO_CURSO?'':'on')+'" onclick="filtrarVideos(\'\')">Todos ('+lista.length+')</button>'
+   +   ordemCurso.map(function(k){
+         return '<button class="'+(FILTRO_CURSO===k?'on':'')+'" onclick="filtrarVideos('+JSON.stringify(k).replace(/"/g,'&quot;')+')">'
+              + esc(k)+' ('+porCurso[k].n+')</button>';
+       }).join('')
+   + '</div>'
+   + '<input class="fld" id="vid-busca" placeholder="Buscar por título da aula ou módulo…" '
+   +   'value="'+esc(FILTRO_TEXTO)+'" oninput="buscarVideos(this.value)" '
+   +   'style="max-width:420px;margin:10px 0 4px">'
+   + '<div id="vid-listas">'+listasDeVideo()+'</div>';
+}
+
+/* Fica fora do viewVideos() para a busca poder redesenhar so as tabelas: se
+   redesenhasse a tela toda, o campo perderia o foco a cada tecla digitada. */
+function listasDeVideo(){
+  if(!AULAS_DB||AULAS_DB.erro||!AULAS_DB.length)return '';
+  var f=VID.filtra();
+  if(!f.todas.length)
+    return '<div class="card"><div class="hint" style="color:var(--muted)">'
+         + 'Nenhuma aula com esse filtro.</div></div>';
+  return (f.problemas.length
+      ? '<div class="rowtitle" style="margin-top:18px"><h3 style="color:var(--red)">Não tocam</h3>'
+        + '<span class="cnt">'+f.problemas.length+' · o campo está preenchido mas o player não abre</span></div>'
+        + '<div class="card">'+VID.tabela(f.problemas)+'</div>' : '')
+   + (f.semVideo.length
+      ? '<div class="rowtitle" style="margin-top:18px"><h3>Faltando vídeo</h3>'
+        + '<span class="cnt">'+f.semVideo.length+'</span></div>'
+        + '<div class="card">'+VID.tabela(f.semVideo)+'</div>' : '')
+   + (f.comVideo.length
+      ? '<div class="rowtitle" style="margin-top:18px"><h3>Publicadas com vídeo</h3>'
+        + '<span class="cnt">'+f.comVideo.length+' · clique em Ver para assistir</span></div>'
+        + '<div class="card">'+VID.tabela(f.comVideo)+'</div>' : '');
 }
 
 function viewCursos(){
@@ -2473,12 +2641,12 @@ function videoHtml(l){
      o filtrado, o admin publicaria achando que esta certo. */
   if(l.videoEmbed&&String(l.videoEmbed).trim()){
     var seg=window.EDVideo?EDVideo.seguro(l.videoEmbed):null;
-    if(seg)return '<div class="pv-embed" style="aspect-ratio:16/9">'+seg+'</div>';
+    if(seg)return '<div class="pv-embed pv-video">'+seg+'</div>';
     return '<div class="hint" style="color:var(--red)">O código de incorporação não tem um player válido. '
          + 'Cole o <code>&lt;iframe&gt;</code> que o VEED, o Vimeo ou o YouTube dá no botão de incorporar (Share → Embed), e não o endereço da página.</div>';
   }
   if(l.videoUrl&&String(l.videoUrl).trim()){var emb=ytEmbedUrl(l.videoUrl);
-    if(emb)return '<div class="pv-embed" style="aspect-ratio:16/9"><iframe src="'+esc(emb)+'" allow="fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%"></iframe></div>';
+    if(emb)return '<div class="pv-embed pv-video"><iframe src="'+esc(emb)+'" allow="fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%"></iframe></div>';
     if(window.EDVideo&&EDVideo.pareceArquivoDeVideo(l.videoUrl))
       return '<video controls src="'+esc(l.videoUrl)+'" style="width:100%;border-radius:12px;background:#000"></video>';
     return '<div class="hint" style="color:var(--red)">Este link o player não toca. O campo de LINK serve para YouTube, Vimeo ou um arquivo .mp4 direto. '

@@ -629,6 +629,25 @@
       .then(function(l){ return (l&&l[0]&&l[0].conteudo)||''; });
   }
 
+  /* Todas as aulas que estao NO BANCO, com a fonte do video de cada uma.
+     A aba Cursos do painel nunca leu do banco -- mostra o rascunho deste
+     navegador. Para a tela de Videos isso nao serve: ela precisa dizer o que
+     esta no ar, e o que esta no ar e o banco, nao o localStorage daqui.
+
+     Vem por RPC e nao por leitura de tabela porque video_url e video_embed
+     NAO estao no grant de coluna de aulas, de proposito: link de video nao
+     pode sair numa listagem, senao a cobranca da ver_aula() nao vale nada.
+     A aulas_admin() confere eh_admin() por dentro.                        */
+  function baixarAulas(){
+    if(!window.EDApi||!EDApi.rpc)
+      return Promise.reject(new Error('ed-api.js nao carregou.'));
+    if(!EDApi.sessao())
+      return Promise.reject(new Error('entre com a conta de administrador primeiro.'));
+    return EDApi.rpc('aulas_admin').then(function(l){
+      return Array.isArray(l)?l:[];
+    });
+  }
+
   function painelAssinaturas(){
     if(!window.EDApi||!EDApi.rpc)
       return Promise.reject(new Error('ed-api.js nao carregou.'));
@@ -642,7 +661,7 @@
     painelAssinaturas:painelAssinaturas,
     resumo:resumo, pacote:montarPacote, publicar:publicar,
     entrar:entrar, conta:conta, baixar:baixar, baixarAlunos:baixarAlunos,
-    baixarQuestoes:baixarQuestoes,
+    baixarQuestoes:baixarQuestoes, baixarAulas:baixarAulas,
     desempenho:desempenho, atividadeDoDia:atividadeDoDia,
     desempenhoAluno:function(id){
       if(!window.EDApi||!EDApi.sessao())
