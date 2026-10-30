@@ -86,6 +86,19 @@ h2 i{width:22px;height:22px;border-radius:7px;background:var(--gold-soft-bg);bor
 .pedido-n{font-family:'IBM Plex Mono';font-size:15px;color:var(--gold-deep);
   background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);border-radius:9px;padding:7px 14px;display:inline-block;margin:12px 0 4px}
 .passos{text-align:left;max-width:430px;margin:22px auto 0;font-size:14px;color:var(--muted);line-height:1.75}
+.pag{max-width:460px;margin:0 auto;text-align:center}
+.qr{width:220px;height:220px;border-radius:14px;background:#fff;padding:10px;margin:18px auto 6px;display:block}
+.copia{display:flex;gap:8px;margin-top:14px}
+.copia .fld{font-family:'IBM Plex Mono',monospace;font-size:12px}
+.copia button{flex:none;padding:0 16px;border-radius:10px;border:1px solid var(--gold-soft-bd);background:var(--gold-soft-bg);
+  color:var(--gold-deep);font-family:'Inter';font-weight:600;font-size:13px;cursor:pointer}
+.espera{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:20px;font-size:13.5px;color:var(--muted)}
+.espera i{width:9px;height:9px;border-radius:99px;background:var(--gold);animation:pulsa 1.2s infinite}
+@keyframes pulsa{50%{opacity:.25}}
+.trocar{margin-top:22px;font-size:13px;color:var(--faint)}
+.trocar a{color:var(--muted);text-decoration:underline;cursor:pointer;margin:0 5px}
+.parc{margin-top:12px;display:none}
+.parc.on{display:block}
 .theme-seg{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--overlay-soft);border:1px solid var(--border)}
 .theme-seg button{font-family:'Inter';font-weight:600;font-size:12px;padding:5px 12px;border-radius:999px;border:none;background:none;color:var(--muted);cursor:pointer}
 .theme-seg button.on{background:var(--gold-grad);color:#0B0D10}
@@ -125,7 +138,30 @@ document.querySelectorAll('#theme-seg button').forEach(function(b){
 function usuario(){try{return JSON.parse(localStorage.getItem('ed-user')||'null')}catch(_){return null}}
 function noBanco(){return !!(window.EDApi&&EDApi.sessao())}
 
-var METODO='pix';
+var METODO='pix', PARCELAS=1;
+
+/* CPF com os digitos verificadores: o ASAAS recusa CPF invalido, e e melhor
+   o aluno saber aqui do que ver a cobranca falhar depois. */
+function cpfValido(v){
+  var d=String(v||'').replace(/\D/g,'');
+  if(d.length===14)return true;            /* CNPJ: o ASAAS confere */
+  if(d.length!==11||/^(\d)\1+$/.test(d))return false;
+  for(var t=9;t<11;t++){
+    var s=0;for(var i=0;i<t;i++)s+=+d[i]*(t+1-i);
+    if(((s*10)%11)%10!==+d[t])return false;
+  }
+  return true;
+}
+
+function opcoesParcelas(total){
+  var h='';
+  for(var n=1;n<=12;n++){
+    if(n>1&&total/n<500)break;              /* parcela minima do ASAAS: R$ 5 */
+    h+='<option value="'+n+'"'+(n===PARCELAS?' selected':'')+'>'
+      +(n===1?'À vista · ':n+'x de ')+EDCarrinho.emReais(Math.round(total/n))+'</option>';
+  }
+  return h;
+}
 
 /* ------------------------------------------------------------------ telas */
 function telaVazia(){
@@ -148,7 +184,7 @@ function telaCheckout(){
     +'<p class="lead">Revise o pedido e escolha como quer pagar.</p>'
     +'<div class="grade"><div>'
       + (precisaEntrar
-          ? '<div class="aviso info">Para concluir a compra você precisa de uma conta — é ela que guarda seu acesso aos cursos. '
+          ? '<div class="aviso info">Para concluir a compra você precisa de uma conta: é ela que guarda seu acesso aos cursos. '
             +'<a href="login.html?next=checkout.html" style="text-decoration:underline">Entrar ou criar conta →</a></div>'
           : '')
       +'<div class="card"><h2><i>1</i>Seus dados</h2>'
@@ -164,7 +200,10 @@ function telaCheckout(){
         +metodoLinha('pix','PIX','Aprovação na hora','⚡')
         +metodoLinha('cartao','Cartão de crédito','Parcele em até 12x','▭')
         +metodoLinha('boleto','Boleto','Compensa em até 3 dias úteis','▤')
-      +'</div></div>'
+      +'</div>'
+      +'<div class="parc grp'+(METODO==='cartao'?' on':'')+'" id="parc"><label>Parcelas</label>'
+        +'<select class="fld" id="f-parc">'+opcoesParcelas(EDCarrinho.total())+'</select></div>'
+      +'</div>'
     +'</div>'
     +'<div class="card res"><h2><i>3</i>Resumo</h2>'+resumo
       +'<div class="tot"><span>Total</span><b>'+EDCarrinho.emReais(EDCarrinho.total())+'</b></div>'
@@ -189,7 +228,7 @@ function telaPronto(p){
   return '<div class="vazio"><div class="ok-ic">✓</div>'
     +'<h1>Pedido registrado</h1>'
     +'<div class="pedido-n">Pedido nº '+esc(p.numero)+'</div>'
-    +'<p class="lead">'+EDCarrinho.emReais(p.total)+' · aguardando pagamento</p>'
+    +'<p class="lead">'+(p.total!=null?EDCarrinho.emReais(p.total)+' · ':'')+'aguardando pagamento</p>'
     +'<div class="passos">'+esc(comoPagar)+'</div>'
     +'<div style="max-width:280px;margin:26px auto 0">'
       +'<a class="btn" href="app.html">Ir para a área do aluno</a>'
@@ -208,8 +247,10 @@ function desenhar(){
       METODO=el.getAttribute('data-pg');
       document.querySelectorAll('[data-pg]').forEach(function(x){
         x.classList.toggle('on',x===el)});
+      $('#parc').classList.toggle('on',METODO==='cartao');
     };
   });
+  $('#f-parc').onchange=function(){PARCELAS=parseInt(this.value,10)||1;};
   $('#btn-fechar').onclick=concluir;
 }
 
@@ -221,6 +262,11 @@ function concluir(){
   };
   if(!dados.nome.trim()||!dados.email.trim()){
     alert('Preencha seu nome e e-mail para concluir o pedido.');return;
+  }
+  if(!cpfValido(dados.documento)){
+    alert('Confira o CPF: ele vai na cobrança e precisa ser válido.');
+    var c=$('#f-cpf');if(c)c.focus();
+    return;
   }
   if(!u||!u.email){
     /* sem conta nao existe para onde mandar o acesso: manda criar e volta */
@@ -242,14 +288,141 @@ function concluir(){
       return;
     }
     EDCarrinho.limpar();
-    $('#tela').innerHTML=telaPronto({
-      numero:r.numero, total:(r.total_centavos!=null?r.total_centavos:totalLocal), metodo:METODO
-    });
-    window.scrollTo(0,0);
+    PEDIDO={id:r.pedido, numero:r.numero,
+            total:(r.total_centavos!=null?r.total_centavos:totalLocal), metodo:METODO};
+    if(r.local||!r.pedido){
+      $('#tela').innerHTML=telaPronto(PEDIDO);
+      window.scrollTo(0,0);
+      return;
+    }
+    try{history.replaceState(null,'','checkout.html?pedido='+r.pedido+'&n='+r.numero)}catch(_){}
+    gerarCobranca(METODO,PARCELAS);
   }).catch(function(e){
     b.disabled=false; b.textContent='Concluir pedido';
     alert('Não foi possível registrar o pedido: '+(e&&e.message||'erro'));
   });
+}
+
+/* ------------------------------------------------------------ cobranca
+   O pedido ja existe no banco. Aqui ele vira cobranca no ASAAS. Se o ASAAS
+   ainda nao estiver ligado (sem chave), cai na tela antiga: pedido
+   registrado, o admin confirma na mao. Nenhuma venda se perde. */
+var PEDIDO=null, ESPERA=null;
+
+function gerarCobranca(metodo,parcelas){
+  if(metodo)METODO=metodo; PARCELAS=parcelas||1;
+  $('#tela').innerHTML='<div class="vazio"><div class="espera"><i></i>Gerando a cobrança…</div></div>';
+  window.scrollTo(0,0);
+  EDApi.funcao('asaas-cobranca',{pedido:PEDIDO.id, metodo:metodo||undefined, parcelas:PARCELAS}).then(function(c){
+    if(c&&c.ok&&c.status==='pago'){telaPago();return;}
+    if(c&&c.ok){
+      if(c.total_centavos!=null)PEDIDO.total=c.total_centavos;
+      if(c.numero!=null)PEDIDO.numero=c.numero;
+      $('#tela').innerHTML=telaPagamento(c);
+      ligarPagamento(c);
+      esperarPagamento();
+      return;
+    }
+    if(c&&c.motivo==='gateway-desligado'){$('#tela').innerHTML=telaPronto(PEDIDO);return;}
+    falhaCobranca(c&&c.motivo==='cpf'
+      ? 'O CPF do pedido não foi aceito. Fale com a gente para corrigir.'
+      : 'Não conseguimos gerar a cobrança agora. Seu pedido está guardado.');
+  }).catch(function(){
+    falhaCobranca('Não conseguimos gerar a cobrança agora. Seu pedido está guardado.');
+  });
+}
+
+function falhaCobranca(msg){
+  $('#tela').innerHTML='<div class="vazio pag">'
+    +'<div class="aviso alerta">'+esc(msg)+'</div>'
+    +(PEDIDO.numero?'<div class="pedido-n">Pedido nº '+esc(PEDIDO.numero)+'</div>':'')
+    +'<button class="btn" id="btn-de-novo">Tentar de novo</button>'
+    +'<a class="btn btn-ghost" style="margin-top:9px" href="app.html">Ir para a área do aluno</a></div>';
+  $('#btn-de-novo').onclick=function(){gerarCobranca(METODO,PARCELAS)};
+}
+
+function telaPagamento(c){
+  var h='<div class="vazio pag">'
+    +'<div class="pedido-n">Pedido nº '+esc(PEDIDO.numero)+'</div>'
+    +'<p class="lead" style="margin-bottom:6px">'+EDCarrinho.emReais(PEDIDO.total)
+      +(c.parcelas>1?' em '+c.parcelas+'x':'')+'</p>';
+
+  if(c.metodo==='pix'){
+    h+='<h1>Pague com Pix</h1>'
+      +(c.pix_qr?'<img class="qr" alt="QR code do Pix" src="data:image/png;base64,'+esc(c.pix_qr)+'">':'')
+      +(c.pix_copia_cola
+        ?'<div class="copia"><input class="fld" id="cc" readonly value="'+esc(c.pix_copia_cola)+'">'
+          +'<button data-copiar="cc">Copiar</button></div>'
+        :'')
+      +(!c.pix_qr&&!c.pix_copia_cola&&c.cobranca_url
+        ?'<a class="btn" target="_blank" rel="noopener" href="'+esc(c.cobranca_url)+'">Abrir o Pix</a>':'')
+      +'<div class="passos" style="text-align:center">Abra o app do seu banco, escolha Pix e leia o QR code ou cole o código. O acesso é liberado assim que o pagamento cair.</div>';
+  }else if(c.metodo==='cartao'){
+    h+='<h1>Pague com cartão</h1>'
+      +'<div class="passos" style="text-align:center">O pagamento é feito na página segura do ASAAS. Os dados do cartão não passam pelo nosso site.</div>'
+      +'<a class="btn" target="_blank" rel="noopener" href="'+esc(c.cobranca_url)+'">Pagar com cartão</a>';
+  }else{
+    h+='<h1>Seu boleto</h1>'
+      +(c.boleto_linha
+        ?'<div class="copia"><input class="fld" id="cc" readonly value="'+esc(c.boleto_linha)+'">'
+          +'<button data-copiar="cc">Copiar</button></div>':'')
+      +'<a class="btn" target="_blank" rel="noopener" href="'+esc(c.boleto_url||c.cobranca_url)+'">Abrir o boleto</a>'
+      +'<div class="passos" style="text-align:center">Vence em '+esc(dataBR(c.vence_em))+'. A compensação leva até 3 dias úteis e o acesso é liberado sozinho quando cair.</div>';
+  }
+
+  h+='<div class="espera" id="espera"><i></i>Aguardando a confirmação do pagamento</div>'
+    +'<div class="trocar">Pagar de outro jeito:'
+      +(c.metodo!=='pix'?'<a data-trocar="pix">Pix</a>':'')
+      +(c.metodo!=='cartao'?'<a data-trocar="cartao">Cartão</a>':'')
+      +(c.metodo!=='boleto'?'<a data-trocar="boleto">Boleto</a>':'')
+    +'</div></div>';
+  return h;
+}
+
+function dataBR(iso){var p=String(iso||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:'';}
+
+function ligarPagamento(){
+  document.querySelectorAll('[data-copiar]').forEach(function(b){
+    b.onclick=function(){
+      var el=document.getElementById(b.getAttribute('data-copiar'));
+      var feito=function(){b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1800)};
+      if(navigator.clipboard)navigator.clipboard.writeText(el.value).then(feito,function(){el.select();document.execCommand('copy');feito()});
+      else{el.select();document.execCommand('copy');feito();}
+    };
+  });
+  document.querySelectorAll('[data-trocar]').forEach(function(a){
+    a.onclick=function(){
+      var m=a.getAttribute('data-trocar');
+      if(m==='cartao'){
+        var n=prompt('Em quantas parcelas? (1 a 12)','1');
+        if(n===null)return;
+        gerarCobranca('cartao',Math.min(12,Math.max(1,parseInt(n,10)||1)));
+      }else gerarCobranca(m,1);
+    };
+  });
+}
+
+/* pergunta ao banco a cada 5 s se ja caiu; o webhook do ASAAS e quem marca */
+function esperarPagamento(){
+  if(ESPERA)clearInterval(ESPERA);
+  var voltas=0;
+  ESPERA=setInterval(function(){
+    if(++voltas>720){clearInterval(ESPERA);return;}     /* 1 hora */
+    if(document.hidden)return;
+    EDApi.rpc('status_do_pedido',{p_pedido:PEDIDO.id}).then(function(r){
+      if(r&&r.status==='pago'){clearInterval(ESPERA);telaPago();}
+    }).catch(function(){});
+  },5000);
+}
+
+function telaPago(){
+  if(ESPERA)clearInterval(ESPERA);
+  $('#tela').innerHTML='<div class="vazio"><div class="ok-ic">✓</div>'
+    +'<h1>Pagamento confirmado</h1>'
+    +(PEDIDO&&PEDIDO.numero?'<div class="pedido-n">Pedido nº '+esc(PEDIDO.numero)+'</div>':'')
+    +'<p class="lead">Seus cursos já estão liberados.</p>'
+    +'<div style="max-width:280px;margin:22px auto 0"><a class="btn" href="app.html">Começar a estudar</a></div></div>';
+  window.scrollTo(0,0);
 }
 
 /* No banco quando a ponte está ligada; senão guarda o pedido aqui para o
@@ -275,7 +448,13 @@ function registrarPedido(itens,dados){
   }catch(_){}
 })();
 
-desenhar();
+/* Recarregou a tela de pagamento (ou voltou pelo link): retoma a cobranca
+   que ja existe em vez de mostrar o carrinho vazio. */
+var RETOMA=(function(){try{return new URLSearchParams(location.search)}catch(_){return null}})();
+if(RETOMA&&RETOMA.get('pedido')&&noBanco()){
+  PEDIDO={id:RETOMA.get('pedido'), numero:RETOMA.get('n')||'', total:null};
+  gerarCobranca(null,1);
+}else desenhar();
 if(window.__dadosSalvos){
   var d=window.__dadosSalvos;
   ['nome','email','tel','cpf'].forEach(function(k,i){

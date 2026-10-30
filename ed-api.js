@@ -335,6 +335,15 @@
     return chamar('/rest/v1/rpc/'+nome,{metodo:'POST',corpo:args||{}});
   }
 
+  /* Edge function. Quando ela responde erro com corpo {ok:false,motivo},
+     devolve o corpo em vez de estourar: a tela decide pelo motivo. */
+  function funcao(nome,corpo){
+    return chamar('/functions/v1/'+nome,{metodo:'POST',corpo:corpo||{}}).catch(function(e){
+      if(e&&e.corpo&&typeof e.corpo==='object'&&e.corpo.motivo)return e.corpo;
+      throw e;
+    });
+  }
+
   /* ---------------------------------------------------------------- prova --
      A prova passa pelo banco de ponta a ponta, e nao por engano: o gabarito
      nao pode sair junto com as questoes. montarProva() devolve as alternativas
@@ -437,7 +446,7 @@
     renovar:renovar,
     url:CFG.url,
     sessao:sessao, cadastrar:cadastrar, entrar:entrar, sair:sair,
-    saldo:saldo, gastar:gastar, config:config, rpc:rpc, listar:listar,
+    saldo:saldo, gastar:gastar, config:config, rpc:rpc, funcao:funcao, listar:listar,
     recuperar:recuperar, sessaoDoLink:sessaoDoLink, trocarSenha:trocarSenha,
     perfil:perfil, salvarPerfil:salvarPerfil, trocarEmail:trocarEmail,
     montarProva:montarProva, enviarProva:enviarProva, gabarito:gabarito
