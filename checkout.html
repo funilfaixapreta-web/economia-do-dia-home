@@ -53,6 +53,11 @@ h2 i{width:22px;height:22px;border-radius:7px;background:var(--gold-soft-bg);bor
 .fld{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--border);
   background:var(--input-bg);color:var(--text);font-family:'Inter';font-size:14.5px}
 .fld:focus{outline:none;border-color:var(--gold-soft-bd)}
+.fld.erro{border-color:rgba(224,83,61,.7)}
+.msg{font-size:12px;color:#E0533D;min-height:0;margin-top:5px}
+.msg:empty{display:none}
+.obr{color:var(--gold-deep);font-weight:700}
+.obr-nota{font-size:12px;color:var(--muted);margin-top:4px}
 .dupla{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pgs{display:flex;flex-direction:column;gap:9px}
 .pg{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-radius:12px;cursor:pointer}
@@ -188,13 +193,15 @@ function telaCheckout(){
             +'<a href="login.html?next=checkout.html" style="text-decoration:underline">Entrar ou criar conta →</a></div>'
           : '')
       +'<div class="card"><h2><i>1</i>Seus dados</h2>'
-        +'<div class="grp"><label>Nome completo</label>'
-          +'<input class="fld" id="f-nome" value="'+esc(u.nome||'')+'" placeholder="Como está no seu documento"></div>'
+        +'<div class="grp"><label for="f-nome">Nome completo <b class="obr">*</b></label>'
+          +'<input class="fld" id="f-nome" value="'+esc(u.nome||'')+'" placeholder="Como está no seu documento" maxlength="120" autocomplete="name" required>'
+          +'<div class="msg" data-msg="f-nome"></div></div>'
         +'<div class="dupla">'
-          +'<div class="grp"><label>E-mail</label><input class="fld" id="f-email" type="email" value="'+esc(u.email||'')+'" placeholder="voce@email.com"></div>'
-          +'<div class="grp"><label>Telefone</label><input class="fld" id="f-tel" value="'+esc(u.telefone||'')+'" placeholder="(21) 90000-0000"></div>'
+          +'<div class="grp"><label for="f-email">E-mail <b class="obr">*</b></label><input class="fld" id="f-email" type="email" value="'+esc(u.email||'')+'" placeholder="voce@email.com" maxlength="160" autocomplete="email" required><div class="msg" data-msg="f-email"></div></div>'
+          +'<div class="grp"><label for="f-tel">Telefone (WhatsApp) <b class="obr">*</b></label><input class="fld" id="f-tel" type="tel" inputmode="numeric" value="'+esc(mascaraTel(u.telefone||''))+'" placeholder="(21) 90000-0000" maxlength="15" autocomplete="tel-national" required><div class="msg" data-msg="f-tel"></div></div>'
         +'</div>'
-        +'<div class="grp"><label>CPF</label><input class="fld" id="f-cpf" placeholder="000.000.000-00"></div>'
+        +'<div class="grp"><label for="f-cpf">CPF <b class="obr">*</b></label><input class="fld" id="f-cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" autocomplete="off" required><div class="msg" data-msg="f-cpf"></div></div>'
+        +'<p class="obr-nota"><b class="obr">*</b> Campos obrigatórios. O CPF e o telefone vão na cobrança e no aviso de pagamento.</p>'
       +'</div>'
       +'<div class="card"><h2><i>2</i>Forma de pagamento</h2><div class="pgs" id="pgs">'
         +metodoLinha('pix','PIX','Aprovação na hora','⚡')
@@ -251,7 +258,48 @@ function desenhar(){
     };
   });
   $('#f-parc').onchange=function(){PARCELAS=parseInt(this.value,10)||1;};
+  /* mascara enquanto digita: o campo nunca passa do tamanho de um CPF ou
+     telefone, mesmo colando texto com sobra */
+  $('#f-cpf').addEventListener('input',function(){this.value=mascaraCpf(this.value);limparErro(this);});
+  $('#f-tel').addEventListener('input',function(){this.value=mascaraTel(this.value);limparErro(this);});
+  ['#f-nome','#f-email'].forEach(function(id){$(id).addEventListener('input',function(){limparErro(this);});});
   $('#btn-fechar').onclick=concluir;
+}
+
+function mascaraCpf(v){
+  var d=String(v||'').replace(/\D/g,'').slice(0,11);
+  return d.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/,'.$1-$2');
+}
+function mascaraTel(v){
+  var d=String(v||'').replace(/\D/g,'');
+  if(d.length>11&&d.indexOf('55')===0)d=d.slice(2);   /* +55 colado junto */
+  d=d.slice(0,11);
+  if(d.length<=2)return d.length?'('+d:'';
+  if(d.length<=6)return '('+d.slice(0,2)+') '+d.slice(2);
+  if(d.length<=10)return '('+d.slice(0,2)+') '+d.slice(2,6)+'-'+d.slice(6);
+  return '('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7);
+}
+function erroCampo(id,msg){
+  var f=$('#'+id),m=document.querySelector('[data-msg="'+id+'"]');
+  if(f)f.classList.add('erro');
+  if(m)m.textContent=msg;
+  return msg;
+}
+function limparErro(f){
+  f.classList.remove('erro');
+  var m=document.querySelector('[data-msg="'+f.id+'"]');if(m)m.textContent='';
+}
+/* os mesmos limites do criar_pedido() no banco */
+function conferirDados(d){
+  var erros=[];
+  var nome=d.nome.trim().replace(/\s+/g,' ');
+  if(nome.length<3||nome.length>120||nome.split(' ').length<2)erros.push(erroCampo('f-nome','Escreva seu nome e sobrenome.'));
+  var email=d.email.trim();
+  if(email.length>160||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))erros.push(erroCampo('f-email','Confira o e-mail.'));
+  var tel=d.telefone.replace(/\D/g,'');
+  if(tel.length<10||tel.length>11)erros.push(erroCampo('f-tel','Informe DDD e número.'));
+  if(!cpfValido(d.documento))erros.push(erroCampo('f-cpf','CPF inválido. Confira os números.'));
+  return erros;
 }
 
 function concluir(){
@@ -260,14 +308,13 @@ function concluir(){
     nome:($('#f-nome')||{}).value||'', email:($('#f-email')||{}).value||'',
     telefone:($('#f-tel')||{}).value||'', documento:($('#f-cpf')||{}).value||''
   };
-  if(!dados.nome.trim()||!dados.email.trim()){
-    alert('Preencha seu nome e e-mail para concluir o pedido.');return;
-  }
-  if(!cpfValido(dados.documento)){
-    alert('Confira o CPF: ele vai na cobrança e precisa ser válido.');
-    var c=$('#f-cpf');if(c)c.focus();
+  if(conferirDados(dados).length){
+    var primeiro=document.querySelector('.fld.erro');
+    if(primeiro){primeiro.focus();primeiro.scrollIntoView({block:'center',behavior:'smooth'});}
     return;
   }
+  dados.nome=dados.nome.trim().replace(/\s+/g,' ');
+  dados.email=dados.email.trim();
   if(!u||!u.email){
     /* sem conta nao existe para onde mandar o acesso: manda criar e volta */
     try{localStorage.setItem('ed-checkout-dados',JSON.stringify(dados))}catch(_){}
@@ -284,6 +331,10 @@ function concluir(){
   registrarPedido(itens,dados).then(function(r){
     if(!r||!r.ok){
       b.disabled=false; b.textContent='Concluir pedido';
+      /* o banco confere os mesmos campos; se recusar, aponta o campo */
+      var campo={nome:['f-nome','Escreva seu nome e sobrenome.'],email:['f-email','Confira o e-mail.'],
+                 telefone:['f-tel','Informe DDD e número.'],cpf:['f-cpf','CPF inválido. Confira os números.']}[r&&r.motivo];
+      if(campo){erroCampo(campo[0],campo[1]);var f=$('#'+campo[0]);if(f)f.focus();return;}
       alert('Não foi possível registrar o pedido: '+((r&&r.motivo)||'erro desconhecido'));
       return;
     }
@@ -459,7 +510,7 @@ if(window.__dadosSalvos){
   var d=window.__dadosSalvos;
   ['nome','email','tel','cpf'].forEach(function(k,i){
     var el=$('#f-'+k), v=[d.nome,d.email,d.telefone,d.documento][i];
-    if(el&&v&&!el.value)el.value=v;
+    if(el&&v&&!el.value)el.value=k==='cpf'?mascaraCpf(v):k==='tel'?mascaraTel(v):v;
   });
 }
 </script>

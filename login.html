@@ -88,7 +88,7 @@ input.cod{font-family:'IBM Plex Mono',monospace;font-size:24px;letter-spacing:.4
 
   <div class="field">
     <label for="email">E-mail</label>
-    <input id="email" type="email" placeholder="voce@email.com" autocomplete="email" required />
+    <input id="email" type="email" placeholder="voce@email.com" autocomplete="email" maxlength="160" required />
   </div>
   <div class="field">
     <label for="senha">Senha</label>
@@ -115,24 +115,24 @@ input.cod{font-family:'IBM Plex Mono',monospace;font-size:24px;letter-spacing:.4
 
   <div class="field">
     <label for="c-nome">Nome</label>
-    <input id="c-nome" type="text" placeholder="Seu nome" autocomplete="name" required />
+    <input id="c-nome" type="text" placeholder="Seu nome" autocomplete="name" maxlength="120" required />
   </div>
   <div class="field">
     <label for="c-email">E-mail</label>
-    <input id="c-email" type="email" placeholder="voce@email.com" autocomplete="email" required onblur="conferirEmail()" />
+    <input id="c-email" type="email" placeholder="voce@email.com" autocomplete="email" maxlength="160" required onblur="conferirEmail()" />
   </div>
   <div class="field">
     <label for="c-tel">Celular com DDD</label>
-    <input id="c-tel" type="tel" placeholder="(21) 99999-9999" autocomplete="tel" required />
+    <input id="c-tel" type="tel" inputmode="numeric" placeholder="(21) 99999-9999" autocomplete="tel" maxlength="15" required />
   </div>
   <div class="erro hidden" id="cad-dica"></div>
   <div class="field">
     <label for="c-senha">Senha</label>
-    <input id="c-senha" type="password" placeholder="Pelo menos 8 caracteres" autocomplete="new-password" minlength="8" required />
+    <input id="c-senha" type="password" placeholder="Pelo menos 8 caracteres" autocomplete="new-password" minlength="8" maxlength="72" required />
   </div>
   <div class="field">
     <label for="c-senha2">Repita a senha</label>
-    <input id="c-senha2" type="password" placeholder="A mesma senha" autocomplete="new-password" minlength="8" required />
+    <input id="c-senha2" type="password" placeholder="A mesma senha" autocomplete="new-password" minlength="8" maxlength="72" required />
   </div>
 
   <div class="erro hidden" id="cad-erro"></div>
