@@ -192,6 +192,19 @@ svg{display:block}
 .ccard .cmeta .prog{color:var(--green);font-family:'IBM Plex Mono'}
 .ccard .cprogbar{height:5px;border-radius:999px;background:var(--track);overflow:hidden;margin-top:12px}
 .ccard .cprogbar > i{display:block;height:100%;background:var(--gold-grad)}
+.ccard .cselo{position:absolute;top:12px;left:12px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:rgba(8,9,12,.55);color:#E7EAEF;border:1px solid rgba(255,255,255,.14)}
+.ccard .cselo-ok{background:rgba(43,182,115,.18);color:#5BD69A;border-color:rgba(43,182,115,.45)}
+.ccard .cacao{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.ccard .cacao .btn{pointer-events:none}
+.ccard .ctok{font-size:12px;color:var(--faint)}
+.ccard-oferta{opacity:.92}
+.ccard-oferta:hover{opacity:1}
+.csub{font-size:13px;color:var(--muted);margin:-6px 0 14px}
+.cvazio{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 20px}
+.cvazio h4{font-size:15px;font-weight:600;color:var(--head)}
+.cvazio p{font-size:13px;color:var(--muted);margin-top:4px;max-width:520px}
+.chacesso{font-size:13px;color:var(--green);margin-top:12px}
+.chfora{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);font-size:13.5px;color:var(--text);line-height:1.5}
 /* locked state */
 .ccard.locked{cursor:pointer}
 .ccard.locked .cover,.ccard.locked .cbody h3,.ccard.locked .cbody .cdesc,.ccard.locked .cbody .cmeta{filter:blur(2.5px);opacity:.5;transition:filter .25s}
@@ -706,9 +719,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
     <a class="logo" href="index.html"><span class="mono-sq"><span>ED</span></span><span class="wordmark">Economia <b>Do Dia</b></span></a>
     <nav id="nav">
       <a class="nav-item" href="#/inicio" data-route="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Início</span></a>
+      <a class="nav-item" href="#/cursos" data-route="cursos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Cursos</span></a>
       <a class="nav-item" href="#/programacao" data-route="programacao"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg><span>Programação</span></a>
       <a class="nav-item" href="#/trilhas" data-route="trilhas"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span>Trilhas</span></a>
-      <a class="nav-item" href="#/cursos" data-route="cursos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Cursos</span></a>
       <a class="nav-item" href="#/simulados" data-route="simulados"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Simulados</span></a>
       <a class="nav-item" href="#/desempenho" data-route="desempenho"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5M13 16V8M18 16v-3"/></svg><span>Desempenho</span></a>
       <a class="nav-item" href="#/historico" data-route="historico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico</span></a>
@@ -745,8 +758,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.l
 <!-- barra inferior (mobile) -->
 <nav class="botnav">
   <a href="#/inicio" data-route="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Início</a>
-  <a href="#/trilhas" data-route="trilhas"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Trilhas</a>
   <a href="#/cursos" data-route="cursos"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>Cursos</a>
+  <a href="#/trilhas" data-route="trilhas"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Trilhas</a>
   <a href="#/desempenho" data-route="desempenho"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5M13 16V8M18 16v-3"/></svg>Notas</a>
   <a href="#/perfil" data-route="perfil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</a>
 </nav>
@@ -1188,23 +1201,40 @@ function trilhaCard(t){
     <div class="tfoot"><span class="tprog"><i style="width:${p}%"></i></span><span class="tstat">${rodape}</span></div>
   </a>`;
 }
+/* data curta para "acesso ate": vem do meus_cursos() como timestamp */
+function dataCurta(iso){
+  if(!iso)return '';
+  const d=new Date(iso);if(isNaN(d))return '';
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+/* o plano mais barato que vende o curso: o que o card mostra como "a partir de" */
+function planoMaisBarato(c){
+  const ps=(c.planos||[]).filter(p=>p.preco_centavos>0).sort((a,b)=>a.preco_centavos-b.preco_centavos);
+  return ps[0]||null;
+}
+function reais(cent){return 'R$ '+(cent/100).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2});}
 function courseCard(c){
   const pr=courseProgress(c),cc=courseCounts(c);
   if(!c.owned){
     /* Curso nao comprado continua explorável: abre normalmente e cada aula
-       custa tokens. O rodape do card mostra o preco em vez do cadeado. */
+       custa tokens. O card diz em que plano ele vem e quanto custa, para o
+       aluno saber o caminho em vez de esbarrar num preco em tokens. */
     const ct=(window.EDTokens&&EDTokens.cfg().ativo)?EDTokens.cfg().custo.aula:0;
-    return `<a class="ccard" href="#/curso/${c.id}">
-      <div class="cover tile"><span class="roman">${c.code}</span><span class="ctag">${c.code}</span></div>
+    const pb=planoMaisBarato(c);
+    return `<a class="ccard ccard-oferta" href="#/curso/${c.id}">
+      <div class="cover tile"><span class="roman">${c.code}</span><span class="ctag">${c.code}</span><span class="cselo">Não incluso no seu acesso</span></div>
       <div class="cbody"><h3>${esc(c.title)}</h3><p class="cdesc">${esc(c.desc)}</p>
-        <div class="cmeta">${cc.total} aulas${ct?` · <span style="color:var(--gold-deep)">◉ ${ct} tokens/aula</span>`:` · R$ ${c.price}`}</div></div>
+        <div class="cmeta">${cc.total} aulas${pb?` · a partir de <b style="color:var(--head)">${reais(pb.preco_centavos)}</b>`:''}</div>
+        <div class="cacao"><span class="btn btn-ghost btn-sm">Ver o curso</span>${ct?`<span class="ctok">ou ◉ ${ct} tokens por aula</span>`:''}</div></div>
     </a>`;
   }
-  return `<a class="ccard" href="#/curso/${c.id}">
-    <div class="cover tile"><span class="roman">${c.code}</span><span class="ctag">${c.code}</span></div>
+  const ini=pr>0?'Continuar':'Começar';
+  return `<a class="ccard ccard-meu" href="#/curso/${c.id}">
+    <div class="cover tile"><span class="roman">${c.code}</span><span class="ctag">${c.code}</span><span class="cselo cselo-ok">✓ Liberado</span></div>
     <div class="cbody"><h3>${esc(c.title)}</h3><p class="cdesc">${esc(c.desc)}</p>
       <div class="cmeta"><span>${cc.total} aulas</span><span>·</span><span class="prog">${cc.done}/${cc.total} concluídas</span></div>
-      <div class="cprogbar"><i style="width:${pr}%"></i></div></div>
+      <div class="cprogbar"><i style="width:${pr}%"></i></div>
+      <div class="cacao"><span class="btn btn-gold btn-sm">▶ ${ini}</span>${c.expira?`<span class="ctok">acesso até ${dataCurta(c.expira)}</span>`:''}</div></div>
   </a>`;
 }
 
@@ -1250,7 +1280,9 @@ VIEWS.inicio=()=>{
   const outras=TRILHAS.filter(t=>t.simulados&&(!trilhaAtual||t.id!==trilhaAtual.id));
   const acompanha=TRILHAS.filter(t=>minhas.indexOf(t.id)>=0);
 
-  const cursosRail=COURSES.slice(0,8).map(courseCard).join('');
+  /* na home, os cursos do aluno vem primeiro; os outros completam ate 6 */
+  const meusCursos=COURSES.filter(c=>c.owned);
+  const cursosRail=meusCursos.concat(COURSES.filter(c=>!c.owned)).slice(0,6).map(courseCard).join('');
 
   /* preview do historico: as provas de verdade, se houver */
   const hist=[];
@@ -1302,14 +1334,15 @@ VIEWS.inicio=()=>{
     explorarTrilhas:{label:'Outras certificações',html: outras.length?`
   <div class="rowtitle"><h3>Outras certificações</h3><a class="cnt" href="#/trilhas">Ver todas →</a></div>
   <div class="tgrid">${outras.map(trilhaCard).join('')}</div>`:''},
-    cursos:{label:'Cursos disponíveis',html: COURSES.length?`
-  <div class="rowtitle"><h3>Cursos disponíveis</h3><a class="cnt" href="#/cursos">Ver catálogo →</a></div>
+    cursos:{label:'Cursos',html: COURSES.length?`
+  <div class="rowtitle"><h3>${meusCursos.length?'Seus cursos':'Cursos disponíveis'}</h3><a class="cnt" href="#/cursos">${meusCursos.length?'Ver todos os cursos →':'Ver catálogo →'}</a></div>
   <div class="cgrid">${cursosRail}</div>`:''},
     historico:{label:'Histórico recente',html: hist.length?`
   <div class="rowtitle"><h3>Seu histórico recente</h3><a class="cnt" href="#/historico">Ver tudo →</a></div>
   <div class="card">${hist.map(e=>`<a class="up-next" href="${e[5]}"><span class="un-th">${({play:'▶',check:'✓',star:'★',doc:'❐'})[e[0]]||'✓'}</span><div style="flex:1"><div class="un-t">${esc(e[2])}</div><div class="un-d">${esc(e[3])}${e[4]?' · '+esc(e[4]):''}</div></div></a>`).join('')}</div>`:''}
   };
-  const homeDef=['continuar','assistindo','trilhaAtual','minhas','explorarTrilhas','cursos','historico'];
+  /* cursos logo depois do "continuar": era o ultimo bloco e o aluno nao achava */
+  const homeDef=['continuar','assistindo','cursos','trilhaAtual','minhas','explorarTrilhas','historico'];
   let homeOrder=homeDef;
   try{var _ho=(JSON.parse(localStorage.getItem('eda-db'))||{}).homeOrder;if(_ho&&_ho.length)homeOrder=_ho.filter(function(k){return homeBlocks[k];}).concat(homeDef.filter(function(k){return _ho.indexOf(k)<0;}));}catch(_){}
   try{window.HOME_SECTIONS=homeOrder.map(function(k){return {key:k,label:homeBlocks[k].label};});}catch(_){}
@@ -1403,11 +1436,20 @@ VIEWS.cursos=()=>{
         <a class="btn btn-ghost" href="#/trilhas">Ver as certificações</a></div>`;
   }
   const owned=COURSES.filter(c=>c.owned),locked=COURSES.filter(c=>!c.owned);
+  /* Duas prateleiras sempre separadas e sempre nesta ordem: o que o aluno ja
+     tem em cima, o que da para comprar embaixo. Antes, sem compra marcada,
+     tudo caia em "Amplie sua formacao" e o aluno nao achava o proprio curso. */
+  const carregando=!(window.EDConteudo&&EDConteudo.doBanco&&EDConteudo.doBanco())&&window.EDConteudo&&EDConteudo.ligado&&EDConteudo.ligado();
+  const vazioMeus=carregando
+    ? `<div class="card cvazio"><p>Carregando seus cursos…</p></div>`
+    : `<div class="card cvazio"><div><h4>Você ainda não tem curso liberado</h4>
+        <p>Quando a compra for confirmada, o curso aparece aqui na hora. Enquanto isso, dá para assistir aulas avulsas com tokens.</p></div>
+        <a class="btn btn-gold btn-sm" href="index.html#cursos">Ver planos e preços</a></div>`;
   return `
-  <div class="goldstrip"><span class="gi">▶</span><div><h4>Catálogo de cursos</h4><p>Seus cursos e os próximos passos da sua formação.</p></div></div>
-  ${owned.length?`<div class="rowtitle"><h3>Meus cursos</h3><span class="cnt">${owned.length} liberado${owned.length>1?'s':''}</span></div>
-  <div class="cgrid">${owned.map(courseCard).join('')}</div>`:''}
-  ${locked.length?`<div class="rowtitle"><h3>Amplie sua formação</h3><span class="cnt">${locked.length} bloqueado${locked.length>1?'s':''}</span></div>
+  <div class="rowtitle" style="margin-top:4px"><h3>Meus cursos</h3><span class="cnt">${owned.length?owned.length+' liberado'+(owned.length>1?'s':''):''}</span></div>
+  ${owned.length?`<div class="cgrid">${owned.map(courseCard).join('')}</div>`:vazioMeus}
+  ${locked.length?`<div class="rowtitle"><h3>Outros cursos</h3><a class="cnt" href="index.html#cursos">Ver planos e preços →</a></div>
+  <p class="csub">Estes não estão no seu acesso. Abra para ver o conteúdo, assista aulas avulsas com tokens ou compre o plano.</p>
   <div class="cgrid">${locked.map(courseCard).join('')}</div>`:''}
   `;
 };
@@ -1437,7 +1479,14 @@ VIEWS.curso=(id)=>{
     <p>${esc(c.desc)}</p>
     <div class="chstats"><span><b>${cc.total}</b> aulas</span><span><b>${cc.done}</b> concluídas</span><span><b>${pr}%</b> do curso</span></div>
     <div class="chbar"><i style="width:${pr}%"></i></div>
-    ${next?`<div class="chbtns"><a class="btn btn-gold" href="#/aula/${c.id}/${next.id}">▶ ${pr>0?'Continuar curso':'Começar curso'}</a></div>`:''}
+    ${c.owned
+      ? `${next?`<div class="chbtns"><a class="btn btn-gold" href="#/aula/${c.id}/${next.id}">▶ ${pr>0?'Continuar curso':'Começar curso'}</a></div>`:''}
+         ${c.expira?`<p class="chacesso">✓ Liberado no seu acesso até ${dataCurta(c.expira)}</p>`:'<p class="chacesso">✓ Liberado no seu acesso</p>'}`
+      : (()=>{const ct=(window.EDTokens&&EDTokens.cfg().ativo)?EDTokens.cfg().custo.aula:0,pb=planoMaisBarato(c);
+          return `<div class="chfora"><div><b>Este curso não está no seu acesso.</b>
+            ${pb?`Ele vem no plano <b>${esc(pb.nome)}</b>, a partir de ${reais(pb.preco_centavos)}.`:''}
+            ${ct?` Você também pode assistir aulas avulsas por ◉ ${ct} tokens cada.`:''}</div>
+            <a class="btn btn-gold btn-sm" href="index.html#cursos">Ver planos e preços</a></div>`;})()}
   </div>
   <div class="rowtitle"><h3>Conteúdo do curso</h3><span class="cnt">${c.modules.length} módulo${c.modules.length>1?'s':''}</span></div>
   ${mods}
@@ -2044,7 +2093,7 @@ const TITLES={
   programacao:['Programação de estudos','Diga seu tempo e receba o plano completo até a prova.'],
   trilhas:['Trilhas','Formações completas, na ordem certa de estudo.'],
   trilha:['Trilha','Cursos e aulas desta formação.'],
-  cursos:['Cursos','Seu catálogo e os próximos passos da formação.'],
+  cursos:['Cursos','Os cursos que você já tem e os que pode adicionar.'],
   curso:['Curso','Módulos, aulas e progresso.'],
   aula:['Aula','Assista, baixe os materiais e ouça o gabarito.'],
   simulados:['Simulados','Complete por módulo e veja o resultado detalhado.'],
@@ -2290,7 +2339,7 @@ function openUpgrade(courseId){
   <p>Este curso não está no seu plano atual. Faça upgrade e libere <b>${esc(c.title)}</b> e todos os outros cursos da Trilha ${esc(trilhaById(c.trilha).name.replace('Trilha ',''))}.</p>
   <div class="plan-opt" style="margin-top:18px"><div><div class="po-nm">${esc(c.title)}</div><div class="po-d">Acesso imediato · 1 ano</div></div><div class="po-pr"><b>R$ ${c.price}</b><span>avulso</span></div></div>
   <div class="plan-opt cur"><div><div class="po-nm">Upgrade completo</div><div class="po-d">Todos os cursos + trilhas + simulados</div></div><div class="po-pr"><b>R$ 2.997</b><span>melhor valor</span></div></div>
-  <div class="macts"><span class="btn btn-ghost" data-close-modal>Agora não</span><span class="btn btn-gold" data-close-modal data-toast="Redirecionando para o checkout…">Fazer upgrade</span></div>`);
+  <div class="macts"><span class="btn btn-ghost" data-close-modal>Agora não</span><a class="btn btn-gold" href="index.html#cursos">Ver planos e preços</a></div>`);
 }
 function openPlans(){
   showModal(`<div class="mic" style="background:var(--gold-soft-bg);border:1px solid var(--gold-soft-bd);color:var(--gold-deep)">★</div>

@@ -20,6 +20,7 @@
 (function(){
 
   var CACHE=null;           /* catalogo do banco, quando chega */
+  var MEUS=null;            /* cursos liberados do aluno, por curso_id */
   var ouvintes=[];
 
   function ligado(){return !!(window.EDApi&&EDApi.ativo()&&EDApi.sessao());}
@@ -56,10 +57,22 @@
      que e o que a ver_aula() espera.                                        */
   function doBanco(cat){
     if(!cat||!cat.cursos||!cat.cursos.length)return null;
+    /* quais planos vendem cada curso: e o que o card de curso nao comprado
+       mostra, em vez de um cadeado sem saida */
+    var vendidoEm={};
+    (cat.planos||[]).forEach(function(p){
+      (p.cursos||[]).forEach(function(cid){
+        (vendidoEm[cid]=vendidoEm[cid]||[]).push({id:p.id,nome:p.nome,preco_centavos:p.preco_centavos});
+      });
+    });
     return cat.cursos.map(function(c){
+      /* o catalogo e igual para todos; o que e do aluno vem do meus_cursos() */
+      var meu=MEUS&&MEUS[c.id];
       return {
         id:c.id, code:c.codigo||'CURSO', title:c.titulo||'',
-        trilha:'cnpi', owned:false, color:c.cor||'#D4A437', desc:c.descricao||'',
+        trilha:'cnpi', owned:!!meu, expira:meu?meu.expira_em:null,
+        meusPlanos:meu?(meu.planos||[]):[], planos:vendidoEm[c.id]||[],
+        color:c.cor||'#D4A437', desc:c.descricao||'',
         modules:(c.modulos||[]).map(function(m){
           return {title:m.titulo||'', lessons:(m.aulas||[]).map(function(a){
             return [a.id, a.titulo||'', +a.duracao_min||0, 0];
@@ -78,7 +91,13 @@
 
   function buscarDoBanco(){
     if(CACHE||!ligado())return;
-    EDApi.rpc('catalogo').then(function(cat){
+    /* os cursos do aluno chegam junto; se falharem, ninguem fica sem catalogo,
+       so sem a marcacao de "comprado" */
+    var meus=EDApi.rpc('meus_cursos').catch(function(){return [];});
+    Promise.all([EDApi.rpc('catalogo'),meus]).then(function(r){
+      var cat=r[0];
+      MEUS={};
+      (Array.isArray(r[1])?r[1]:[]).forEach(function(m){if(m&&m.curso_id)MEUS[m.curso_id]=m;});
       CACHE=cat;
       var lista=doBanco(cat);
       if(lista&&lista.length)ouvintes.forEach(function(f){try{f(lista)}catch(_){}});
